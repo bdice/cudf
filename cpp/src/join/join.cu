@@ -24,7 +24,7 @@
 #include <cudf/utilities/error.hpp>
 
 #include <join/hash_join.cuh>
-#include <join/join_common_utils.hpp>
+#include <join/join_common_utils.cuh>
 #include <join/nested_loop_join.cuh>
 
 namespace cudf {

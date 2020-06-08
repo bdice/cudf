@@ -19,8 +19,7 @@
 #include <cub/cub.cuh>
 #include <cudf/detail/utilities/cuda.cuh>
 #include <cudf/table/table_device_view.cuh>
-
-#include "join_common_utils.hpp"
+#include <join/join_common_utils.cuh>
 
 namespace cudf {
 namespace detail {

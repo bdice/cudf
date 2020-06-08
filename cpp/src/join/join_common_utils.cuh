@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,33 @@ inline bool is_trivial_join(table_view const& left,
   if ((join_kind::LEFT_SEMI_JOIN == join_type) && (0 == right.num_rows())) { return true; }
 
   return false;
+}
+
+/* --------------------------------------------------------------------------*/
+/**
+ * @brief  Computes the trivial left join operation for the case when the
+ * right table is empty. In this case all the valid indices of the left table
+ * are returned with their corresponding right indices being set to
+ * JoinNoneValue, i.e. -1.
+ *
+ * @param left  Table of left columns to join
+ * @param stream CUDA stream used for device memory operations and kernel launches.
+ *
+ * @returns Join output indices vector pair
+ */
+/* ----------------------------------------------------------------------------*/
+inline std::pair<rmm::device_vector<size_type>, rmm::device_vector<size_type>>
+get_trivial_left_join_indices(table_view const& left, cudaStream_t stream)
+{
+  rmm::device_vector<size_type> left_indices(left.num_rows());
+  thrust::sequence(
+    rmm::exec_policy(stream)->on(stream), left_indices.begin(), left_indices.end(), 0);
+  rmm::device_vector<size_type> right_indices(left.num_rows());
+  thrust::fill(rmm::exec_policy(stream)->on(stream),
+               right_indices.begin(),
+               right_indices.end(),
+               JoinNoneValue);
+  return std::make_pair(std::move(left_indices), std::move(right_indices));
 }
 
 }  // namespace detail

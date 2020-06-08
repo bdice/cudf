@@ -22,7 +22,7 @@
 #include <cudf/table/table_device_view.cuh>
 #include <cudf/table/table_view.hpp>
 
-#include <join/join_common_utils.hpp>
+#include <join/join_common_utils.cuh>
 #include <join/join_kernels.cuh>
 
 namespace cudf {
@@ -48,10 +48,10 @@ namespace detail {
  */
 /* ----------------------------------------------------------------------------*/
 template <join_kind JoinKind, typename multimap_type>
-size_type estimate_join_output_size(table_device_view build_table,
-                                    table_device_view probe_table,
-                                    multimap_type const& hash_table,
-                                    cudaStream_t stream)
+size_type estimate_hash_join_output_size(table_device_view build_table,
+                                         table_device_view probe_table,
+                                         multimap_type const& hash_table,
+                                         cudaStream_t stream)
 {
   const size_type build_table_num_rows{build_table.num_rows()};
   const size_type probe_table_num_rows{probe_table.num_rows()};
@@ -153,33 +153,6 @@ size_type estimate_join_output_size(table_device_view build_table,
 
 /* --------------------------------------------------------------------------*/
 /**
- * @brief  Computes the trivial left join operation for the case when the
- * right table is empty. In this case all the valid indices of the left table
- * are returned with their corresponding right indices being set to
- * JoinNoneValue, i.e. -1.
- *
- * @param left  Table of left columns to join
- * @param stream CUDA stream used for device memory operations and kernel launches.
- *
- * @returns Join output indices vector pair
- */
-/* ----------------------------------------------------------------------------*/
-inline std::pair<rmm::device_vector<size_type>, rmm::device_vector<size_type>>
-get_trivial_left_join_indices(table_view const& left, cudaStream_t stream)
-{
-  rmm::device_vector<size_type> left_indices(left.num_rows());
-  thrust::sequence(
-    rmm::exec_policy(stream)->on(stream), left_indices.begin(), left_indices.end(), 0);
-  rmm::device_vector<size_type> right_indices(left.num_rows());
-  thrust::fill(rmm::exec_policy(stream)->on(stream),
-               right_indices.begin(),
-               right_indices.end(),
-               JoinNoneValue);
-  return std::make_pair(std::move(left_indices), std::move(right_indices));
-}
-
-/* --------------------------------------------------------------------------*/
-/**
  * @brief  Computes the join operation between two tables and returns the
  * output indices of left and right table as a combined table
  *
@@ -238,7 +211,7 @@ get_base_hash_join_indices(table_view const& left,
     if (failure.value() == 1) { CUDF_FAIL("Hash Table insert failure."); }
   }
 
-  size_type estimated_size = estimate_join_output_size<JoinKind, multimap_type>(
+  size_type estimated_size = estimate_hash_join_output_size<JoinKind, multimap_type>(
     *build_table, *probe_table, *hash_table, stream);
 
   // If the estimated output size is zero, return immediately

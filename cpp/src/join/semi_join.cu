@@ -24,10 +24,9 @@
 #include <cudf/utilities/error.hpp>
 #include <hash/concurrent_unordered_map.cuh>
 
-#include <join/join_common_utils.hpp>
-
 #include <cudf/detail/gather.cuh>
 #include <join/hash_join.cuh>
+#include <join/join_common_utils.cuh>
 
 namespace cudf {
 namespace detail {

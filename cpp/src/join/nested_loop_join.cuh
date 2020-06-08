@@ -23,8 +23,7 @@
 #include <cudf/table/table_view.hpp>
 #include <iostream>
 
-#include <join/hash_join.cuh>
-#include <join/join_common_utils.hpp>
+#include <join/join_common_utils.cuh>
 #include <join/join_kernels.cuh>
 
 namespace cudf {
