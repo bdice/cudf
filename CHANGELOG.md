@@ -27,6 +27,7 @@
 - PR #5511 Port of clx subword tokenizer to cudf
 - PR #5528 Add unsigned int reading and writing support to parquet
 - PR #5510 Add support for `cudf.Index` to create Indexes
+- PR #5618 Add Kafka as a cudf datasource
 - PR #5668 Adding support for `cudf.testing`
 - PR #5460 Add support to write to remote filesystems
 - PR #5454 Add support for `DataFrame.append`, `Index.append`, `Index.difference` and `Index.empty`
@@ -36,6 +37,11 @@
 - PR #5612 Add `is_hex` strings API
 - PR #5637 Parameterize Null comparator behaviour in Joins
 - PR #5623 Add `is_ipv4` strings API
+- PR #5659 Added support for rapids-compose for Java bindings and other enhancements
+- PR #5637 Parameterize Null comparator behaviour in Joins
+- PR #5623 Add `is_ipv4` strings API
+- PR #5669 Add support for reading JSON files with missing or out-of-order fields
+- PR #5674 Support JIT backend on PowerPC64
 - PR #5629 Add `ListColumn` and `ListDtype`
 - PR #5658 Add `filter_tokens` nvtext API
 - PR #5666 Add `filter_characters_of_type` strings API
@@ -43,6 +49,17 @@
 - PR #5716 Add `type_double_dispatcher` to libcudf
 - PR #5716 Add `double_type_dispatcher` to libcudf
 - PR #5572 Add `cudf::encode` API.
+- PR #5704 Initial `fixed_point` Column Support
+- PR #5716 Add `double_type_dispatcher` to libcudf
+- PR #5739 Add `nvtext::detokenize` API
+- PR #5645 Enforce pd.NA and Pandas nullable dtype parity
+- PR #5729 Create nvtext normalize_characters API from the subword_tokenize internal function
+- PR #5572 Add `cudf::encode` API.
+- PR #5568 Add support for `Series.keys()` and `DataFrame.keys()`
+- PR #5782 Add Kafka support to custreamz
+- PR #5642 Add `GroupBy.groups()`
+- PR #5810 Make Cython subdirs packages and simplify package_data
+- PR #5494 Add Abstract Syntax Tree (AST) evaluator.
 
 ## Improvements
 
