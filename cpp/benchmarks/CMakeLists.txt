@@ -30,7 +30,7 @@ include_directories("${CUB_INCLUDE_DIR}"
 if(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
     include_directories("${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
 endif(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
-                  
+
 include_directories("${CMAKE_BINARY_DIR}/include"
                     "${CMAKE_SOURCE_DIR}/include"
                     "${CMAKE_SOURCE_DIR}"
@@ -167,7 +167,7 @@ set(HASHING_BENCH_SRC
 ConfigureBench(HASHING_BENCH "${HASHING_BENCH_SRC}")
 
 ###################################################################################################
-# - merge benchmark -----------------------------------------------------------------------------
+# - merge benchmark -------------------------------------------------------------------------------
 
 set(MERGE_BENCH_SRC
   "${CMAKE_CURRENT_SOURCE_DIR}/merge/merge_benchmark.cpp")
@@ -175,7 +175,7 @@ set(MERGE_BENCH_SRC
 ConfigureBench(MERGE_BENCH "${MERGE_BENCH_SRC}")
 
 ###################################################################################################
-# - null_mask benchmark -----------------------------------------------------------------------------
+# - null_mask benchmark ---------------------------------------------------------------------------
 
 set(NULLMASK_BENCH_SRC
   "${CMAKE_CURRENT_SOURCE_DIR}/null_mask/set_null_mask_benchmark.cpp")
@@ -183,7 +183,7 @@ set(NULLMASK_BENCH_SRC
 ConfigureBench(NULLMASK_BENCH "${NULLMASK_BENCH_SRC}")
 
 ###################################################################################################
-# - parquet writer chunks benchmark -----------------------------------------------------------------------------
+# - parquet writer chunks benchmark ---------------------------------------------------------------
 
 set(PARQUET_WRITER_CHUNKS_BENCH_SRC
   "${CMAKE_CURRENT_SOURCE_DIR}/io/parquet/parquet_writer_chunks_benchmark.cpp")
@@ -191,7 +191,31 @@ set(PARQUET_WRITER_CHUNKS_BENCH_SRC
 ConfigureBench(PARQUET_WRITER_CHUNKS_BENCH "${PARQUET_WRITER_CHUNKS_BENCH_SRC}")
 
 ###################################################################################################
-# - parquet writer benchmark -----------------------------------------------------------------------------
+# - parquet reader benchmark ----------------------------------------------------------------------
+
+set(PARQUET_READER_BENCH_SRC
+  "${CMAKE_CURRENT_SOURCE_DIR}/io/parquet/parquet_reader_benchmark.cpp")
+
+ConfigureBench(PARQUET_READER_BENCH "${PARQUET_READER_BENCH_SRC}")
+
+###################################################################################################
+# - orc reader benchmark --------------------------------------------------------------------------
+
+set(ORC_READER_BENCH_SRC
+  "${CMAKE_CURRENT_SOURCE_DIR}/io/orc/orc_reader_benchmark.cpp")
+
+ConfigureBench(ORC_READER_BENCH "${ORC_READER_BENCH_SRC}")
+
+###################################################################################################
+# - csv reader benchmark --------------------------------------------------------------------------
+
+set(CSV_READER_BENCH_SRC
+  "${CMAKE_CURRENT_SOURCE_DIR}/io/csv/csv_reader_benchmark.cpp")
+
+ConfigureBench(CSV_READER_BENCH "${CSV_READER_BENCH_SRC}")
+
+###################################################################################################
+# - parquet writer benchmark ----------------------------------------------------------------------
 
 set(PARQUET_WRITER_BENCH_SRC
   "${CMAKE_CURRENT_SOURCE_DIR}/io/parquet/parquet_writer_benchmark.cpp")
@@ -199,7 +223,7 @@ set(PARQUET_WRITER_BENCH_SRC
 ConfigureBench(PARQUET_WRITER_BENCH "${PARQUET_WRITER_BENCH_SRC}")
 
 ###################################################################################################
-# - orc writer benchmark -----------------------------------------------------------------------------
+# - orc writer benchmark --------------------------------------------------------------------------
 
 set(ORC_WRITER_BENCH_SRC
   "${CMAKE_CURRENT_SOURCE_DIR}/io/orc/orc_writer_benchmark.cpp")
@@ -207,9 +231,25 @@ set(ORC_WRITER_BENCH_SRC
 ConfigureBench(ORC_WRITER_BENCH "${ORC_WRITER_BENCH_SRC}")
 
 ###################################################################################################
-# - csv writer benchmark -----------------------------------------------------------------------------
+# - csv writer benchmark --------------------------------------------------------------------------
 
 set(CSV_WRITER_BENCH_SRC
   "${CMAKE_CURRENT_SOURCE_DIR}/io/csv/csv_writer_benchmark.cpp")
 
 ConfigureBench(CSV_WRITER_BENCH "${CSV_WRITER_BENCH_SRC}")
+
+###################################################################################################
+# - subword tokenizer benchmark -------------------------------------------------------------------
+
+set(SUBWORD_TOKENIZER_BENCH_SRC
+  "${CMAKE_CURRENT_SOURCE_DIR}/text/subword_benchmark.cpp")
+
+ConfigureBench(SUBWORD_TOKENIZER_BENCH "${SUBWORD_TOKENIZER_BENCH_SRC}")
+
+###################################################################################################
+# - ast benchmark ---------------------------------------------------------------------------------
+
+set(AST_BENCH_SRC
+  "${CMAKE_CURRENT_SOURCE_DIR}/ast/ast_benchmark.cu")
+
+ConfigureBench(AST_BENCH "${AST_BENCH_SRC}")
