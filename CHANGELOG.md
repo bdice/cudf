@@ -56,6 +56,7 @@
 - PR #5810 Make Cython subdirs packages and simplify package_data
 - PR #5494 Add Abstract Syntax Tree (AST) evaluator.
 - PR #5716 Add `dispatch_two_types` to libcudf
+- PR #5716 Add `type_double_dispatcher` to libcudf
 
 ## Improvements
 
