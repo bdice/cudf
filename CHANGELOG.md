@@ -113,6 +113,52 @@
 - PR #5477 Add `is_index_type` trait 
 - PR #5487 Use sorted lists instead of sets for pytest parameterization
 - PR #5491 allow build libcudf in custom dir
+- PR #5501 Adding only unsigned types support for categorical column codes
+- PR #5570 Add Index APIs such as `Int64Index`, `UInt64Index` and others
+- PR #5503 Change `unique_count` to `distinct_count`
+- PR #5514 `convert_datetime.cu` Small Cleanup
+- PR #5496 Rename .cu tests (zero cuda kernels) to .cpp files
+- PR #5518 split iterator and gather tests to speedup build tests
+- PR #5526 Change `type_id` to enum class
+- PR #5559 Java APIs for missing date/time operators
+- PR #5582 Add support for axis and other parameters to `DataFrame.sort_index` and fix other bunch of issues.
+- PR #5562 Add missing join type for java
+- PR #5584 Refactor `CompactProtocolReader::InitSchema`
+- PR #5591 Add `__arrow_array__` protocol and raise a descriptive error message
+- PR #5635 Ad cuIO reader benchmarks for CSV, ORC and Parquet
+- PR #5601 Instantiate Table instances in `Frame._concat` to avoid `DF.insert()` overhead
+- PR #5602 Add support for concatenation of `Series` & `DataFrame` in `cudf.concat` when `axis=0`
+- PR #5603 Refactor JIT `parser.cpp`
+- PR #5643 Update `isort` to 5.0.4
+- PR #5662 Make Java ColumnVector(long nativePointer) constructor public
+- PR #5679 Use `pickle5` to test older Python versions
+- PR #5684 Use `pickle5` in `Serializable` (when available)
+- PR #5419 Support rolling, groupby_rolling for durations 
+- PR #5687 Change strings::split_record to return a lists column
+- PR #5708 Add support for `dummy_na` in `get_dummies`
+- PR #5709 Update java build to help cu-spacial with java bindings
+- PR #5713 Remove old NVTX utilities
+- PR #5726 Replace use of `assert_frame_equal` in tests with `assert_eq`
+- PR #5720 Replace owning raw pointers with std::unique_ptr
+- PR #5702 Add inherited methods to python docs and other docs fixes
+- PR #5733 Add support for `size` property in `DataFrame`/ `Series` / `Index`/ `MultiIndex`
+- PR #5743 Reduce number of test cases in concatenate benchmark
+- PR #5748 Disable `tolist` API in `Series` & `Index` and add `tolist` dispatch in `dask-cudf`
+- PR #5744 Reduce number of test cases in reduction benchmark
+- PR #5756 Switch JNI code to use the RMM owning wrapper
+- PR #5725 Integrate Gbenchmarks into CI
+- PR #5752 Add cuDF internals documentation (ColumnAccessor)
+- PR #5759 Fix documentation describing JIT cache default location
+- PR #5780 Add Java bindings for pad
+- PR #5775 Update dask_cudf.read_parquet to align with upstream improvements
+- PR #5785 Enable computing views of ListColumns
+- PR #5791 Get nullable_pd_dtype from kwargs if provided in assert_eq
+- PR #5786 JNI Header Cleanup for cuSpatial
+- PR #5800 Expose arrow datasource instead of directly taking a RandomAccessFile
+- PR #5795 Clarify documentation on Boost dependency
+- PR #5803 Add in Java support for the repeat command
+- PR #5825 Enable ORC statistics generation by default
+- PR #5xxx Make dictionary_wrapper constructor from a value explicit
 
 ## Bug Fixes
 
