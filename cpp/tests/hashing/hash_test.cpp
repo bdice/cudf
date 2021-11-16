@@ -511,15 +511,14 @@ TEST_F(MD5HashTest, MultiValueNulls)
      "A very long (greater than 128 bytes/char string) to test a multi hash-step data point in the "
      "MD5 hash function. This string needed to be longer.",
      "All work and no play makes Jack a dull boy",
-     "!\"#$%&\'()*+,-./0123456789:;<=>?@[\\]^_`{|}~"},
+     "A null string that is compared to an empty null string."},
     {1, 0, 0, 1, 0});
-  strings_column_wrapper const strings_col2(
-    {"",
-     "A 60 character string to test MD5's message padding algorithm",
-     "Very different... but null",
-     "All work and no play makes Jack a dull boy",
-     ""},
-    {1, 0, 0, 1, 1});  // empty string is equivalent to null
+  strings_column_wrapper const strings_col2({"",
+                                             "Another string that is null.",
+                                             "Very different... but null",
+                                             "All work and no play makes Jack a dull boy",
+                                             ""},
+                                            {1, 0, 0, 1, 0});
 
   // Nulls with different values should be equal
   using limits = std::numeric_limits<int32_t>;
@@ -613,16 +612,19 @@ TYPED_TEST(MD5HashTestTyped, EqualityNulls)
 
 TEST_F(MD5HashTest, TestBoolListsWithNulls)
 {
+  // The first two rows are valid (not null), with different hashes. All the
+  // other rows are null for various reasons and thus their hashes should be
+  // null.
   fixed_width_column_wrapper<bool> const col1({0, 255, 255, 16, 27, 18, 100, 1, 2},
-                                              {1, 0, 0, 0, 1, 1, 1, 0, 0});
-  fixed_width_column_wrapper<bool> const col2({0, 255, 255, 32, 81, 68, 3, 101, 4},
-                                              {1, 0, 0, 1, 0, 1, 0, 1, 0});
+                                              {1, 1, 0, 0, 1, 1, 1, 0, 0});
+  fixed_width_column_wrapper<bool> const col2({0, 0, 255, 32, 81, 68, 3, 101, 4},
+                                              {1, 1, 0, 1, 0, 1, 0, 1, 0});
   fixed_width_column_wrapper<bool> const col3({0, 255, 255, 64, 49, 42, 5, 6, 102},
-                                              {1, 0, 0, 1, 1, 0, 0, 0, 1});
+                                              {1, 1, 0, 1, 1, 0, 0, 0, 1});
 
-  auto validity = cudf::detail::make_counting_transform_iterator(0, [](auto i) { return i != 1; });
+  auto validity = cudf::detail::make_counting_transform_iterator(0, [](auto i) { return i < 2; });
   lists_column_wrapper<bool> const list_col(
-    {{0, 0, 0}, {1}, {}, {{1, 1, 1}, validity}, {1, 1}, {1, 1}, {1}, {1}, {1}}, validity);
+    {{0, 0, 0}, {1, 0, 1}, {}, {{1, 1, 1}, validity}, {1, 1}, {1, 1}, {1}, {1}, {1}}, validity);
 
   auto const input1 = cudf::table_view({col1, col2, col3});
   auto const input2 = cudf::table_view({list_col});
@@ -716,6 +718,7 @@ TYPED_TEST(MD5HashTestFloatTyped, TestListExtremes)
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(output1->view(), output2->view(), verbosity);
 }
 
+/*
 class SHA1HashTest : public cudf::test::BaseFixture {
 };
 
@@ -798,7 +801,7 @@ TEST_F(SHA1HashTest, MultiValueNulls)
      "A very long (greater than 128 bytes/char string) to execute a multi hash-step data point in "
      "the hash function being tested. This string needed to be longer.",
      "All work and no play makes Jack a dull boy",
-     "!\"#$%&\'()*+,-./0123456789:;<=>?@[\\]^_`{|}~"},
+     "A null string that is compared to an empty null string."},
     {1, 0, 0, 1, 0});
   strings_column_wrapper const strings_col2({"",
                                              "Another string that is null.",
@@ -977,7 +980,7 @@ TEST_F(SHA224HashTest, MultiValueNulls)
      "A very long (greater than 128 bytes/char string) to execute a multi hash-step data point in "
      "the hash function being tested. This string needed to be longer.",
      "All work and no play makes Jack a dull boy",
-     "!\"#$%&\'()*+,-./0123456789:;<=>?@[\\]^_`{|}~"},
+     "A null string that is compared to an empty null string."},
     {1, 0, 0, 1, 0});
   strings_column_wrapper const strings_col2({"",
                                              "Another string that is null.",
@@ -1156,7 +1159,7 @@ TEST_F(SHA256HashTest, MultiValueNulls)
      "A very long (greater than 128 bytes/char string) to execute a multi hash-step data point in "
      "the hash function being tested. This string needed to be longer.",
      "All work and no play makes Jack a dull boy",
-     "!\"#$%&\'()*+,-./0123456789:;<=>?@[\\]^_`{|}~"},
+     "A null string that is compared to an empty null string."},
     {1, 0, 0, 1, 0});
   strings_column_wrapper const strings_col2({"",
                                              "Another string that is null.",
@@ -1351,7 +1354,7 @@ TEST_F(SHA384HashTest, MultiValueNulls)
      "A very long (greater than 128 bytes/char string) to execute a multi hash-step data point in "
      "the hash function being tested. This string needed to be longer.",
      "All work and no play makes Jack a dull boy",
-     "!\"#$%&\'()*+,-./0123456789:;<=>?@[\\]^_`{|}~"},
+     "A null string that is compared to an empty null string."},
     {1, 0, 0, 1, 0});
   strings_column_wrapper const strings_col2({"",
                                              "Another string that is null.",
@@ -1546,7 +1549,7 @@ TEST_F(SHA512HashTest, MultiValueNulls)
      "A very long (greater than 128 bytes/char string) to execute a multi hash-step data point in "
      "the hash function being tested. This string needed to be longer.",
      "All work and no play makes Jack a dull boy",
-     "!\"#$%&\'()*+,-./0123456789:;<=>?@[\\]^_`{|}~"},
+     "A null string that is compared to an empty null string."},
     {1, 0, 0, 1, 0});
   strings_column_wrapper const strings_col2({"",
                                              "Another string that is null.",
@@ -1640,5 +1643,6 @@ TYPED_TEST(SHA512HashTestFloatTyped, TestExtremes)
 
   expect_columns_equal(output1->view(), output2->view());
 }
+*/
 
 CUDF_TEST_PROGRAM_MAIN()

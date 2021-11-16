@@ -190,17 +190,24 @@ struct ListHasherDispatcher {
   }
 
   template <typename Element>
-  void CUDA_DEVICE_CALLABLE operator()(size_type const offset_begin,
+  bool CUDA_DEVICE_CALLABLE operator()(size_type const offset_begin,
                                        size_type const offset_end) const
   {
     if constexpr ((is_fixed_width<Element>() && !is_chrono<Element>()) ||
                   std::is_same_v<Element, string_view>) {
       for (size_type i = offset_begin; i < offset_end; i++) {
-        if (input_col.is_valid(i)) { hasher->process(input_col.element<Element>(i)); }
+        if (input_col.is_valid(i)) {
+          hasher->process(input_col.element<Element>(i));
+        } else {
+          // Stop processing if the list contains a null value. The caller will set the output null
+          // mask.
+          return false;
+        }
       }
     } else {
       cudf_assert(false && "Unsupported type for hash function.");
     }
+    return true;
   }
 };
 
@@ -247,6 +254,7 @@ std::unique_ptr<column> md5_hash(table_view const& input,
 
   // Build an output null mask from the logical AND of all input columns' null masks.
   rmm::device_buffer null_mask{cudf::detail::bitmask_and(input, stream)};
+  auto d_null_mask = static_cast<bitmask_type*>(null_mask.data());
 
   auto const device_input = table_device_view::create(input, stream);
 
@@ -255,7 +263,7 @@ std::unique_ptr<column> md5_hash(table_view const& input,
     rmm::exec_policy(stream),
     thrust::make_counting_iterator(0),
     thrust::make_counting_iterator(input.num_rows()),
-    [d_chars, device_input = *device_input] __device__(auto row_index) {
+    [d_chars, device_input = *device_input, d_null_mask] __device__(auto row_index) {
       MD5Hasher hasher(d_chars + (row_index * digest_size));
       for (auto const& col : device_input) {
         if (col.is_valid(row_index)) {
@@ -265,14 +273,26 @@ std::unique_ptr<column> md5_hash(table_view const& input,
             if (data_col.type().id() == type_id::LIST) {
               cudf_assert(false && "Nested list unsupported");
             }
-            auto const offset_begin = offsets.element<size_type>(row_index);
-            auto const offset_end   = offsets.element<size_type>(row_index + 1);
-            cudf::type_dispatcher<dispatch_storage_type>(
+            auto const offset_begin         = offsets.element<size_type>(row_index);
+            auto const offset_end           = offsets.element<size_type>(row_index + 1);
+            auto const all_list_items_valid = cudf::type_dispatcher<dispatch_storage_type>(
               data_col.type(), ListHasherDispatcher(&hasher, data_col), offset_begin, offset_end);
+            if (!all_list_items_valid) {
+              // If any list items are null, this row's output is null and no
+              // more columns need to be investigated.
+              clear_bit(d_null_mask, row_index);
+              break;
+            }
           } else {
             cudf::type_dispatcher<dispatch_storage_type>(
               col.type(), HasherDispatcher(&hasher, col), row_index);
           }
+        } else {
+          // If a column has a null element, this row's output is null and no
+          // more columns need to be investigated. The null bit should already
+          // be cleared by the bitmask_and performed when the null_mask is
+          // constructed.
+          break;
         }
       }
     });
