@@ -346,10 +346,7 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
 
     @classmethod
     def from_masked_array(cls, data, mask, null_count=None):
-        """Create a Series with null-mask.
-        This is equivalent to:
-
-            Series(data).set_mask(mask, null_count=null_count)
+        """Create a Series with the given null mask.
 
         Parameters
         ----------
