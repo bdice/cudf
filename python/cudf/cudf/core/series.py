@@ -1445,6 +1445,10 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
     @property
     def nullable(self):
         """A boolean indicating whether a null-mask is needed"""
+        warnings.warn(
+            "Series.nullable is deprecated and will be removed in the future.",
+            FutureWarning,
+        )
         return self._column.nullable
 
     @property
@@ -1769,6 +1773,10 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
     @property
     def nullmask(self):
         """The gpu buffer for the null-mask"""
+        warnings.warn(
+            "Series.nullmask is deprecated and will be removed in the future.",
+            FutureWarning,
+        )
         return cudf.Series(self._column.nullmask)
 
     def as_mask(self):
@@ -1792,6 +1800,11 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
                  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
              dtype=uint8)
         """
+        warnings.warn(
+            "Series.as_mask is deprecated and will be removed in the future.",
+            FutureWarning,
+        )
+
         if not is_bool_dtype(self.dtype):
             raise TypeError(
                 f"Series must of boolean dtype, found: {self.dtype}"
