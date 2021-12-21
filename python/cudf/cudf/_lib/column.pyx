@@ -222,7 +222,7 @@ cdef class Column:
         mask_size = bitmask_allocation_size_bytes(self.size)
         required_num_bytes = -(-self.size // 8)  # ceiling divide
         error_msg = (
-            "The value for mask is smaller than expected, got {}  bytes, "
+            "The value for mask is smaller than expected, got {} bytes, "
             "expected " + str(required_num_bytes) + " bytes."
         )
         if value is None:
