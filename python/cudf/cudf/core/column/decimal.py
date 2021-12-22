@@ -198,7 +198,7 @@ class Decimal64Column(DecimalBaseColumn):
         return result
 
     def normalize_binop_value(self, other):
-        if is_scalar(other) and isinstance(other, (int, np.int, Decimal)):
+        if is_scalar(other) and isinstance(other, (int, np.integer, Decimal)):
             return cudf.Scalar(Decimal(other))
         elif isinstance(other, cudf.Scalar) and isinstance(
             other.dtype, cudf.Decimal64Dtype
