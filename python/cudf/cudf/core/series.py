@@ -1193,7 +1193,7 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
             preprocess = self.copy()
         preprocess.index = preprocess.index._clean_nulls_from_index()
         if (
-            preprocess.nullable
+            preprocess._column.nullable
             and not isinstance(
                 preprocess._column, cudf.core.column.CategoricalColumn
             )
@@ -1438,16 +1438,29 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
     @property
     def valid_count(self):
         """Number of non-null values"""
+        raise AttributeError("Series.valid_count is not supported")
+        warnings.warn(
+            "Series.valid_count is deprecated and will be removed in the "
+            "future.",
+            FutureWarning,
+        )
         return self._column.valid_count
 
     @property
     def null_count(self):
         """Number of null values"""
+        # raise AttributeError("Series.null_count is not supported")
+        warnings.warn(
+            "Series.null_count is deprecated and will be removed in the "
+            "future.",
+            FutureWarning,
+        )
         return self._column.null_count
 
     @property
     def nullable(self):
         """A boolean indicating whether a null-mask is needed"""
+        raise AttributeError("Series.nullable is not supported")
         warnings.warn(
             "Series.nullable is deprecated and will be removed in the future.",
             FutureWarning,
@@ -1776,6 +1789,7 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
     @property
     def nullmask(self):
         """The gpu buffer for the null-mask"""
+        raise AttributeError("Series.nullmask is not supported")
         warnings.warn(
             "Series.nullmask is deprecated and will be removed in the future.",
             FutureWarning,
@@ -2683,7 +2697,7 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
         if level is not None:
             raise NotImplementedError("level parameter is not implemented yet")
 
-        return self.valid_count
+        return self._column.valid_count
 
     def mode(self, dropna=True):
         """
@@ -2995,7 +3009,7 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
         if method != "sort":
             msg = "non sort based distinct_count() not implemented yet"
             raise NotImplementedError(msg)
-        if self.null_count == len(self):
+        if self._column.null_count == len(self):
             return 0
         return self._column.distinct_count(method, dropna)
 
@@ -3103,7 +3117,7 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
         if bins is not None:
             raise NotImplementedError("bins is not yet supported")
 
-        if dropna and self.null_count == len(self):
+        if dropna and self._column.null_count == len(self):
             return Series(
                 [],
                 dtype=np.int32,
