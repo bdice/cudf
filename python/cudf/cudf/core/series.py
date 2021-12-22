@@ -351,16 +351,16 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
         Parameters
         ----------
         data : 1D array-like
-            The values.  Null values must not be skipped.  They can appear
+            The values. Null values must not be skipped.  They can appear
             as garbage values.
         mask : 1D array-like
-            The null-mask.  Valid values are marked as ``1``; otherwise ``0``.
+            The null-mask. Valid values are marked as ``1``; otherwise ``0``.
             The mask bit given the data index ``idx`` is computed as::
 
                 (mask[idx // 8] >> (idx % 8)) & 1
         null_count : int, optional
-            The number of null values.
-            If None, it is calculated automatically.
+            This parameter is unused. It is deprecated and will be removed in a
+            future version.
 
         Returns
         -------
@@ -387,6 +387,12 @@ class Series(SingleColumnFrame, IndexedFrame, Serializable):
         4      14
         dtype: int64
         """
+        if null_count is not None:
+            warnings.warn(
+                "The 'null_count' argument is deprecated and will be removed "
+                "in the future.",
+                FutureWarning,
+            )
         col = column.as_column(data).set_mask(mask)
         return cls(data=col)
 
