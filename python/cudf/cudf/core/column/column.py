@@ -631,8 +631,7 @@ class ColumnBase(Column, Serializable):
         result = libcudf.unary.is_null(self)
 
         if self.dtype.kind == "f":
-            # Need to consider `np.nan` values incase
-            # of a float column
+            # Need to consider `np.nan` values in float columns
             result = result | libcudf.unary.is_nan(self)
 
         return result
