@@ -256,6 +256,7 @@ size_t ProtobufWriter::write(const PostScript& s)
   if (s.compression != NONE) { w.field_uint(3, s.compressionBlockSize); }
   w.field_packed_uint(4, s.version);
   w.field_uint(5, s.metadataLength);
+  w.field_uint(6, s.writerVersion);
   w.field_string(8000, s.magic);
   return w.value();
 }

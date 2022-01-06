@@ -2095,6 +2095,7 @@ void writer::impl::close()
   ps.compression          = compression_kind_;
   ps.compressionBlockSize = compression_blocksize_;
   ps.version              = {0, 12};
+  ps.writerVersion        = 6;  // 6 is the value of the ORC Java writer with ORC-135 fixed.
   ps.magic                = MAGIC;
   const auto ps_length    = static_cast<uint8_t>(pbw_.write(ps));
   buffer_.push_back(ps_length);
