@@ -20,6 +20,7 @@
 #include <cudf/detail/iterator.cuh>
 #include <cudf/detail/utilities/assert.cuh>
 #include <cudf/detail/utilities/hash_functions.cuh>
+#include <cudf/detail/utilities/strong_index.hpp>
 #include <cudf/lists/list_device_view.cuh>
 #include <cudf/lists/lists_column_device_view.cuh>
 #include <cudf/sorting.hpp>
@@ -65,6 +66,11 @@ struct dispatch_void_if_nested {
   using type = std::conditional_t<cudf::is_nested(data_type(t)), void, id_to_type<t>>;
 };
 
+/**
+ * @brief An enum indicating the number of tables allowed in a comparator.
+ */
+enum class comparator_tables_type { SELF_COMPARATOR, TWO_TABLE_COMPARATOR };
+
 namespace row {
 
 namespace lexicographic {
@@ -84,9 +90,18 @@ namespace lexicographic {
  *
  * @tparam Nullate A cudf::nullate type describing how to check for nulls.
  */
-template <typename Nullate>
+template <typename Nullate, comparator_tables_type comparator_policy>
 class device_row_comparator {
   friend class self_comparator;
+
+  using LeftIndexType =
+    std::conditional_t<comparator_policy == comparator_tables_type::SELF_COMPARATOR,
+                       cudf::size_type,
+                       cudf::lhs_index_type>;
+  using RightIndexType =
+    std::conditional_t<comparator_policy == comparator_tables_type::SELF_COMPARATOR,
+                       cudf::size_type,
+                       cudf::rhs_index_type>;
 
   /**
    * @brief Construct a function object for performing a lexicographic
@@ -158,11 +173,11 @@ class device_row_comparator {
     template <typename Element,
               CUDF_ENABLE_IF(cudf::is_relationally_comparable<Element, Element>())>
     __device__ cuda::std::pair<weak_ordering, int> operator()(
-      size_type const lhs_element_index, size_type const rhs_element_index) const noexcept
+      LeftIndexType const lhs_element_index, RightIndexType const rhs_element_index) const noexcept
     {
       if (_nulls) {
-        bool const lhs_is_null{_lhs.is_null(lhs_element_index)};
-        bool const rhs_is_null{_rhs.is_null(rhs_element_index)};
+        bool const lhs_is_null{_lhs.is_null(cudf::size_type(lhs_element_index))};
+        bool const rhs_is_null{_rhs.is_null(cudf::size_type(rhs_element_index))};
 
         if (lhs_is_null or rhs_is_null) {  // at least one is null
           return cuda::std::make_pair(null_compare(lhs_is_null, rhs_is_null, _null_precedence),
@@ -170,9 +185,10 @@ class device_row_comparator {
         }
       }
 
-      return cuda::std::make_pair(relational_compare(_lhs.element<Element>(lhs_element_index),
-                                                     _rhs.element<Element>(rhs_element_index)),
-                                  std::numeric_limits<int>::max());
+      return cuda::std::make_pair(
+        relational_compare(_lhs.element<Element>(cudf::size_type(lhs_element_index)),
+                           _rhs.element<Element>(cudf::size_type(rhs_element_index))),
+        std::numeric_limits<int>::max());
     }
 
     template <typename Element,
@@ -185,15 +201,15 @@ class device_row_comparator {
     }
 
     template <typename Element, CUDF_ENABLE_IF(std::is_same_v<Element, cudf::struct_view>)>
-    __device__ cuda::std::pair<weak_ordering, int> operator()(size_type const lhs_element_index,
-                                                              size_type const rhs_element_index)
+    __device__ cuda::std::pair<weak_ordering, int> operator()(
+      LeftIndexType const lhs_element_index, RightIndexType const rhs_element_index)
     {
       column_device_view lcol = _lhs;
       column_device_view rcol = _rhs;
       int depth               = _depth;
       while (lcol.type().id() == type_id::STRUCT) {
-        bool const lhs_is_null{lcol.is_null(lhs_element_index)};
-        bool const rhs_is_null{rcol.is_null(rhs_element_index)};
+        bool const lhs_is_null{lcol.is_null(cudf::size_type(lhs_element_index))};
+        bool const rhs_is_null{rcol.is_null(cudf::size_type(rhs_element_index))};
 
         if (lhs_is_null or rhs_is_null) {  // at least one is null
           weak_ordering state = null_compare(lhs_is_null, rhs_is_null, _null_precedence);
@@ -232,7 +248,8 @@ class device_row_comparator {
    * @param rhs_index The index of the row in the `rhs` table to examine
    * @return `true` if row from the `lhs` table compares less than row in the `rhs` table
    */
-  __device__ bool operator()(size_type const lhs_index, size_type const rhs_index) const noexcept
+  __device__ bool operator()(LeftIndexType const lhs_index,
+                             RightIndexType const rhs_index) const noexcept
   {
     int last_null_depth = std::numeric_limits<int>::max();
     for (size_type i = 0; i < _lhs.num_columns(); ++i) {
@@ -409,16 +426,17 @@ class self_comparator {
   /**
    * @brief Return the binary operator for comparing rows in the table.
    *
-   * Returns a binary callable, `F`, with signature `bool F(size_t, size_t)`.
+   * Returns a binary callable, `F`, with signature `bool F(size_type, size_type)`.
    *
    * `F(i,j)` returns true if and only if row `i` compares lexicographically less than row `j`.
    *
    * @tparam Nullate Optional, A cudf::nullate type describing how to check for nulls.
    */
   template <typename Nullate>
-  device_row_comparator<Nullate> device_comparator(Nullate nullate = {}) const
+  device_row_comparator<Nullate, comparator_tables_type::SELF_COMPARATOR> device_comparator(
+    Nullate nullate = {}) const
   {
-    return device_row_comparator(
+    return device_row_comparator<Nullate, comparator_tables_type::SELF_COMPARATOR>(
       nullate, *d_t, *d_t, d_t->depths(), d_t->column_order(), d_t->null_precedence());
   }
 
@@ -430,9 +448,14 @@ class self_comparator {
 
 namespace equality {
 
-template <typename Nullate>
+template <typename Nullate, bool is_self_comparator = false>
 class device_row_comparator {
   friend class self_comparator;
+
+  using LeftIndexType =
+    std::conditional_t<is_self_comparator, cudf::size_type, cudf::lhs_index_type>;
+  using RightIndexType =
+    std::conditional_t<is_self_comparator, cudf::size_type, cudf::rhs_index_type>;
 
  public:
   /**
@@ -443,7 +466,8 @@ class device_row_comparator {
    * @param rhs_index The index of the row in the `rhs` table to examine
    * @return `true` if row from the `lhs` table is equal to the row in the `rhs` table
    */
-  __device__ bool operator()(size_type const lhs_index, size_type const rhs_index) const noexcept
+  __device__ bool operator()(LeftIndexType const lhs_index,
+                             RightIndexType const rhs_index) const noexcept
   {
     auto equal_elements = [=](column_device_view l, column_device_view r) {
       return cudf::type_dispatcher(
@@ -506,12 +530,12 @@ class device_row_comparator {
      * configured to be considered equal (`nulls_are_equal` == `null_equality::EQUAL`)
      */
     template <typename Element, CUDF_ENABLE_IF(cudf::is_equality_comparable<Element, Element>())>
-    __device__ bool operator()(size_type const lhs_element_index,
-                               size_type const rhs_element_index) const noexcept
+    __device__ bool operator()(LeftIndexType const lhs_element_index,
+                               RightIndexType const rhs_element_index) const noexcept
     {
       if (nulls) {
-        bool const lhs_is_null{lhs.is_null(lhs_element_index)};
-        bool const rhs_is_null{rhs.is_null(rhs_element_index)};
+        bool const lhs_is_null{lhs.is_null(cudf::size_type(lhs_element_index))};
+        bool const rhs_is_null{rhs.is_null(cudf::size_type(rhs_element_index))};
         if (lhs_is_null and rhs_is_null) {
           return nulls_are_equal == null_equality::EQUAL;
         } else if (lhs_is_null != rhs_is_null) {
@@ -519,8 +543,8 @@ class device_row_comparator {
         }
       }
 
-      return equality_compare(lhs.element<Element>(lhs_element_index),
-                              rhs.element<Element>(rhs_element_index));
+      return equality_compare(lhs.element<Element>(cudf::size_type(lhs_element_index)),
+                              rhs.element<Element>(cudf::size_type(rhs_element_index)));
     }
 
     template <typename Element,
@@ -533,11 +557,11 @@ class device_row_comparator {
     }
 
     template <typename Element, CUDF_ENABLE_IF(cudf::is_nested<Element>())>
-    __device__ bool operator()(size_type const lhs_element_index,
-                               size_type const rhs_element_index) const noexcept
+    __device__ bool operator()(LeftIndexType const lhs_element_index,
+                               RightIndexType const rhs_element_index) const noexcept
     {
-      column_device_view lcol = lhs.slice(lhs_element_index, 1);
-      column_device_view rcol = rhs.slice(rhs_element_index, 1);
+      column_device_view lcol = lhs.slice(cudf::size_type(lhs_element_index), 1);
+      column_device_view rcol = rhs.slice(cudf::size_type(rhs_element_index), 1);
       while (is_nested(lcol.type())) {
         if (nulls) {
           auto lvalid = detail::make_validity_iterator<true>(lcol);
@@ -693,16 +717,18 @@ class self_comparator {
   /**
    * @brief Get the comparison operator to use on the device
    *
-   * Returns a binary callable, `F`, with signature `bool F(size_t, size_t)`.
+   * Returns a binary callable, `F`, with signature `bool F(size_type, size_type)`.
    *
    * `F(i,j)` returns true if and only if row `i` compares equal to row `j`.
    *
    * @tparam Nullate Optional, A cudf::nullate type describing how to check for nulls.
    */
   template <typename Nullate>
-  device_row_comparator<Nullate> device_comparator(Nullate nullate = {}) const
+  device_row_comparator<Nullate, comparator_tables_type::SELF_COMPARATOR> device_comparator(
+    Nullate nullate = {}) const
   {
-    return device_row_comparator(nullate, *d_t, *d_t);
+    return device_row_comparator<Nullate, comparator_tables_type::SELF_COMPARATOR>(
+      nullate, *d_t, *d_t);
   }
 
  private:
