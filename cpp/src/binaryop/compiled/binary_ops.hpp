@@ -161,6 +161,9 @@ void binary_operation(mutable_column_view& out,
  * @return common type among @p out, @p lhs, @p rhs.
  */
 std::optional<data_type> get_common_type(data_type out, data_type lhs, data_type rhs);
+
+std::optional<data_type> get_common_type_old(data_type out, data_type lhs, data_type rhs);
+
 /**
  * @brief Check if input binary operation is supported for the given input and output types.
  *
@@ -171,6 +174,8 @@ std::optional<data_type> get_common_type(data_type out, data_type lhs, data_type
  * @return true if given binary operator supports given input and output types.
  */
 bool is_supported_operation(data_type out, data_type lhs, data_type rhs, binary_operator op);
+
+bool is_supported_operation_old(data_type out, data_type lhs, data_type rhs, binary_operator op);
 
 // Defined in individual .cu files.
 /**

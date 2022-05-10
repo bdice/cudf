@@ -221,6 +221,7 @@ add_library(
   src/binaryop/compiled/TrueDiv.cu
   src/binaryop/compiled/binary_ops.cu
   src/binaryop/compiled/util.cpp
+  src/binaryop/compiled/util_old.cpp
   src/labeling/label_bins.cu
   src/bitmask/null_mask.cu
   src/bitmask/is_element_valid.cpp
