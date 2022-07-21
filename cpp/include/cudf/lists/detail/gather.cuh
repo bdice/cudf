@@ -48,7 +48,7 @@ struct gather_data {
   // If the offsets[3] == 6  (representing row 3 of the new column)
   // And the original value it was itself gathered from was 15, then
   // base_offsets[3] == 15
-  rmm::device_uvector<int32_t> base_offsets;
+  rmm::device_uvector<size_type> base_offsets;
   // size of the gather map that will be generated from this data
   size_type gather_map_size;
 };
@@ -68,7 +68,7 @@ template <bool NullifyOutOfBounds, typename MapItType>
 gather_data make_gather_data(cudf::lists_column_view const& source_column,
                              MapItType gather_map,
                              size_type gather_map_size,
-                             rmm::device_uvector<int32_t>&& prev_base_offsets,
+                             rmm::device_uvector<size_type>&& prev_base_offsets,
                              rmm::cuda_stream_view stream,
                              rmm::mr::device_memory_resource* mr)
 {
@@ -77,29 +77,29 @@ gather_data make_gather_data(cudf::lists_column_view const& source_column,
   size_type offset_count = output_count + 1;
 
   // offsets of the source column
-  int32_t const* src_offsets{source_column.offsets().data<int32_t>() + source_column.offset()};
+  size_type const* src_offsets{source_column.offsets().data<size_type>() + source_column.offset()};
   size_type const src_size = source_column.size();
 
   // outgoing offsets.  these will persist as output from the entire gather operation
   auto dst_offsets_c = cudf::make_fixed_width_column(
-    data_type{type_id::INT32}, offset_count, mask_state::UNALLOCATED, stream, mr);
+    data_type{type_to_id<size_type>()}, offset_count, mask_state::UNALLOCATED, stream, mr);
   mutable_column_view dst_offsets_v = dst_offsets_c->mutable_view();
   auto const source_column_nullmask = source_column.null_mask();
 
   // generate the compacted outgoing offsets.
-  auto count_iter = thrust::make_counting_iterator<int32_t>(0);
+  auto count_iter = thrust::make_counting_iterator<size_type>(0);
   thrust::transform_exclusive_scan(
     rmm::exec_policy(stream),
     count_iter,
     count_iter + offset_count,
-    dst_offsets_v.begin<int32_t>(),
+    dst_offsets_v.begin<size_type>(),
     [source_column_nullmask,
      source_column_offset = source_column.offset(),
      gather_map,
      output_count,
      src_offsets,
-     src_size] __device__(int32_t index) -> int32_t {
-      int32_t offset_index = index < output_count ? gather_map[index] : 0;
+     src_size] __device__(size_type index) -> size_type {
+      size_type offset_index = index < output_count ? gather_map[index] : 0;
 
       // if this is an invalid index, this will be a NULL list
       if (NullifyOutOfBounds && ((offset_index < 0) || (offset_index >= src_size))) { return 0; }
@@ -114,7 +114,7 @@ gather_data make_gather_data(cudf::lists_column_view const& source_column,
       return src_offsets[offset_index + 1] - src_offsets[offset_index];
     },
     0,
-    thrust::plus<int32_t>());
+    thrust::plus<size_type>());
 
   // handle sliced columns
   size_type const shift =
@@ -123,7 +123,8 @@ gather_data make_gather_data(cudf::lists_column_view const& source_column,
       : 0;
 
   // generate the base offsets
-  rmm::device_uvector<int32_t> base_offsets = rmm::device_uvector<int32_t>(output_count, stream);
+  rmm::device_uvector<size_type> base_offsets =
+    rmm::device_uvector<size_type>(output_count, stream);
   thrust::transform(
     rmm::exec_policy(stream),
     gather_map,
@@ -133,7 +134,7 @@ gather_data make_gather_data(cudf::lists_column_view const& source_column,
      source_column_offset = source_column.offset(),
      src_offsets,
      src_size,
-     shift] __device__(int32_t index) {
+     shift] __device__(size_type index) {
       // if this is an invalid index, this will be a NULL list
       if (NullifyOutOfBounds && ((index < 0) || (index >= src_size))) { return 0; }
 
@@ -268,7 +269,7 @@ gather_data make_gather_data(cudf::lists_column_view const& source_column,
     source_column,
     gather_map,
     gather_map_size,
-    rmm::device_uvector<int32_t>{0, stream, mr},
+    rmm::device_uvector<size_type>{0, stream, mr},
     stream,
     mr);
 }

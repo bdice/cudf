@@ -89,7 +89,7 @@ std::unique_ptr<column> make_strings_column(IndexPairIterator begin,
 
   // build offsets column from the strings sizes
   auto offsets_transformer = [] __device__(string_index_pair item) {
-    return (item.first != nullptr ? static_cast<int32_t>(item.second) : 0);
+    return (item.first != nullptr ? static_cast<size_type>(item.second) : 0);
   };
   auto offsets_transformer_itr = thrust::make_transform_iterator(begin, offsets_transformer);
   auto offsets_column          = strings::detail::make_offsets_child_column(
@@ -108,7 +108,7 @@ std::unique_ptr<column> make_strings_column(IndexPairIterator begin,
     // use a character-parallel kernel for long string lengths
     if (avg_bytes_per_row > FACTORY_BYTES_PER_ROW_THRESHOLD) {
       auto const d_offsets =
-        device_span<size_type const>{offsets_column->view().template data<int32_t>(),
+        device_span<size_type const>{offsets_column->view().template data<size_type>(),
                                      static_cast<std::size_t>(offsets_column->size())};
       auto const str_begin = thrust::make_transform_iterator(begin, [] __device__(auto ip) {
         return string_view{ip.first, ip.second};
@@ -132,7 +132,7 @@ std::unique_ptr<column> make_strings_column(IndexPairIterator begin,
       };
       thrust::for_each_n(rmm::exec_policy(stream),
                          thrust::make_zip_iterator(thrust::make_tuple(
-                           begin, offsets_column->view().template begin<int32_t>())),
+                           begin, offsets_column->view().template begin<size_type>())),
                          strings_count,
                          copy_chars);
       return chars_column;
@@ -182,13 +182,13 @@ std::unique_ptr<column> make_strings_column(CharIterator chars_begin,
 
   // build offsets column -- this is the number of strings + 1
   auto offsets_column = make_numeric_column(
-    data_type{type_id::INT32}, strings_count + 1, mask_state::UNALLOCATED, stream, mr);
+    data_type{type_to_id<size_type>()}, strings_count + 1, mask_state::UNALLOCATED, stream, mr);
   auto offsets_view = offsets_column->mutable_view();
   thrust::transform(rmm::exec_policy(stream),
                     offsets_begin,
                     offsets_end,
-                    offsets_view.data<int32_t>(),
-                    [] __device__(auto offset) { return static_cast<int32_t>(offset); });
+                    offsets_view.data<size_type>(),
+                    [] __device__(auto offset) { return static_cast<size_type>(offset); });
 
   // build chars column
   auto chars_column = strings::detail::create_chars_child_column(bytes, stream, mr);

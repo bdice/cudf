@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, NVIDIA CORPORATION.
+ * Copyright (c) 2021-2022, NVIDIA CORPORATION.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,11 @@ void column_buffer::create(size_type _size,
         cudf::detail::make_zeroed_device_uvector_async<string_index_pair>(size, stream));
       break;
 
-    // list columns store a buffer of int32's as offsets to represent
+    // list columns store a buffer of size_type's as offsets to represent
     // their individual rows
-    case type_id::LIST: _data = create_data(data_type{type_id::INT32}, size, stream, mr); break;
+    case type_id::LIST:
+      _data = create_data(data_type{type_to_id<size_type>()}, size, stream, mr);
+      break;
 
     // struct columns store no data themselves.  just validity and children.
     case type_id::STRUCT: break;
@@ -73,8 +75,8 @@ std::unique_ptr<column> make_column(column_buffer& buffer,
 
     case type_id::LIST: {
       // make offsets column
-      auto offsets =
-        std::make_unique<column>(data_type{type_id::INT32}, buffer.size, std::move(buffer._data));
+      auto offsets = std::make_unique<column>(
+        data_type{type_to_id<size_type>()}, buffer.size, std::move(buffer._data));
 
       column_name_info* child_info = nullptr;
       if (schema_info != nullptr) {
@@ -144,7 +146,7 @@ std::unique_ptr<column> empty_like(column_buffer& buffer,
   switch (buffer.type.id()) {
     case type_id::LIST: {
       // make offsets column
-      auto offsets = cudf::make_empty_column(type_id::INT32);
+      auto offsets = cudf::make_empty_column(type_to_id<size_type>);
 
       column_name_info* child_info = nullptr;
       if (schema_info != nullptr) {

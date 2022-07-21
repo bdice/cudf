@@ -479,7 +479,7 @@ struct buf_info_functor {
   {
     // info for the validity buffer
     *current = src_buf_info(
-      type_id::INT32, nullptr, offset_stack_pos, parent_offset_index, true, col.offset());
+      type_to_id<size_type>(), nullptr, offset_stack_pos, parent_offset_index, true, col.offset());
 
     return {current + 1, offset_stack_pos + offset_depth};
   }
@@ -513,10 +513,10 @@ std::pair<src_buf_info*, size_type> buf_info_functor::operator()<cudf::string_vi
     // info for the offsets buffer
     auto offset_col = current;
     CUDF_EXPECTS(scv.offsets().nullable() == false, "Encountered nullable string offsets column");
-    *current = src_buf_info(type_id::INT32,
+    *current = src_buf_info(type_to_id<size_type>(),
                             // note: offsets can be null in the case where the string column
                             // has been created with empty_like().
-                            scv.offsets().begin<cudf::id_to_type<type_id::INT32>>(),
+                            scv.offsets().begin<size_type>(),
                             offset_stack_pos,
                             parent_offset_index,
                             false,
@@ -568,10 +568,10 @@ std::pair<src_buf_info*, size_type> buf_info_functor::operator()<cudf::list_view
 
   // info for the offsets buffer
   auto offset_col = current;
-  *current        = src_buf_info(type_id::INT32,
+  *current        = src_buf_info(type_to_id<size_type>(),
                           // note: offsets can be null in the case where the lists column
                           // has been created with empty_like().
-                          lcv.offsets().begin<cudf::id_to_type<type_id::INT32>>(),
+                          lcv.offsets().begin<size_type>(),
                           offset_stack_pos,
                           parent_offset_index,
                           false,

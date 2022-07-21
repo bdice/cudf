@@ -50,7 +50,7 @@ static void BM_copy(benchmark::State& state, copy_type ct)
 
   // scatter indices
   auto index_map_col = make_numeric_column(
-    cudf::data_type{cudf::type_id::INT32}, n_rows, cudf::mask_state::UNALLOCATED);
+    cudf::data_type{cudf::type_to_id<size_type>()}, n_rows, cudf::mask_state::UNALLOCATED);
   auto index_map = index_map_col->mutable_view();
   thrust::shuffle_copy(thrust::device,
                        thrust::counting_iterator<cudf::size_type>(0),

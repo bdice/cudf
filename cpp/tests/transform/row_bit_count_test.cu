@@ -245,7 +245,7 @@ TEST_F(RowBitCount, StructsWithLists_RowsExceedingASingleBlock)
     thrust::device, ints_view.begin<int32_t>(), ints_view.end<int32_t>(), thrust::identity{});
 
   // List offsets = {0, 2, 4, 6, 8, ..., num_rows*2};
-  auto list_offsets      = make_numeric_column(data_type{type_id::INT32}, num_rows + 1);
+  auto list_offsets      = make_numeric_column(data_type{type_to_id<size_type>()}, num_rows + 1);
   auto list_offsets_view = list_offsets->mutable_view();
   thrust::tabulate(thrust::device,
                    list_offsets_view.begin<offset_type>(),

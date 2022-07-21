@@ -57,18 +57,18 @@ std::unique_ptr<column> make_offsets_child_column(
   rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource())
 {
   CUDF_EXPECTS(begin < end, "Invalid iterator range");
-  auto count = thrust::distance(begin, end);
-  auto offsets_column =
-    make_numeric_column(data_type{type_id::INT32}, count + 1, mask_state::UNALLOCATED, stream, mr);
+  auto count          = thrust::distance(begin, end);
+  auto offsets_column = make_numeric_column(
+    data_type{type_to_id<size_type>()}, count + 1, mask_state::UNALLOCATED, stream, mr);
   auto offsets_view = offsets_column->mutable_view();
-  auto d_offsets    = offsets_view.template data<int32_t>();
+  auto d_offsets    = offsets_view.template data<size_type>();
   // Using inclusive-scan to compute last entry which is the total size.
   // Exclusive-scan is possible but will not compute that last entry.
   // Rather than manually computing the final offset using values in device memory,
   // we use inclusive-scan on a shifted output (d_offsets+1) and then set the first
   // offset values to zero manually.
   thrust::inclusive_scan(rmm::exec_policy(stream), begin, end, d_offsets + 1);
-  CUDF_CUDA_TRY(cudaMemsetAsync(d_offsets, 0, sizeof(int32_t), stream.value()));
+  CUDF_CUDA_TRY(cudaMemsetAsync(d_offsets, 0, sizeof(size_type), stream.value()));
   return offsets_column;
 }
 
@@ -125,9 +125,9 @@ auto make_strings_children(
   rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource())
 {
   auto offsets_column = make_numeric_column(
-    data_type{type_id::INT32}, strings_count + 1, mask_state::UNALLOCATED, stream, mr);
+    data_type{type_to_id<size_type>()}, strings_count + 1, mask_state::UNALLOCATED, stream, mr);
   auto offsets_view          = offsets_column->mutable_view();
-  auto d_offsets             = offsets_view.template data<int32_t>();
+  auto d_offsets             = offsets_view.template data<size_type>();
   size_and_exec_fn.d_offsets = d_offsets;
 
   // This is called twice -- once for offsets and once for chars.
@@ -145,7 +145,7 @@ auto make_strings_children(
     rmm::exec_policy(stream), d_offsets, d_offsets + strings_count + 1, d_offsets);
 
   // Now build the chars column
-  auto const bytes = cudf::detail::get_value<int32_t>(offsets_view, strings_count, stream);
+  auto const bytes = cudf::detail::get_value<size_type>(offsets_view, strings_count, stream);
   std::unique_ptr<column> chars_column = create_chars_child_column(bytes, stream, mr);
 
   // Execute the function fn again to fill the chars column.

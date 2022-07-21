@@ -54,7 +54,7 @@ struct ngram_generator_fn {
   cudf::column_device_view const d_strings;
   cudf::size_type ngrams;
   cudf::string_view const d_separator;
-  int32_t* d_offsets{};
+  cudf::size_type* d_offsets{};
   char* d_chars{};
 
   /**
@@ -104,8 +104,9 @@ std::unique_ptr<cudf::column> generate_ngrams(
 
   // first create a new offsets vector removing nulls and empty strings from the input column
   std::unique_ptr<cudf::column> non_empty_offsets_column = [&] {
-    cudf::column_view offsets_view(
-      cudf::data_type{cudf::type_id::INT32}, strings_count + 1, strings.offsets_begin());
+    cudf::column_view offsets_view(cudf::data_type{cudf::type_to_id<cudf::size_type>()},
+                                   strings_count + 1,
+                                   strings.offsets_begin());
     auto table_offsets = cudf::detail::copy_if(
                            cudf::table_view({offsets_view}),
                            [d_strings, strings_count] __device__(cudf::size_type idx) {
@@ -160,8 +161,8 @@ namespace {
 struct character_ngram_generator_fn {
   cudf::column_device_view const d_strings;
   cudf::size_type ngrams;
-  int32_t const* d_ngram_offsets{};
-  int32_t* d_offsets{};
+  cudf::size_type const* d_ngram_offsets{};
+  cudf::size_type* d_offsets{};
   char* d_chars{};
 
   __device__ void operator()(cudf::size_type idx)
@@ -203,7 +204,7 @@ std::unique_ptr<cudf::column> generate_character_ngrams(cudf::strings_column_vie
   auto const d_strings      = *strings_column;
 
   // create a vector of ngram offsets for each string
-  rmm::device_uvector<int32_t> ngram_offsets(strings_count + 1, stream);
+  rmm::device_uvector<cudf::size_type> ngram_offsets(strings_count + 1, stream);
   thrust::transform_exclusive_scan(
     rmm::exec_policy(stream),
     thrust::make_counting_iterator<cudf::size_type>(0),
@@ -212,7 +213,7 @@ std::unique_ptr<cudf::column> generate_character_ngrams(cudf::strings_column_vie
     [d_strings, strings_count, ngrams] __device__(auto idx) {
       if (d_strings.is_null(idx) || (idx == strings_count)) return 0;
       auto const length = d_strings.element<cudf::string_view>(idx).length();
-      return std::max(0, static_cast<int32_t>(length + 1 - ngrams));
+      return std::max(0, static_cast<cudf::size_type>(length + 1 - ngrams));
     },
     cudf::size_type{0},
     thrust::plus<cudf::size_type>());
@@ -223,12 +224,13 @@ std::unique_ptr<cudf::column> generate_character_ngrams(cudf::strings_column_vie
                "Insufficient number of characters in each string to generate ngrams");
 
   // create output offsets column
-  auto offsets_column = cudf::make_numeric_column(cudf::data_type{cudf::type_id::INT32},
-                                                  total_ngrams + 1,
-                                                  cudf::mask_state::UNALLOCATED,
-                                                  stream,
-                                                  mr);
-  auto d_offsets      = offsets_column->mutable_view().data<int32_t>();
+  auto offsets_column =
+    cudf::make_numeric_column(cudf::data_type{cudf::type_to_id<cudf::size_type>()},
+                              total_ngrams + 1,
+                              cudf::mask_state::UNALLOCATED,
+                              stream,
+                              mr);
+  auto d_offsets = offsets_column->mutable_view().data<cudf::size_type>();
   // compute the size of each ngram -- output goes in d_offsets
   character_ngram_generator_fn generator{d_strings, ngrams, ngram_offsets.data(), d_offsets};
   thrust::for_each_n(rmm::exec_policy(stream),
@@ -242,7 +244,7 @@ std::unique_ptr<cudf::column> generate_character_ngrams(cudf::strings_column_vie
 
   // build the chars column
   auto const chars_bytes =
-    cudf::detail::get_value<int32_t>(offsets_column->view(), total_ngrams, stream);
+    cudf::detail::get_value<cudf::size_type>(offsets_column->view(), total_ngrams, stream);
   auto chars_column = cudf::strings::detail::create_chars_child_column(chars_bytes, stream, mr);
   generator.d_chars = chars_column->mutable_view().data<char>();  // output chars
   thrust::for_each_n(rmm::exec_policy(stream),
