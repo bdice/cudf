@@ -38,13 +38,6 @@ namespace cudf {
  * @ingroup table_classes
  */
 class table {
-
-
-
-
-
-
-
  public:
   table()        = default;
   ~table()       = default;
