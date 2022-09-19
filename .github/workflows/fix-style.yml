@@ -1,12 +1,10 @@
-name: "Pre-commit"
+name: "Fix Style"
 on:
-  pull_request:
-    types: [opened]
   issue_comment:
     types: [created]
 
 jobs:
-  style-check:
+  fix-style:
     runs-on: ubuntu-latest
     steps:
       - uses: khan/pull-request-comment-trigger@v1.1.0
