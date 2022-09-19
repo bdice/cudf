@@ -1,20 +1,11 @@
 name: "Fix Style"
 on:
-  pull_request:
-    types: [opened]
   issue_comment:
     types: [created]
 
 jobs:
   fix-style:
+    if: github.event.issue.pull_request && contains(github.event.comment.body, 'fix style')
     runs-on: ubuntu-latest
     steps:
-      - uses: khan/pull-request-comment-trigger@v1.1.0
-        id: check
-        with:
-          trigger: 'fix style'
-          reaction: rocket
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
       - run: 'echo Fixing style!'
-        if: steps.check.outputs.triggered == 'true'
