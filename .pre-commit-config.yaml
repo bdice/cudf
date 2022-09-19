@@ -46,8 +46,8 @@ repos:
 #             - id: clang-format
 #               types_or: [c, c++, cuda]
 #               args: ["-fallback-style=none", "-style=file", "-i"]
-#     - repo: local
-#       hooks:
+      - repo: local
+        hooks:
 #             - id: no-deprecationwarning
 #               name: no-deprecationwarning
 #               description: 'Enforce that DeprecationWarning is not introduced (use FutureWarning instead)'
@@ -91,18 +91,18 @@ repos:
 #               language: system
 #               pass_filenames: false
 #               verbose: true
-#             - id: headers-recipe-check
-#               name: headers-recipe-check
-#               entry: ./ci/checks/headers_test.sh
-#               files: |
-#                 (?x)^(
-#                   ^cpp/include/|
-#                   ^conda/.*/meta.yaml
-#                 )
-#               types_or: [file]
-#               language: system
-#               pass_filenames: false
-#               verbose: false
+              - id: headers-recipe-check
+                name: headers-recipe-check
+                entry: ./ci/checks/headers_test.sh
+                files: |
+                  (?x)^(
+                    ^cpp/include/|
+                    ^conda/.*/meta.yaml
+                  )
+                types_or: [file]
+                language: system
+                pass_filenames: false
+                verbose: false
 
 default_language_version:
       python: python3
