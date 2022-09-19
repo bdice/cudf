@@ -13,7 +13,6 @@ jobs:
         id: check
         with:
           trigger: 'fix style'
-          prefix_only: true
           reaction: rocket
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
