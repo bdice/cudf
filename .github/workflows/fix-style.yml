@@ -1,0 +1,11 @@
+name: "Fix Style"
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  fix-style:
+    if: github.event.issue.pull_request && contains(github.event.comment.body, 'fix style')
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo Fixing style!'
