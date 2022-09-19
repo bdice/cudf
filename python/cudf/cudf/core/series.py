@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import inspect
 import functools
+import inspect
 import pickle
 import textwrap
 from collections import abc
