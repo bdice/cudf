@@ -91,7 +91,8 @@ However, currently many of these implementations are not applicable to all subcl
 
 Almost all indexes are subclasses of `GenericIndex`, a single-columned index with the class hierarchy:
 ```python
-class GenericIndex(SingleColumnFrame, BaseIndex)
+class GenericIndex(SingleColumnFrame, BaseIndex):
+    pass
 ```
 Integer, float, or string indexes are all composed of a single column of data.
 Most `GenericIndex` methods are inherited from `Frame`, saving us the trouble of rewriting them.

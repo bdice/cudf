@@ -34,9 +34,9 @@ API](https://pandas.pydata.org/pandas-docs/stable/user_guide/groupby.html).
 A GroupBy object is created by grouping the values of a `Series` or
 `DataFrame` by one or more columns:
 
-```python
+```pycon
 >>> import cudf
->>> df = cudf.DataFrame({'a': [1, 1, 1, 2, 2], 'b': [1, 1, 2, 2, 3], 'c': [1, 2, 3, 4, 5]})
+>>> df = cudf.DataFrame({"a": [1, 1, 1, 2, 2], "b": [1, 1, 2, 2, 3], "c": [1, 2, 3, 4, 5]})
 >>> df
    a  b  c
 0  1  1  1
@@ -44,9 +44,11 @@ A GroupBy object is created by grouping the values of a `Series` or
 2  1  2  3
 3  2  2  4
 4  2  3  5
->>> gb1 = df.groupby('a')  # grouping by a single column
->>> gb2 = df.groupby(['a', 'b'])  # grouping by multiple columns
->>> gb3 = df.groupby(cudf.Series(['a', 'a', 'b', 'b', 'b']))  # grouping by an external column
+>>> gb1 = df.groupby("a")  # grouping by a single column
+>>> gb2 = df.groupby(["a", "b"])  # grouping by multiple columns
+>>> gb3 = df.groupby(
+...     cudf.Series(["a", "a", "b", "b", "b"])
+... )  # grouping by an external column
 ```
 
 ````{warning}
@@ -56,7 +58,7 @@ the result.
 
 For example:
 
-```python
+```pycon
 >>> df = cudf.DataFrame({'a' : [2, 2, 1], 'b' : [42, 21, 11]})
 >>> df.groupby('a').sum()
    b
@@ -72,7 +74,7 @@ a
 
 Setting `sort=True` will produce Pandas-like output, but with some performance penalty:
 
-```python
+```pycon
 >>> df.groupby('a', sort=True).sum()
    b
 a
@@ -85,7 +87,7 @@ a
 
 You can also group by one or more levels of a MultiIndex:
 
-```python
+```pycon
 >>> df = cudf.DataFrame(
 ...     {'a': [1, 1, 1, 2, 2], 'b': [1, 1, 2, 2, 3], 'c': [1, 2, 3, 4, 5]}
 ... ).set_index(['a', 'b'])
@@ -98,7 +100,7 @@ You can also group by one or more levels of a MultiIndex:
 A `Grouper` can be used to disambiguate between columns and levels
 when they have the same name:
 
-```python
+```pycon
 >>> df
    b  c
 b
@@ -115,7 +117,7 @@ b
 
 Aggregations on groups are supported via the `agg` method:
 
-```python
+```pycon
 >>> df
    a  b  c
 0  1  1  1
@@ -195,7 +197,7 @@ that support them:
 
 To apply function on each group, use the `GroupBy.apply()` method:
 
-```python
+```pycon
 >>> df
    a  b  c
 0  1  1  1
@@ -230,7 +232,7 @@ The `.transform()` method aggregates per group, and broadcasts the
 result to the group size, resulting in a Series/DataFrame that is of
 the same size as the input Series/DataFrame.
 
-```python
+```pycon
 >>> import cudf
 >>> df = cudf.DataFrame({'a': [2, 1, 1, 2, 2], 'b': [1, 2, 3, 4, 5]})
 >>> df.groupby('a').transform('max')
@@ -247,7 +249,7 @@ the same size as the input Series/DataFrame.
 Use the `GroupBy.rolling()` method to perform rolling window
 calculations on each group:
 
-```python
+```pycon
 >>> df
    a  b  c
 0  1  1  1
@@ -259,7 +261,7 @@ calculations on each group:
 
 Rolling window sum on each group with a window size of 2:
 
-```python
+```pycon
 >>> df.groupby('a').rolling(2).sum()
         a     b     c
 a

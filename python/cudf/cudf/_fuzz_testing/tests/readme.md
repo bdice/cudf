@@ -11,17 +11,16 @@ This directory contains all the Fuzz tests for cudf library.
 ```python
 from cudf.testing.csv import CSVWriter
 
+
 @pythonfuzz(data_handle=CSVWriter)
 def csv_writer_test(data_from_generate_input):
-    ...
-    ...
-    ...
+    pass
+
 
 if __name__ == "__main__":
-    ...
-    ...
-
+    pass
 ```
+
 ## Steps to run fuzz tests
 
 1. To run a fuzz test, for example a test(method) is in `write_csv.py`:
@@ -31,6 +30,7 @@ python write_csv.py your_function_name
 ```
 
 To run a basic csv write test in `write_csv.py`:
+
 ```bash
 python write_csv.py csv_writer_test
 ```
@@ -38,8 +38,13 @@ python write_csv.py csv_writer_test
 ## Tips to run specific crash file/files
 
 Using the `pythonfuzz` decorator pass in `regression=True` with `dirs` having list of directories
+
 ```python
-@pythonfuzz(data_handle=CSVWriter, regression=True, dir=["/cudf/python/cudf/cudf/_fuzz_testing"])
+@pythonfuzz(
+    data_handle=CSVWriter, regression=True, dir=["/cudf/python/cudf/cudf/_fuzz_testing"]
+)
+def csv_writer_test(pdf):
+    pass
 ```
 
 
@@ -56,6 +61,8 @@ To perform this customization `set_rand_params` should be implemented as shown i
 ```python
 from cudf._fuzz_testing.main import pythonfuzz
 from cudf._fuzz_testing.utils import ALL_POSSIBLE_VALUES
+
+
 @pythonfuzz(
     data_handle=CSVWriter,
     params={

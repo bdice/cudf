@@ -14,25 +14,23 @@ from custreamz import kafka
 
 # Full list of configurations can be found at: https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
 kafka_configs = {
-	"metadata.broker.list": "localhost:9092",
-	"group.id": "custreamz-client",
+    "metadata.broker.list": "localhost:9092",
+    "group.id": "custreamz-client",
 }
 
 # Create a reusable Kafka Consumer client; "datasource"
 consumer = kafka.Consumer(kafka_configs)
 
 # Read 10,000 messages from `custreamz_tips` topic in CSV format.
-tips_df = consumer.read_gdf(topic="custreamz_tips",
-                        partition=0,
-                        start=0,
-                        end=10000,
-                        message_format="CSV")
+tips_df = consumer.read_gdf(
+    topic="custreamz_tips", partition=0, start=0, end=10000, message_format="CSV"
+)
 
 print(tips_df.head())
-tips_df['tip_percentage'] = tips_df['tip'] / tips_df['total_bill'] * 100
+tips_df["tip_percentage"] = tips_df["tip"] / tips_df["total_bill"] * 100
 
 # display average tip by dining party size
-print(tips_df.groupby('size').tip_percentage.mean())
+print(tips_df.groupby("size").tip_percentage.mean())
 ```
 
 A "hello world" of using cuStreamz with python streamz can be found [here](https://github.com/rapidsai-community/notebooks-contrib/blob/main/getting_started_materials/hello_worlds/hello_streamz.ipynb)

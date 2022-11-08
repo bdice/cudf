@@ -58,7 +58,7 @@ For example:
 warnings.warn(
     "`Series.foo` is deprecated and will be removed in a future version of cudf. "
     "Use `Series.new_foo` instead.",
-    FutureWarning
+    FutureWarning,
 )
 ```
 

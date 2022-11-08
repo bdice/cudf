@@ -31,7 +31,7 @@ and string data types.  Thus, just like in NumPy,
 `np.dtype("float32")`, `np.float32`, and `"float32"` are all acceptable
 ways to specify the `float32` data type:
 
-```python
+```pycon
 >>> import cudf
 >>> s = cudf.Series([1, 2, 3], dtype="float32")
 >>> s
@@ -45,7 +45,7 @@ dtype: float32
 
 The data type associated with string data in cuDF is `"np.object"`.
 
-```python
+```pycon
 >>> import cudf
 >>> s = cudf.Series(["abc", "def", "ghi"])
 >>> s.dtype
@@ -74,7 +74,7 @@ of the decimal point. The scale associated with the value `1.023` is
 
 Each decimal data type is associated with a maximum precision:
 
-```python
+```pycon
 >>> cudf.Decimal32Dtype.MAX_PRECISION
 9.0
 >>> cudf.Decimal64Dtype.MAX_PRECISION
@@ -85,7 +85,7 @@ Each decimal data type is associated with a maximum precision:
 
 One way to create a decimal Series is from values of type [decimal.Decimal][python-decimal].
 
-```python
+```pycon
 >>> from decimal import Decimal
 >>> s = cudf.Series([Decimal("1.01"), Decimal("4.23"), Decimal("0.5")])
 >>> s
@@ -104,7 +104,7 @@ However, the value `1.234` needs a precision of at least 4, and a
 scale of at least 3, and cannot be fully represented using this data
 type:
 
-```python
+```pycon
 >>> s[1] = Decimal("1.234")  # raises an error
 ```
 
@@ -118,7 +118,7 @@ lists, or a struct of lists, or a struct of list of lists, etc.,
 You can create lists and struct Series from existing Pandas Series of
 lists and dictionaries respectively:
 
-```python
+```pycon
 >>> psr = pd.Series([{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])
 >>> psr
 0 {'a': 1, 'b': 2}
@@ -135,7 +135,7 @@ StructDtype({'a': dtype('int64'), 'b': dtype('int64')})
 
 Or by reading them from disk, using a [file format that supports nested data](io).
 
-```python
+```pycon
 >>> pdf = pd.DataFrame({"a": [[1, 2], [3, 4, 5], [6, 7, 8]]})
 >>> pdf.to_parquet("lists.pq")
 >>> gdf = cudf.read_parquet("lists.pq")

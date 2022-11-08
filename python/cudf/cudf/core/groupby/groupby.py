@@ -782,22 +782,24 @@ class GroupBy(Serializable, Reducible, Scannable):
         .. code-block:: python
 
           from cudf import DataFrame
+
           df = DataFrame()
-          df['key'] = [0, 0, 1, 1, 2, 2, 2]
-          df['val'] = [0, 1, 2, 3, 4, 5, 6]
-          groups = df.groupby(['key'])
+          df["key"] = [0, 0, 1, 1, 2, 2, 2]
+          df["val"] = [0, 1, 2, 3, 4, 5, 6]
+          groups = df.groupby(["key"])
 
           # Define a function to apply to each row in a group
           def mult(df):
-            df['out'] = df['key'] * df['val']
-            return df
+              df["out"] = df["key"] * df["val"]
+              return df
+
 
           result = groups.apply(mult)
           print(result)
 
         Output:
 
-        .. code-block:: python
+        .. code-block::
 
              key  val  out
           0    0    0    0
@@ -899,9 +901,9 @@ class GroupBy(Serializable, Reducible, Scannable):
             import numpy as np
 
             df = DataFrame()
-            df['key'] = [0, 0, 1, 1, 2, 2, 2]
-            df['val'] = [0, 1, 2, 3, 4, 5, 6]
-            groups = df.groupby(['key'])
+            df["key"] = [0, 0, 1, 1, 2, 2, 2]
+            df["val"] = [0, 1, 2, 3, 4, 5, 6]
+            groups = df.groupby(["key"])
 
             # Define a function to apply to each group
             def mult_add(key, val, out1, out2):
@@ -909,18 +911,20 @@ class GroupBy(Serializable, Reducible, Scannable):
                     out1[i] = key[i] * val[i]
                     out2[i] = key[i] + val[i]
 
-            result = groups.apply_grouped(mult_add,
-                                          incols=['key', 'val'],
-                                          outcols={'out1': np.int32,
-                                                   'out2': np.int32},
-                                          # threads per block
-                                          tpb=8)
+
+            result = groups.apply_grouped(
+                mult_add,
+                incols=["key", "val"],
+                outcols={"out1": np.int32, "out2": np.int32},
+                # threads per block
+                tpb=8,
+            )
 
             print(result)
 
         Output:
 
-        .. code-block:: python
+        .. code-block::
 
                key  val out1 out2
             0    0    0    0    0
@@ -945,11 +949,11 @@ class GroupBy(Serializable, Reducible, Scannable):
             # Create a random 15 row dataframe with one categorical
             # feature and one random integer valued feature
             df = cudf.DataFrame(
-                    {
-                        "cat": [1] * 5 + [2] * 5 + [3] * 5,
-                        "val": [randint(0, 100) for _ in range(15)],
-                    }
-                 )
+                {
+                    "cat": [1] * 5 + [2] * 5 + [3] * 5,
+                    "val": [randint(0, 100) for _ in range(15)],
+                }
+            )
 
             # Group the dataframe by its categorical feature
             groups = df.groupby("cat")
@@ -969,20 +973,21 @@ class GroupBy(Serializable, Reducible, Scannable):
                             total += val[j]
                         avg[i] = total / win_size
 
+
             # Compute moving averages on all groups
-            results = groups.apply_grouped(rolling_avg,
-                                           incols=['val'],
-                                           outcols=dict(avg=np.float64))
+            results = groups.apply_grouped(
+                rolling_avg, incols=["val"], outcols=dict(avg=np.float64)
+            )
             print("Results:", results)
 
             # Note this gives the same result as its pandas equivalent
             pdf = df.to_pandas()
-            pd_results = pdf.groupby('cat')['val'].rolling(3).mean()
+            pd_results = pdf.groupby("cat")["val"].rolling(3).mean()
 
 
         Output:
 
-        .. code-block:: python
+        .. code-block::
 
             Results:
                cat  val                 avg
@@ -1050,7 +1055,7 @@ class GroupBy(Serializable, Reducible, Scannable):
 
         Examples
         --------
-        .. code-block:: python
+        .. code-block::
 
           import cudf
           df = cudf.DataFrame({'a': [2, 1, 1, 2, 2], 'b': [1, 2, 3, 4, 5]})

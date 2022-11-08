@@ -81,12 +81,12 @@ Use fixtures when:
   and all of those inputs can be constructed with simple parametrizations.
   In practice, that means that it is acceptable to use a fixture like this:
   ```python
-      @pytest.fixture(params=["a", "b"])
-      def foo(request):
-          if request.param == "a":
-              # Some complex initialization
-          elif request.param == "b":
-              # Some other complex initialization
+  @pytest.fixture(params=["a", "b"])
+  def foo(request):
+      if request.param == "a":
+          pass  # Some complex initialization
+      elif request.param == "b":
+          pass  # Some other complex initialization
   ```
   In other words, the construction of the fixture may be complex,
   as long as the parametrization of that construction is simple.
@@ -95,20 +95,25 @@ Use fixtures when:
   In this case, the parametrization of a fixture should be decomposed
   by using fixtures that depend on other fixtures.
   ```python
-      @pytest.fixture(params=["a", "b"])
-      def foo(request):
-          if request.param == "a":
-              # Some complex initialization
-          elif request.param == "b":
-              # Some other complex initialization
+  @pytest.fixture(params=["a", "b"])
+  def foo(request):
+      if request.param == "a":
+          # Some complex initialization
+          pass
+      elif request.param == "b":
+          # Some other complex initialization
+          pass
 
-      @pytest.fixture
-      def bar(foo):
-         # do something with foo like initialize a cudf object.
 
-      def test_some_property(bar):
-          # will be run for each value of bar that results from each value of foo.
-          assert some_property_of(bar)
+  @pytest.fixture
+  def bar(foo):
+      # Do something with foo like initialize a cudf object.
+      pass
+
+
+  def test_some_property(bar):
+      # Will be run for each value of bar that results from each value of foo.
+      assert some_property_of(bar)
   ```
 
 #### Complex parametrizations
@@ -129,13 +134,17 @@ def get_values(predicate):
     values = range(10)
     yield from filter(predicate, values)
 
+
 def test_evens():
     for v in get_values(lambda x: x % 2 == 0):
         # Execute test
+        pass
+
 
 def test_odds():
     for v in get_values(lambda x: x % 2 == 1):
         # Execute test
+        pass
 ```
 
 Other approaches are also possible, and the best solution should be discussed on a case-by-case basis during PR review.
