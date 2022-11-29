@@ -1,8 +1,3 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "features": {
-    "ghcr.io/devcontainers/features/nvidia-cuda:1": {
-      "version": "latest"
-    }
-  }
+  "image": "docker pull rapidsai/rapidsai-dev-nightly:22.12-cuda11.5-devel-ubuntu20.04-py3.9",
 }
