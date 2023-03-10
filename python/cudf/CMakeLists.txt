@@ -37,6 +37,11 @@ option(CUDF_BUILD_WHEELS "Whether this build is generating a Python wheel." OFF)
 option(USE_LIBARROW_FROM_PYARROW "Use the libarrow contained within pyarrow." OFF)
 mark_as_advanced(USE_LIBARROW_FROM_PYARROW)
 
+# Python Limited API -- requires cython 3. TODO: Use target_compile_definitions on supported cython
+# targets instead.
+add_compile_definitions(Py_LIMITED_API=0x03080000)
+add_compile_definitions(CYTHON_LIMITED_API)
+
 # Always build wheels against the pyarrow libarrow.
 if(CUDF_BUILD_WHEELS)
   set(USE_LIBARROW_FROM_PYARROW ON)
