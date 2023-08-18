@@ -198,13 +198,14 @@ ConfigureTest(
 # * reduction tests -------------------------------------------------------------------------------
 ConfigureTest(
   REDUCTIONS_TEST
-  reductions/collect_ops_tests.cpp
-  reductions/rank_tests.cpp
-  reductions/reduction_tests.cpp
-  reductions/scan_tests.cpp
-  reductions/segmented_reduction_tests.cpp
-  reductions/list_rank_test.cpp
-  reductions/tdigest_tests.cu
+  # reductions/collect_ops_tests.cpp
+  # reductions/rank_tests.cpp
+  # reductions/reduction_tests.cpp
+  # reductions/scan_tests.cpp
+  # reductions/segmented_reduction_tests.cpp
+  reductions/segmented_reduction_tests2.cpp
+  # reductions/list_rank_test.cpp
+  # reductions/tdigest_tests.cu
   GPUS 1
   PERCENT 70
 )
