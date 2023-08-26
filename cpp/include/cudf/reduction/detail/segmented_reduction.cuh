@@ -68,7 +68,8 @@ void segmented_reduce(InputIterator d_in,
                       rmm::cuda_stream_view stream)
 {
   auto const num_segments = static_cast<size_type>(std::distance(d_offset_begin, d_offset_end)) - 1;
-  auto const binary_op    = cudf::detail::cast_functor<OutputType>(op);
+  std::cout << "num_segments: " << num_segments << std::endl;
+  auto const binary_op = cudf::detail::cast_functor<OutputType>(op);
   // Allocate temporary storage
   size_t temp_storage_bytes = 0;
   cub::DeviceSegmentedReduce::Reduce(nullptr,

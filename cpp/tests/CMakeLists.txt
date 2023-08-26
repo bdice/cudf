@@ -202,8 +202,9 @@ ConfigureTest(
   # reductions/rank_tests.cpp
   # reductions/reduction_tests.cpp
   # reductions/scan_tests.cpp
-  # reductions/segmented_reduction_tests.cpp
-  reductions/segmented_reduction_tests2.cpp
+  reductions/segmented_reduction_tests.cpp
+  # reductions/segmented_reduction_tests2.cpp
+  # reductions/cub_reduction_debug.cu
   # reductions/list_rank_test.cpp
   # reductions/tdigest_tests.cu
   GPUS 1

@@ -23,6 +23,9 @@
 
 #include <cudf/types.hpp>
 
+#include <cuda/functional>
+
+#include <functional>
 #include <type_traits>
 
 namespace cudf {
@@ -50,9 +53,30 @@ struct cast_functor_fn {
  * @brief Function creating a casting functor.
  */
 template <typename ResultType, typename F>
-cast_functor_fn<ResultType, F> cast_functor(F&& f)
+cast_functor_fn<ResultType, std::decay_t<F>> cast_functor(F&& f)
 {
-  return {std::forward<F>(f)};
+  return cast_functor_fn<ResultType, std::decay_t<F>>{std::forward<F>(f)};
+}
+
+template <typename ResultType, typename F>
+struct cast_device_functor_fn {
+  F f;
+
+  template <typename... Ts>
+  __device__ inline ResultType operator()(Ts&&... args)
+  {
+    return static_cast<ResultType>(f(std::forward<Ts>(args)...));
+  }
+};
+
+/**
+ * @brief Function creating a casting functor.
+ */
+template <typename ResultType, typename F>
+auto cast_device_functor(F&& f)
+{
+  auto cast_f = cast_device_functor_fn<ResultType, F>{std::forward<F>(f)};
+  return cuda::proclaim_return_type<ResultType>(cast_f);
 }
 
 }  // namespace detail

@@ -29,8 +29,9 @@ struct SegmentedReductionStringTest : public cudf::test::BaseFixture {};
 
 TEST_F(SegmentedReductionStringTest, MinExcludeNulls)
 {
-  auto const input   = cudf::test::strings_column_wrapper{{"", ""}, {true, true}};
-  auto const offsets = cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 2};
+  auto const input =
+    cudf::test::strings_column_wrapper{{"", "", "b", "a"}, {true, true, true, true}};
+  auto const offsets = cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 2, 4};
   cudf::data_type output_dtype{cudf::type_id::STRING};
 
   std::cout << "Starting segmented reduce..." << std::endl;
@@ -42,6 +43,6 @@ TEST_F(SegmentedReductionStringTest, MinExcludeNulls)
                            cudf::null_policy::EXCLUDE);
   std::cout << "Ending segmented reduce..." << std::endl;
 
-  cudf::test::strings_column_wrapper expect{{""}, {true}};
+  cudf::test::strings_column_wrapper expect{{"", "a"}, {true, true}};
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(*res, expect);
 }
