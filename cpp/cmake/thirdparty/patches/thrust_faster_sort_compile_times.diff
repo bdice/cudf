@@ -1,8 +1,8 @@
 diff --git a/cub/cub/block/block_merge_sort.cuh b/cub/cub/block/block_merge_sort.cuh
-index dc07ef6c2..a066c14da 100644
+index d5dcc89ff..cba2f1c14 100644
 --- a/cub/cub/block/block_merge_sort.cuh
 +++ b/cub/cub/block/block_merge_sort.cuh
-@@ -91,7 +91,7 @@ __device__ __forceinline__ void SerialMerge(KeyT *keys_shared,
+@@ -99,7 +99,7 @@ __device__ __forceinline__ void SerialMerge(KeyT *keys_shared,
    KeyT key1 = keys_shared[keys1_beg];
    KeyT key2 = keys_shared[keys2_beg];
 
@@ -11,7 +11,7 @@ index dc07ef6c2..a066c14da 100644
    for (int item = 0; item < ITEMS_PER_THREAD; ++item)
    {
      bool p = (keys2_beg < keys2_end) &&
-@@ -383,7 +383,7 @@ public:
+@@ -391,7 +391,7 @@ public:
        //
        KeyT max_key = oob_default;
 
@@ -21,10 +21,10 @@ index dc07ef6c2..a066c14da 100644
        {
          if (ITEMS_PER_THREAD * linear_tid + item < valid_items)
 diff --git a/cub/cub/thread/thread_sort.cuh b/cub/cub/thread/thread_sort.cuh
-index 5d4867896..b42fb5f00 100644
+index 6f88d089b..12371eabc 100644
 --- a/cub/cub/thread/thread_sort.cuh
 +++ b/cub/cub/thread/thread_sort.cuh
-@@ -83,10 +83,10 @@ StableOddEvenSort(KeyT (&keys)[ITEMS_PER_THREAD],
+@@ -90,10 +90,10 @@ StableOddEvenSort(KeyT (&keys)[ITEMS_PER_THREAD],
  {
    constexpr bool KEYS_ONLY = std::is_same<ValueT, NullType>::value;
 
