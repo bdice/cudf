@@ -187,9 +187,7 @@ def test_concat_misordered_columns():
 @pytest.mark.parametrize("axis", [1, "columns"])
 def test_concat_columns(axis):
     pdf1 = pd.DataFrame(np.random.randint(10, size=(5, 3)), columns=[1, 2, 3])
-    pdf2 = pd.DataFrame(
-        np.random.randint(10, size=(5, 4)), columns=[4, 5, 6, 7]
-    )
+    pdf2 = pd.DataFrame(np.random.randint(10, size=(5, 4)), columns=[4, 5, 6, 7])
     gdf1 = gd.from_pandas(pdf1)
     gdf2 = gd.from_pandas(pdf2)
 
@@ -241,9 +239,7 @@ def test_concat_multiindex_series():
     pdg2 = pdg["z"]
     gdg1 = gd.from_pandas(pdg1)
     gdg2 = gd.from_pandas(pdg2)
-    assert_eq(
-        gd.concat([gdg1, gdg2]), pd.concat([pdg1, pdg2]), check_index_type=True
-    )
+    assert_eq(gd.concat([gdg1, gdg2]), pd.concat([pdg1, pdg2]), check_index_type=True)
     assert_eq(gd.concat([gdg1, gdg2], axis=1), pd.concat([pdg1, pdg2], axis=1))
 
 
@@ -305,21 +301,11 @@ def test_concat_string_index_name(myindex):
 
 
 def test_pandas_concat_compatibility_axis1():
-    d1 = gd.datasets.randomdata(
-        3, dtypes={"a": float, "ind": float}
-    ).set_index("ind")
-    d2 = gd.datasets.randomdata(
-        3, dtypes={"b": float, "ind": float}
-    ).set_index("ind")
-    d3 = gd.datasets.randomdata(
-        3, dtypes={"c": float, "ind": float}
-    ).set_index("ind")
-    d4 = gd.datasets.randomdata(
-        3, dtypes={"d": float, "ind": float}
-    ).set_index("ind")
-    d5 = gd.datasets.randomdata(
-        3, dtypes={"e": float, "ind": float}
-    ).set_index("ind")
+    d1 = gd.datasets.randomdata(3, dtypes={"a": float, "ind": float}).set_index("ind")
+    d2 = gd.datasets.randomdata(3, dtypes={"b": float, "ind": float}).set_index("ind")
+    d3 = gd.datasets.randomdata(3, dtypes={"c": float, "ind": float}).set_index("ind")
+    d4 = gd.datasets.randomdata(3, dtypes={"d": float, "ind": float}).set_index("ind")
+    d5 = gd.datasets.randomdata(3, dtypes={"e": float, "ind": float}).set_index("ind")
 
     pd1 = d1.to_pandas()
     pd2 = d2.to_pandas()
@@ -410,12 +396,8 @@ def test_concat_mixed_input():
         gd.concat([gdf1, None, gdf2, None]),
         check_index_type=True,
     )
-    assert_eq(
-        pd.concat([pdf1, None]), gd.concat([gdf1, None]), check_index_type=True
-    )
-    assert_eq(
-        pd.concat([None, pdf2]), gd.concat([None, gdf2]), check_index_type=True
-    )
+    assert_eq(pd.concat([pdf1, None]), gd.concat([gdf1, None]), check_index_type=True)
+    assert_eq(pd.concat([None, pdf2]), gd.concat([None, gdf2]), check_index_type=True)
     assert_eq(
         pd.concat([None, pdf2, pdf1]),
         gd.concat([None, gdf2, gdf1]),
@@ -432,15 +414,11 @@ def test_concat_mixed_input():
         [pd.Series([], dtype="float64"), pd.DataFrame({"a": [1, 2]})],
         [pd.Series([1, 2, 3.0, 1.2], name="abc"), pd.DataFrame({"a": [1, 2]})],
         [
-            pd.Series(
-                [1, 2, 3.0, 1.2], name="abc", index=[100, 110, 120, 130]
-            ),
+            pd.Series([1, 2, 3.0, 1.2], name="abc", index=[100, 110, 120, 130]),
             pd.DataFrame({"a": [1, 2]}),
         ],
         [
-            pd.Series(
-                [1, 2, 3.0, 1.2], name="abc", index=["a", "b", "c", "d"]
-            ),
+            pd.Series([1, 2, 3.0, 1.2], name="abc", index=["a", "b", "c", "d"]),
             pd.DataFrame({"a": [1, 2]}, index=["a", "b"]),
         ],
         [
@@ -527,9 +505,7 @@ def test_concat_series_dataframe_input_str(objs):
     [
         pd.DataFrame(),
         pd.DataFrame(index=[10, 20, 30]),
-        pd.DataFrame(
-            {"c": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]
-        ),
+        pd.DataFrame({"c": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]),
         pd.DataFrame([[5, 6], [7, 8]], columns=list("AB")),
         pd.DataFrame({"f": [10.2, 11.2332, 0.22, 3.3, 44.23, 10.0]}),
         pd.DataFrame({"l": [10]}),
@@ -543,9 +519,7 @@ def test_concat_series_dataframe_input_str(objs):
     [
         [pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()],
         [
-            pd.DataFrame(
-                {"c": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]
-            ),
+            pd.DataFrame({"c": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]),
             pd.DataFrame(),
             pd.DataFrame(),
             pd.DataFrame([[5, 6], [7, 8]], columns=list("AB")),
@@ -554,16 +528,12 @@ def test_concat_series_dataframe_input_str(objs):
             pd.DataFrame({"f": [10.2, 11.2332, 0.22, 3.3, 44.23, 10.0]}),
             pd.DataFrame({"l": [10]}),
             pd.DataFrame({"l": [10]}, index=[200]),
-            pd.DataFrame(
-                {"cat": pd.Series(["two", "three"], dtype="category")}
-            ),
+            pd.DataFrame({"cat": pd.Series(["two", "three"], dtype="category")}),
         ],
         [
             pd.DataFrame([]),
             pd.DataFrame([], index=[100]),
-            pd.DataFrame(
-                {"cat": pd.Series(["two", "three"], dtype="category")}
-            ),
+            pd.DataFrame({"cat": pd.Series(["two", "three"], dtype="category")}),
         ],
     ],
 )
@@ -679,9 +649,7 @@ def test_concat_dataframe_with_multiindex(df1, df2):
                     "z": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 }
             ),
-            pd.DataFrame(
-                {"x": range(10, 20), "y": list(map(float, range(10, 20)))}
-            ),
+            pd.DataFrame({"x": range(10, 20), "y": list(map(float, range(10, 20)))}),
         ],
         [
             pd.DataFrame(
@@ -719,9 +687,7 @@ def test_concat_join(objs, ignore_index, sort, join, axis):
     gpu_objs = [gd.from_pandas(o) for o in objs]
 
     assert_eq(
-        pd.concat(
-            objs, sort=sort, join=join, ignore_index=ignore_index, axis=axis
-        ),
+        pd.concat(objs, sort=sort, join=join, ignore_index=ignore_index, axis=axis),
         gd.concat(
             gpu_objs,
             sort=sort,
@@ -744,9 +710,7 @@ def test_concat_join(objs, ignore_index, sort, join, axis):
                     "z": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 }
             ),
-            pd.DataFrame(
-                {"x": range(10, 20), "y": list(map(float, range(10, 20)))}
-            ),
+            pd.DataFrame({"x": range(10, 20), "y": list(map(float, range(10, 20)))}),
         ],
     ],
 )
@@ -777,9 +741,7 @@ def test_concat_join_axis_1_dup_error(objs):
                     "z": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 }
             ),
-            pd.DataFrame(
-                {"l": range(10, 20), "m": list(map(float, range(10, 20)))}
-            ),
+            pd.DataFrame({"l": range(10, 20), "m": list(map(float, range(10, 20)))}),
         ],
     ],
 )
@@ -823,9 +785,7 @@ def test_concat_join_many_df_and_empty_df(ignore_index, sort, join, axis):
             "z": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         }
     )
-    pdf2 = pd.DataFrame(
-        {"l": range(10, 20), "m": list(map(float, range(10, 20)))}
-    )
+    pdf2 = pd.DataFrame({"l": range(10, 20), "m": list(map(float, range(10, 20)))})
     pdf3 = pd.DataFrame({"j": [1, 2], "k": [1, 2], "s": [1, 2], "t": [1, 2]})
     pdf_empty1 = pd.DataFrame()
 
@@ -891,12 +851,8 @@ def test_concat_join_one_df(ignore_index, sort, join, axis):
             pd.DataFrame({"c": [7, 8, 9], "d": [10, 11, 12]}),
         ),
         (
-            pd.DataFrame(
-                {"a": [1, 2, 3], "b": [4, 5, 6]}, index=["p", "q", "r"]
-            ),
-            pd.DataFrame(
-                {"c": [7, 8, 9], "d": [10, 11, 12]}, index=["r", "p", "z"]
-            ),
+            pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]}, index=["p", "q", "r"]),
+            pd.DataFrame({"c": [7, 8, 9], "d": [10, 11, 12]}, index=["r", "p", "z"]),
         ),
     ],
 )
@@ -908,9 +864,7 @@ def test_concat_join_one_df(ignore_index, sort, join, axis):
     condition=PANDAS_LT_140,
     reason="https://github.com/pandas-dev/pandas/issues/43584",
 )
-def test_concat_join_no_overlapping_columns(
-    pdf1, pdf2, ignore_index, sort, join, axis
-):
+def test_concat_join_no_overlapping_columns(pdf1, pdf2, ignore_index, sort, join, axis):
     gdf1 = gd.from_pandas(pdf1)
     gdf2 = gd.from_pandas(pdf2)
 
@@ -986,12 +940,8 @@ def test_concat_join_no_overlapping_columns_many_and_empty(
     "objs",
     [
         [
-            pd.DataFrame(
-                {"a": [1, 2, 3], "b": [4, 5, 6]}, index=["z", "t", "k"]
-            ),
-            pd.DataFrame(
-                {"c": [7, 8, 9], "d": [10, 11, 12]}, index=["z", "t", "k"]
-            ),
+            pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]}, index=["z", "t", "k"]),
+            pd.DataFrame({"c": [7, 8, 9], "d": [10, 11, 12]}, index=["z", "t", "k"]),
             pd.DataFrame(
                 {
                     "x": range(10),
@@ -1141,9 +1091,7 @@ def test_concat_join_series(ignore_index, sort, join, axis):
     [
         pd.DataFrame(),
         pd.DataFrame(index=[10, 20, 30]),
-        pd.DataFrame(
-            {"c": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]
-        ),
+        pd.DataFrame({"c": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]),
         pd.DataFrame([[5, 6], [7, 8]], columns=list("AB")),
         pd.DataFrame({"f": [10.2, 11.2332, 0.22, 3.3, 44.23, 10.0]}),
         pd.DataFrame({"l": [10]}),
@@ -1157,9 +1105,7 @@ def test_concat_join_series(ignore_index, sort, join, axis):
     [
         [pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()],
         [
-            pd.DataFrame(
-                {"b": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]
-            ),
+            pd.DataFrame({"b": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]),
             pd.DataFrame(),
             pd.DataFrame(),
             pd.DataFrame([[5, 6], [7, 8]], columns=list("AB")),
@@ -1168,16 +1114,12 @@ def test_concat_join_series(ignore_index, sort, join, axis):
             pd.DataFrame({"f": [10.2, 11.2332, 0.22, 3.3, 44.23, 10.0]}),
             pd.DataFrame({"l": [10]}),
             pd.DataFrame({"k": [10]}, index=[200]),
-            pd.DataFrame(
-                {"cat": pd.Series(["two", "three"], dtype="category")}
-            ),
+            pd.DataFrame({"cat": pd.Series(["two", "three"], dtype="category")}),
         ],
         [
             pd.DataFrame([]),
             pd.DataFrame([], index=[100]),
-            pd.DataFrame(
-                {"cat": pd.Series(["two", "three"], dtype="category")}
-            ),
+            pd.DataFrame({"cat": pd.Series(["two", "three"], dtype="category")}),
         ],
     ],
 )
@@ -1185,9 +1127,7 @@ def test_concat_join_series(ignore_index, sort, join, axis):
 @pytest.mark.parametrize("sort", [True, False])
 @pytest.mark.parametrize("join", ["inner", "outer"])
 @pytest.mark.parametrize("axis", [0])
-def test_concat_join_empty_dataframes(
-    df, other, ignore_index, axis, join, sort
-):
+def test_concat_join_empty_dataframes(df, other, ignore_index, axis, join, sort):
     other_pd = [df] + other
     gdf = gd.from_pandas(df)
     other_gd = [gdf] + [gd.from_pandas(o) for o in other]
@@ -1205,9 +1145,7 @@ def test_concat_join_empty_dataframes(
                     if not is_categorical_dtype(expected[key].dtype):
                         # TODO: Pandas bug:
                         # https://github.com/pandas-dev/pandas/issues/42840
-                        expected[key] = (
-                            expected[key].fillna("-1").astype("str")
-                        )
+                        expected[key] = expected[key].fillna("-1").astype("str")
                     else:
                         expected[key] = (
                             expected[key]
@@ -1224,9 +1162,7 @@ def test_concat_join_empty_dataframes(
                 expected.fillna(-1),
                 actual.fillna(-1),
                 check_dtype=False,
-                check_index_type=False
-                if len(expected) == 0 or actual.empty
-                else True,
+                check_index_type=False if len(expected) == 0 or actual.empty else True,
                 check_column_type=False,
             )
         else:
@@ -1251,9 +1187,7 @@ def test_concat_join_empty_dataframes(
     [
         pd.DataFrame(),
         pd.DataFrame(index=[10, 20, 30]),
-        pd.DataFrame(
-            {"c": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]
-        ),
+        pd.DataFrame({"c": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]),
         pd.DataFrame([[5, 6], [7, 8]], columns=list("AB")),
         pd.DataFrame({"f": [10.2, 11.2332, 0.22, 3.3, 44.23, 10.0]}),
         pd.DataFrame({"l": [10]}),
@@ -1267,9 +1201,7 @@ def test_concat_join_empty_dataframes(
     [
         [pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()],
         [
-            pd.DataFrame(
-                {"b": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]
-            ),
+            pd.DataFrame({"b": [10, 11, 22, 33, 44, 100]}, index=[7, 8, 9, 10, 11, 20]),
             pd.DataFrame(),
             pd.DataFrame(),
             pd.DataFrame([[5, 6], [7, 8]], columns=list("CD")),
@@ -1278,16 +1210,12 @@ def test_concat_join_empty_dataframes(
             pd.DataFrame({"g": [10.2, 11.2332, 0.22, 3.3, 44.23, 10.0]}),
             pd.DataFrame({"h": [10]}),
             pd.DataFrame({"k": [10]}, index=[200]),
-            pd.DataFrame(
-                {"dog": pd.Series(["two", "three"], dtype="category")}
-            ),
+            pd.DataFrame({"dog": pd.Series(["two", "three"], dtype="category")}),
         ],
         [
             pd.DataFrame([]),
             pd.DataFrame([], index=[100]),
-            pd.DataFrame(
-                {"bird": pd.Series(["two", "three"], dtype="category")}
-            ),
+            pd.DataFrame({"bird": pd.Series(["two", "three"], dtype="category")}),
         ],
     ],
 )
@@ -1307,9 +1235,7 @@ def test_concat_join_empty_dataframes(
     ],
 )
 @pytest.mark.parametrize("axis", [1])
-def test_concat_join_empty_dataframes_axis_1(
-    df, other, ignore_index, axis, join, sort
-):
+def test_concat_join_empty_dataframes_axis_1(df, other, ignore_index, axis, join, sort):
     # no duplicate columns
     other_pd = [df] + other
     gdf = gd.from_pandas(df)
@@ -1332,9 +1258,7 @@ def test_concat_join_empty_dataframes_axis_1(
                 expected.fillna(-1),
                 actual.fillna(-1),
                 check_dtype=False,
-                check_index_type=False
-                if len(expected) == 0 or actual.empty
-                else True,
+                check_index_type=False if len(expected) == 0 or actual.empty else True,
                 check_column_type=False,
             )
         else:
@@ -1345,9 +1269,7 @@ def test_concat_join_empty_dataframes_axis_1(
                 check_index_type=False,
                 check_column_type=False,
             )
-    assert_eq(
-        expected, actual, check_index_type=False, check_column_type=False
-    )
+    assert_eq(expected, actual, check_index_type=False, check_column_type=False)
 
 
 def test_concat_preserve_order():
@@ -1558,9 +1480,7 @@ def test_concat_decimal_numeric_dataframe(df1, df2, df3, expected):
     "s1, s2, s3, expected",
     [
         (
-            gd.Series(
-                [Decimal("32.8"), Decimal("-87.7")], dtype=Decimal64Dtype(6, 2)
-            ),
+            gd.Series([Decimal("32.8"), Decimal("-87.7")], dtype=Decimal64Dtype(6, 2)),
             gd.Series(
                 [Decimal("101.243"), Decimal("-92.449")],
                 dtype=Decimal64Dtype(9, 6),
@@ -1580,9 +1500,7 @@ def test_concat_decimal_numeric_dataframe(df1, df2, df3, expected):
             ),
         ),
         (
-            gd.Series(
-                [Decimal("7.2"), Decimal("122.1")], dtype=Decimal64Dtype(5, 2)
-            ),
+            gd.Series([Decimal("7.2"), Decimal("122.1")], dtype=Decimal64Dtype(5, 2)),
             gd.Series([33, 984], dtype="uint32"),
             gd.Series([593, -702], dtype="int32"),
             gd.Series(
@@ -1675,9 +1593,7 @@ def test_concat_decimal_numeric_series(s1, s2, s3, expected):
     "s1, s2, expected",
     [
         (
-            gd.Series(
-                [Decimal("955.22"), Decimal("8.2")], dtype=Decimal64Dtype(5, 2)
-            ),
+            gd.Series([Decimal("955.22"), Decimal("8.2")], dtype=Decimal64Dtype(5, 2)),
             gd.Series(["2007-06-12", "2006-03-14"], dtype="datetime64[s]"),
             gd.Series(
                 [
@@ -1695,9 +1611,7 @@ def test_concat_decimal_numeric_series(s1, s2, s3, expected):
                 dtype=Decimal64Dtype(5, 2),
             ),
             gd.Series(
-                np.arange(
-                    "2005-02-01T12", "2005-02-01T15", dtype="datetime64[h]"
-                ),
+                np.arange("2005-02-01T12", "2005-02-01T15", dtype="datetime64[h]"),
                 dtype="datetime64[s]",
             ),
             gd.Series(
@@ -1727,9 +1641,7 @@ def test_concat_decimal_numeric_series(s1, s2, s3, expected):
                 [Decimal("753.0"), Decimal("94.22")],
                 dtype=Decimal64Dtype(5, 2),
             ),
-            gd.Series(
-                [np.timedelta64(940252, "s"), np.timedelta64(758385, "s")]
-            ),
+            gd.Series([np.timedelta64(940252, "s"), np.timedelta64(758385, "s")]),
             gd.Series(
                 ["753.00", "94.22", "10 days 21:10:52", "8 days 18:39:45"],
                 index=[0, 1, 0, 1],
@@ -1809,9 +1721,7 @@ def test_concat_list_column(frame1, frame2, expected):
 
 def test_concat_categorical_ordering():
     # https://github.com/rapidsai/cudf/issues/11486
-    sr = pd.Series(
-        ["a", "b", "c", "d", "e", "a", "b", "c", "d", "e"], dtype="category"
-    )
+    sr = pd.Series(["a", "b", "c", "d", "e", "a", "b", "c", "d", "e"], dtype="category")
     sr = sr.cat.set_categories(["d", "a", "b", "c", "e"])
 
     df = pd.DataFrame({"a": sr})
@@ -1850,13 +1760,9 @@ def singleton_concat_obj(request, singleton_concat_index):
 @pytest.mark.parametrize("axis", [0, 1, "columns", "index"])
 @pytest.mark.parametrize("sort", [False, True])
 @pytest.mark.parametrize("ignore_index", [False, True])
-def test_concat_singleton_sorting(
-    axis, sort, ignore_index, singleton_concat_obj
-):
+def test_concat_singleton_sorting(axis, sort, ignore_index, singleton_concat_obj):
     gobj = gd.from_pandas(singleton_concat_obj)
-    gconcat = gd.concat(
-        [gobj], axis=axis, sort=sort, ignore_index=ignore_index
-    )
+    gconcat = gd.concat([gobj], axis=axis, sort=sort, ignore_index=ignore_index)
     pconcat = pd.concat(
         [singleton_concat_obj], axis=axis, sort=sort, ignore_index=ignore_index
     )

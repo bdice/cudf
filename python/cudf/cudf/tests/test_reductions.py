@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2023, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 
 from decimal import Decimal
@@ -12,12 +12,7 @@ import cudf
 from cudf import Series
 from cudf.core.dtypes import Decimal32Dtype, Decimal64Dtype, Decimal128Dtype
 from cudf.testing import _utils as utils
-from cudf.testing._utils import (
-    NUMERIC_TYPES,
-    assert_eq,
-    expect_warning_if,
-    gen_rand,
-)
+from cudf.testing._utils import NUMERIC_TYPES, assert_eq, expect_warning_if, gen_rand
 
 params_dtype = NUMERIC_TYPES
 
@@ -83,9 +78,7 @@ def test_product(dtype, nelem):
         data = np.ones(nelem, dtype=dtype)
         # Set at most 30 items to [0..2) to keep the value within 2^32
         for _ in range(30):
-            data[np.random.randint(low=0, high=nelem, size=1)] = (
-                np.random.uniform() * 2
-            )
+            data[np.random.randint(low=0, high=nelem, size=1)] = np.random.uniform() * 2
     else:
         data = gen_rand(dtype, nelem)
 

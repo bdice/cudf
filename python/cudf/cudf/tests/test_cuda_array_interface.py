@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 
 import types
 from contextlib import ExitStack as does_not_raise
@@ -79,8 +79,7 @@ def test_cuda_array_interface_interop_out_masked(dtype, module):
     expectation = does_not_raise()
     if module == "cupy":
         pytest.skip(
-            "cupy doesn't support version 1 of "
-            "`__cuda_array_interface__` yet"
+            "cupy doesn't support version 1 of " "`__cuda_array_interface__` yet"
         )
         module_constructor = cupy.asarray
 
@@ -129,9 +128,7 @@ def test_cuda_array_interface_as_column(dtype, nulls, mask_type):
 
     sr = sr.astype(dtype)
 
-    obj = types.SimpleNamespace(
-        __cuda_array_interface__=sr.__cuda_array_interface__
-    )
+    obj = types.SimpleNamespace(__cuda_array_interface__=sr.__cuda_array_interface__)
 
     if mask_type == "bools":
         if nulls == "some":

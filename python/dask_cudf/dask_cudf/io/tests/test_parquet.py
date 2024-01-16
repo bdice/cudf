@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 
 import glob
 import math
@@ -49,9 +49,7 @@ def test_roundtrip_backend_dispatch(tmpdir):
 @pytest.mark.parametrize("divisions", [True, False])
 def test_roundtrip_from_dask(tmpdir, divisions, write_metadata_file):
     tmpdir = str(tmpdir)
-    ddf.to_parquet(
-        tmpdir, write_metadata_file=write_metadata_file, engine="pyarrow"
-    )
+    ddf.to_parquet(tmpdir, write_metadata_file=write_metadata_file, engine="pyarrow")
     files = sorted(
         (os.path.join(tmpdir, f) for f in os.listdir(tmpdir)),
         key=natural_sort_key,
@@ -62,15 +60,11 @@ def test_roundtrip_from_dask(tmpdir, divisions, write_metadata_file):
     dd.assert_eq(ddf, ddf2, check_divisions=divisions)
 
     # Specify columns=['x']
-    ddf2 = dask_cudf.read_parquet(
-        files, columns=["x"], calculate_divisions=divisions
-    )
+    ddf2 = dask_cudf.read_parquet(files, columns=["x"], calculate_divisions=divisions)
     dd.assert_eq(ddf[["x"]], ddf2, check_divisions=divisions)
 
     # Specify columns='y'
-    ddf2 = dask_cudf.read_parquet(
-        files, columns="y", calculate_divisions=divisions
-    )
+    ddf2 = dask_cudf.read_parquet(files, columns="y", calculate_divisions=divisions)
     dd.assert_eq(ddf[["y"]], ddf2, check_divisions=divisions)
 
     # Now include metadata
@@ -78,15 +72,11 @@ def test_roundtrip_from_dask(tmpdir, divisions, write_metadata_file):
     dd.assert_eq(ddf, ddf2, check_divisions=divisions)
 
     # Specify columns=['x'] (with metadata)
-    ddf2 = dask_cudf.read_parquet(
-        tmpdir, columns=["x"], calculate_divisions=divisions
-    )
+    ddf2 = dask_cudf.read_parquet(tmpdir, columns=["x"], calculate_divisions=divisions)
     dd.assert_eq(ddf[["x"]], ddf2, check_divisions=divisions)
 
     # Specify columns='y' (with metadata)
-    ddf2 = dask_cudf.read_parquet(
-        tmpdir, columns="y", calculate_divisions=divisions
-    )
+    ddf2 = dask_cudf.read_parquet(tmpdir, columns="y", calculate_divisions=divisions)
     dd.assert_eq(ddf[["y"]], ddf2, check_divisions=divisions)
 
 
@@ -149,9 +139,7 @@ def test_roundtrip_from_pandas(tmpdir):
 
 def test_strings(tmpdir):
     fn = str(tmpdir)
-    dfp = pd.DataFrame(
-        {"a": ["aa", "bbb", "cccc"], "b": ["hello", "dog", "man"]}
-    )
+    dfp = pd.DataFrame({"a": ["aa", "bbb", "cccc"], "b": ["hello", "dog", "man"]})
     dfp.set_index("a", inplace=True, drop=True)
     ddf2 = dd.from_pandas(dfp, npartitions=2)
     ddf2.to_parquet(fn, engine="pyarrow")
@@ -174,9 +162,7 @@ def test_dask_timeseries_from_dask(tmpdir, index, divisions):
     fn = str(tmpdir)
     ddf2 = dask.datasets.timeseries(freq="D")
     ddf2.to_parquet(fn, engine="pyarrow", write_index=index)
-    read_df = dask_cudf.read_parquet(
-        fn, index=index, calculate_divisions=divisions
-    )
+    read_df = dask_cudf.read_parquet(fn, index=index, calculate_divisions=divisions)
     dd.assert_eq(
         ddf2, read_df, check_divisions=(divisions and index), check_index=index
     )
@@ -186,14 +172,10 @@ def test_dask_timeseries_from_dask(tmpdir, index, divisions):
 @pytest.mark.parametrize("divisions", [False, True])
 def test_dask_timeseries_from_daskcudf(tmpdir, index, divisions):
     fn = str(tmpdir)
-    ddf2 = dask_cudf.from_cudf(
-        cudf.datasets.timeseries(freq="D"), npartitions=4
-    )
+    ddf2 = dask_cudf.from_cudf(cudf.datasets.timeseries(freq="D"), npartitions=4)
     ddf2.name = ddf2.name.astype("object")
     ddf2.to_parquet(fn, write_index=index)
-    read_df = dask_cudf.read_parquet(
-        fn, index=index, calculate_divisions=divisions
-    )
+    read_df = dask_cudf.read_parquet(fn, index=index, calculate_divisions=divisions)
     dd.assert_eq(
         ddf2, read_df, check_divisions=(divisions and index), check_index=index
     )
@@ -220,9 +202,7 @@ def test_filters(tmpdir):
 
     ddf.to_parquet(tmp_path, engine="pyarrow")
 
-    a = dask_cudf.read_parquet(
-        tmp_path, filters=[("x", ">", 4)], split_row_groups=True
-    )
+    a = dask_cudf.read_parquet(tmp_path, filters=[("x", ">", 4)], split_row_groups=True)
     assert a.npartitions == 3
     assert (a.x > 3).all().compute()
 
@@ -261,17 +241,13 @@ def test_isna_filters(tmpdir, null, numeric):
     # Test "is"
     col = "i" if numeric else "j"
     filters = [(col, "is", null)]
-    out = dask_cudf.read_parquet(
-        tmp_path, filters=filters, split_row_groups=True
-    )
+    out = dask_cudf.read_parquet(tmp_path, filters=filters, split_row_groups=True)
     assert len(out) == 2
     assert list(out.x.compute().values) == [4, 5]
 
     # Test "is not"
     filters = [(col, "is not", null)]
-    out = dask_cudf.read_parquet(
-        tmp_path, filters=filters, split_row_groups=True
-    )
+    out = dask_cudf.read_parquet(tmp_path, filters=filters, split_row_groups=True)
     assert len(out) == 8
     assert list(out.x.compute().values) == [0, 1, 2, 3, 6, 7, 8, 9]
 
@@ -315,9 +291,7 @@ def test_roundtrip_from_dask_partitioned(tmpdir, parts, daskcudf, metadata):
     df.index.name = "index"
     if daskcudf:
         ddf2 = dask_cudf.from_cudf(cudf.from_pandas(df), npartitions=2)
-        ddf2.to_parquet(
-            tmpdir, write_metadata_file=metadata, partition_on=parts
-        )
+        ddf2.to_parquet(tmpdir, write_metadata_file=metadata, partition_on=parts)
     else:
         ddf2 = dd.from_pandas(df, npartitions=2)
         ddf2.to_parquet(
@@ -553,9 +527,7 @@ def test_nullable_schema_mismatch(tmpdir):
     cudf.DataFrame.from_dict({"a": [1, 2, 3]}).to_parquet(path0)
     cudf.DataFrame.from_dict({"a": [4, 5, None]}).to_parquet(path1)
     with dask.config.set({"dataframe.backend": "cudf"}):
-        ddf = dd.read_parquet(
-            [path0, path1], split_row_groups=2, aggregate_files=True
-        )
+        ddf = dd.read_parquet([path0, path1], split_row_groups=2, aggregate_files=True)
         expect = pd.read_parquet([path0, path1])
     dd.assert_eq(ddf, expect, check_index=False)
 

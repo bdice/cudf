@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 from libcpp.memory cimport unique_ptr
 from libcpp.string cimport string
@@ -14,10 +14,7 @@ from enum import IntEnum
 
 from cudf._lib.cpp.column.column cimport column
 from cudf._lib.cpp.strings.padding cimport pad as cpp_pad, zfill as cpp_zfill
-from cudf._lib.cpp.strings.side_type cimport (
-    side_type,
-    underlying_type_t_side_type,
-)
+from cudf._lib.cpp.strings.side_type cimport side_type, underlying_type_t_side_type
 
 
 class SideType(IntEnum):

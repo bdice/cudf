@@ -174,12 +174,12 @@ def test_groupby_apply_fallback(dataframe, groupby_udf):
 def test_groupby_external_series_apply_fallback(dataframe, groupby_udf):
     pdf, df = dataframe
     tm.assert_equal(
-        pdf.groupby(
-            pd.Series([1, 2, 1, 2, 1]), sort=True, group_keys=True
-        ).apply(groupby_udf),
-        df.groupby(
-            xpd.Series([1, 2, 1, 2, 1]), sort=True, group_keys=True
-        ).apply(groupby_udf),
+        pdf.groupby(pd.Series([1, 2, 1, 2, 1]), sort=True, group_keys=True).apply(
+            groupby_udf
+        ),
+        df.groupby(xpd.Series([1, 2, 1, 2, 1]), sort=True, group_keys=True).apply(
+            groupby_udf
+        ),
     )
 
 
@@ -394,9 +394,7 @@ def test_excel_round_trip(dataframe):
     excel_pdf.seek(0)
     excel_cudf_pandas.seek(0)
 
-    tm.assert_frame_equal(
-        pd.read_excel(excel_pdf), xpd.read_excel(excel_cudf_pandas)
-    )
+    tm.assert_frame_equal(pd.read_excel(excel_pdf), xpd.read_excel(excel_cudf_pandas))
 
 
 def test_hash_array(series):
@@ -416,21 +414,15 @@ def test_is_sparse():
 
 def test_is_file_like():
     assert pd.api.types.is_file_like("a") == xpd.api.types.is_file_like("a")
-    assert pd.api.types.is_file_like(BytesIO()) == xpd.api.types.is_file_like(
-        BytesIO()
-    )
-    assert pd.api.types.is_file_like(
+    assert pd.api.types.is_file_like(BytesIO()) == xpd.api.types.is_file_like(BytesIO())
+    assert pd.api.types.is_file_like(StringIO("abc")) == xpd.api.types.is_file_like(
         StringIO("abc")
-    ) == xpd.api.types.is_file_like(StringIO("abc"))
+    )
 
 
 def test_is_re_compilable():
-    assert pd.api.types.is_re_compilable(
-        ".^"
-    ) == xpd.api.types.is_re_compilable(".^")
-    assert pd.api.types.is_re_compilable(
-        ".*"
-    ) == xpd.api.types.is_re_compilable(".*")
+    assert pd.api.types.is_re_compilable(".^") == xpd.api.types.is_re_compilable(".^")
+    assert pd.api.types.is_re_compilable(".*") == xpd.api.types.is_re_compilable(".*")
 
 
 def test_module_attribute_types():
@@ -452,12 +444,8 @@ def test_infer_freq():
 def test_groupby_grouper_fallback(dataframe, groupby_udf):
     pdf, df = dataframe
     tm.assert_equal(
-        pdf.groupby(pd.Grouper("a"), sort=True, group_keys=True).apply(
-            groupby_udf
-        ),
-        df.groupby(xpd.Grouper("a"), sort=True, group_keys=True).apply(
-            groupby_udf
-        ),
+        pdf.groupby(pd.Grouper("a"), sort=True, group_keys=True).apply(groupby_udf),
+        df.groupby(xpd.Grouper("a"), sort=True, group_keys=True).apply(groupby_udf),
     )
 
 
@@ -541,9 +529,7 @@ def test_pyarrow_array_construction(data):
     assert actual_pa_array.equals(expected_pa_array)
 
 
-@pytest.mark.parametrize(
-    "op", [">", "<", "==", "<=", ">=", "+", "%", "-", "*", "/"]
-)
+@pytest.mark.parametrize("op", [">", "<", "==", "<=", ">=", "+", "%", "-", "*", "/"])
 def test_cudf_pandas_eval_series(op):
     lhs = xpd.Series([10, 11, 12])  # noqa: F841
     rhs = xpd.Series([100, 1, 12])  # noqa: F841
@@ -558,9 +544,7 @@ def test_cudf_pandas_eval_series(op):
     tm.assert_series_equal(expected, actual)
 
 
-@pytest.mark.parametrize(
-    "op", [">", "<", "==", "<=", ">=", "+", "%", "-", "*", "/"]
-)
+@pytest.mark.parametrize("op", [">", "<", "==", "<=", ">=", "+", "%", "-", "*", "/"])
 def test_cudf_pandas_eval_dataframe(op):
     lhs = xpd.DataFrame({"a": [10, 11, 12], "b": [1, 2, 3]})  # noqa: F841
     rhs = xpd.DataFrame({"a": [100, 1, 12], "b": [15, -10, 3]})  # noqa: F841
@@ -575,9 +559,7 @@ def test_cudf_pandas_eval_dataframe(op):
     tm.assert_frame_equal(expected, actual)
 
 
-@pytest.mark.parametrize(
-    "expr", ["((a + b) * c % d) > e", "((a + b) * c % d)"]
-)
+@pytest.mark.parametrize("expr", ["((a + b) * c % d) > e", "((a + b) * c % d)"])
 def test_cudf_pandas_eval_complex(expr):
     data = {
         "a": [10, 11, 12],
@@ -767,9 +749,7 @@ def test_chunked_csv_reader(tmpdir, data):
             tm.assert_equal(pd_chunk, xpd_chunk, check_index_type=False)
 
 
-@pytest.mark.parametrize(
-    "data", [(), (1,), (1, 2, 3), ("a", "b", "c"), (1, 2, "test")]
-)
+@pytest.mark.parametrize("data", [(), (1,), (1, 2, 3), ("a", "b", "c"), (1, 2, "test")])
 def test_construct_from_generator(data):
     expect = pd.Series((x for x in data))
     got = xpd.Series((x for x in data))
@@ -808,9 +788,7 @@ def test_construct_timedelta_index():
 )
 def test_datetime_ops(op):
     pd_dt_idx1 = pd.DatetimeIndex([10, 20, 30], dtype="datetime64[ns]")
-    cudf_pandas_dt_idx = xpd.DatetimeIndex(
-        [10, 20, 30], dtype="datetime64[ns]"
-    )
+    cudf_pandas_dt_idx = xpd.DatetimeIndex([10, 20, 30], dtype="datetime64[ns]")
 
     tm.assert_equal(
         op(pd_dt_idx1, pd_dt_idx1), op(cudf_pandas_dt_idx, cudf_pandas_dt_idx)
@@ -831,9 +809,7 @@ def test_datetime_ops(op):
 )
 def test_timedelta_ops(op):
     pd_td_idx1 = pd.TimedeltaIndex([10, 20, 30], dtype="timedelta64[ns]")
-    cudf_pandas_td_idx = xpd.TimedeltaIndex(
-        [10, 20, 30], dtype="timedelta64[ns]"
-    )
+    cudf_pandas_td_idx = xpd.TimedeltaIndex([10, 20, 30], dtype="timedelta64[ns]")
 
     tm.assert_equal(
         op(pd_td_idx1, pd_td_idx1), op(cudf_pandas_td_idx, cudf_pandas_td_idx)
@@ -843,14 +819,10 @@ def test_timedelta_ops(op):
 @pytest.mark.parametrize("op", [operator.add, operator.sub])
 def test_datetime_timedelta_ops(op):
     pd_dt_idx1 = pd.DatetimeIndex([10, 20, 30], dtype="datetime64[ns]")
-    cudf_pandas_dt_idx = xpd.DatetimeIndex(
-        [10, 20, 30], dtype="datetime64[ns]"
-    )
+    cudf_pandas_dt_idx = xpd.DatetimeIndex([10, 20, 30], dtype="datetime64[ns]")
 
     pd_td_idx1 = pd.TimedeltaIndex([10, 20, 30], dtype="timedelta64[ns]")
-    cudf_pandas_td_idx = xpd.TimedeltaIndex(
-        [10, 20, 30], dtype="timedelta64[ns]"
-    )
+    cudf_pandas_td_idx = xpd.TimedeltaIndex([10, 20, 30], dtype="timedelta64[ns]")
 
     tm.assert_equal(
         op(pd_dt_idx1, pd_td_idx1), op(cudf_pandas_dt_idx, cudf_pandas_td_idx)
@@ -922,12 +894,8 @@ def test_datetime_values_dtype_roundtrip():
 
 
 def test_resample():
-    ser = pd.Series(
-        range(3), index=pd.date_range("2020-01-01", freq="D", periods=3)
-    )
-    xser = xpd.Series(
-        range(3), index=xpd.date_range("2020-01-01", freq="D", periods=3)
-    )
+    ser = pd.Series(range(3), index=pd.date_range("2020-01-01", freq="D", periods=3))
+    xser = xpd.Series(range(3), index=xpd.date_range("2020-01-01", freq="D", periods=3))
     expected = ser.resample("D").max()
     result = xser.resample("D").max()
     tm.assert_series_equal(result, expected)
@@ -1214,9 +1182,7 @@ def test_read_sas_context():
     assert isinstance(df, xpd.DataFrame)
 
 
-@pytest.mark.parametrize(
-    "idx_obj", ["Float64Index", "Int64Index", "UInt64Index"]
-)
+@pytest.mark.parametrize("idx_obj", ["Float64Index", "Int64Index", "UInt64Index"])
 def test_pandas_module_getattr_objects(idx_obj):
     # Objects that are behind pandas.__getattr__ (version 1.5 specific)
     idx = getattr(xpd, idx_obj)([1, 2, 3])

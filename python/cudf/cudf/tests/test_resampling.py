@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022, NVIDIA CORPORATION.
+# Copyright (c) 2021-2024, NVIDIA CORPORATION.
 
 import numpy as np
 import pandas as pd
@@ -49,9 +49,7 @@ def test_series_resample_ffill(rule):
     rng = pd.date_range("1/1/2012", periods=10, freq="5S")
     ts = pd.Series(np.random.randint(0, 500, len(rng)), index=rng)
     gts = cudf.from_pandas(ts)
-    assert_resample_results_equal(
-        ts.resample(rule).ffill(), gts.resample(rule).ffill()
-    )
+    assert_resample_results_equal(ts.resample(rule).ffill(), gts.resample(rule).ffill())
 
 
 @pytest.mark.parametrize("rule", ["2S", "10S"])
@@ -59,9 +57,7 @@ def test_series_resample_bfill(rule):
     rng = pd.date_range("1/1/2012", periods=10, freq="5S")
     ts = pd.Series(np.random.randint(0, 500, len(rng)), index=rng)
     gts = cudf.from_pandas(ts)
-    assert_resample_results_equal(
-        ts.resample(rule).bfill(), gts.resample(rule).bfill()
-    )
+    assert_resample_results_equal(ts.resample(rule).bfill(), gts.resample(rule).bfill())
 
 
 @pytest.mark.parametrize("rule", ["2S", "10S"])
@@ -81,9 +77,7 @@ def test_dataframe_resample_aggregation_simple():
         columns=["A", "B", "C"],
     )
     gdf = cudf.from_pandas(pdf)
-    assert_resample_results_equal(
-        pdf.resample("3T").mean(), gdf.resample("3T").mean()
-    )
+    assert_resample_results_equal(pdf.resample("3T").mean(), gdf.resample("3T").mean())
 
 
 def test_dataframe_resample_multiagg():

@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023, NVIDIA CORPORATION.
+# Copyright (c) 2018-2024, NVIDIA CORPORATION.
 
 import pickle
 
@@ -53,9 +53,7 @@ def test_pickle_dataframe_categorical():
     np.random.seed(0)
 
     df = DataFrame()
-    df["keys"] = pd.Categorical(
-        ["a", "a", "a", "b", "a", "b", "a", "b", "a", "c"]
-    )
+    df["keys"] = pd.Categorical(["a", "a", "a", "b", "a", "b", "a", "b", "a", "c"])
     df["vals"] = np.random.random(len(df))
 
     check_serialization(df)

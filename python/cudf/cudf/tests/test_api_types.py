@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023, NVIDIA CORPORATION.
+# Copyright (c) 2018-2024, NVIDIA CORPORATION.
 
 import numpy as np
 import pandas as pd
@@ -1035,9 +1035,7 @@ def test_is_decimal_dtype(obj, expect):
     ),
 )
 def test_pandas_agreement(obj):
-    assert types.is_categorical_dtype(obj) == pd_types.is_categorical_dtype(
-        obj
-    )
+    assert types.is_categorical_dtype(obj) == pd_types.is_categorical_dtype(obj)
     assert types.is_numeric_dtype(obj) == pd_types.is_numeric_dtype(obj)
     assert types.is_integer_dtype(obj) == pd_types.is_integer_dtype(obj)
     assert types.is_integer(obj) == pd_types.is_integer(obj)

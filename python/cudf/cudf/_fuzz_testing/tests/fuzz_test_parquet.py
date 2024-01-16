@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 import sys
 
@@ -8,11 +8,7 @@ import pandas as pd
 import cudf
 from cudf._fuzz_testing.main import pythonfuzz
 from cudf._fuzz_testing.parquet import ParquetReader, ParquetWriter
-from cudf._fuzz_testing.utils import (
-    ALL_POSSIBLE_VALUES,
-    compare_dataframe,
-    run_test,
-)
+from cudf._fuzz_testing.utils import ALL_POSSIBLE_VALUES, compare_dataframe, run_test
 
 
 @pythonfuzz(data_handle=ParquetReader)
@@ -72,9 +68,7 @@ def parquet_writer_test(pdf):
         "compression": ["snappy", None],
     },
 )
-def parquet_writer_test_rowgroup_index_compression(
-    pdf, compression, row_group_size
-):
+def parquet_writer_test_rowgroup_index_compression(pdf, compression, row_group_size):
     pd_file_name = "cpu_pdf.parquet"
     gd_file_name = "gpu_pdf.parquet"
 

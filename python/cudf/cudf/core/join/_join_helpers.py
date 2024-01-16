@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023, NVIDIA CORPORATION.
+# Copyright (c) 2021-2024, NVIDIA CORPORATION.
 
 from __future__ import annotations
 
@@ -90,8 +90,7 @@ def _match_join_keys(
         np.issubdtype(ltype, np.number)
         and np.issubdtype(rtype, np.number)
         and not (
-            np.issubdtype(ltype, np.timedelta64)
-            or np.issubdtype(rtype, np.timedelta64)
+            np.issubdtype(ltype, np.timedelta64) or np.issubdtype(rtype, np.timedelta64)
         )
     ):
         common_type = (
@@ -100,24 +99,20 @@ def _match_join_keys(
             else np.find_common_type([], (ltype, rtype))
         )
     elif (
-        np.issubdtype(ltype, np.datetime64)
-        and np.issubdtype(rtype, np.datetime64)
+        np.issubdtype(ltype, np.datetime64) and np.issubdtype(rtype, np.datetime64)
     ) or (
-        np.issubdtype(ltype, np.timedelta64)
-        and np.issubdtype(rtype, np.timedelta64)
+        np.issubdtype(ltype, np.timedelta64) and np.issubdtype(rtype, np.timedelta64)
     ):
         common_type = max(ltype, rtype)
     elif (
-        np.issubdtype(ltype, np.datetime64)
-        or np.issubdtype(ltype, np.timedelta64)
+        np.issubdtype(ltype, np.datetime64) or np.issubdtype(ltype, np.timedelta64)
     ) and not rcol.fillna(0).can_cast_safely(ltype):
         raise TypeError(
             f"Cannot join between {ltype} and {rtype}, please type-cast both "
             "columns to the same type."
         )
     elif (
-        np.issubdtype(rtype, np.datetime64)
-        or np.issubdtype(rtype, np.timedelta64)
+        np.issubdtype(rtype, np.datetime64) or np.issubdtype(rtype, np.timedelta64)
     ) and not lcol.fillna(0).can_cast_safely(rtype):
         raise TypeError(
             f"Cannot join between {rtype} and {ltype}, please type-cast both "
@@ -144,8 +139,7 @@ def _match_categorical_dtypes_both(
     # ambiguous and not allowed.
     if ltype.ordered != rtype.ordered:
         raise TypeError(
-            "Merging on categorical variables with mismatched"
-            " ordering is ambiguous"
+            "Merging on categorical variables with mismatched" " ordering is ambiguous"
         )
 
     if ltype.ordered and rtype.ordered:
@@ -170,12 +164,8 @@ def _match_categorical_dtypes_both(
         return lcol, rcol.astype(ltype)
     else:
         # merge categories
-        merged_categories = cudf.concat(
-            [ltype.categories, rtype.categories]
-        ).unique()
-        common_type = cudf.CategoricalDtype(
-            categories=merged_categories, ordered=False
-        )
+        merged_categories = cudf.concat([ltype.categories, rtype.categories]).unique()
+        common_type = cudf.CategoricalDtype(categories=merged_categories, ordered=False)
         return lcol.astype(common_type), rcol.astype(common_type)
 
 

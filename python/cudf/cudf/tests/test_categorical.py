@@ -65,9 +65,7 @@ def test_categorical_basic():
     assert_eq(pdsr.cat.categories, sr.cat.categories)
     assert pdsr.cat.ordered == sr.cat.ordered
 
-    np.testing.assert_array_equal(
-        pdsr.cat.codes.values, sr.cat.codes.to_numpy()
-    )
+    np.testing.assert_array_equal(pdsr.cat.codes.values, sr.cat.codes.to_numpy())
 
     string = str(sr)
     expect_str = """
@@ -208,9 +206,7 @@ def test_categorical_masking():
     expect_matches = pdsr == "a"
     got_matches = sr == "a"
 
-    np.testing.assert_array_equal(
-        expect_matches.values, got_matches.to_numpy()
-    )
+    np.testing.assert_array_equal(expect_matches.values, got_matches.to_numpy())
 
     # mask series
     expect_masked = pdsr[expect_matches]
@@ -274,9 +270,7 @@ def test_categorical_unique(num_elements):
     np.random.seed(12)
     pd_cat = pd.Categorical(
         pd.Series(
-            np.random.choice(
-                list(string.ascii_letters + string.digits), num_elements
-            ),
+            np.random.choice(list(string.ascii_letters + string.digits), num_elements),
             dtype="category",
         )
     )
@@ -301,9 +295,7 @@ def test_categorical_unique_count(nelem):
     np.random.seed(12)
     pd_cat = pd.Categorical(
         pd.Series(
-            np.random.choice(
-                list(string.ascii_letters + string.digits), nelem
-            ),
+            np.random.choice(list(string.ascii_letters + string.digits), nelem),
             dtype="category",
         )
     )
@@ -332,9 +324,7 @@ def test_categorical_empty():
     assert_eq(pdsr.cat.categories, sr.cat.categories)
     assert pdsr.cat.ordered == sr.cat.ordered
 
-    np.testing.assert_array_equal(
-        pdsr.cat.codes.values, sr.cat.codes.to_numpy()
-    )
+    np.testing.assert_array_equal(pdsr.cat.codes.values, sr.cat.codes.to_numpy())
 
 
 def test_categorical_set_categories():
@@ -423,9 +413,7 @@ def test_categorical_as_unordered(pd_str_cat, inplace):
         False,
     ],
 )
-def test_categorical_reorder_categories(
-    pd_str_cat, from_ordered, to_ordered, inplace
-):
+def test_categorical_reorder_categories(pd_str_cat, from_ordered, to_ordered, inplace):
     pd_sr = pd.Series(pd_str_cat.copy().set_ordered(from_ordered))
     cd_sr = cudf.Series(pd_str_cat.copy().set_ordered(from_ordered))
 
@@ -435,9 +423,7 @@ def test_categorical_reorder_categories(
 
     kwargs = dict(ordered=to_ordered, inplace=inplace)
 
-    with _hide_deprecated_pandas_categorical_inplace_warnings(
-        "reorder_categories"
-    ):
+    with _hide_deprecated_pandas_categorical_inplace_warnings("reorder_categories"):
         pd_sr_1 = pd_sr.cat.reorder_categories(list("cba"), **kwargs)
     if inplace:
         with pytest.warns(FutureWarning):
@@ -473,9 +459,7 @@ def test_categorical_add_categories(pd_str_cat, inplace):
 
     assert str(pd_sr) == str(cd_sr)
 
-    with _hide_deprecated_pandas_categorical_inplace_warnings(
-        "add_categories"
-    ):
+    with _hide_deprecated_pandas_categorical_inplace_warnings("add_categories"):
         pd_sr_1 = pd_sr.cat.add_categories(["d"], inplace=inplace)
 
     if inplace:
@@ -513,9 +497,7 @@ def test_categorical_remove_categories(pd_str_cat, inplace):
 
     assert str(pd_sr) == str(cd_sr)
 
-    with _hide_deprecated_pandas_categorical_inplace_warnings(
-        "remove_categories"
-    ):
+    with _hide_deprecated_pandas_categorical_inplace_warnings("remove_categories"):
         pd_sr_1 = pd_sr.cat.remove_categories(["a"], inplace=inplace)
 
     if inplace:
@@ -752,9 +734,7 @@ def test_add_categories(data, add):
     with _hide_cudf_safe_casting_warning():
         actual = gds.cat.add_categories(add)
 
-    assert_eq(
-        expected.cat.codes, actual.cat.codes.astype(expected.cat.codes.dtype)
-    )
+    assert_eq(expected.cat.codes, actual.cat.codes.astype(expected.cat.codes.dtype))
 
     # Need to type-cast pandas object to str due to mixed-type
     # support in "object"
@@ -858,16 +838,14 @@ def test_categorical_allow_nan():
     assert_eq(expected_categories, gs.cat.categories)
 
     actual_ps = gs.to_pandas()
-    expected_ps = pd.Series(
-        [1.0, 2.0, np.nan, 10.0, np.nan, np.nan], dtype="category"
-    )
+    expected_ps = pd.Series([1.0, 2.0, np.nan, 10.0, np.nan, np.nan], dtype="category")
     assert_eq(actual_ps, expected_ps)
 
 
 def test_categorical_setitem_with_nan():
-    gs = cudf.Series(
-        [1, 2, np.nan, 10, np.nan, None], nan_as_null=False
-    ).astype("category")
+    gs = cudf.Series([1, 2, np.nan, 10, np.nan, None], nan_as_null=False).astype(
+        "category"
+    )
     gs[[1, 3]] = np.nan
 
     expected_series = cudf.Series(
@@ -880,9 +858,7 @@ def test_categorical_setitem_with_nan():
 @pytest.mark.parametrize("input_obj", [[1, cudf.NA, 3]])
 def test_series_construction_with_nulls(input_obj, dtype):
     dtype = cudf.dtype(dtype)
-    input_obj = [
-        dtype.type(v) if v is not cudf.NA else cudf.NA for v in input_obj
-    ]
+    input_obj = [dtype.type(v) if v is not cudf.NA else cudf.NA for v in input_obj]
 
     expect = pd.Series(input_obj, dtype="category")
     got = cudf.Series(input_obj, dtype="category").to_pandas()

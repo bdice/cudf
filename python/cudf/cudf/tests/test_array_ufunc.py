@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2023, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 import operator
 import warnings
@@ -14,9 +14,7 @@ from cudf.core._compat import PANDAS_GE_150
 from cudf.testing._utils import assert_eq, set_random_null_mask_inplace
 
 _UFUNCS = [
-    obj
-    for obj in (getattr(np, name) for name in dir(np))
-    if isinstance(obj, np.ufunc)
+    obj for obj in (getattr(np, name) for name in dir(np)) if isinstance(obj, np.ufunc)
 ]
 
 
@@ -217,9 +215,7 @@ def test_ufunc_series(request, ufunc, has_nulls, indexed):
 @pytest.mark.parametrize("has_nulls", [True, False])
 @pytest.mark.parametrize("indexed", [True, False])
 @pytest.mark.parametrize("reflect", [True, False])
-def test_binary_ufunc_series_array(
-    request, ufunc, has_nulls, indexed, reflect
-):
+def test_binary_ufunc_series_array(request, ufunc, has_nulls, indexed, reflect):
     fname = ufunc.__name__
     request.applymarker(
         pytest.mark.xfail(
@@ -236,13 +232,9 @@ def test_binary_ufunc_series_array(
     request.applymarker(
         pytest.mark.xfail(
             condition=(
-                fname in {"greater", "greater_equal", "logical_and"}
-                and has_nulls
+                fname in {"greater", "greater_equal", "logical_and"} and has_nulls
             ),
-            reason=(
-                "cudf and pandas incompatible casting nans "
-                "to nulls in binops"
-            ),
+            reason=("cudf and pandas incompatible casting nans " "to nulls in binops"),
         )
     )
     N = 100
@@ -380,8 +372,7 @@ def test_ufunc_dataframe(request, ufunc, has_nulls, indexed):
                 }
             ),
             reason=(
-                "pandas does not currently support misaligned "
-                "indexes in DataFrames"
+                "pandas does not currently support misaligned " "indexes in DataFrames"
             ),
         )
     )
@@ -417,9 +408,7 @@ def test_ufunc_dataframe(request, ufunc, has_nulls, indexed):
             if indexed and ufunc.nin == 2
             else args
         )
-        mask = reduce(
-            operator.or_, (a["foo"].isna() for a in aligned)
-        ).to_pandas()
+        mask = reduce(operator.or_, (a["foo"].isna() for a in aligned)).to_pandas()
 
     got = ufunc(*args)
 

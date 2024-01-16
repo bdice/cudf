@@ -1,15 +1,11 @@
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 import sys
 
 import cudf
 from cudf._fuzz_testing.avro import AvroReader
 from cudf._fuzz_testing.main import pythonfuzz
-from cudf._fuzz_testing.utils import (
-    ALL_POSSIBLE_VALUES,
-    compare_dataframe,
-    run_test,
-)
+from cudf._fuzz_testing.utils import ALL_POSSIBLE_VALUES, compare_dataframe, run_test
 
 
 @pythonfuzz(

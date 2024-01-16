@@ -102,9 +102,7 @@ class DataFrame(_Frame, dd.core.DataFrame):
             cache_key = uuid.uuid4()
 
         def do_apply_rows(df, func, incols, outcols, kwargs):
-            return df.apply_rows(
-                func, incols, outcols, kwargs, cache_key=cache_key
-            )
+            return df.apply_rows(func, incols, outcols, kwargs, cache_key=cache_key)
 
         meta = do_apply_rows(self._meta, func, incols, outcols, kwargs)
         return self.map_partitions(
@@ -422,9 +420,7 @@ def _naive_var(ddf, meta, skipna, ddof, split_every, out):
     x2 = 1.0 * (num**2).sum(skipna=skipna, split_every=split_every)
     n = num.count(split_every=split_every)
     name = ddf._token_prefix + "var"
-    result = map_partitions(
-        var_aggregate, x2, x, n, token=name, meta=meta, ddof=ddof
-    )
+    result = map_partitions(var_aggregate, x2, x, n, token=name, meta=meta, ddof=ddof)
     if isinstance(ddf, DataFrame):
         result.divisions = (min(ddf.columns), max(ddf.columns))
     return handle_out(out, result)
@@ -467,8 +463,7 @@ def _parallel_var(ddf, meta, skipna, split_every, out):
     local_name = "local-" + name
     num = ddf._get_numeric_data()
     dsk = {
-        (local_name, n, 0): (_local_var, (num._name, n), skipna)
-        for n in range(nparts)
+        (local_name, n, 0): (_local_var, (num._name, n), skipna) for n in range(nparts)
     }
 
     # Use reduction tree
@@ -482,9 +477,7 @@ def _parallel_var(ddf, meta, skipna, split_every, out):
             p_max = widths[depth - 1]
             lstart = split_every * group
             lstop = min(lstart + split_every, p_max)
-            node_list = [
-                (local_name, p, depth - 1) for p in range(lstart, lstop)
-            ]
+            node_list = [(local_name, p, depth - 1) for p in range(lstart, lstop)]
             dsk[(local_name, group, depth)] = (_aggregate_var, node_list)
     if height == 1:
         group = depth = 0
@@ -631,10 +624,7 @@ def reduction(
     # Chunk
     a = f"{token or funcname(chunk)}-chunk-{token_key}"
     if len(args) == 1 and isinstance(args[0], _Frame) and not chunk_kwargs:
-        dsk = {
-            (a, 0, i): (chunk, key)
-            for i, key in enumerate(args[0].__dask_keys__())
-        }
+        dsk = {(a, 0, i): (chunk, key) for i, key in enumerate(args[0].__dask_keys__())}
     else:
         dsk = {
             (a, 0, i): (
@@ -682,9 +672,7 @@ def reduction(
 @_dask_cudf_nvtx_annotate
 def from_cudf(data, npartitions=None, chunksize=None, sort=True, name=None):
     if isinstance(getattr(data, "index", None), cudf.MultiIndex):
-        raise NotImplementedError(
-            "dask_cudf does not support MultiIndex Dataframes."
-        )
+        raise NotImplementedError("dask_cudf does not support MultiIndex Dataframes.")
 
     name = name or ("from_cudf-" + tokenize(data, npartitions or chunksize))
     return dd.from_pandas(
@@ -696,9 +684,8 @@ def from_cudf(data, npartitions=None, chunksize=None, sort=True, name=None):
     )
 
 
-from_cudf.__doc__ = (
-    textwrap.dedent(
-        """
+from_cudf.__doc__ = textwrap.dedent(
+    """
         Create a :class:`.DataFrame` from a :class:`cudf.DataFrame`.
 
         This function is a thin wrapper around
@@ -706,9 +693,7 @@ from_cudf.__doc__ = (
         arguments (described below) excepting that it operates on cuDF
         rather than pandas objects.\n
         """
-    )
-    + textwrap.dedent(dd.from_pandas.__doc__)
-)
+) + textwrap.dedent(dd.from_pandas.__doc__)
 
 
 @_dask_cudf_nvtx_annotate

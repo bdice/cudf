@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023 NVIDIA CORPORATION & AFFILIATES.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2024, NVIDIA CORPORATION & AFFILIATES.
 # All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
@@ -9,16 +9,8 @@ import cupy._core.flags
 import numpy
 import numpy.core.multiarray
 
-from ..fast_slow_proxy import (
-    make_final_proxy_type,
-    make_intermediate_proxy_type,
-)
-from .common import (
-    array_method,
-    arrow_array_method,
-    cuda_array_interface,
-    custom_iter,
-)
+from ..fast_slow_proxy import make_final_proxy_type, make_intermediate_proxy_type
+from .common import array_method, arrow_array_method, cuda_array_interface, custom_iter
 
 # https://docs.cupy.dev/en/stable/reference/creation.html
 _CONSTRUCTORS = frozenset(

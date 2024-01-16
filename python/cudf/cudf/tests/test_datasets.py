@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2022, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 
 import numpy as np
 
@@ -39,9 +39,7 @@ def test_dataset_timeseries():
     assert gdf["y"].head().dtype == float
     assert len(gdf) == 10
 
-    gdf = gd.datasets.randomdata(
-        nrows=20, dtypes={"id": int, "a": int, "b": float}
-    )
+    gdf = gd.datasets.randomdata(nrows=20, dtypes={"id": int, "a": int, "b": float})
     assert gdf["id"].head().dtype == int
     assert gdf["a"].head().dtype == int
     assert gdf["b"].head().dtype == float

@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2023, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 import decimal
 import operator
@@ -78,9 +78,7 @@ def dtype(arbitrary):
         elif isinstance(pd_dtype, pd.DatetimeTZDtype):
             return pd_dtype
         else:
-            raise TypeError(
-                f"Cannot interpret {arbitrary} as a valid cuDF dtype"
-            )
+            raise TypeError(f"Cannot interpret {arbitrary} as a valid cuDF dtype")
 
 
 def _decode_type(
@@ -232,9 +230,7 @@ class CategoricalDtype(_BaseDtype):
         >>> cudf_dtype
         CategoricalDtype(categories=['b', 'a'], ordered=True)
         """
-        return CategoricalDtype(
-            categories=dtype.categories, ordered=dtype.ordered
-        )
+        return CategoricalDtype(categories=dtype.categories, ordered=dtype.ordered)
 
     def to_pandas(self) -> pd.CategoricalDtype:
         """
@@ -252,9 +248,7 @@ class CategoricalDtype(_BaseDtype):
         if self._categories is None:
             categories = None
         else:
-            if isinstance(
-                self._categories, (cudf.Float32Index, cudf.Float64Index)
-            ):
+            if isinstance(self._categories, (cudf.Float32Index, cudf.Float64Index)):
                 categories = self._categories.dropna().to_pandas()
             else:
                 categories = self._categories.to_pandas()
@@ -316,9 +310,7 @@ class CategoricalDtype(_BaseDtype):
         categories_header = header["categories"]
         categories_frames = frames
         categories_type = pickle.loads(categories_header["type-serialized"])
-        categories = categories_type.deserialize(
-            categories_header, categories_frames
-        )
+        categories = categories_type.deserialize(categories_header, categories_frames)
         return klass(categories=categories, ordered=ordered)
 
     def __repr__(self):
@@ -365,9 +357,7 @@ class ListDtype(_BaseDtype):
         if isinstance(element_type, ListDtype):
             self._typ = pa.list_(element_type._typ)
         else:
-            element_type = cudf.utils.dtypes.cudf_dtype_to_pa_type(
-                element_type
-            )
+            element_type = cudf.utils.dtypes.cudf_dtype_to_pa_type(element_type)
             self._typ = pa.list_(element_type)
 
     @cached_property
@@ -554,8 +544,7 @@ class StructDtype(_BaseDtype):
 
     def __init__(self, fields):
         pa_fields = {
-            k: cudf.utils.dtypes.cudf_dtype_to_pa_type(v)
-            for k, v in fields.items()
+            k: cudf.utils.dtypes.cudf_dtype_to_pa_type(v) for k, v in fields.items()
         }
         self._typ = pa.struct(pa_fields)
 
@@ -660,9 +649,7 @@ class StructDtype(_BaseDtype):
         for k, dtype in header["fields"].items():
             if isinstance(dtype, tuple):
                 dtype_header, (start, stop) = dtype
-                fields[k] = pickle.loads(
-                    dtype_header["type-serialized"]
-                ).deserialize(
+                fields[k] = pickle.loads(dtype_header["type-serialized"]).deserialize(
                     dtype_header,
                     frames[start:stop],
                 )
@@ -926,9 +913,7 @@ class IntervalDtype(StructDtype):
         return IntervalDtype(typ.subtype.to_pandas_dtype(), typ.closed)
 
     def to_arrow(self):
-        return ArrowIntervalType(
-            pa.from_numpy_dtype(self.subtype), self.closed
-        )
+        return ArrowIntervalType(pa.from_numpy_dtype(self.subtype), self.closed)
 
     @classmethod
     def from_pandas(cls, pd_dtype: pd.IntervalDtype) -> "IntervalDtype":
@@ -1050,10 +1035,7 @@ def is_list_dtype(obj):
         or type(obj) is cudf.core.column.ListColumn
         or obj is cudf.core.column.ListColumn
         or (isinstance(obj, str) and obj == cudf.core.dtypes.ListDtype.name)
-        or (
-            hasattr(obj, "dtype")
-            and isinstance(obj.dtype, cudf.core.dtypes.ListDtype)
-        )
+        or (hasattr(obj, "dtype") and isinstance(obj.dtype, cudf.core.dtypes.ListDtype))
     )
 
 
@@ -1100,9 +1082,7 @@ def is_decimal_dtype(obj):
         Whether or not the array-like or dtype is of the decimal dtype.
     """
     return (
-        is_decimal32_dtype(obj)
-        or is_decimal64_dtype(obj)
-        or is_decimal128_dtype(obj)
+        is_decimal32_dtype(obj) or is_decimal64_dtype(obj) or is_decimal128_dtype(obj)
     )
 
 
@@ -1131,9 +1111,7 @@ def is_interval_dtype(obj):
         )
         or obj is cudf.core.dtypes.IntervalDtype
         or (isinstance(obj, cudf.core.index.BaseIndex) and obj._is_interval())
-        or (
-            isinstance(obj, str) and obj == cudf.core.dtypes.IntervalDtype.name
-        )
+        or (isinstance(obj, str) and obj == cudf.core.dtypes.IntervalDtype.name)
         or (
             isinstance(
                 getattr(obj, "dtype", None),
@@ -1147,10 +1125,7 @@ def is_decimal32_dtype(obj):
     return (
         type(obj) is cudf.core.dtypes.Decimal32Dtype
         or obj is cudf.core.dtypes.Decimal32Dtype
-        or (
-            isinstance(obj, str)
-            and obj == cudf.core.dtypes.Decimal32Dtype.name
-        )
+        or (isinstance(obj, str) and obj == cudf.core.dtypes.Decimal32Dtype.name)
         or (hasattr(obj, "dtype") and is_decimal32_dtype(obj.dtype))
     )
 
@@ -1159,10 +1134,7 @@ def is_decimal64_dtype(obj):
     return (
         type(obj) is cudf.core.dtypes.Decimal64Dtype
         or obj is cudf.core.dtypes.Decimal64Dtype
-        or (
-            isinstance(obj, str)
-            and obj == cudf.core.dtypes.Decimal64Dtype.name
-        )
+        or (isinstance(obj, str) and obj == cudf.core.dtypes.Decimal64Dtype.name)
         or (hasattr(obj, "dtype") and is_decimal64_dtype(obj.dtype))
     )
 
@@ -1171,9 +1143,6 @@ def is_decimal128_dtype(obj):
     return (
         type(obj) is cudf.core.dtypes.Decimal128Dtype
         or obj is cudf.core.dtypes.Decimal128Dtype
-        or (
-            isinstance(obj, str)
-            and obj == cudf.core.dtypes.Decimal128Dtype.name
-        )
+        or (isinstance(obj, str) and obj == cudf.core.dtypes.Decimal128Dtype.name)
         or (hasattr(obj, "dtype") and is_decimal128_dtype(obj.dtype))
     )

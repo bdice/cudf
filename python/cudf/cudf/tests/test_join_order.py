@@ -1,4 +1,4 @@
-# Copyright (c) 2023, NVIDIA CORPORATION.
+# Copyright (c) 2023-2024, NVIDIA CORPORATION.
 
 import itertools
 import operator
@@ -233,9 +233,7 @@ def test_merge_combinations(
             expected = expected.sort_values("key")
         if not other_unique:
             other_value_counts = other["key"].value_counts()
-            repeats = other_value_counts.reindex(
-                expected["key"].values, fill_value=1
-            )
+            repeats = other_value_counts.reindex(expected["key"].values, fill_value=1)
             repeats = repeats.astype(np.intp)
             expected = expected["key"].repeat(repeats.values)
             expected = expected.to_frame()

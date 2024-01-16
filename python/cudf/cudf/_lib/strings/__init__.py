@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2023, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 from cudf._lib.nvtext.edit_distance import edit_distance, edit_distance_matrix
 from cudf._lib.nvtext.generate_ngrams import (
     generate_character_ngrams,
@@ -25,11 +25,7 @@ from cudf._lib.nvtext.tokenize import (
     detokenize,
     tokenize_with_vocabulary,
 )
-from cudf._lib.strings.attributes import (
-    code_points,
-    count_bytes,
-    count_characters,
-)
+from cudf._lib.strings.attributes import code_points, count_bytes, count_characters
 from cudf._lib.strings.capitalize import capitalize, is_title, title
 from cudf._lib.strings.case import swapcase, to_lower, to_upper
 from cudf._lib.strings.char_types import (
@@ -68,21 +64,9 @@ from cudf._lib.strings.find import (
 from cudf._lib.strings.find_multiple import find_multiple
 from cudf._lib.strings.findall import findall
 from cudf._lib.strings.json import GetJsonObjectOptions, get_json_object
-from cudf._lib.strings.padding import (
-    SideType,
-    center,
-    ljust,
-    pad,
-    rjust,
-    zfill,
-)
+from cudf._lib.strings.padding import SideType, center, ljust, pad, rjust, zfill
 from cudf._lib.strings.repeat import repeat_scalar, repeat_sequence
-from cudf._lib.strings.replace import (
-    insert,
-    replace,
-    replace_multi,
-    slice_replace,
-)
+from cudf._lib.strings.replace import insert, replace, replace_multi, slice_replace
 from cudf._lib.strings.replace_re import (
     replace_multi_re,
     replace_re,

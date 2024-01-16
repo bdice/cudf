@@ -209,9 +209,7 @@ def test_set_index(nelem, divisions):
         # Use unique index range as the sort may not be stable-ordering
         x = np.arange(nelem)
         np.random.shuffle(x)
-        df = pd.DataFrame(
-            {"x": x, "y": np.random.randint(0, nelem, size=nelem)}
-        )
+        df = pd.DataFrame({"x": x, "y": np.random.randint(0, nelem, size=nelem)})
         ddf = dd.from_pandas(df, npartitions=2)
         dgdf = ddf.map_partitions(cudf.from_pandas)
 
@@ -502,10 +500,7 @@ def test_repartition_hash_staged(npartitions):
     # and that the key values are preserved
     expect_unique = gdf[by].drop_duplicates().sort_values(by)
     got_unique = cudf.concat(
-        [
-            part[by].compute().drop_duplicates()
-            for part in ddf_new[by].partitions
-        ],
+        [part[by].compute().drop_duplicates() for part in ddf_new[by].partitions],
         ignore_index=True,
     ).sort_values(by)
     dd.assert_eq(got_unique, expect_unique, check_index=False)
@@ -542,10 +537,7 @@ def test_repartition_hash(by, npartitions, max_branch):
     # and that the key values are preserved
     expect_unique = gdf[by].drop_duplicates().sort_values(by)
     got_unique = cudf.concat(
-        [
-            part[by].compute().drop_duplicates()
-            for part in ddf_new[by].partitions
-        ],
+        [part[by].compute().drop_duplicates() for part in ddf_new[by].partitions],
         ignore_index=True,
     ).sort_values(by)
     dd.assert_eq(got_unique, expect_unique, check_index=False)
@@ -612,11 +604,7 @@ def test_concat(gdf, gddf, series):
     if series:
         gdf = gdf.x
         gddf = gddf.x
-        a = (
-            cudf.concat([gdf, gdf + 1, gdf + 2])
-            .sort_values()
-            .reset_index(drop=True)
-        )
+        a = cudf.concat([gdf, gdf + 1, gdf + 2]).sort_values().reset_index(drop=True)
         b = (
             dd.concat([gddf, gddf + 1, gddf + 2], interleave_partitions=True)
             .compute()
@@ -624,11 +612,7 @@ def test_concat(gdf, gddf, series):
             .reset_index(drop=True)
         )
     else:
-        a = (
-            cudf.concat([gdf, gdf + 1, gdf + 2])
-            .sort_values("x")
-            .reset_index(drop=True)
-        )
+        a = cudf.concat([gdf, gdf + 1, gdf + 2]).sort_values("x").reset_index(drop=True)
         b = (
             dd.concat([gddf, gddf + 1, gddf + 2], interleave_partitions=True)
             .compute()
@@ -707,9 +691,7 @@ def test_hash_object_dispatch(index):
 )
 def test_make_meta_backends(index):
     dtypes = ["int8", "int32", "int64", "float64"]
-    df = cudf.DataFrame(
-        {dt: np.arange(start=0, stop=3, dtype=dt) for dt in dtypes}
-    )
+    df = cudf.DataFrame({dt: np.arange(start=0, stop=3, dtype=dt) for dt in dtypes})
     df["strings"] = ["cat", "dog", "fish"]
     df["cats"] = df["strings"].astype("category")
     df["time_s"] = np.array(
@@ -815,9 +797,7 @@ def test_dataframe_describe():
     ddf = dgd.from_cudf(df, npartitions=4)
     pddf = dd.from_pandas(pdf, npartitions=4)
 
-    dd.assert_eq(
-        ddf.describe(), pddf.describe(), check_exact=False, atol=0.0001
-    )
+    dd.assert_eq(ddf.describe(), pddf.describe(), check_exact=False, atol=0.0001)
 
 
 def test_zero_std_describe():
@@ -864,25 +844,17 @@ def test_index_map_partitions():
 
 def test_merging_categorical_columns():
     try:
-        from dask.dataframe.dispatch import (  # noqa: F401
-            union_categoricals_dispatch,
-        )
+        from dask.dataframe.dispatch import union_categoricals_dispatch  # noqa: F401
     except ImportError:
-        pytest.skip(
-            "need a version of dask that has union_categoricals_dispatch"
-        )
+        pytest.skip("need a version of dask that has union_categoricals_dispatch")
 
-    df_1 = cudf.DataFrame(
-        {"id_1": [0, 1, 2, 3], "cat_col": ["a", "b", "f", "f"]}
-    )
+    df_1 = cudf.DataFrame({"id_1": [0, 1, 2, 3], "cat_col": ["a", "b", "f", "f"]})
 
     ddf_1 = dgd.from_cudf(df_1, npartitions=2)
 
     ddf_1 = dd.categorical.categorize(ddf_1, columns=["cat_col"])
 
-    df_2 = cudf.DataFrame(
-        {"id_2": [111, 112, 113], "cat_col": ["g", "h", "f"]}
-    )
+    df_2 = cudf.DataFrame({"id_2": [111, 112, 113], "cat_col": ["g", "h", "f"]})
 
     ddf_2 = dgd.from_cudf(df_2, npartitions=2)
 

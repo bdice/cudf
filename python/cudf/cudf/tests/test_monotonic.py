@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 
 """
 Tests related to is_unique and is_monotonic attributes
@@ -9,23 +9,14 @@ import pytest
 
 import cudf
 from cudf import Index, MultiIndex, Series
-from cudf.core.index import (
-    CategoricalIndex,
-    DatetimeIndex,
-    GenericIndex,
-    RangeIndex,
-)
+from cudf.core.index import CategoricalIndex, DatetimeIndex, GenericIndex, RangeIndex
 from cudf.testing._utils import assert_eq, expect_warning_if
 
 
 @pytest.mark.parametrize("testrange", [(10, 20, 1), (0, -10, -1), (5, 5, 1)])
 def test_range_index(testrange):
-    index = RangeIndex(
-        start=testrange[0], stop=testrange[1], step=testrange[2]
-    )
-    index_pd = pd.RangeIndex(
-        start=testrange[0], stop=testrange[1], step=testrange[2]
-    )
+    index = RangeIndex(start=testrange[0], stop=testrange[1], step=testrange[2])
+    index_pd = pd.RangeIndex(start=testrange[0], stop=testrange[1], step=testrange[2])
 
     assert index.is_unique == index_pd.is_unique
     with pytest.warns(FutureWarning):
@@ -87,9 +78,7 @@ def test_string_index(testlist):
     assert index.is_monotonic_decreasing == index_pd.is_monotonic_decreasing
 
 
-@pytest.mark.parametrize(
-    "testlist", [["c", "d", "e", "f"], ["z", "y", "x", "r"]]
-)
+@pytest.mark.parametrize("testlist", [["c", "d", "e", "f"], ["z", "y", "x", "r"]])
 def test_categorical_index(testlist):
     # Assuming unordered categorical data cannot be "monotonic"
     raw_cat = pd.Categorical(testlist, ordered=True)
@@ -202,12 +191,8 @@ def test_multiindex():
     with pytest.warns(FutureWarning):
         got = gdf.index.is_monotonic
     assert got == expect
-    assert (
-        pdf.index.is_monotonic_increasing == gdf.index.is_monotonic_increasing
-    )
-    assert (
-        pdf.index.is_monotonic_decreasing == gdf.index.is_monotonic_decreasing
-    )
+    assert pdf.index.is_monotonic_increasing == gdf.index.is_monotonic_increasing
+    assert pdf.index.is_monotonic_decreasing == gdf.index.is_monotonic_decreasing
 
 
 @pytest.mark.parametrize(

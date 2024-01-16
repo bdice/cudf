@@ -1,4 +1,4 @@
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 
 import pandas as pd
@@ -68,9 +68,7 @@ def test_to_pandas_multiindex_names():
     )
     assert_eq(
         ca.to_pandas_index(),
-        pd.MultiIndex.from_tuples(
-            (("a", "b"), ("c", "d")), names=("foo", "bar")
-        ),
+        pd.MultiIndex.from_tuples((("a", "b"), ("c", "d")), names=("foo", "bar")),
     )
 
 
@@ -247,9 +245,7 @@ def test_select_by_index_empty():
         },
         multiindex=True,
     )
-    expect = ColumnAccessor(
-        {}, multiindex=True, level_names=((None, None, None))
-    )
+    expect = ColumnAccessor({}, multiindex=True, level_names=((None, None, None)))
     got = ca.select_by_index(slice(None, 0))
     check_ca_equal(expect, got)
 

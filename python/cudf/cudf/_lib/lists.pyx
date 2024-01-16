@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023, NVIDIA CORPORATION.
+# Copyright (c) 2021-2024, NVIDIA CORPORATION.
 
 from cudf.core.buffer import acquire_spill_lock
 
@@ -15,9 +15,7 @@ from cudf._lib.cpp.lists.combine cimport (
     concatenate_rows as cpp_concatenate_rows,
 )
 from cudf._lib.cpp.lists.contains cimport contains, index_of as cpp_index_of
-from cudf._lib.cpp.lists.count_elements cimport (
-    count_elements as cpp_count_elements,
-)
+from cudf._lib.cpp.lists.count_elements cimport count_elements as cpp_count_elements
 from cudf._lib.cpp.lists.explode cimport explode_outer as cpp_explode_outer
 from cudf._lib.cpp.lists.extract cimport extract_list_element
 from cudf._lib.cpp.lists.lists_column_view cimport lists_column_view

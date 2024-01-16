@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023, NVIDIA CORPORATION.
+# Copyright (c) 2018-2024, NVIDIA CORPORATION.
 
 import ast
 import datetime
@@ -12,18 +12,12 @@ from cudf.core.buffer import acquire_spill_lock
 from cudf.core.column import column_empty
 from cudf.utils import applyutils
 from cudf.utils._numba import _CUDFNumbaConfig
-from cudf.utils.dtypes import (
-    BOOL_TYPES,
-    DATETIME_TYPES,
-    NUMERIC_TYPES,
-    TIMEDELTA_TYPES,
-)
+from cudf.utils.dtypes import BOOL_TYPES, DATETIME_TYPES, NUMERIC_TYPES, TIMEDELTA_TYPES
 
 ENVREF_PREFIX = "__CUDF_ENVREF__"
 
 SUPPORTED_QUERY_TYPES = {
-    np.dtype(dt)
-    for dt in NUMERIC_TYPES | DATETIME_TYPES | TIMEDELTA_TYPES | BOOL_TYPES
+    np.dtype(dt) for dt in NUMERIC_TYPES | DATETIME_TYPES | TIMEDELTA_TYPES | BOOL_TYPES
 }
 
 
@@ -41,9 +35,7 @@ class _NameExtractor(ast.NodeVisitor):
             raise QuerySyntaxError("assignment is not allowed")
 
         name = node.id
-        chosen = (
-            self.refnames if name.startswith(ENVREF_PREFIX) else self.colnames
-        )
+        chosen = self.refnames if name.startswith(ENVREF_PREFIX) else self.colnames
         chosen.add(name)
 
 
@@ -97,9 +89,7 @@ def query_builder(info, funcid):
     func: a python function of the query
     """
     args = info["args"]
-    def_line = "def {funcid}({args}):".format(
-        funcid=funcid, args=", ".join(args)
-    )
+    def_line = "def {funcid}({args}):".format(funcid=funcid, args=", ".join(args))
     lines = [def_line, "    return {}".format(info["source"])]
     source = "\n".join(lines)
     glbs = {}
@@ -220,8 +210,7 @@ def query_execute(df, expr, callenv):
     # wait to check the types until we know which cols are used
     if any(col.dtype not in SUPPORTED_QUERY_TYPES for col in colarrays):
         raise TypeError(
-            "query only supports numeric, datetime, timedelta, "
-            "or bool dtypes."
+            "query only supports numeric, datetime, timedelta, " "or bool dtypes."
         )
 
     colarrays = [col.data_array_view(mode="read") for col in colarrays]

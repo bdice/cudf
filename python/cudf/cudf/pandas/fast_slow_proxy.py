@@ -11,17 +11,7 @@ import pickle
 import types
 from collections.abc import Iterator
 from enum import IntEnum
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Literal,
-    Mapping,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-)
+from typing import Any, Callable, Dict, Literal, Mapping, Optional, Set, Tuple, Type
 
 from .annotation import nvtx
 
@@ -267,9 +257,7 @@ def make_intermediate_proxy_type(
         # disallow __init__. An intermediate proxy type can only be
         # instantiated from (possibly chained) operations on a final
         # proxy type.
-        raise TypeError(
-            f"Cannot directly instantiate object of type {type(self)}"
-        )
+        raise TypeError(f"Cannot directly instantiate object of type {type(self)}")
 
     @property  # type: ignore
     def _fsproxy_state(self):
@@ -406,8 +394,7 @@ class _FastSlowAttribute:
             obj = owner
 
         if not (
-            isinstance(obj, _FastSlowProxy)
-            or issubclass(type(obj), _FastSlowProxyMeta)
+            isinstance(obj, _FastSlowProxy) or issubclass(type(obj), _FastSlowProxyMeta)
         ):
             # we only want to look up attributes on the underlying
             # fast/slow objects for instances of _FastSlowProxy or
@@ -428,18 +415,14 @@ class _FastSlowAttribute:
             type_ = owner if owner else type(obj)
             slow_result_type = getattr(type_._fsproxy_slow, self._name)
             with disable_module_accelerator():
-                result.__doc__ = inspect.getdoc(  # type: ignore
-                    slow_result_type
-                )
+                result.__doc__ = inspect.getdoc(slow_result_type)  # type: ignore
 
             if isinstance(result, _MethodProxy):
                 # Note that this will produce the wrong result for bound
                 # methods because dir for the method won't be the same as for
                 # the pure unbound function, but the alternative is
                 # materializing the slow object when we don't really want to.
-                result._fsproxy_slow_dir = dir(
-                    slow_result_type
-                )  # type: ignore
+                result._fsproxy_slow_dir = dir(slow_result_type)  # type: ignore
 
         return result
 
@@ -922,8 +905,7 @@ def _transform_arg(
             # transformed pieces
             # This handles scipy._lib._bunch._make_tuple_bunch
             args, kwargs = (
-                _transform_arg(a, attribute_name, seen)
-                for a in arg.__getnewargs_ex__()
+                _transform_arg(a, attribute_name, seen) for a in arg.__getnewargs_ex__()
             )
             obj = type(arg).__new__(type(arg), *args, **kwargs)
             if hasattr(obj, "__setstate__"):
@@ -945,9 +927,7 @@ def _transform_arg(
             return type(arg).__new__(type(arg), *args)
         else:
             # Hope we can just call the constructor with transformed entries.
-            return type(arg)(
-                _transform_arg(a, attribute_name, seen) for a in args
-            )
+            return type(arg)(_transform_arg(a, attribute_name, seen) for a in args)
     elif isinstance(arg, dict):
         return {
             _transform_arg(k, attribute_name, seen): _transform_arg(
@@ -956,9 +936,7 @@ def _transform_arg(
             for k, a in arg.items()
         }
     elif isinstance(arg, np.ndarray) and arg.dtype == "O":
-        transformed = [
-            _transform_arg(a, attribute_name, seen) for a in arg.flat
-        ]
+        transformed = [_transform_arg(a, attribute_name, seen) for a in arg.flat]
         # Keep the same memory layout as arg (the default is C_CONTIGUOUS)
         if arg.flags["F_CONTIGUOUS"] and not arg.flags["C_CONTIGUOUS"]:
             order = "F"
@@ -1032,9 +1010,7 @@ def _maybe_wrap_result(result: Any, func: Callable, /, *args, **kwargs) -> Any:
     elif isinstance(result, Iterator):
         return (_maybe_wrap_result(r, lambda x: x, r) for r in result)
     elif _is_function_or_method(result):
-        return _MethodProxy._fsproxy_wrap(
-            result, method_chain=(func, args, kwargs)
-        )
+        return _MethodProxy._fsproxy_wrap(result, method_chain=(func, args, kwargs))
     else:
         return result
 

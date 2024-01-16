@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2023, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 from itertools import repeat
 
@@ -10,10 +10,7 @@ from libcpp.utility cimport move, pair
 from libcpp.vector cimport vector
 
 from cudf._lib.column cimport Column
-from cudf._lib.cpp.aggregation cimport (
-    rank_method,
-    underlying_type_t_rank_method,
-)
+from cudf._lib.cpp.aggregation cimport rank_method, underlying_type_t_rank_method
 from cudf._lib.cpp.column.column cimport column
 from cudf._lib.cpp.column.column_view cimport column_view
 from cudf._lib.cpp.search cimport lower_bound, upper_bound

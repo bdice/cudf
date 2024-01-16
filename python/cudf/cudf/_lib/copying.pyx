@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2023, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 import pickle
 
@@ -29,9 +29,7 @@ from libcpp.memory cimport make_unique
 cimport cudf._lib.cpp.contiguous_split as cpp_contiguous_split
 from cudf._lib.cpp.column.column cimport column
 from cudf._lib.cpp.column.column_view cimport column_view
-from cudf._lib.cpp.lists.gather cimport (
-    segmented_gather as cpp_segmented_gather,
-)
+from cudf._lib.cpp.lists.gather cimport segmented_gather as cpp_segmented_gather
 from cudf._lib.cpp.lists.lists_column_view cimport lists_column_view
 from cudf._lib.cpp.scalar.scalar cimport scalar
 from cudf._lib.cpp.types cimport size_type

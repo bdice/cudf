@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023, NVIDIA CORPORATION.
+# Copyright (c) 2021-2024, NVIDIA CORPORATION.
 
 """Define common type operations."""
 
@@ -164,9 +164,9 @@ def _is_scalar_or_zero_d_array(val):
     bool
         Return True if given object is scalar.
     """
-    return (
-        isinstance(val, (np.ndarray, cp.ndarray)) and val.ndim == 0
-    ) or is_scalar(val)
+    return (isinstance(val, (np.ndarray, cp.ndarray)) and val.ndim == 0) or is_scalar(
+        val
+    )
 
 
 # TODO: We should be able to reuse the pandas function for this, need to figure
@@ -232,9 +232,7 @@ def _union_categoricals(
     )
     if sort_categories:
         sorted_categories = result_col.categories.sort_values(ascending=True)
-        result_col = result_col.reorder_categories(
-            new_categories=sorted_categories
-        )
+        result_col = result_col.reorder_categories(new_categories=sorted_categories)
 
     return cudf.Index(result_col)
 
@@ -283,9 +281,7 @@ def is_bool_dtype(arr_or_dtype):
         else:
             return pd_types.is_bool_dtype(arr_or_dtype=arr_or_dtype.dtype)
     elif isinstance(arr_or_dtype, cudf.CategoricalDtype):
-        return pd_types.is_bool_dtype(
-            arr_or_dtype=arr_or_dtype.categories.dtype
-        )
+        return pd_types.is_bool_dtype(arr_or_dtype=arr_or_dtype.categories.dtype)
     else:
         return pd_types.is_bool_dtype(arr_or_dtype=arr_or_dtype)
 
@@ -475,9 +471,7 @@ def _is_pandas_nullable_extension_dtype(dtype_to_check) -> bool:
     ) or (PANDAS_GE_150 and isinstance(dtype_to_check, pd.ArrowDtype)):
         return True
     elif isinstance(dtype_to_check, pd.CategoricalDtype):
-        return _is_pandas_nullable_extension_dtype(
-            dtype_to_check.categories.dtype
-        )
+        return _is_pandas_nullable_extension_dtype(dtype_to_check.categories.dtype)
     elif isinstance(dtype_to_check, pd.IntervalDtype):
         return _is_pandas_nullable_extension_dtype(dtype_to_check.subtype)
     return False
@@ -494,12 +488,8 @@ is_complex_dtype = pd_types.is_complex_dtype
 is_datetime_dtype = _wrap_pandas_is_dtype_api(pd_types.is_datetime64_dtype)
 is_datetime64_any_dtype = pd_types.is_datetime64_any_dtype
 is_datetime64_dtype = _wrap_pandas_is_dtype_api(pd_types.is_datetime64_dtype)
-is_datetime64_ns_dtype = _wrap_pandas_is_dtype_api(
-    pd_types.is_datetime64_ns_dtype
-)
-is_datetime64tz_dtype = _wrap_pandas_is_dtype_api(
-    pd_types.is_datetime64tz_dtype
-)
+is_datetime64_ns_dtype = _wrap_pandas_is_dtype_api(pd_types.is_datetime64_ns_dtype)
+is_datetime64tz_dtype = _wrap_pandas_is_dtype_api(pd_types.is_datetime64tz_dtype)
 is_extension_type = pd_types.is_extension_type
 is_extension_array_dtype = pd_types.is_extension_array_dtype
 is_int64_dtype = pd_types.is_int64_dtype
@@ -507,9 +497,7 @@ is_period_dtype = pd_types.is_period_dtype
 is_signed_integer_dtype = pd_types.is_signed_integer_dtype
 is_timedelta_dtype = _wrap_pandas_is_dtype_api(pd_types.is_timedelta64_dtype)
 is_timedelta64_dtype = _wrap_pandas_is_dtype_api(pd_types.is_timedelta64_dtype)
-is_timedelta64_ns_dtype = _wrap_pandas_is_dtype_api(
-    pd_types.is_timedelta64_ns_dtype
-)
+is_timedelta64_ns_dtype = _wrap_pandas_is_dtype_api(pd_types.is_timedelta64_ns_dtype)
 is_unsigned_integer_dtype = pd_types.is_unsigned_integer_dtype
 is_sparse = pd_types.is_sparse
 # is_list_like = pd_types.is_list_like

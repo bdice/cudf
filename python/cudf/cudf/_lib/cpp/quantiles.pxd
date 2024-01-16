@@ -1,4 +1,4 @@
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
@@ -8,13 +8,7 @@ from cudf._lib.cpp.column.column cimport column
 from cudf._lib.cpp.column.column_view cimport column_view
 from cudf._lib.cpp.table.table cimport table
 from cudf._lib.cpp.table.table_view cimport table_view
-from cudf._lib.cpp.types cimport (
-    interpolation,
-    null_order,
-    order,
-    order_info,
-    sorted,
-)
+from cudf._lib.cpp.types cimport interpolation, null_order, order, order_info, sorted
 
 
 cdef extern from "cudf/quantiles.hpp" namespace "cudf" nogil:

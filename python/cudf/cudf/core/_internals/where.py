@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023, NVIDIA CORPORATION.
+# Copyright (c) 2021-2024, NVIDIA CORPORATION.
 
 import warnings
 from typing import Tuple, Union
@@ -7,11 +7,7 @@ import numpy as np
 
 import cudf
 from cudf._typing import ScalarLike
-from cudf.api.types import (
-    _is_non_decimal_numeric_dtype,
-    is_bool_dtype,
-    is_scalar,
-)
+from cudf.api.types import _is_non_decimal_numeric_dtype, is_bool_dtype, is_scalar
 from cudf.core.column import ColumnBase
 from cudf.core.dtypes import CategoricalDtype
 from cudf.utils.dtypes import (
@@ -81,9 +77,7 @@ def _check_and_cast_columns_with_other(
             )
         return _normalize_categorical(source_col, other.astype(source_dtype))
 
-    if _is_non_decimal_numeric_dtype(source_dtype) and _can_cast(
-        other, source_dtype
-    ):
+    if _is_non_decimal_numeric_dtype(source_dtype) and _can_cast(other, source_dtype):
         common_dtype = source_dtype
     elif (
         isinstance(source_col, cudf.core.column.NumericalColumn)
@@ -116,9 +110,7 @@ def _make_categorical_like(result, column):
     if isinstance(column, cudf.core.column.CategoricalColumn):
         result = cudf.core.column.build_categorical_column(
             categories=column.categories,
-            codes=cudf.core.column.build_column(
-                result.base_data, dtype=result.dtype
-            ),
+            codes=cudf.core.column.build_column(result.base_data, dtype=result.dtype),
             mask=result.base_mask,
             size=result.size,
             offset=result.offset,

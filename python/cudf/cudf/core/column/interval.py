@@ -76,9 +76,7 @@ class IntervalColumn(StructColumn):
         first_field_name = list(struct_column.dtype.fields.keys())[0]
         return IntervalColumn(
             size=struct_column.size,
-            dtype=IntervalDtype(
-                struct_column.dtype.fields[first_field_name], closed
-            ),
+            dtype=IntervalDtype(struct_column.dtype.fields[first_field_name], closed),
             mask=struct_column.base_mask,
             offset=struct_column.offset,
             null_count=struct_column.null_count,
@@ -108,9 +106,7 @@ class IntervalColumn(StructColumn):
                 # a user can directly input the string `interval` as the dtype
                 # when creating an interval series or interval dataframe
                 if dtype == "interval":
-                    dtype = IntervalDtype(
-                        self.dtype.fields["left"], self.closed
-                    )
+                    dtype = IntervalDtype(self.dtype.fields["left"], self.closed)
                 children = self.children
                 return IntervalColumn(
                     size=self.size,

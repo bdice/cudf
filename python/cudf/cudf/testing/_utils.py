@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2023, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 import itertools
 import string
@@ -126,9 +126,7 @@ def assert_eq(left, right, **kwargs):
     # `object`. Check equality before that happens:
     if kwargs.get("check_dtype", True):
         if hasattr(left, "dtype") and hasattr(right, "dtype"):
-            if isinstance(
-                left.dtype, cudf.core.dtypes._BaseDtype
-            ) and not isinstance(
+            if isinstance(left.dtype, cudf.core.dtypes._BaseDtype) and not isinstance(
                 left.dtype, cudf.CategoricalDtype
             ):  # leave categorical comparison to Pandas
                 assert_eq(left.dtype, right.dtype)
@@ -151,9 +149,7 @@ def assert_eq(left, right, **kwargs):
         # This warning comes from a call from pandas to numpy. It is ignored
         # here because it cannot be fixed within cudf.
         with warnings.catch_warnings():
-            warnings.simplefilter(
-                "ignore", (DeprecationWarning, FutureWarning)
-            )
+            warnings.simplefilter("ignore", (DeprecationWarning, FutureWarning))
             if isinstance(left, pd.DataFrame):
                 tm.assert_frame_equal(left, right, **kwargs)
             elif isinstance(left, pd.Series):
@@ -313,9 +309,7 @@ def gen_rand(dtype, size, **kwargs):
     elif dtype.kind == "b":
         low = kwargs.get("low", 0)
         high = kwargs.get("high", 2)
-        return np.random.randint(low=low, high=high, size=size).astype(
-            np.bool_
-        )
+        return np.random.randint(low=low, high=high, size=size).astype(np.bool_)
     elif dtype.kind == "M":
         low = kwargs.get("low", 0)
         time_unit, _ = np.datetime_data(dtype)
@@ -332,9 +326,7 @@ def gen_rand(dtype, size, **kwargs):
         nchars = np.random.randint(low=low, high=high, size=1)[0]
         char_options = np.array(list(string.ascii_letters + string.digits))
         all_chars = "".join(np.random.choice(char_options, nchars * size))
-        return np.array(
-            [all_chars[nchars * i : nchars * (i + 1)] for i in range(size)]
-        )
+        return np.array([all_chars[nchars * i : nchars * (i + 1)] for i in range(size)])
 
     raise NotImplementedError(f"dtype.kind={dtype.kind}")
 
@@ -403,9 +395,7 @@ def _create_pandas_series_float64_default(
     # Wrapper around pd.Series using a float64
     # default dtype for empty data to silence warnings.
     # TODO: Remove this in pandas-2.0 upgrade
-    if dtype is None and (
-        data is None or (not is_scalar(data) and len(data) == 0)
-    ):
+    if dtype is None and (data is None or (not is_scalar(data) and len(data) == 0)):
         dtype = "float64"
     return pd.Series(data=data, index=index, dtype=dtype, *args, **kwargs)
 
@@ -416,9 +406,7 @@ def _create_cudf_series_float64_default(
     # Wrapper around cudf.Series using a float64
     # default dtype for empty data to silence warnings.
     # TODO: Remove this in pandas-2.0 upgrade
-    if dtype is None and (
-        data is None or (not is_scalar(data) and len(data) == 0)
-    ):
+    if dtype is None and (data is None or (not is_scalar(data) and len(data) == 0)):
         dtype = "float64"
     return cudf.Series(data=data, index=index, dtype=dtype, *args, **kwargs)
 

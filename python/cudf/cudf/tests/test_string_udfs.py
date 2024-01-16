@@ -15,11 +15,7 @@ from cudf._lib.strings_udf import (
     column_from_udf_string_array,
     column_to_string_view_array,
 )
-from cudf.core.udf.strings_typing import (
-    str_view_arg_handler,
-    string_view,
-    udf_string,
-)
+from cudf.core.udf.strings_typing import str_view_arg_handler, string_view, udf_string
 from cudf.core.udf.utils import _get_extensionty_size, _ptx_file
 from cudf.testing._utils import assert_eq, sv_to_udf_str
 from cudf.utils._numba import _CUDFNumbaConfig
@@ -76,9 +72,7 @@ def run_udf_test(data, func, dtype):
     comparing it with the equivalent pandas result
     """
     if dtype == "str":
-        output = rmm.DeviceBuffer(
-            size=len(data) * _get_extensionty_size(udf_string)
-        )
+        output = rmm.DeviceBuffer(size=len(data) * _get_extensionty_size(udf_string))
     else:
         dtype = np.dtype(dtype)
         output = cudf.core.column.column_empty(len(data), dtype=dtype)

@@ -3,12 +3,7 @@
 """Defines pytest fixtures for internal benchmarks."""
 
 from config import NUM_ROWS, cudf
-from utils import (
-    OrderedSet,
-    collapse_fixtures,
-    column_generators,
-    make_fixture,
-)
+from utils import OrderedSet, collapse_fixtures, column_generators, make_fixture
 
 fixtures = OrderedSet()
 for dtype, column_generator in column_generators.items():

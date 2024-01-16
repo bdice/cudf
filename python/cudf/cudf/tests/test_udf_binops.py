@@ -13,15 +13,11 @@ from cudf.utils import dtypes as dtypeutils
 
 _driver_version = rmm._cuda.gpu.driverGetVersion()
 _runtime_version = rmm._cuda.gpu.runtimeGetVersion()
-_CUDA_JIT128INT_SUPPORTED = (_driver_version >= 11050) and (
-    _runtime_version >= 11050
-)
+_CUDA_JIT128INT_SUPPORTED = (_driver_version >= 11050) and (_runtime_version >= 11050)
 
 
 @pytest.mark.skipif(not _CUDA_JIT128INT_SUPPORTED, reason="requires CUDA 11.5")
-@pytest.mark.parametrize(
-    "dtype", sorted(list(dtypeutils.NUMERIC_TYPES - {"int8"}))
-)
+@pytest.mark.parametrize("dtype", sorted(list(dtypeutils.NUMERIC_TYPES - {"int8"})))
 def test_generic_ptx(dtype):
     size = 500
 
@@ -37,9 +33,7 @@ def test_generic_ptx(dtype):
     nb_type = numpy_support.from_dtype(cudf.dtype(dtype))
     type_signature = (nb_type, nb_type)
 
-    ptx_code, output_type = compile_ptx(
-        generic_function, type_signature, device=True
-    )
+    ptx_code, output_type = compile_ptx(generic_function, type_signature, device=True)
 
     dtype = numpy_support.as_dtype(output_type).type
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022, NVIDIA CORPORATION.
+# Copyright (c) 2021-2024, NVIDIA CORPORATION.
 
 import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, TypeVar, Union
@@ -24,9 +24,7 @@ Dtype = Union["ExtensionDtype", str, np.dtype]
 DtypeObj = Union["ExtensionDtype", np.dtype]
 
 # scalars
-DatetimeLikeScalar = TypeVar(
-    "DatetimeLikeScalar", Period, Timestamp, Timedelta
-)
+DatetimeLikeScalar = TypeVar("DatetimeLikeScalar", Period, Timestamp, Timedelta)
 ScalarLike = Any
 
 # columns
@@ -37,12 +35,8 @@ ColumnBinaryOperand = Union["cudf.Scalar", "cudf.core.column.ColumnBase"]
 
 DataFrameOrSeries = Union["cudf.Series", "cudf.DataFrame"]
 SeriesOrIndex = Union["cudf.Series", "cudf.core.index.BaseIndex"]
-SeriesOrSingleColumnIndex = Union[
-    "cudf.Series", "cudf.core.index.GenericIndex"
-]
+SeriesOrSingleColumnIndex = Union["cudf.Series", "cudf.core.index.GenericIndex"]
 
 # Groupby aggregation
 AggType = Union[str, Callable]
-MultiColumnAggType = Union[
-    AggType, Iterable[AggType], Dict[Any, Iterable[AggType]]
-]
+MultiColumnAggType = Union[AggType, Iterable[AggType], Dict[Any, Iterable[AggType]]]

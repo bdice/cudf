@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023, NVIDIA CORPORATION.
+# Copyright (c) 2022-2024, NVIDIA CORPORATION.
 import pandas as pd
 
 import cudf
@@ -21,9 +21,7 @@ def test_tz_convert():
     idx = cudf.from_pandas(pidx)
     pidx = pidx.tz_localize("UTC")
     idx = idx.tz_localize("UTC")
-    assert_eq(
-        pidx.tz_convert("America/New_York"), idx.tz_convert("America/New_York")
-    )
+    assert_eq(pidx.tz_convert("America/New_York"), idx.tz_convert("America/New_York"))
 
 
 def test_delocalize_naive():

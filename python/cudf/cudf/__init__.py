@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023, NVIDIA CORPORATION.
+# Copyright (c) 2018-2024, NVIDIA CORPORATION.
 
 # _setup_numba _must be called before numba.cuda is imported, because
 # it sets the numba config variable responsible for enabling
@@ -85,12 +85,7 @@ from cudf.io import (
     read_parquet,
     read_text,
 )
-from cudf.options import (
-    describe_option,
-    get_option,
-    option_context,
-    set_option,
-)
+from cudf.options import describe_option, get_option, option_context, set_option
 from cudf.utils.utils import clear_cache
 
 cuda.set_memory_manager(RMMNumbaManager)

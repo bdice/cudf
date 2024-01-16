@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2023, NVIDIA CORPORATION.
+# Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
 import sys
 from io import StringIO
@@ -8,11 +8,7 @@ import pandas as pd
 import cudf
 from cudf._fuzz_testing.csv import CSVReader, CSVWriter
 from cudf._fuzz_testing.main import pythonfuzz
-from cudf._fuzz_testing.utils import (
-    ALL_POSSIBLE_VALUES,
-    compare_content,
-    run_test,
-)
+from cudf._fuzz_testing.utils import ALL_POSSIBLE_VALUES, compare_content, run_test
 from cudf.testing._utils import assert_eq
 
 

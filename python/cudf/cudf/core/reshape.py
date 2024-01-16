@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023, NVIDIA CORPORATION.
+# Copyright (c) 2018-2024, NVIDIA CORPORATION.
 
 import itertools
 import warnings
@@ -41,9 +41,7 @@ def _align_objs(objs, how="outer", sort=None):
     i_objs = iter(objs)
     first = next(i_objs)
 
-    not_matching_index = any(
-        not first.index.equals(rest.index) for rest in i_objs
-    )
+    not_matching_index = any(not first.index.equals(rest.index) for rest in i_objs)
 
     if not_matching_index:
         if not all(o.index.is_unique for o in objs):
@@ -58,9 +56,7 @@ def _align_objs(objs, how="outer", sort=None):
 
         final_index.name = name
         return [
-            obj.reindex(final_index)
-            if not final_index.equals(obj.index)
-            else obj
+            obj.reindex(final_index) if not final_index.equals(obj.index) else obj
             for obj in objs
         ]
     else:
@@ -241,9 +237,7 @@ def concat(objs, axis=0, join="outer", ignore_index=False, sort=None):
 
     axis = _AXIS_MAP.get(axis, None)
     if axis is None:
-        raise ValueError(
-            f'`axis` must be 0 / "index" or 1 / "columns", got: {axis}'
-        )
+        raise ValueError(f'`axis` must be 0 / "index" or 1 / "columns", got: {axis}')
 
     # Return for single object
     if len(objs) == 1:
@@ -348,9 +342,7 @@ def concat(objs, axis=0, join="outer", ignore_index=False, sort=None):
                     # if join is inner and it contains an empty df
                     # we return an empty df, hence creating an empty
                     # column with dtype metadata retained.
-                    df[name] = cudf.core.column.column_empty_like(
-                        col, newsize=0
-                    )
+                    df[name] = cudf.core.column.column_empty_like(col, newsize=0)
                 else:
                     df[name] = col
 
@@ -717,9 +709,7 @@ def get_dummies(
         encode_fallback_dtypes = ["object", "category"]
 
         if columns is None or len(columns) == 0:
-            columns = df.select_dtypes(
-                include=encode_fallback_dtypes
-            )._column_names
+            columns = df.select_dtypes(include=encode_fallback_dtypes)._column_names
 
         _length_check_params(prefix, columns, "prefix")
         _length_check_params(prefix_sep, columns, "prefix_sep")
@@ -754,9 +744,7 @@ def get_dummies(
 
             for name in columns:
                 if name not in cats:
-                    unique = _get_unique(
-                        column=df._data[name], dummy_na=dummy_na
-                    )
+                    unique = _get_unique(column=df._data[name], dummy_na=dummy_na)
                 else:
                     unique = as_column(cats[name])
 
@@ -836,9 +824,7 @@ def _merge_sorted(
         if keys is None:
             key_columns_indices = list(range(0, objs[0]._num_columns))
         else:
-            key_columns_indices = [
-                objs[0]._column_names.index(key) for key in keys
-            ]
+            key_columns_indices = [objs[0]._column_names.index(key) for key in keys]
         if not ignore_index:
             key_columns_indices = [
                 idx + objs[0]._index.nlevels for idx in key_columns_indices
@@ -907,10 +893,7 @@ def _pivot(df, index, columns):
             target._data[None][scatter_map] = col
             result_frames = target._split(range(nrows, nrows * ncols, nrows))
             result.update(
-                {
-                    name: next(iter(f._columns))
-                    for name, f in zip(names, result_frames)
-                }
+                {name: next(iter(f._columns)) for name, f in zip(names, result_frames)}
             )
 
     return cudf.DataFrame._from_data(
@@ -1119,9 +1102,7 @@ def unstack(df, level, fill_value=None):
                 )
         res = df.T.stack(dropna=False)
         # Result's index is a multiindex
-        res.index.names = (
-            tuple(df._data.to_pandas_index().names) + df.index.names
-        )
+        res.index.names = tuple(df._data.to_pandas_index().names) + df.index.names
         return res
     else:
         columns = df.index._poplevels(level)
@@ -1442,9 +1423,7 @@ def pivot_table(
     # discard the top level
     if values_passed and not values_multi and table._data.multiindex:
         column_names = table._data.level_names[1:]
-        table_columns = tuple(
-            map(lambda column: column[1:], table._data.names)
-        )
+        table_columns = tuple(map(lambda column: column[1:], table._data.names))
         table.columns = cudf.MultiIndex.from_tuples(
             tuples=table_columns, names=column_names
         )
