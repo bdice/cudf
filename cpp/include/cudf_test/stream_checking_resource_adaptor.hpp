@@ -20,7 +20,7 @@
 #include <cudf/detail/utilities/stacktrace.hpp>
 
 #include <rmm/mr/device/device_memory_resource.hpp>
-#include <rmm/resource_ref>
+#include <rmm/resource_ref.hpp>
 
 #include <iostream>
 
@@ -62,15 +62,6 @@ class stream_checking_resource_adaptor final : public rmm::mr::device_memory_res
    * @briefreturn{rmm::device_async_resource_ref to the upstream resource}
    */
   [[nodiscard]] rmm::device_async_resource_ref get_upstream_resource() const noexcept
-  {
-    return upstream_;
-  }
-
-  /**
-   * @briefreturn{Upstream* to the upstream memory resource}
-   */
-  [[deprecated("Use get_upstream_resource instead")]] [[nodiscard]] Upstream* get_upstream()
-    const noexcept
   {
     return upstream_;
   }
