@@ -406,9 +406,6 @@ void apply_sorting_struct_binary_op(mutable_column_view& out,
 {
   CUDF_EXPECTS(lhs.type().id() == type_id::STRUCT && rhs.type().id() == type_id::STRUCT,
                "Both columns must be struct columns");
-  CUDF_EXPECTS(!cudf::structs::detail::is_or_has_nested_lists(lhs) and
-                 !cudf::structs::detail::is_or_has_nested_lists(rhs),
-               "List type is not supported");
   // Struct child column type and structure mismatches are caught within the two_table_comparator
   switch (op) {
     case binary_operator::EQUAL: [[fallthrough]];

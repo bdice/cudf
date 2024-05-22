@@ -200,6 +200,14 @@ std::unique_ptr<column> binary_operation(LhsType const& lhs,
       (op == binary_operator::NULL_MAX or op == binary_operator::NULL_MIN))
     return cudf::binops::compiled::string_null_min_max(lhs, rhs, op, output_type, stream, mr);
 
+  if (lhs.type().id() == type_id::STRUCT and rhs.type().id() == type_id::STRUCT) {
+    // TODO: Don't skip validation, make this go through the normal path below
+    auto out      = make_fixed_width_column_for_output(lhs, rhs, op, output_type, stream, mr);
+    auto out_view = out->mutable_view();
+    cudf::binops::compiled::binary_operation(out_view, lhs, rhs, op, stream);
+    return out;
+  }
+
   if (not cudf::binops::compiled::is_supported_operation(output_type, lhs.type(), rhs.type(), op))
     CUDF_FAIL("Unsupported operator for these types", cudf::data_type_error);
 
