@@ -1026,9 +1026,12 @@ class Frame(BinaryOperand, Scannable):
         b: [[4,5,6]]
         index: [[1,2,3]]
         """
-        return pa.Table.from_pydict(
-            {str(name): col.to_arrow() for name, col in self._data.items()}
-        )
+        source_columns = []
+        column_dtypes = []
+        for name, col in self._data.items():
+            source_columns.append(col)
+            column_dtypes.append((str(name), col.dtype))
+        return libcudf.interop.to_arrow(source_columns, column_dtypes)
 
     @_cudf_nvtx_annotate
     def _positions_from_column_names(self, column_names) -> list[int]:
