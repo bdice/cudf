@@ -83,6 +83,79 @@ __device__ void calculate_columns_to_aggregate(cudf::size_type& col_start,
   }
 }
 
+struct mega_dispatch {
+  template <typename Source, cudf::aggregation::Kind k>
+  __device__ void operator()(cooperative_groups::thread_block const& block,
+                             cudf::size_type col_idx,
+                             cudf::mutable_table_device_view output_values,
+                             cuda::std::byte* shmem_agg_storage,
+                             cudf::size_type* shmem_agg_res_offsets,
+                             cudf::size_type* shmem_agg_mask_offsets,
+                             cudf::size_type cardinality,
+                             cudf::aggregation::Kind const* d_agg_kinds,
+                             bitmask_type const* row_bitmask,
+                             bool skip_rows_with_nulls,
+                             cudf::table_device_view source,
+                             cudf::size_type num_input_rows,
+                             cudf::size_type* local_mapping_index,
+                             cudf::mutable_table_device_view target,
+                             cudf::size_type* global_mapping_index) const noexcept
+
+  {
+    using Target = cudf::detail::target_type_t<Source, k>;
+
+    // initialize_shmem_aggregations
+    for (auto idx = block.thread_rank(); idx < cardinality; idx += block.num_threads()) {
+      auto target =
+        reinterpret_cast<cuda::std::byte*>(shmem_agg_storage + shmem_agg_res_offsets[col_idx]);
+      auto target_mask =
+        reinterpret_cast<bool*>(shmem_agg_storage + shmem_agg_mask_offsets[col_idx]);
+      initialize_shmem{}.template operator()<Target, k>(target, target_mask, idx);
+    }
+
+    block.sync();
+
+    // compute_pre_aggregations
+    // Aggregates global memory sources to shared memory targets
+    for (auto source_idx = cudf::detail::grid_1d::global_thread_id(); source_idx < num_input_rows;
+         source_idx += cudf::detail::grid_1d::grid_stride()) {
+      if (not skip_rows_with_nulls or cudf::bit_is_set(row_bitmask, source_idx)) {
+        auto const target_idx = local_mapping_index[source_idx];
+        auto const source_col = source.column(col_idx);
+
+        cuda::std::byte* target =
+          reinterpret_cast<cuda::std::byte*>(shmem_agg_storage + shmem_agg_res_offsets[col_idx]);
+        bool* target_mask =
+          reinterpret_cast<bool*>(shmem_agg_storage + shmem_agg_mask_offsets[col_idx]);
+
+        shmem_element_aggregator{}.template operator()<Source, k>(
+          target, target_mask, target_idx, source_col, source_idx);
+      }
+    }
+
+    block.sync();
+
+    // compute_final_aggregations
+    // Aggregates shared memory sources to global memory targets
+    for (auto idx = block.thread_rank(); idx < cardinality; idx += block.num_threads()) {
+      auto const target_idx =
+        global_mapping_index[block.group_index().x * GROUPBY_SHM_MAX_ELEMENTS + idx];
+      auto target_col = target.column(col_idx);
+
+      cuda::std::byte* source2 =
+        reinterpret_cast<cuda::std::byte*>(shmem_agg_storage + shmem_agg_res_offsets[col_idx]);
+      bool* source_mask =
+        reinterpret_cast<bool*>(shmem_agg_storage + shmem_agg_mask_offsets[col_idx]);
+
+      gmem_element_aggregator{}.template operator()<Source, k>(
+        target_col, target_idx, source.column(col_idx), source2, source_mask, idx);
+    }
+
+    block.sync();
+  }
+};
+
+#if 0
 // Each block initialize its own shared memory aggregation results
 __device__ void initialize_shmem_aggregations(cooperative_groups::thread_block const& block,
                                               cudf::size_type col_start,
@@ -185,6 +258,7 @@ __device__ void compute_final_aggregations(cooperative_groups::thread_block cons
   }
   block.sync();
 }
+#endif
 
 /* Takes the local_mapping_index and global_mapping_index to compute
  * pre (shared) and final (global) aggregates*/
@@ -234,6 +308,28 @@ CUDF_KERNEL void single_pass_shmem_aggs_kernel(cudf::size_type num_rows,
     }
     block.sync();
 
+    for (auto col_idx = col_start; col_idx < col_end; col_idx++) {
+      cudf::detail::dispatch_type_and_aggregation(input_values.column(col_idx).type(),
+                                                  d_agg_kinds[col_idx],
+                                                  mega_dispatch{},
+                                                  block,
+                                                  col_idx,
+                                                  output_values,
+                                                  shmem_agg_storage,
+                                                  shmem_agg_res_offsets,
+                                                  shmem_agg_mask_offsets,
+                                                  cardinality,
+                                                  d_agg_kinds,
+                                                  row_bitmask,
+                                                  skip_rows_with_nulls,
+                                                  input_values,
+                                                  num_rows,
+                                                  local_mapping_index,
+                                                  output_values,
+                                                  global_mapping_index);
+    }
+
+    /*
     initialize_shmem_aggregations(block,
                                   col_start,
                                   col_end,
@@ -268,6 +364,7 @@ CUDF_KERNEL void single_pass_shmem_aggs_kernel(cudf::size_type num_rows,
                                shmem_agg_res_offsets,
                                shmem_agg_mask_offsets,
                                d_agg_kinds);
+    */
   }
 }
 }  // namespace
