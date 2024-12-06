@@ -18,6 +18,7 @@
 
 #include <cudf/ast/expressions.hpp>
 #include <cudf/hashing.hpp>
+#include <cudf/hashing/detail/default_hash.cuh>
 #include <cudf/table/table_view.hpp>
 #include <cudf/types.hpp>
 #include <cudf/utilities/default_stream.hpp>
@@ -41,15 +42,6 @@ namespace CUDF_EXPORT cudf {
  */
 enum class has_nested : bool { YES, NO };
 
-// forward declaration
-namespace hashing::detail {
-
-/**
- * @brief Forward declaration for our Murmur Hash 3 implementation
- */
-template <typename T>
-class MurmurHash3_x86_32;
-}  // namespace hashing::detail
 namespace detail {
 
 /**
@@ -307,7 +299,7 @@ enum class nullable_join : bool { YES, NO };
 class hash_join {
  public:
   using impl_type = typename cudf::detail::hash_join<
-    cudf::hashing::detail::MurmurHash3_x86_32<cudf::hash_value_type>>;  ///< Implementation type
+    cudf::hashing::detail::default_hash<cudf::hash_value_type>>;  ///< Implementation type
 
   hash_join() = delete;
   ~hash_join();
