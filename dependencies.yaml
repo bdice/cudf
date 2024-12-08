@@ -5,6 +5,7 @@ files:
     matrix:
       cuda: ["11.8", "12.5"]
       arch: [x86_64]
+      py: [null, "3.13t"]
     includes:
       # Note that clang-tidy is not included here because cudf's preferred
       # version conflicts with the rest of RAPIDS as well as its own
@@ -652,8 +653,17 @@ dependencies:
             packages:
               - python=3.12
           - matrix:
+              py: "3.13"
             packages:
-              - python>=3.10,<3.13
+              - python=3.13
+          - matrix:
+              py: "3.13t"
+            packages:
+              - python=3.13
+              - python-freethreading
+          - matrix:
+            packages:
+              - python>=3.10,<3.14
   run_common:
     common:
       - output_types: [conda, requirements, pyproject]
@@ -884,6 +894,9 @@ dependencies:
             packages:
       - output_types: conda
         matrices:
+          - matrix:
+              py: "*t"
+            packages:
           - matrix:
               cuda: "12.*"
             packages:
