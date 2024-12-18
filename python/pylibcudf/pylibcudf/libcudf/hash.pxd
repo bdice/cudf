@@ -2,6 +2,7 @@
 from libc.stdint cimport uint32_t, uint64_t
 from libcpp.memory cimport unique_ptr
 from libcpp.vector cimport vector
+from rmm.librmm.cuda_stream_view cimport cuda_stream_view
 from pylibcudf.exception_handler cimport libcudf_exception_handler
 from pylibcudf.libcudf.column.column cimport column
 from pylibcudf.libcudf.table.table cimport table
@@ -46,7 +47,8 @@ cdef extern from "cudf/hashing.hpp" namespace "cudf::hashing" nogil:
 
     cdef unique_ptr[column] xxhash_64(
         const table_view& input,
-        const uint64_t seed
+        const uint64_t seed,
+        cuda_stream_view stream,
     ) except +libcudf_exception_handler
 
 cdef extern from "cudf/hashing.hpp" namespace "cudf" nogil:

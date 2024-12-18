@@ -1,6 +1,7 @@
 # Copyright (c) 2024, NVIDIA CORPORATION.
 
 from libc.stdint cimport uint32_t, uint64_t
+from rmm.pylibrmm.cuda_stream cimport CudaStream
 
 from .column cimport Column
 from .table cimport Table
@@ -19,7 +20,8 @@ cpdef Table murmurhash3_x64_128(
 
 cpdef Column xxhash_64(
     Table input,
-    uint64_t seed=*
+    uint64_t seed,
+    CudaStream stream,
 )
 
 cpdef Column md5(Table input)

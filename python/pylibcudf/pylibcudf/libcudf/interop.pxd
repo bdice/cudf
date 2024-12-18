@@ -2,6 +2,7 @@
 from libcpp.memory cimport shared_ptr, unique_ptr
 from libcpp.string cimport string
 from libcpp.vector cimport vector
+from rmm.librmm.cuda_stream_view cimport cuda_stream_view
 from pylibcudf.exception_handler cimport libcudf_exception_handler
 from pylibcudf.libcudf.column.column cimport column
 from pylibcudf.libcudf.column.column_view cimport column_view
@@ -47,7 +48,8 @@ cdef extern from "cudf/interop.hpp" namespace "cudf" \
         vector[column_metadata] children_meta
 
     cdef unique_ptr[table] from_arrow_stream(
-        ArrowArrayStream* input
+        ArrowArrayStream* input,
+        cuda_stream_view stream,
     ) except +libcudf_exception_handler
     cdef unique_ptr[column] from_arrow_column(
         const ArrowSchema* schema,

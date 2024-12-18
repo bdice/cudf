@@ -3,6 +3,8 @@
 from libcpp.memory cimport unique_ptr
 from libcpp.utility cimport move
 from libcpp.vector cimport vector
+from rmm.librmm.cuda_stream_view cimport cuda_stream_view
+from rmm.pylibrmm.cuda_stream cimport CudaStream
 from pylibcudf.libcudf cimport sorting as cpp_sorting
 from pylibcudf.libcudf.aggregation cimport rank_method
 from pylibcudf.libcudf.column.column cimport column
@@ -333,7 +335,12 @@ cpdef Table stable_sort_by_key(
     return Table.from_libcudf(move(c_result))
 
 
-cpdef Table sort(Table source_table, list column_order, list null_precedence):
+cpdef Table sort(
+    Table source_table,
+    list column_order,
+    list null_precedence,
+    CudaStream stream,
+):
     """Sorts the table.
 
     For details, see :cpp:func:`sort`.
@@ -355,11 +362,13 @@ cpdef Table sort(Table source_table, list column_order, list null_precedence):
     cdef unique_ptr[table] c_result
     cdef vector[order] c_orders = column_order
     cdef vector[null_order] c_null_precedence = null_precedence
+    cdef cuda_stream_view c_stream = cuda_stream_view(stream.value())
     with nogil:
         c_result = cpp_sorting.sort(
             source_table.view(),
             c_orders,
             c_null_precedence,
+            c_stream,
         )
     return Table.from_libcudf(move(c_result))
 

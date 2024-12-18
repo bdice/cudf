@@ -1,6 +1,7 @@
 # Copyright (c) 2024, NVIDIA CORPORATION.
 
 from libcpp cimport bool
+from rmm.pylibrmm.cuda_stream cimport CudaStream
 from pylibcudf.libcudf.aggregation cimport rank_method
 from pylibcudf.libcudf.types cimport null_order, null_policy, order, size_type
 
@@ -57,6 +58,11 @@ cpdef Table stable_sort_by_key(
     list null_precedence,
 )
 
-cpdef Table sort(Table source_table, list column_order, list null_precedence)
+cpdef Table sort(
+    Table source_table,
+    list column_order,
+    list null_precedence,
+    CudaStream stream,
+)
 
 cpdef Table stable_sort(Table source_table, list column_order, list null_precedence)

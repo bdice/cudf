@@ -10,6 +10,8 @@ from libc.stdlib cimport free
 from libcpp.memory cimport unique_ptr
 from libcpp.utility cimport move
 from libcpp.vector cimport vector
+from rmm.librmm.cuda_stream_view cimport cuda_stream_view
+from rmm.pylibrmm.cuda_stream cimport CudaStream
 
 from dataclasses import dataclass, field
 from functools import singledispatch
@@ -102,7 +104,7 @@ class ColumnMetadata:
 
 
 @singledispatch
-def from_arrow(pyarrow_object, *, DataType data_type=None):
+def from_arrow(pyarrow_object, *, DataType data_type=None, CudaStream stream=None):
     """Create a cudf object from a pyarrow object.
 
     Parameters
@@ -136,18 +138,26 @@ def _from_arrow_datatype(pyarrow_object):
 
 
 @from_arrow.register(pa.Table)
-def _from_arrow_table(pyarrow_object, *, DataType data_type=None):
+def _from_arrow_table(
+    pyarrow_object,
+    *,
+    DataType data_type=None,
+    CudaStream stream=None
+):
     if data_type is not None:
         raise ValueError("data_type may not be passed for tables")
-    stream = pyarrow_object.__arrow_c_stream__()
-    cdef ArrowArrayStream* c_stream = (
-        <ArrowArrayStream*>PyCapsule_GetPointer(stream, "arrow_array_stream")
+    arrow_stream = pyarrow_object.__arrow_c_stream__()
+    cdef ArrowArrayStream* c_arrow_stream = (
+        <ArrowArrayStream*>PyCapsule_GetPointer(arrow_stream, "arrow_array_stream")
     )
+    cdef cuda_stream_view c_stream
+    if stream is not None:
+        c_stream = cuda_stream_view(stream.value())
 
     cdef unique_ptr[table] c_result
     with nogil:
         # The libcudf function here will release the stream.
-        c_result = cpp_from_arrow_stream(c_stream)
+        c_result = cpp_from_arrow_stream(c_arrow_stream, c_stream)
 
     return Table.from_libcudf(move(c_result))
 

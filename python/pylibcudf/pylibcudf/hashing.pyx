@@ -2,6 +2,8 @@
 from libc.stdint cimport uint32_t, uint64_t
 from libcpp.memory cimport unique_ptr
 from libcpp.utility cimport move
+from rmm.librmm.cuda_stream_view cimport cuda_stream_view
+from rmm.pylibrmm.cuda_stream cimport CudaStream
 from pylibcudf.libcudf.column.column cimport column
 from pylibcudf.libcudf.hash cimport (
     DEFAULT_HASH_SEED,
@@ -97,7 +99,8 @@ cpdef Table murmurhash3_x64_128(
 
 cpdef Column xxhash_64(
     Table input,
-    uint64_t seed=DEFAULT_HASH_SEED
+    uint64_t seed,
+    CudaStream stream,
 ):
     """Computes the xxHash 64-bit hash value of each row in the given table.
 
@@ -117,10 +120,12 @@ cpdef Column xxhash_64(
     """
 
     cdef unique_ptr[column] c_result
-    with  nogil:
+    cdef cuda_stream_view c_stream = cuda_stream_view(stream.value())
+    with nogil:
         c_result = cpp_xxhash_64(
             input.view(),
-            seed
+            seed,
+            c_stream,
         )
 
     return Column.from_libcudf(move(c_result))
