@@ -163,8 +163,8 @@ repos:
             cpp/cmake/Modules/FindCUDAToolkit[.]cmake$
           )
       - id: verify-alpha-spec
-  - repo: https://github.com/bdice/dependency-file-generator
-    rev: f3d982a3d0ef123ef7b791cdfc4e303183ad17af
+  - repo: https://github.com/rapidsai/dependency-file-generator
+    rev: v1.17.0
     hooks:
       - id: rapids-dependency-file-generator
         args: ["--clean"]
