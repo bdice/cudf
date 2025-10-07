@@ -406,7 +406,11 @@ CUDF_KERNEL void __launch_bounds__(decode_delta_binary_block_size)
     } else if (warp.meta_group_rank() == 1) {
       // warp 1
       db->decode_batch();
-    } else if (src_pos < target_pos) {
+    }
+
+    block.sync();
+
+    if (warp.meta_group_rank() == 2 && src_pos < target_pos) {
       // warp 2
       // nesting level that is storing actual leaf values
       int const leaf_level_index = s->col.max_nesting_depth - 1;
@@ -597,7 +601,11 @@ CUDF_KERNEL void __launch_bounds__(decode_block_size)
     } else if (warp.meta_group_rank() == 2) {
       // warp 2
       suffix_db->decode_batch();
-    } else if (warp.meta_group_rank() == 3 and src_pos < target_pos) {
+    }
+
+    block.sync();
+
+    if (warp.meta_group_rank() == 3 and src_pos < target_pos) {
       // warp 3
       int const nproc = min(batch_size, s->page.end_val - string_pos);
       strings_data +=
@@ -807,7 +815,11 @@ CUDF_KERNEL void __launch_bounds__(decode_block_size)
     } else if (warp.meta_group_rank() == 1) {
       // warp 1
       db->decode_batch();
-    } else if (warp.meta_group_rank() == 2 && src_pos < target_pos) {
+    }
+
+    block.sync();
+
+    if (warp.meta_group_rank() == 2 && src_pos < target_pos) {
       // warp 2
       int const nproc = min(batch_size, s->page.end_val - string_pos);
       string_pos += nproc;
