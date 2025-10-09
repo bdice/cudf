@@ -296,7 +296,7 @@ ConfigureTest(
   binaryop/binop-compiled-fixed_point-test.cpp
   binaryop/binop-generic-ptx-test.cpp
   GPUS 1
-  PERCENT 70
+  PERCENT 100
 )
 
 # ##################################################################################################
@@ -344,7 +344,7 @@ ConfigureTest(CSV_TEST io/csv_test.cpp)
 ConfigureTest(
   ORC_TEST io/orc_chunked_reader_test.cu io/orc_test.cpp
   GPUS 1
-  PERCENT 70
+  PERCENT 100
 )
 ConfigureTest(
   PARQUET_TEST
@@ -359,7 +359,7 @@ ConfigureTest(
   io/parquet_v2_test.cpp
   io/parquet_writer_test.cpp
   GPUS 1
-  PERCENT 70
+  PERCENT 100
 )
 ConfigureTest(
   HYBRID_SCAN_TEST
@@ -439,7 +439,7 @@ ConfigureTest(
   copying/utility_tests.cpp
   copying/reverse_tests.cpp
   GPUS 1
-  PERCENT 70
+  PERCENT 100
 )
 
 # ##################################################################################################
@@ -562,6 +562,8 @@ ConfigureTest(
 ConfigureTest(
   RESHAPE_TEST reshape/byte_cast_tests.cpp reshape/interleave_columns_tests.cpp
   reshape/table_to_array_tests.cpp reshape/tile_tests.cpp
+  GPUS 1
+  PERCENT 100
 )
 
 # ##################################################################################################
