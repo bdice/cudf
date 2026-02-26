@@ -341,6 +341,11 @@ ConfigureTest(
   PERCENT 100
 )
 ConfigureTest(
+  PARQUET_DECIMAL_PUSHDOWN_TEST io/parquet_decimal_pushdown_test.cpp io/parquet_common.cpp
+  GPUS 1
+  PERCENT 100
+)
+ConfigureTest(
   HYBRID_SCAN_TEST
   io/experimental/hybrid_scan_composer.cpp
   io/experimental/hybrid_scan_filters_test.cpp
