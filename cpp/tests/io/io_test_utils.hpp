@@ -8,6 +8,7 @@
 #include <cudf/io/data_sink.hpp>
 #include <cudf/io/datasource.hpp>
 #include <cudf/logger.hpp>
+#include <cudf/utilities/error.hpp>
 
 #include <rapids_logger/logger.hpp>
 
@@ -59,9 +60,9 @@ class ThrowingDeviceReadDatasource : public cudf::io::datasource {
     // For testing, just copy the data from the host buffer into a new buffer
     size = std::min(size, data_.size() - offset);
     rmm::device_buffer out_data(size, stream);
-    cudaMemcpyAsync(
-      out_data.data(), data_.data() + offset, size, cudaMemcpyDefault, stream.value());
-    cudaStreamSynchronize(stream.value());
+    CUDF_CUDA_TRY(cudaMemcpyAsync(
+      out_data.data(), data_.data() + offset, size, cudaMemcpyDefault, stream.value()));
+    stream.synchronize();
     return cudf::io::datasource::buffer::create(std::move(out_data));
   }
 
