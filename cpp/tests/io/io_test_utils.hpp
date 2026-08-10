@@ -60,7 +60,7 @@ class ThrowingDeviceReadDatasource : public cudf::io::datasource {
     size = std::min(size, data_.size() - offset);
     rmm::device_buffer out_data(size, stream);
     cudaMemcpyAsync(
-      out_data.data(), data_.data() + offset, size, cudaMemcpyHostToDevice, stream.value());
+      out_data.data(), data_.data() + offset, size, cudaMemcpyDefault, stream.value());
     cudaStreamSynchronize(stream.value());
     return cudf::io::datasource::buffer::create(std::move(out_data));
   }

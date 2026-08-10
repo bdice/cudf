@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -106,7 +106,7 @@ character_flags_table_type const* get_character_flags_table(rmm::cuda_stream_vie
                                           g_character_codepoint_flags,
                                           sizeof(g_character_codepoint_flags),
                                           0,
-                                          cudaMemcpyHostToDevice,
+                                          cudaMemcpyDefault,
                                           stream.value()));
     CUDF_CUDA_TRY(cudaGetSymbolAddress((void**)&table, character_codepoint_flags));
     return table;
@@ -124,7 +124,7 @@ character_cases_table_type const* get_character_cases_table(rmm::cuda_stream_vie
                                           g_character_cases_table,
                                           sizeof(g_character_cases_table),
                                           0,
-                                          cudaMemcpyHostToDevice,
+                                          cudaMemcpyDefault,
                                           stream.value()));
     CUDF_CUDA_TRY(cudaGetSymbolAddress((void**)&table, character_cases_table));
     return table;
@@ -142,7 +142,7 @@ special_case_mapping const* get_special_case_mapping_table(rmm::cuda_stream_view
                                           g_special_case_mappings,
                                           sizeof(g_special_case_mappings),
                                           0,
-                                          cudaMemcpyHostToDevice,
+                                          cudaMemcpyDefault,
                                           stream.value()));
     CUDF_CUDA_TRY(cudaGetSymbolAddress((void**)&table, character_special_case_mappings));
     return table;

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #pragma once
@@ -89,8 +89,8 @@ class jni_writer_data_sink final : public cudf::io::data_sink {
         left_to_copy < buffer_amount_available ? left_to_copy : buffer_amount_available;
       char* copy_to = current_buffer_data + current_buffer_written;
 
-      CUDF_CUDA_TRY(cudaMemcpyAsync(
-        copy_to, copy_from, amount_to_copy, cudaMemcpyDeviceToHost, stream.value()));
+      CUDF_CUDA_TRY(
+        cudaMemcpyAsync(copy_to, copy_from, amount_to_copy, cudaMemcpyDefault, stream.value()));
 
       copy_from = copy_from + amount_to_copy;
       current_buffer_written += amount_to_copy;
