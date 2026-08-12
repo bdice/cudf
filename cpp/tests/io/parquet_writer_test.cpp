@@ -934,7 +934,7 @@ TEST_F(ParquetWriterTest, FloatingPointWithNaNStatsOmittedAcrossFragments)
 
 TEST_F(ParquetWriterTest, FloatingPointWithNaNStatsOmittedNested)
 {
-  // NaN detection must reach a float leaf nested in a LIST column (rapidsai/cudf#22817).
+  // NaN detection must reach a float leaf nested in a LIST column (NVIDIA/cudf#22817).
   auto constexpr nanf = std::numeric_limits<float>::quiet_NaN();
   cudf::test::lists_column_wrapper<float> list_col{{1.0f, nanf, 3.0f}, {4.0f, 5.0f}};
   auto const expected = table_view{{list_col}};

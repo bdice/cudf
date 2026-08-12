@@ -934,7 +934,7 @@ encoded_data encode_columns(orc_table_view const& orc_table,
                    [](auto valid_count) { return valid_count % 8; }),
       "There's currently a bug in encoding boolean columns. Suggested workaround is to convert "
       "to int8 type."
-      " Please see https://github.com/rapidsai/cudf/issues/6763 for more information.");
+      " Please see https://github.com/NVIDIA/cudf/issues/6763 for more information.");
   }
 
   hostdevice_2dvector<encoder_chunk_streams> chunk_streams(

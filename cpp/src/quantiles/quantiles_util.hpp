@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,7 +27,7 @@ CUDF_HOST_DEVICE inline Result linear(T lhs, T rhs, double frac)
   // Since the fraction part of double is 52 bits,
   // double cannot fully represent int64.
   // Underflow may occur when converting int64 to double
-  // detail: https://github.com/rapidsai/cudf/issues/1417
+  // detail: https://github.com/NVIDIA/cudf/issues/1417
 
   auto dlhs             = convert_to_floating<double>(lhs);
   auto drhs             = convert_to_floating<double>(rhs);

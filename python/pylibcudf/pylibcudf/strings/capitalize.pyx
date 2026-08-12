@@ -28,7 +28,7 @@ cpdef Column capitalize(
     object stream=None,
     DeviceMemoryResource mr=None,
     # TODO: default scalar values
-    # https://github.com/rapidsai/cudf/issues/15505
+    # https://github.com/NVIDIA/cudf/issues/15505
 ):
     """Returns a column of capitalized strings.
 
