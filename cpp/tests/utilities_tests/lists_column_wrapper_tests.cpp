@@ -1587,12 +1587,12 @@ TEST_F(ListsColumnInitializerHarnessTest, LeafNullableInitUsesExplicitResources)
   std::unique_ptr<cudf::column> built;
   {
     auto fail_on_current = this->fail_on_current_device_resource_use();
-    LCW list{Init{{{1, 2, 3, 4}, null_at(1)}}, st, mr};
+    LCW list{Init{{1, 2, 3, 4}, null_at(1)}, st, mr};
     this->_harness.synchronize(st);
     built = list.release();
   }
 
-  LCW expected{Init{{{1, 2, 3, 4}, null_at(1)}}, st, mr};
+  LCW expected{Init{{1, 2, 3, 4}, null_at(1)}, st, mr};
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(
     *built, expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
 }
