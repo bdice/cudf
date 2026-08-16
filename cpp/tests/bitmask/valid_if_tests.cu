@@ -97,7 +97,8 @@ TEST_F(ValidIfTest, ExplicitMemoryResourceControl)
   auto stream               = cudf::get_default_stream();
   auto comparison_resources = cudf::memory_resources{harness.setup_mr(), harness.setup_mr()};
   auto iter                 = cudf::detail::make_counting_transform_iterator(0, odds_valid{});
-  auto expected = cudf::test::detail::make_null_mask(iter, iter + 10000, comparison_resources);
+  auto expected =
+    cudf::test::detail::make_null_mask(iter, iter + 10000, stream, comparison_resources);
 
   {
     auto actual = [&] {
@@ -114,8 +115,11 @@ TEST_F(ValidIfTest, ExplicitMemoryResourceControl)
     harness.expect_output_allocations_live(stream);
     harness.expect_temporary_allocation_activity(stream);
     harness.expect_temporary_allocations_released(stream);
-    CUDF_TEST_EXPECT_EQUAL_BUFFERS(
-      expected.first.data(), actual.first.data(), expected.first.size(), comparison_resources);
+    CUDF_TEST_EXPECT_EQUAL_BUFFERS(expected.first.data(),
+                                   actual.first.data(),
+                                   expected.first.size(),
+                                   stream,
+                                   comparison_resources);
     EXPECT_EQ(5000, actual.second);
     EXPECT_EQ(expected.second, actual.second);
   }
