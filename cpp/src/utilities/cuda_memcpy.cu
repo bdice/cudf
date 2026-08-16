@@ -21,6 +21,8 @@ namespace cudf::detail {
 
 namespace {
 
+constexpr std::size_t prefer_overlap_threshold = 128 * 1024;
+
 // Simple kernel to copy between device buffers
 CUDF_KERNEL void copy_kernel(char const* __restrict__ src, char* __restrict__ dst, size_t n)
 {
@@ -90,10 +92,14 @@ cudaError_t memcpy_batch_async(void* const* dsts,
       count = valid_dsts.size();
     }
 
-    cudaMemcpyAttributes attrs = {.srcAccessOrder = cudaMemcpySrcAccessOrderStream,
-                                  .flags          = cudaMemcpyFlagPreferOverlapWithCompute};
-    std::size_t attrs_idxs     = 0;
-    return cudaMemcpyBatchAsync(dsts, srcs, sizes, count, &attrs, &attrs_idxs, 1, stream.value());
+    auto const flags =
+      std::ranges::any_of(std::ranges::views::iota(std::size_t{0}, count),
+                          [&](auto i) { return sizes[i] > prefer_overlap_threshold; })
+        ? cudaMemcpyFlagDefault
+        : cudaMemcpyFlagPreferOverlapWithCompute;
+    cudaMemcpyAttributes attrs = {.srcAccessOrder = cudaMemcpySrcAccessOrderStream, .flags = flags};
+    std::size_t attrs_idx      = 0;
+    return cudaMemcpyBatchAsync(dsts, srcs, sizes, count, &attrs, &attrs_idx, 1, stream.value());
   }
 #endif  // CUDART_VERSION >= 13000
   for (std::size_t i = 0; i < count; ++i) {
