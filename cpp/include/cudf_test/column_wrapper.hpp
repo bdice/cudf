@@ -1694,30 +1694,6 @@ class lists_column_wrapper : public detail::column_wrapper {
   }
 
   /**
-   * @brief Construct a lists column containing a single list of strings.
-   *
-   * Example:
-   * @code{.cpp}
-   * // Creates a LIST column with 1 list composed of 2 total strings
-   * // [{"abc", "def"}]
-   * lists_column_wrapper<cudf::string_view> s{"abc", "def"};
-   * @endcode
-   *
-   * @param elements The list of strings
-   * @param stream CUDA stream used for device memory operations
-   * @param mr Memory resources used to allocate the returned column
-   */
-  template <typename Element = T>
-  lists_column_wrapper(std::initializer_list<std::string> elements,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
-    requires(std::is_same_v<Element, cudf::string_view>)
-    : column_wrapper{}
-  {
-    build_from_non_nested(strings_column_wrapper(elements, stream, mr).release(), stream, mr);
-  }
-
-  /**
    * @brief Construct a lists column containing a single list from an iterator range.
    *
    * Example:
@@ -1773,33 +1749,6 @@ class lists_column_wrapper : public detail::column_wrapper {
   }
 
   /**
-   * @brief Construct a lists column containing a single list of strings and a
-   * validity iterator.
-   *
-   * Example:
-   * @code{.cpp}
-   * auto validity = make_counting_transform_iterator(0, [](auto i){return i%2;});
-   * // [{"abc", NULL}]
-   * lists_column_wrapper<cudf::string_view> l{{"abc", "def"}, validity};
-   * @endcode
-   *
-   * @param elements The list of strings
-   * @param v The validity iterator
-   * @param stream CUDA stream used for device memory operations
-   * @param mr Memory resources used to allocate the returned column
-   */
-  template <typename Element = T, typename ValidityIterator>
-  lists_column_wrapper(std::initializer_list<std::string> elements,
-                       ValidityIterator v,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
-    requires(std::is_same_v<Element, cudf::string_view>)
-    : column_wrapper{}
-  {
-    build_from_non_nested(strings_column_wrapper(elements, v, stream, mr).release(), stream, mr);
-  }
-
-  /**
    * @brief Construct a lists column containing a single list from an iterator
    * range and a validity iterator.
    *
@@ -1827,6 +1776,57 @@ class lists_column_wrapper : public detail::column_wrapper {
     : column_wrapper{}
   {
     build_from_non_nested(leaf_wrapper_t(begin, end, v, stream, mr).release(), stream, mr);
+  }
+
+  /**
+   * @brief Construct a lists column containing a single list of strings.
+   *
+   * Example:
+   * @code{.cpp}
+   * // Creates a LIST column with 1 list composed of 2 total strings
+   * // [{"abc", "def"}]
+   * lists_column_wrapper<cudf::string_view> s{"abc", "def"};
+   * @endcode
+   *
+   * @param elements The list of strings
+   * @param stream CUDA stream used for device memory operations
+   * @param mr Memory resources used to allocate the returned column
+   */
+  template <typename Element = T>
+  lists_column_wrapper(std::initializer_list<std::string> elements,
+                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+    requires(std::is_same_v<Element, cudf::string_view>)
+    : column_wrapper{}
+  {
+    build_from_non_nested(strings_column_wrapper(elements, stream, mr).release(), stream, mr);
+  }
+
+  /**
+   * @brief Construct a lists column containing a single list of strings and a
+   * validity iterator.
+   *
+   * Example:
+   * @code{.cpp}
+   * auto validity = make_counting_transform_iterator(0, [](auto i){return i%2;});
+   * // [{"abc", NULL}]
+   * lists_column_wrapper<cudf::string_view> l{{"abc", "def"}, validity};
+   * @endcode
+   *
+   * @param elements The list of strings
+   * @param v The validity iterator
+   * @param stream CUDA stream used for device memory operations
+   * @param mr Memory resources used to allocate the returned column
+   */
+  template <typename Element = T, typename ValidityIterator>
+  lists_column_wrapper(std::initializer_list<std::string> elements,
+                       ValidityIterator v,
+                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+    requires(std::is_same_v<Element, cudf::string_view>)
+    : column_wrapper{}
+  {
+    build_from_non_nested(strings_column_wrapper(elements, v, stream, mr).release(), stream, mr);
   }
 
   /**
