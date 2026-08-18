@@ -62,7 +62,9 @@ TYPED_TEST(SegmentedGatherTest, Gather)
     auto const expected   = LCW<T>{Init{{4, 3, 2, 1}, {5}, {6, 7}, {8, 10, 9}}, st, mr};
     auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                        cudf::lists_column_view{gather_map},
-                                                       cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                       cudf::out_of_bounds_policy::DONT_CHECK,
+                                                       st,
+                                                       mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       results->view(), expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
   }
@@ -72,8 +74,11 @@ TYPED_TEST(SegmentedGatherTest, Gather)
     auto const gather_map = LCW<int>{Init{{3, 2, 4, 0}, {0}, {0, -3}, {0, 2, 1}}, st, mr};
     auto const expected =
       LCW<T>{Init{{{4, 3, 2, 1}, null_at(2)}, {5}, {{6, 7}, null_at(1)}, {8, 10, 9}}, st, mr};
-    auto const results = cudf::lists::segmented_gather(
-      cudf::lists_column_view{list}, cudf::lists_column_view{gather_map}, NULLIFY, st, mr.get_output_mr());
+    auto const results = cudf::lists::segmented_gather(cudf::lists_column_view{list},
+                                                       cudf::lists_column_view{gather_map},
+                                                       NULLIFY,
+                                                       st,
+                                                       mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       results->view(), expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
   }
@@ -92,7 +97,9 @@ TYPED_TEST(SegmentedGatherTest, GatherNothing)
     auto const gather_map = LCW<int>{{LCW<int>{}, LCW<int>{}, LCW<int>{}, LCW<int>{}}, st, mr};
     auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                        cudf::lists_column_view{gather_map},
-                                                       cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                       cudf::out_of_bounds_policy::DONT_CHECK,
+                                                       st,
+                                                       mr.get_output_mr());
     auto const expected   = LCW<T>{{LCW<T>{}, LCW<T>{}, LCW<T>{}, LCW<T>{}}, st, mr};
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       *results, expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
@@ -104,7 +111,9 @@ TYPED_TEST(SegmentedGatherTest, GatherNothing)
     auto const gather_map = LCW<int>{LCW<int>{}, LCW<int>{}, LCW<int>{}};
     auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                        cudf::lists_column_view{gather_map},
-                                                       cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                       cudf::out_of_bounds_policy::DONT_CHECK,
+                                                       st,
+                                                       mr.get_output_mr());
 
     // hack to get column of empty list of list
     auto const expected_dummy = LCW<T>{{{1, 2, 3, 4}, {5}}, LCW<T>{}, LCW<T>{}, LCW<T>{}};
@@ -118,7 +127,9 @@ TYPED_TEST(SegmentedGatherTest, GatherNothing)
     auto const gather_map = LCW<int>{LCW<int>{}, LCW<int>{}};
     auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                        cudf::lists_column_view{gather_map},
-                                                       cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                       cudf::out_of_bounds_policy::DONT_CHECK,
+                                                       st,
+                                                       mr.get_output_mr());
     // hack to get column of empty list of list of list
     auto const expected_dummy = LCW<T>{{{{1, 2, 3, 4}}}, LCW<T>{}, LCW<T>{}};
     auto const expected       = cudf::split(expected_dummy, {1}, st)[1];
@@ -152,7 +163,9 @@ TEST_F(SegmentedGatherTestSingle, GatherEmpty)
   auto const expected   = LCW<int32_t>{};
   auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                      cudf::lists_column_view{gather_map},
-                                                     cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                     cudf::out_of_bounds_policy::DONT_CHECK,
+                                                     st,
+                                                     mr.get_output_mr());
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(
     *results, expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
 }
@@ -175,7 +188,9 @@ TYPED_TEST(SegmentedGatherTest, GatherNulls)
     auto const gather_map = LCW<int>{Init{{0, 1}, Init{}, {1}, {2, 1, 0}}, st, mr};
     auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                        cudf::lists_column_view{gather_map},
-                                                       cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                       cudf::out_of_bounds_policy::DONT_CHECK,
+                                                       st,
+                                                       mr.get_output_mr());
     auto const expected =
       LCW<T>{Init{{{1, 2}, valids}, Init{}, {{7}, valids + 1}, {{10, 9, 8}, valids}}, st, mr};
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
@@ -184,12 +199,15 @@ TYPED_TEST(SegmentedGatherTest, GatherNulls)
   {
     // Test gathering on lists that contain nulls, with out-of-bounds indices.
     auto const gather_map = LCW<int>{Init{{10, -10}, Init{}, {1}, {2, -10, 0}}, st, mr};
-    auto const results    = cudf::lists::segmented_gather(
-      cudf::lists_column_view{list}, cudf::lists_column_view{gather_map}, NULLIFY, st, mr.get_output_mr());
-    auto const expected = LCW<T>{
-      Init{{{0, 0}, nulls_at({0, 1})}, Init{}, {{7}, valids + 1}, {{10, 0, 8}, null_at(1)}},
-      st,
-      mr};
+    auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
+                                                       cudf::lists_column_view{gather_map},
+                                                       NULLIFY,
+                                                       st,
+                                                       mr.get_output_mr());
+    auto const expected =
+      LCW<T>{Init{{{0, 0}, nulls_at({0, 1})}, Init{}, {{7}, valids + 1}, {{10, 0, 8}, null_at(1)}},
+             st,
+             mr};
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       results->view(), expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
   }
@@ -266,14 +284,17 @@ TYPED_TEST(SegmentedGatherTest, GatherNested)
                                    st,
                                    mr};
     auto const gather_map = LCW<int>{Init{{1}, Init{}, {0}, {1}, {0, -1, 3, -4}}, st, mr};
-    auto const results    = cudf::lists::segmented_gather(
-      cudf::lists_column_view{list}, cudf::lists_column_view{gather_map}, NULLIFY, st, mr.get_output_mr());
+    auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
+                                                       cudf::lists_column_view{gather_map},
+                                                       NULLIFY,
+                                                       st,
+                                                       mr.get_output_mr());
     auto const expected =
       LCW<T>{Init{{{{6, 7, 8}, {9, 10, 11}, {12, 13, 14}}},
-                   Init{},
-                   {{Init{0}}},
-                   {{{0, 1, 3}, {5}}},
-                   {{{{10, 20}}, {{40, 50}, {60, 70, 80}}, Init{}, Init{}}, nulls_at({2, 3})}},
+                  Init{},
+                  {{Init{0}}},
+                  {{{0, 1, 3}, {5}}},
+                  {{{{10, 20}}, {{40, 50}, {60, 70, 80}}, Init{}, Init{}}, nulls_at({2, 3})}},
              st,
              mr};
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
@@ -414,7 +435,9 @@ TYPED_TEST(SegmentedGatherTest, GatherNestedWithEmpties)
   auto const gather_map = LCW<int>{LCW<int>{0}, LCW<int>{0}, LCW<int>{0}};
   auto results          = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                cudf::lists_column_view{gather_map},
-                                               cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                               cudf::out_of_bounds_policy::DONT_CHECK,
+                                               st,
+                                               mr.get_output_mr());
   auto const expected =
     LCW<T>{{{2, 3}}, {{6, 7, 8}}, {LCW<T>{}}};  // skip one null, gather one null.
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(
@@ -448,7 +471,9 @@ TYPED_TEST(SegmentedGatherTest, GatherSliced)
       auto const gather_map = cudf::lists_column_view{list};
       auto const result     = cudf::lists::segmented_gather(cudf::lists_column_view{split_a[0]},
                                                         gather_map,
-                                                        cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                        cudf::out_of_bounds_policy::DONT_CHECK,
+                                                        st,
+                                                        mr.get_output_mr());
       auto const expected   = LCW<T>{Init{
                                        {{2, 2}, {3, 3}},
                                        {{4, 4, 4}, {6, 6}},
@@ -465,7 +490,9 @@ TYPED_TEST(SegmentedGatherTest, GatherSliced)
       auto const gather_map = cudf::lists_column_view{list};
       auto const result     = cudf::lists::segmented_gather(cudf::lists_column_view{split_a[1]},
                                                         gather_map,
-                                                        cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                        cudf::out_of_bounds_policy::DONT_CHECK,
+                                                        st,
+                                                        mr.get_output_mr());
       auto const expected =
         LCW<T>{Init{{{10, 10, 10}, {11, 11}}, Init{}, Init{}, {{50, 50, 50, 50}, {6, 13}}, Init{}},
                st,
@@ -506,7 +533,9 @@ TYPED_TEST(SegmentedGatherTest, GatherSliced)
       LCW<int> map{Init{{0, 1}}, st, mr};
       auto result = cudf::lists::segmented_gather(cudf::lists_column_view{sliced[0]},
                                                   cudf::lists_column_view{map},
-                                                  cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                  cudf::out_of_bounds_policy::DONT_CHECK,
+                                                  st,
+                                                  mr.get_output_mr());
       LCW<T> expected{Init{{{{2, 3}, {4, 5}}, {{6, 7, 8}, {9, 10, 11}, {12, 13, 14}}}}, st, mr};
       CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(expected,
                                           result->view(),
@@ -521,7 +550,9 @@ TYPED_TEST(SegmentedGatherTest, GatherSliced)
       LCW<int16_t> map{Init{{0}, {1, 2, 0, 1}, {0, 1, 2}}, st, mr};
       auto result = cudf::lists::segmented_gather(cudf::lists_column_view{sliced[1]},
                                                   cudf::lists_column_view{map},
-                                                  cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                  cudf::out_of_bounds_policy::DONT_CHECK,
+                                                  st,
+                                                  mr.get_output_mr());
       LCW<T> expected{
         Init{
           {{Init{0}}},
@@ -548,7 +579,9 @@ TYPED_TEST(SegmentedGatherTest, GatherSliced)
       LCW<int> map{Init{{1, 0, 0, 1, 1, 0}, {1, 0, 0, 1, 1, 2}}, st, mr};
       auto result = cudf::lists::segmented_gather(cudf::lists_column_view{sliced[2]},
                                                   cudf::lists_column_view{map},
-                                                  cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                  cudf::out_of_bounds_policy::DONT_CHECK,
+                                                  st,
+                                                  mr.get_output_mr());
       std::vector<bool> expected_valids = {false, true, true, false, false, true};
 
       LCW<T> expected{Init{{{{Init{30}},
@@ -595,7 +628,9 @@ TEST_F(SegmentedGatherTestString, StringGather)
       LCW<T>{StrInit{{"a", "b", "d", "c"}, {"22", "1", "4", "333"}, StrInit{}}, st, mr};
     auto const result = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                       cudf::lists_column_view{gather_map},
-                                                      cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                      cudf::out_of_bounds_policy::DONT_CHECK,
+                                                      st,
+                                                      mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       expected, result->view(), cudf::test::debug_output_level::FIRST_ERROR, st, mr);
   }
@@ -608,12 +643,15 @@ TEST_F(SegmentedGatherTestString, StringGather)
       I8Init{{0, 1, 3, 4}, {1, -5, 3, 2}, I8Init{}}, st, mr};
     auto const expected =
       LCW<T>{StrInit{{{"a", "b", "d", "c"}, cudf::test::iterators::null_at(3)},
-                      {{"22", "1", "4", "333"}, cudf::test::iterators::null_at(1)},
-                      StrInit{}},
+                     {{"22", "1", "4", "333"}, cudf::test::iterators::null_at(1)},
+                     StrInit{}},
              st,
              mr};
-    auto result = cudf::lists::segmented_gather(
-      cudf::lists_column_view{list}, cudf::lists_column_view{gather_map}, NULLIFY, st, mr.get_output_mr());
+    auto result = cudf::lists::segmented_gather(cudf::lists_column_view{list},
+                                                cudf::lists_column_view{gather_map},
+                                                NULLIFY,
+                                                st,
+                                                mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       expected, result->view(), cudf::test::debug_output_level::FIRST_ERROR, st, mr);
   }
@@ -636,7 +674,9 @@ TEST_F(SegmentedGatherTestFloat, GatherMapSliced)
     auto const expected = LCW<T>{Init{{4, 3, 2, 1}, {5}, {6, 7}, {8, 10, 9}, {11}, {14}}, st, mr};
     auto const results  = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                        cudf::lists_column_view{gather_map},
-                                                       cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                       cudf::out_of_bounds_policy::DONT_CHECK,
+                                                       st,
+                                                       mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       results->view(), expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
 
@@ -646,7 +686,9 @@ TEST_F(SegmentedGatherTestFloat, GatherMapSliced)
 
     auto result0 = cudf::lists::segmented_gather(cudf::lists_column_view{sliced[0]},
                                                  cudf::lists_column_view{split_m[0]},
-                                                 cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                 cudf::out_of_bounds_policy::DONT_CHECK,
+                                                 st,
+                                                 mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(split_e[0],
                                         result0->view(),
                                         cudf::test::debug_output_level::FIRST_ERROR,
@@ -655,7 +697,9 @@ TEST_F(SegmentedGatherTestFloat, GatherMapSliced)
                                         mr);
     auto result1 = cudf::lists::segmented_gather(cudf::lists_column_view{sliced[1]},
                                                  cudf::lists_column_view{split_m[1]},
-                                                 cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                 cudf::out_of_bounds_policy::DONT_CHECK,
+                                                 st,
+                                                 mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(split_e[1],
                                         result1->view(),
                                         cudf::test::debug_output_level::FIRST_ERROR,
@@ -664,7 +708,9 @@ TEST_F(SegmentedGatherTestFloat, GatherMapSliced)
                                         mr);
     auto result2 = cudf::lists::segmented_gather(cudf::lists_column_view{sliced[2]},
                                                  cudf::lists_column_view{split_m[2]},
-                                                 cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr());
+                                                 cudf::out_of_bounds_policy::DONT_CHECK,
+                                                 st,
+                                                 mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(split_e[2],
                                         result2->view(),
                                         cudf::test::debug_output_level::FIRST_ERROR,
@@ -679,12 +725,13 @@ TEST_F(SegmentedGatherTestFloat, GatherMapSliced)
       LCW<T>{Init{{1, 2, 3, 4}, {5}, {6, 7}, {8, 9, 10}, {11, 12}, {13, 14, 15, 16}}, st, mr};
     auto const gather_map = LCW<int>{Init{{3, -5, 1, 0}, {0}, {0, 1}, {0, 2, 3}, {0}, {1}}, st, mr};
     // gather_map.offset: 0, 4, 5, 7, 10, 11, 12
-    auto const expected =
-      LCW<T>{Init{{{4, 0, 2, 1}, null_at(1)}, {5}, {6, 7}, {{8, 10, 9}, null_at(2)}, {11}, {14}},
-             st,
-             mr};
-    auto results = cudf::lists::segmented_gather(
-      cudf::lists_column_view{list}, cudf::lists_column_view{gather_map}, NULLIFY, st, mr.get_output_mr());
+    auto const expected = LCW<T>{
+      Init{{{4, 0, 2, 1}, null_at(1)}, {5}, {6, 7}, {{8, 10, 9}, null_at(2)}, {11}, {14}}, st, mr};
+    auto results = cudf::lists::segmented_gather(cudf::lists_column_view{list},
+                                                 cudf::lists_column_view{gather_map},
+                                                 NULLIFY,
+                                                 st,
+                                                 mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       results->view(), expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
 
@@ -692,24 +739,33 @@ TEST_F(SegmentedGatherTestFloat, GatherMapSliced)
     auto const split_m = cudf::split(gather_map, {1, 4}, st);
     auto const split_e = cudf::split(expected, {1, 4}, st);
 
-    auto const result0 = cudf::lists::segmented_gather(
-      cudf::lists_column_view{sliced[0]}, cudf::lists_column_view{split_m[0]}, NULLIFY, st, mr.get_output_mr());
+    auto const result0 = cudf::lists::segmented_gather(cudf::lists_column_view{sliced[0]},
+                                                       cudf::lists_column_view{split_m[0]},
+                                                       NULLIFY,
+                                                       st,
+                                                       mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(split_e[0],
                                         result0->view(),
                                         cudf::test::debug_output_level::FIRST_ERROR,
                                         cudf::test::default_ulp,
                                         st,
                                         mr);
-    auto const result1 = cudf::lists::segmented_gather(
-      cudf::lists_column_view{sliced[1]}, cudf::lists_column_view{split_m[1]}, NULLIFY, st, mr.get_output_mr());
+    auto const result1 = cudf::lists::segmented_gather(cudf::lists_column_view{sliced[1]},
+                                                       cudf::lists_column_view{split_m[1]},
+                                                       NULLIFY,
+                                                       st,
+                                                       mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(split_e[1],
                                         result1->view(),
                                         cudf::test::debug_output_level::FIRST_ERROR,
                                         cudf::test::default_ulp,
                                         st,
                                         mr);
-    auto const result2 = cudf::lists::segmented_gather(
-      cudf::lists_column_view{sliced[2]}, cudf::lists_column_view{split_m[2]}, NULLIFY, st, mr.get_output_mr());
+    auto const result2 = cudf::lists::segmented_gather(cudf::lists_column_view{sliced[2]},
+                                                       cudf::lists_column_view{split_m[2]},
+                                                       NULLIFY,
+                                                       st,
+                                                       mr.get_output_mr());
     CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(split_e[2],
                                         result2->view(),
                                         cudf::test::debug_output_level::FIRST_ERROR,
@@ -738,17 +794,23 @@ TEST_F(SegmentedGatherTestFloat, Fails)
   // strings, or lists containing anything other than integers.
   EXPECT_THROW(cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                              cudf::lists_column_view{nonlist_map0},
-                                             cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr()),
+                                             cudf::out_of_bounds_policy::DONT_CHECK,
+                                             st,
+                                             mr.get_output_mr()),
                cudf::logic_error);
 
   EXPECT_THROW(cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                              cudf::lists_column_view{nonlist_map1},
-                                             cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr()),
+                                             cudf::out_of_bounds_policy::DONT_CHECK,
+                                             st,
+                                             mr.get_output_mr()),
                cudf::logic_error);
 
   EXPECT_THROW(cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                              cudf::lists_column_view{nonlist_map2},
-                                             cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr()),
+                                             cudf::out_of_bounds_policy::DONT_CHECK,
+                                             st,
+                                             mr.get_output_mr()),
                cudf::logic_error);
 
   auto valids = cudf::test::iterators::valids_at_multiples_of(2);
@@ -758,13 +820,17 @@ TEST_F(SegmentedGatherTestFloat, Fails)
   // Nulls are not supported in the gather map.
   EXPECT_THROW(cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                              cudf::lists_column_view{nulls_map},
-                                             cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr()),
+                                             cudf::out_of_bounds_policy::DONT_CHECK,
+                                             st,
+                                             mr.get_output_mr()),
                std::invalid_argument);
 
   // Gather map and list column sizes must be the same.
   EXPECT_THROW(cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                              cudf::lists_column_view{size_mismatch_map},
-                                             cudf::out_of_bounds_policy::DONT_CHECK, st, mr.get_output_mr()),
+                                             cudf::out_of_bounds_policy::DONT_CHECK,
+                                             st,
+                                             mr.get_output_mr()),
                cudf::logic_error);
 }
 

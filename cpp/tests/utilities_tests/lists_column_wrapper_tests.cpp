@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -1572,7 +1572,8 @@ TEST_F(ListsColumnInitializerHarnessTest, LeafInitUsesExplicitResources)
   }
 
   LCW expected{Init{{1, 2, 3, 4}}, st, mr};
-  CUDF_TEST_EXPECT_COLUMNS_EQUAL(*built, expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(
+    *built, expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
 }
 
 TEST_F(ListsColumnInitializerHarnessTest, LeafNullableInitUsesExplicitResources)
@@ -1615,5 +1616,6 @@ TEST_F(ListsColumnInitializerHarnessTest, SingleChildNestedInitUsesExplicitResou
   }
 
   LCW expected{Init{{{{1, 2, 3}}}}, st, mr};
-  CUDF_TEST_EXPECT_COLUMNS_EQUAL(*built, expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(
+    *built, expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
 }
