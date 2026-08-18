@@ -164,10 +164,8 @@ void tdigest_minmax_compare(cudf::tdigest::tdigest_column_view const& tdv,
   auto expected_max = static_cast<double>(max_scalar->value());
 
   double tdv_min, tdv_max;
-  EXPECT_EQ(cudaMemcpy(&tdv_min, tdv.min_begin(), sizeof(double), cudaMemcpyDeviceToHost),
-            cudaSuccess);
-  EXPECT_EQ(cudaMemcpy(&tdv_max, tdv.max_begin(), sizeof(double), cudaMemcpyDeviceToHost),
-            cudaSuccess);
+  EXPECT_EQ(cudaMemcpy(&tdv_min, tdv.min_begin(), sizeof(double), cudaMemcpyDefault), cudaSuccess);
+  EXPECT_EQ(cudaMemcpy(&tdv_max, tdv.max_begin(), sizeof(double), cudaMemcpyDefault), cudaSuccess);
 
   EXPECT_EQ(tdv_min, expected_min);
   EXPECT_EQ(tdv_max, expected_max);
