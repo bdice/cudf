@@ -21,6 +21,7 @@
 #include <rmm/device_uvector.hpp>
 
 #include <cuda/atomic>
+#include <cuda/iterator>
 #include <cuda/std/limits>
 #include <cuda/std/optional>
 #include <cuda/stream>
@@ -408,7 +409,7 @@ struct get_page_key {
  */
 inline auto make_page_key_iterator(device_span<PageInfo const> pages)
 {
-  return thrust::make_transform_iterator(pages.begin(), get_page_key{});
+  return cuda::transform_iterator(pages.begin(), get_page_key{});
 }
 
 /**
@@ -1146,6 +1147,8 @@ void InitFragmentStatistics(device_span<statistics_group> groups,
  * @param[in] max_page_size_rows Maximum number of rows per page
  * @param[in] page_align Required alignment for uncompressed pages
  * @param[in] write_v2_headers True if V2 page headers should be written
+ * @param[in] write_page_stats True if statistics are to be written to the data page headers. When
+ * false, no space is reserved for them in the page headers
  * @param[in] page_grstats Setup for page-level stats
  * @param[in] chunk_grstats Setup for chunk-level stats
  * @param[in] stream CUDA stream to use
@@ -1160,6 +1163,7 @@ void InitEncoderPages(cudf::detail::device_2dspan<EncColumnChunk> chunks,
                       size_type max_page_size_rows,
                       uint32_t page_align,
                       bool write_v2_headers,
+                      bool write_page_stats,
                       statistics_merge_group* page_grstats,
                       statistics_merge_group* chunk_grstats,
                       cuda::stream_ref stream);
