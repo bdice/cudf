@@ -24,13 +24,13 @@ unset GTEST_CUDF_MEMORY_PEAK
 # Output tests using more than 1GB
 echo ""
 echo "Tests using more than 1GB of memory:"
-threshold=1073741824  # 1GB in bytes
+threshold=$((1024 * 1024 * 1024))
 for result in "${results[@]}" ; do
   test_name=$(echo "$result" | cut -d',' -f1)
   bytes=$(echo "$result" | cut -d',' -f2)
   if [[ -n "$bytes" && "$bytes" -gt "$threshold" ]] ; then
     # Convert bytes to GB with 2 decimal places
-    gb=$(awk "BEGIN {printf \"%.2f\", $bytes / 1073741824}")
+    gb=$(awk "BEGIN {printf \"%.2f\", $bytes / (1024 * 1024 * 1024)}")
     echo "$test_name: ${gb} GB"
   fi
 done
