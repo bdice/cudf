@@ -94,20 +94,19 @@ TYPED_TEST(SegmentedGatherTest, GatherNothing)
   // List<T>
   {
     auto const list       = LCW<T>{Init{{1, 2, 3, 4}, {5}, {6, 7}, {8, 9, 10}}, st, mr};
-    auto const gather_map = LCW<int>{{LCW<int>{}, LCW<int>{}, LCW<int>{}, LCW<int>{}}, st, mr};
+    auto const gather_map = LCW<int>{LCW<int>{}, LCW<int>{}, LCW<int>{}, LCW<int>{}};
     auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                        cudf::lists_column_view{gather_map},
                                                        cudf::out_of_bounds_policy::DONT_CHECK,
                                                        st,
                                                        mr.get_output_mr());
-    auto const expected   = LCW<T>{{LCW<T>{}, LCW<T>{}, LCW<T>{}, LCW<T>{}}, st, mr};
+    auto const expected   = LCW<T>{LCW<T>{}, LCW<T>{}, LCW<T>{}, LCW<T>{}};
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       *results, expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
   }
   // List<List<T>>
   {
-    // Keep base brace nesting for empty-row hierarchy (Init empty encoding differs).
-    auto const list       = LCW<T>{{{1, 2, 3, 4}, {5}}, {{6, 7}}, {LCW<T>{}, {8, 9, 10}}};
+    auto const list = LCW<T>{Init{{{1, 2, 3, 4}, {5}}, {{6, 7}}, {Init{}, {8, 9, 10}}}, st, mr};
     auto const gather_map = LCW<int>{LCW<int>{}, LCW<int>{}, LCW<int>{}};
     auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                        cudf::lists_column_view{gather_map},
@@ -116,14 +115,14 @@ TYPED_TEST(SegmentedGatherTest, GatherNothing)
                                                        mr.get_output_mr());
 
     // hack to get column of empty list of list
-    auto const expected_dummy = LCW<T>{{{1, 2, 3, 4}, {5}}, LCW<T>{}, LCW<T>{}, LCW<T>{}};
+    auto const expected_dummy = LCW<T>{Init{{{1, 2, 3, 4}, {5}}, Init{}, Init{}, Init{}}, st, mr};
     auto const expected       = cudf::split(expected_dummy, {1}, st)[1];
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       *results, expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
   }
   // List<List<List<T>>>
   {
-    auto const list       = LCW<T>{{{{1, 2, 3, 4}, {5}}}, {{{6, 7}, {8, 9, 10}}}};
+    auto const list       = LCW<T>{Init{{{{1, 2, 3, 4}, {5}}}, {{{6, 7}, {8, 9, 10}}}}, st, mr};
     auto const gather_map = LCW<int>{LCW<int>{}, LCW<int>{}};
     auto const results    = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                        cudf::lists_column_view{gather_map},
@@ -131,7 +130,7 @@ TYPED_TEST(SegmentedGatherTest, GatherNothing)
                                                        st,
                                                        mr.get_output_mr());
     // hack to get column of empty list of list of list
-    auto const expected_dummy = LCW<T>{{{{1, 2, 3, 4}}}, LCW<T>{}, LCW<T>{}};
+    auto const expected_dummy = LCW<T>{Init{{{{1, 2, 3, 4}}}, Init{}, Init{}}, st, mr};
     auto const expected       = cudf::split(expected_dummy, {1}, st)[1];
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       *results, expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
@@ -431,7 +430,9 @@ TYPED_TEST(SegmentedGatherTest, GatherNestedWithEmpties)
   auto const st = this->stream();
   auto const mr = this->resources();
 
-  auto const list = LCW<T>{{{2, 3}, LCW<T>{}}, {{6, 7, 8}, {9, 10, 11}, {12, 13, 14}}, {LCW<T>{}}};
+  auto const list =
+    LCW<T>{Init{{{2, 3}, Init{}}, {{6, 7, 8}, {9, 10, 11}, {12, 13, 14}}, {Init{}}}, st, mr};
+  // Per-row singleton lists: brace LCWs (Init{{0},{0},{0}} flattens to one list of three).
   auto const gather_map = LCW<int>{LCW<int>{0}, LCW<int>{0}, LCW<int>{0}};
   auto results          = cudf::lists::segmented_gather(cudf::lists_column_view{list},
                                                cudf::lists_column_view{gather_map},
@@ -439,7 +440,7 @@ TYPED_TEST(SegmentedGatherTest, GatherNestedWithEmpties)
                                                st,
                                                mr.get_output_mr());
   auto const expected =
-    LCW<T>{{{2, 3}}, {{6, 7, 8}}, {LCW<T>{}}};  // skip one null, gather one null.
+    LCW<T>{Init{{{2, 3}}, {{6, 7, 8}}, {Init{}}}, st, mr};  // skip one null, gather one null.
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(
     results->view(), expected, cudf::test::debug_output_level::FIRST_ERROR, st, mr);
 }
