@@ -31,7 +31,7 @@ void makeStreamFromArrays(std::vector<nanoarrow::UniqueArray> arrays,
 }
 
 std::tuple<std::unique_ptr<cudf::table>, nanoarrow::UniqueSchema, ArrowArrayStream>
-get_nanoarrow_stream(int num_copies, cudf::memory_resources mr)
+get_nanoarrow_stream(int num_copies, cuda::stream_ref stream, cudf::memory_resources mr)
 {
   auto const temporary_mr        = mr.get_temporary_mr();
   auto const temporary_resources = cudf::memory_resources{temporary_mr, temporary_mr};
@@ -40,7 +40,7 @@ get_nanoarrow_stream(int num_copies, cudf::memory_resources mr)
   nanoarrow::UniqueSchema schema;
   std::vector<nanoarrow::UniqueArray> arrays;
   for (auto i = 0; i < num_copies; ++i) {
-    auto [tbl, sch, arr] = get_nanoarrow_host_tables(3, temporary_resources);
+    auto [tbl, sch, arr] = get_nanoarrow_host_tables(3, stream, temporary_resources);
     tables.push_back(std::move(tbl));
     arrays.push_back(std::move(arr));
     if (i == 0) { sch.move(schema.get()); }
@@ -49,11 +49,11 @@ get_nanoarrow_stream(int num_copies, cudf::memory_resources mr)
   for (auto const& table : tables) {
     table_views.push_back(table->view());
   }
-  auto expected = cudf::concatenate(table_views, cudf::get_default_stream(), mr.get_output_mr());
+  auto expected = cudf::concatenate(table_views, stream, mr.get_output_mr());
 
-  ArrowArrayStream stream;
-  makeStreamFromArrays(std::move(arrays), std::move(schema), &stream);
-  return std::make_tuple(std::move(expected), std::move(schema), stream);
+  ArrowArrayStream arrow_stream;
+  makeStreamFromArrays(std::move(arrays), std::move(schema), &arrow_stream);
+  return std::make_tuple(std::move(expected), std::move(schema), arrow_stream);
 }
 
 std::tuple<std::unique_ptr<cudf::column>, nanoarrow::UniqueSchema, ArrowArrayStream>
@@ -97,23 +97,25 @@ TEST_F(FromArrowStreamTest, TestUtilityMemoryResourceControl)
   auto output_mr    = rmm::mr::statistics_resource_adaptor(upstream);
   auto temporary_mr = rmm::mr::statistics_resource_adaptor(upstream);
   auto resources    = cudf::memory_resources{output_mr, temporary_mr};
+  auto stream       = cudf::get_default_stream();
 
   {
-    auto direct_table                                   = get_cudf_table(resources);
-    auto [generated_table, generated_schema, test_data] = get_nanoarrow_cudf_table(3, resources);
-    auto [device_table, device_schema, device_array]    = get_nanoarrow_tables(0, resources);
-    auto [host_table, host_schema, host_array]          = get_nanoarrow_host_tables(3, resources);
-    auto [stream_table, stream_schema, stream]          = get_nanoarrow_stream(2, resources);
+    auto direct_table = get_cudf_table(stream, resources);
+    auto [generated_table, generated_schema, test_data] =
+      get_nanoarrow_cudf_table(3, stream, resources);
+    auto [device_table, device_schema, device_array] = get_nanoarrow_tables(0, stream, resources);
+    auto [host_table, host_schema, host_array] = get_nanoarrow_host_tables(3, stream, resources);
+    auto [stream_table, stream_schema, arrow_stream] = get_nanoarrow_stream(2, stream, resources);
 
-    cudf::get_default_stream().synchronize();
+    stream.synchronize();
     EXPECT_GT(output_mr.get_bytes_counter().value, 0);
     EXPECT_EQ(temporary_mr.get_bytes_counter().value, 0);
     EXPECT_GT(temporary_mr.get_bytes_counter().total, 0);
 
-    if (stream.release != nullptr) { stream.release(&stream); }
+    if (arrow_stream.release != nullptr) { arrow_stream.release(&arrow_stream); }
   }
 
-  cudf::get_default_stream().synchronize();
+  stream.synchronize();
   EXPECT_EQ(output_mr.get_bytes_counter().value, 0);
   EXPECT_EQ(temporary_mr.get_bytes_counter().value, 0);
 }
