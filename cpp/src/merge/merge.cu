@@ -277,6 +277,7 @@ index_vector generate_merged_indices(table_view const& left_table,
 
   CUDF_CHECK_CUDA(stream.value());
 
+  stream.synchronize();
   return merged_indices;
 }
 

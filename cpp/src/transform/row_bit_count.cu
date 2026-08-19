@@ -553,6 +553,7 @@ std::unique_ptr<column> segmented_row_bit_count(table_view const& t,
     h_info.max_branch_depth);
   CUDF_CUDA_TRY(cudaGetLastError());
 
+  stream.sync();
   return output;
 }
 
