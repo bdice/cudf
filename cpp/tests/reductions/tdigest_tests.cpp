@@ -5,12 +5,11 @@
 
 #include <cudf_test/base_fixture.hpp>
 #include <cudf_test/column_wrapper.hpp>
+#include <cudf_test/memory_resource_utilities.hpp>
 #include <cudf_test/tdigest_utilities.hpp>
 #include <cudf_test/type_lists.hpp>
 
 #include <cudf/reduction.hpp>
-
-#include <rmm/mr/statistics_resource_adaptor.hpp>
 
 template <typename T>
 struct ReductionTDigestAllTypes : public cudf::test::BaseFixture {};
@@ -81,47 +80,59 @@ TEST_F(ReductionTDigestMerge, Simple)
 
 TEST_F(ReductionTDigestMerge, TestUtilityMemoryResourceControl)
 {
-  auto upstream     = cudf::get_current_device_resource_ref();
-  auto output_mr    = rmm::mr::statistics_resource_adaptor(upstream);
-  auto temporary_mr = rmm::mr::statistics_resource_adaptor(upstream);
-  auto resources    = cudf::memory_resources{output_mr, temporary_mr};
+  auto stream = cudf::test::get_default_stream();
 
+  // generate_typed_percentile_distribution: output lives on output MR, temps are released.
+  // Note: do not install a failing current resource here; cast still routes Thrust scratch
+  // through get_current_device_resource_ref().
   {
-    auto distribution = cudf::test::generate_typed_percentile_distribution(
-      {10.0}, {4}, cudf::data_type{cudf::type_id::FLOAT64}, false, resources);
-    cudf::test::get_default_stream().synchronize();
-    EXPECT_GT(output_mr.get_bytes_counter().value, 0);
-    EXPECT_EQ(temporary_mr.get_bytes_counter().value, 0);
-    EXPECT_GT(temporary_mr.get_bytes_counter().total, 0);
+    auto harness = cudf::test::memory_resource_test_harness{};
+    {
+      auto distribution = cudf::test::generate_typed_percentile_distribution(
+        {10.0}, {4}, cudf::data_type{cudf::type_id::FLOAT64}, false, stream, harness.resources());
+      harness.synchronize(stream);
+      harness.expect_output_allocations_live(stream);
+      harness.expect_temporary_allocation_activity(stream);
+      harness.expect_temporary_allocations_released(stream);
+    }
+    harness.expect_no_live_allocations(stream);
   }
-  cudf::test::get_default_stream().synchronize();
-  EXPECT_EQ(output_mr.get_bytes_counter().value, 0);
 
-  cudf::test::fixed_width_column_wrapper<double> means{1.0, 2.0};
-  cudf::test::fixed_width_column_wrapper<double> weights{1.0, 1.0};
-  auto validation_output_mr    = rmm::mr::statistics_resource_adaptor(upstream);
-  auto validation_temporary_mr = rmm::mr::statistics_resource_adaptor(upstream);
-  auto validation_resources = cudf::memory_resources{validation_output_mr, validation_temporary_mr};
-  auto const temporary_bytes_before = temporary_mr.get_bytes_counter().total;
-
+  // make_expected_tdigest_column + compare helpers
   {
-    auto expected =
-      cudf::test::make_expected_tdigest_column({{means, weights, 1.0, 2.0}}, resources);
-    cudf::tdigest::tdigest_column_view tdv(*expected);
-    cudf::test::tdigest_sample_compare(tdv, {{0, 1.0, 1.0}, {1, 2.0, 1.0}}, validation_resources);
-    cudf::test::tdigest_minmax_compare<double>(tdv, means, validation_resources);
+    auto harness = cudf::test::memory_resource_test_harness{};
 
-    cudf::test::get_default_stream().synchronize();
-    EXPECT_GT(output_mr.get_bytes_counter().value, 0);
-    EXPECT_EQ(temporary_mr.get_bytes_counter().value, 0);
-    EXPECT_GT(temporary_mr.get_bytes_counter().total, temporary_bytes_before);
-    EXPECT_EQ(validation_output_mr.get_bytes_counter().value, 0);
-    EXPECT_EQ(validation_output_mr.get_bytes_counter().total, 0);
-    EXPECT_EQ(validation_temporary_mr.get_bytes_counter().value, 0);
-    EXPECT_GT(validation_temporary_mr.get_bytes_counter().total, 0);
+    // Inputs stay on setup_mr so they do not affect output/temporary live-byte checks
+    cudf::test::fixed_width_column_wrapper<double> means(
+      {1.0, 2.0}, rmm::cuda_stream_view{stream}, harness.setup_mr());
+    cudf::test::fixed_width_column_wrapper<double> weights(
+      {1.0, 1.0}, rmm::cuda_stream_view{stream}, harness.setup_mr());
+
+    {
+      auto expected = cudf::test::make_expected_tdigest_column(
+        {{means, weights, 1.0, 2.0}}, stream, harness.resources());
+      harness.expect_output_allocations_live(stream);
+      harness.expect_temporary_allocation_activity(stream);
+      harness.expect_temporary_allocations_released(stream);
+
+      auto const output_bytes_before    = harness.output_mr().get_bytes_counter();
+      auto const temporary_bytes_before = harness.temporary_mr().get_bytes_counter().total;
+
+      cudf::tdigest::tdigest_column_view tdv(*expected);
+      cudf::test::tdigest_sample_compare(
+        tdv, {{0, 1.0, 1.0}, {1, 2.0, 1.0}}, stream, harness.resources());
+      cudf::test::tdigest_minmax_compare<double>(tdv, means, stream, harness.resources());
+
+      // Compare helpers must not allocate output; only temporary traffic
+      harness.synchronize(stream);
+      EXPECT_EQ(harness.output_mr().get_bytes_counter().value, output_bytes_before.value);
+      EXPECT_EQ(harness.output_mr().get_bytes_counter().total, output_bytes_before.total);
+      EXPECT_GT(harness.temporary_mr().get_bytes_counter().total, temporary_bytes_before);
+      harness.expect_temporary_allocations_released(stream);
+    }
+    harness.expect_no_live_allocations(stream);
+    EXPECT_GT(harness.setup_mr().get_bytes_counter().value, 0);
   }
-  cudf::test::get_default_stream().synchronize();
-  EXPECT_EQ(output_mr.get_bytes_counter().value, 0);
 }
 
 // tests an issue with the cluster generating code with a small number of centroids that have large
