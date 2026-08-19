@@ -71,6 +71,8 @@ struct TypedScalarTest : public cudf::test::BaseFixture {};
 template <typename T>
 struct TypedScalarTestWithoutFixedPoint : public cudf::test::BaseFixture {};
 
+struct ScalarTest : public cudf::test::BaseFixture {};
+
 TYPED_TEST_SUITE(TypedScalarTest, cudf::test::FixedWidthTypes);
 TYPED_TEST_SUITE(TypedScalarTestWithoutFixedPoint, cudf::test::FixedWidthTypesWithoutFixedPoint);
 
@@ -103,7 +105,7 @@ TYPED_TEST(TypedScalarTestWithoutFixedPoint, SetValue)
   EXPECT_EQ(value, s.value());
 }
 
-TEST(ScalarTest, AsyncSetValueOwnsHostSource)
+TEST_F(ScalarTest, AsyncSetValueOwnsHostSource)
 {
   rmm::cuda_stream stream;
   auto const stream_ref = cuda::stream_ref{stream.value()};
