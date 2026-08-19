@@ -9,13 +9,16 @@
 #include <cudf_test/testing_main.hpp>
 #include <cudf_test/type_lists.hpp>
 
+#include <cudf/detail/utilities/vector_factories.hpp>
 #include <cudf/scalar/scalar.hpp>
 #include <cudf/utilities/error.hpp>
 
 #include <rmm/cuda_stream.hpp>
+#include <rmm/mr/callback_memory_resource.hpp>
 
 #include <cuda_runtime_api.h>
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -121,6 +124,41 @@ TEST_F(ScalarTest, AsyncSetValueOwnsHostSource)
 
   gate.release();
   EXPECT_EQ(42, scalar.value(stream_ref));
+}
+
+TEST_F(ScalarTest, AsyncStringConstructionOwnsHostSource)
+{
+  rmm::cuda_stream stream;
+  auto const stream_ref = cuda::stream_ref{stream.value()};
+  host_func_gate gate;
+  auto upstream = cudf::get_current_device_resource_ref();
+  int allocations{0};
+  rmm::mr::callback_memory_resource mr{
+    [upstream, &gate, &allocations](
+      std::size_t bytes, rmm::cuda_stream_view stream, void*) mutable {
+      auto* ptr = upstream.allocate(stream, bytes, cuda::mr::default_cuda_malloc_alignment);
+      if (allocations++ == 1) {
+        CUDF_CUDA_TRY(cudaLaunchHostFunc(
+          stream.value(), [](void* data) { static_cast<host_func_gate*>(data)->wait(); }, &gate));
+      }
+      return ptr;
+    },
+    [upstream](void* ptr, std::size_t bytes, rmm::cuda_stream_view stream, void*) mutable {
+      upstream.deallocate(stream, ptr, bytes, cuda::mr::default_cuda_malloc_alignment);
+    }};
+  std::string expected{"expected"};
+  auto source = cudf::detail::make_pinned_vector<char>(expected.size(), stream_ref);
+  std::copy(expected.begin(), expected.end(), source.begin());
+
+  cudf::string_scalar scalar{std::string_view{source.data(), source.size()},
+                             true,
+                             stream_ref,
+                             rmm::device_async_resource_ref{mr}};
+  std::fill(source.begin(), source.end(), 'x');
+  EXPECT_FALSE(gate.complete());
+
+  gate.release();
+  EXPECT_EQ(expected, scalar.to_string(stream_ref));
 }
 
 TYPED_TEST(TypedScalarTestWithoutFixedPoint, SetNull)
