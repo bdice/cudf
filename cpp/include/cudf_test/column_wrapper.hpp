@@ -426,7 +426,8 @@ class lists_column_initializer {
    */
   template <typename ValidityIterator, typename NestedInit = lists_column_initializer>
   lists_column_initializer(std::initializer_list<NestedInit> children, ValidityIterator v)
-    requires(std::is_same_v<NestedInit, lists_column_initializer>)
+    requires(std::is_same_v<NestedInit, lists_column_initializer> &&
+             std::is_convertible_v<std::iter_reference_t<ValidityIterator>, bool>)
     : nested_{true}
   {
     children_.reserve(children.size());
@@ -434,7 +435,9 @@ class lists_column_initializer {
       if (static_cast<bool>(*v++)) {
         children_.push_back(child);
       } else {
-        children_.emplace_back();
+        +
+
+          children_.emplace_back();
         children_.back().valid_ = false;
       }
     }
