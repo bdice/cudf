@@ -343,7 +343,7 @@ auto make_chars_and_offsets(StringsIterator begin, StringsIterator end, Validity
 
 }  // namespace detail
 
-// Forward declaration for lists_column_initializer::build
+// Forward declaration for lists_column_initializer
 template <typename T, typename SourceElementT>
 class lists_column_wrapper;
 
@@ -482,7 +482,7 @@ class lists_column_initializer {
   template <typename ElementT, typename SourceElementT = ElementT>
   [[nodiscard]] std::pair<std::vector<lists_column_wrapper<ElementT, SourceElementT>>,
                           std::vector<bool>>
-  build(rmm::cuda_stream_view stream, cudf::memory_resources mr) const
+  build(cuda::stream_ref stream, cudf::memory_resources mr) const
   {
     std::vector<lists_column_wrapper<ElementT, SourceElementT>> children;
     std::vector<bool> validity;
