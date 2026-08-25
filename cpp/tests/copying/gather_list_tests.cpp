@@ -514,20 +514,18 @@ TYPED_TEST(GatherTestListTyped, GatherSliced)
       cudf::test::fixed_width_column_wrapper<int> map{{1, 0, 0, 1, 1, 0}, stream, mr};
       auto result =
         cudf::gather(tbl, map, cudf::out_of_bounds_policy::DONT_CHECK, stream, mr.get_output_mr());
-      Init expected
-      {
-        {{{{{10, 20, 30}}, {Init{30}}, {{{20, 30}, valids}, {62, 72, 82}}}, valids},
-         {{{{{10, 20}, valids}}, {Init{30}}, {{40, 50}, {60, 70, 80}}}, valids},
-         {{{{{10, 20}, valids}}, {Init{30}}, {{40, 50}, {60, 70, 80}}}, valids},
-         {{{{10, 20, 30}}, {Init{30}}, {{{20, 30}, valids}, {62, 72, 82}}}, valids},
-         {{{{10, 20, 30}}, {Init{30}}, {{{20, 30}, valids}, {62, 72, 82}}}, valids},
-         {{{{{10, 20}, valids}}, {Init{30}}, {{40, 50}, {60, 70, 80}}}, valids}};
-        CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(LCW<T>(expected, stream, mr),
-                                            result->get_column(0).view(),
-                                            cudf::test::debug_output_level::FIRST_ERROR,
-                                            cudf::test::default_ulp,
-                                            stream,
-                                            mr);
-      }
+      Init expected{{{{{10, 20, 30}}, {Init{30}}, {{{20, 30}, valids}, {62, 72, 82}}}, valids},
+                    {{{{{10, 20}, valids}}, {Init{30}}, {{40, 50}, {60, 70, 80}}}, valids},
+                    {{{{{10, 20}, valids}}, {Init{30}}, {{40, 50}, {60, 70, 80}}}, valids},
+                    {{{{10, 20, 30}}, {Init{30}}, {{{20, 30}, valids}, {62, 72, 82}}}, valids},
+                    {{{{10, 20, 30}}, {Init{30}}, {{{20, 30}, valids}, {62, 72, 82}}}, valids},
+                    {{{{{10, 20}, valids}}, {Init{30}}, {{40, 50}, {60, 70, 80}}}, valids}};
+      CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(LCW<T>(expected, stream, mr),
+                                          result->get_column(0).view(),
+                                          cudf::test::debug_output_level::FIRST_ERROR,
+                                          cudf::test::default_ulp,
+                                          stream,
+                                          mr);
     }
   }
+}
