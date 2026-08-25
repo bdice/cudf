@@ -435,9 +435,7 @@ class lists_column_initializer {
       if (static_cast<bool>(*v++)) {
         children_.push_back(child);
       } else {
-        +
-
-          children_.emplace_back();
+        children_.emplace_back();
         children_.back().valid_ = false;
       }
     }
