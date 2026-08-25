@@ -1,4 +1,4 @@
-name: spark-rapids-jni
+name: cudf-spark-jni
 
 on:
   workflow_dispatch:
@@ -12,26 +12,25 @@ on:
         description: 'cuDF commit SHA or branch'
         type: string
         required: false
-        default: 'release/26.08'
-      spark_rapids_jni_repository: &spark_rapids_jni_repository
-        description: 'spark-rapids-jni repository'
+        default: 'main'
+      cudf_spark_jni_repository: &cudf_spark_jni_repository
+        description: 'cudf-spark-jni repository'
         type: string
         required: false
-        default: 'NVIDIA/spark-rapids-jni'
-      spark_rapids_jni_commit: &spark_rapids_jni_commit
-        description: 'spark-rapids-jni commit SHA or branch'
+        default: 'NVIDIA/cudf-spark-jni'
+      cudf_spark_jni_commit: &cudf_spark_jni_commit
+        description: 'cudf-spark-jni commit SHA or branch; defaults to cuDF RAPIDS_BRANCH'
         type: string
         required: false
-        default: 'release/26.08'
   workflow_call:
     inputs:
       cudf_repository: *cudf_repository
       cudf_commit: *cudf_commit
-      spark_rapids_jni_repository: *spark_rapids_jni_repository
-      spark_rapids_jni_commit: *spark_rapids_jni_commit
+      cudf_spark_jni_repository: *cudf_spark_jni_repository
+      cudf_spark_jni_commit: *cudf_spark_jni_commit
 
 jobs:
-  spark-rapids-jni-build:
+  cudf-spark-jni-build:
     runs-on: linux-amd64-cpu8
     container:
       image: rapidsai/ci-spark-rapids-jni:rockylinux8-cuda12.9.1
@@ -42,15 +41,23 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           persist-credentials: false
-          repository: ${{ inputs.spark_rapids_jni_repository }}
-          submodules: recursive
-          ref: ${{ inputs.spark_rapids_jni_commit }}
+          repository: ${{ inputs.cudf_repository }}
+          ref: ${{ inputs.cudf_commit }}
+          path: cudf-local
+      - id: rapids-branch
+        if: inputs.cudf_spark_jni_commit == ''
+        run: echo "branch=$(cat cudf-local/RAPIDS_BRANCH)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           persist-credentials: false
-          repository: ${{ inputs.cudf_repository }}
-          ref: ${{ inputs.cudf_commit }}
-          path: thirdparty/cudf
+          repository: ${{ inputs.cudf_spark_jni_repository }}
+          submodules: recursive
+          ref: ${{ inputs.cudf_spark_jni_commit || steps.rapids-branch.outputs.branch }}
+          path: cudf-spark-jni
+      - name: Use selected cuDF checkout
+        run: |
+          rm -rf cudf-spark-jni/thirdparty/cudf
+          mv cudf-local cudf-spark-jni/thirdparty/cudf
       - name: Install gha-tools
         run: |
           dnf -y install jq
@@ -66,11 +73,12 @@ jobs:
           AWS_REGION: "${{ env.AWS_REGION }}"
           AWS_ACCESS_KEY_ID: "${{ env.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ env.AWS_SECRET_ACCESS_KEY }}"
-      - name: "Build spark-rapids-jni"
+      - name: "Build cudf-spark-jni"
         env:
-          SCCACHE_S3_KEY_PREFIX: spark-rapids-jni
-          SCCACHE_S3_PREPROCESSOR_CACHE_KEY_PREFIX: spark-rapids-jni/preprocessor
+          SCCACHE_S3_KEY_PREFIX: cudf-spark-jni
+          SCCACHE_S3_PREPROCESSOR_CACHE_KEY_PREFIX: cudf-spark-jni/preprocessor
           SCCACHE_S3_USE_PREPROCESSOR_CACHE_MODE: true
+        working-directory: cudf-spark-jni
         run: |
           set -euo pipefail
 
