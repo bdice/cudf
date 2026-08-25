@@ -1,3 +1,13 @@
+# cudf 26.08.01 (25 Aug 2026)
+
+### 🐛 Bug Fixes
+* Backport #23646, #23732, #23714: Fix cudf-java native load by @paul-aiyedun in https://github.com/NVIDIA/cudf/pull/23766
+### 🛠️ Improvements
+* Backport #23540: Enable docs version picker by @josephine-wolf-oberholtzer in https://github.com/NVIDIA/cudf/pull/23571
+
+
+**Full Changelog**: https://github.com/NVIDIA/cudf/compare/v26.08.00...release/26.08
+
 # cudf 26.08.00 (5 Aug 2026)
 
 ### 🚨 Breaking Changes
