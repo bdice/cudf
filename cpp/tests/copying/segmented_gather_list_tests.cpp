@@ -562,7 +562,8 @@ TYPED_TEST(SegmentedGatherTest, GatherSliced)
 
     {
       Init list{{1, 2}, {0, 2}, {0, 1}};
-      auto const gather_map = cudf::lists_column_view{LCW<int>(list, stream, mr)};
+      auto const map_col    = LCW<int>(list, stream, mr);
+      auto const gather_map = cudf::lists_column_view{map_col};
       auto const result     = cudf::lists::segmented_gather(cudf::lists_column_view{split_a[0]},
                                                         gather_map,
                                                         cudf::out_of_bounds_policy::DONT_CHECK,
@@ -582,7 +583,8 @@ TYPED_TEST(SegmentedGatherTest, GatherSliced)
 
     {
       Init list{{0, 1}, Init{}, Init{}, {0, 1}, Init{}};
-      auto const gather_map = cudf::lists_column_view{LCW<int>(list, stream, mr)};
+      auto const map_col    = LCW<int>(list, stream, mr);
+      auto const gather_map = cudf::lists_column_view{map_col};
       auto const result     = cudf::lists::segmented_gather(cudf::lists_column_view{split_a[1]},
                                                         gather_map,
                                                         cudf::out_of_bounds_policy::DONT_CHECK,
