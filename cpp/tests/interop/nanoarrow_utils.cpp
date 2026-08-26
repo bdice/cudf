@@ -326,8 +326,8 @@ void makeStreamFromArrays(std::vector<nanoarrow::UniqueArray> arrays,
   out->private_data   = private_data;
 }
 
-std::tuple<std::unique_ptr<cudf::table>, nanoarrow::UniqueSchema, ArrowArrayStream>
-get_nanoarrow_stream(int num_copies, cuda::stream_ref stream, cudf::memory_resources mr)
+std::pair<std::unique_ptr<cudf::table>, ArrowArrayStream> get_nanoarrow_stream(
+  int num_copies, cuda::stream_ref stream, cudf::memory_resources mr)
 {
   auto const temporary_mr        = mr.get_temporary_mr();
   auto const temporary_resources = cudf::memory_resources{temporary_mr, temporary_mr};
@@ -349,5 +349,5 @@ get_nanoarrow_stream(int num_copies, cuda::stream_ref stream, cudf::memory_resou
 
   ArrowArrayStream arrow_stream;
   makeStreamFromArrays(std::move(arrays), std::move(schema), &arrow_stream);
-  return std::make_tuple(std::move(expected), std::move(schema), arrow_stream);
+  return std::make_pair(std::move(expected), arrow_stream);
 }

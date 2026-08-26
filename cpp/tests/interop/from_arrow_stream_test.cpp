@@ -21,8 +21,8 @@
 
 struct FromArrowStreamTest : public cudf::test::BaseFixture {};
 
-std::tuple<std::unique_ptr<cudf::column>, nanoarrow::UniqueSchema, ArrowArrayStream>
-get_nanoarrow_chunked_stream(int num_copies, cudf::size_type length)
+std::pair<std::unique_ptr<cudf::column>, ArrowArrayStream> get_nanoarrow_chunked_stream(
+  int num_copies, cudf::size_type length)
 {
   std::vector<std::unique_ptr<cudf::column>> columns;
   std::vector<nanoarrow::UniqueArray> arrays;
@@ -44,13 +44,13 @@ get_nanoarrow_chunked_stream(int num_copies, cudf::size_type length)
 
   ArrowArrayStream stream;
   makeStreamFromArrays(std::move(arrays), std::move(schema), &stream);
-  return std::make_tuple(std::move(expected), std::move(schema), stream);
+  return std::make_pair(std::move(expected), stream);
 }
 
 TEST_F(FromArrowStreamTest, BasicTest)
 {
   constexpr auto num_copies = 3;
-  auto [tbl, sch, stream]   = get_nanoarrow_stream(num_copies);
+  auto [tbl, stream]        = get_nanoarrow_stream(num_copies);
 
   auto result = cudf::from_arrow_stream(&stream);
   CUDF_TEST_EXPECT_TABLES_EQUAL(tbl->view(), result->view());
@@ -70,9 +70,9 @@ TEST_F(FromArrowStreamTest, EmptyTest)
 
 TEST_F(FromArrowStreamTest, ChunkedTest)
 {
-  constexpr auto num_copies       = 3;
-  constexpr auto length           = 3;
-  auto [expected, schema, stream] = get_nanoarrow_chunked_stream(num_copies, length);
+  constexpr auto num_copies = 3;
+  constexpr auto length     = 3;
+  auto [expected, stream]   = get_nanoarrow_chunked_stream(num_copies, length);
 
   auto result = cudf::from_arrow_stream_column(&stream);
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected->view(), result->view());
@@ -80,9 +80,9 @@ TEST_F(FromArrowStreamTest, ChunkedTest)
 
 TEST_F(FromArrowStreamTest, EmptyChunkedTest)
 {
-  constexpr auto num_copies       = 3;
-  constexpr auto length           = 0;
-  auto [expected, schema, stream] = get_nanoarrow_chunked_stream(num_copies, length);
+  constexpr auto num_copies = 3;
+  constexpr auto length     = 0;
+  auto [expected, stream]   = get_nanoarrow_chunked_stream(num_copies, length);
 
   auto result = cudf::from_arrow_stream_column(&stream);
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(result->view(), expected->view());

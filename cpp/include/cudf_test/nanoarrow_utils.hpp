@@ -558,9 +558,9 @@ void makeStreamFromArrays(std::vector<nanoarrow::UniqueArray> arrays,
  * @param num_copies Number of record batches in the stream
  * @param stream CUDA stream used for device memory operations and kernel launches
  * @param mr Memory resources used for returned table allocations and helper temporaries
- * @return Concatenated cuDF table, Arrow schema, and Arrow stream
+ * @return Concatenated cuDF table and Arrow stream
  */
-std::tuple<std::unique_ptr<cudf::table>, nanoarrow::UniqueSchema, ArrowArrayStream>
-get_nanoarrow_stream(int num_copies,
-                     cuda::stream_ref stream   = cudf::get_default_stream(),
-                     cudf::memory_resources mr = cudf::get_current_device_resource_ref());
+std::pair<std::unique_ptr<cudf::table>, ArrowArrayStream> get_nanoarrow_stream(
+  int num_copies,
+  cuda::stream_ref stream   = cudf::get_default_stream(),
+  cudf::memory_resources mr = cudf::get_current_device_resource_ref());
