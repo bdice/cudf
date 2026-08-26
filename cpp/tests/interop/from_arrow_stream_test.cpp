@@ -1,6 +1,5 @@
 /*
  * SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
- * SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -18,10 +17,10 @@
 #include <cudf/table/table_view.hpp>
 #include <cudf/utilities/type_checks.hpp>
 
+#include <rmm/mr/statistics_resource_adaptor.hpp>
+
 #include <numeric>
 #include <vector>
-
-#include <rmm/mr/statistics_resource_adaptor.hpp>
 
 struct FromArrowStreamTest : public cudf::test::BaseFixture {};
 
