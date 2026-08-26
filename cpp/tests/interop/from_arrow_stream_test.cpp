@@ -4,14 +4,12 @@
  */
 
 #include <cudf_test/base_fixture.hpp>
-#include <cudf_test/column_utilities.hpp>
 #include <cudf_test/column_wrapper.hpp>
 #include <cudf_test/nanoarrow_utils.hpp>
 #include <cudf_test/table_utilities.hpp>
 
 #include <cudf/concatenate.hpp>
 #include <cudf/copying.hpp>
-#include <cudf/dictionary/dictionary_factories.hpp>
 #include <cudf/interop.hpp>
 #include <cudf/lists/lists_column_view.hpp>
 #include <cudf/table/table.hpp>
@@ -24,85 +22,6 @@
 #include <vector>
 
 struct FromArrowStreamTest : public cudf::test::BaseFixture {};
-
-// Defined here rather than in from_arrow_test.cpp, which historically held this helper. That file
-// still depends on Arrow C++ and was dropped from the INTEROP_TEST target when the Arrow C++
-// dependency was removed from the C++ tests, so a definition placed there never reaches the link.
-std::unique_ptr<cudf::table> get_cudf_table(cuda::stream_ref stream, cudf::memory_resources mr)
-{
-  auto const temporary_mr = mr.get_temporary_mr();
-  std::vector<std::unique_ptr<cudf::column>> columns;
-  columns.emplace_back(cudf::test::fixed_width_column_wrapper<int32_t>(
-                         {1, 2, 5, 2, 7}, {true, false, true, true, true}, stream, mr)
-                         .release());
-  columns.emplace_back(
-    cudf::test::fixed_width_column_wrapper<int64_t>({1, 2, 3, 4, 5}, stream, mr).release());
-  columns.emplace_back(
-    cudf::test::strings_column_wrapper(
-      {"fff", "aaa", "", "fff", "ccc"}, {true, true, true, false, true}, stream, mr)
-      .release());
-
-  auto keys = cudf::test::fixed_width_column_wrapper<int32_t>({1, 2, 5, 7}, stream, temporary_mr);
-  auto indices = cudf::test::fixed_width_column_wrapper<int32_t>(
-    {0, 1, 2, 1, 3}, {1, 0, 1, 1, 1}, stream, temporary_mr);
-  columns.emplace_back(cudf::make_dictionary_column(keys, indices, stream, mr.get_output_mr()));
-
-  columns.emplace_back(
-    cudf::test::fixed_width_column_wrapper<bool>(
-      {true, false, true, false, true}, {true, false, true, true, false}, stream, mr)
-      .release());
-  columns.emplace_back(cudf::test::strings_column_wrapper(
-                         {
-                           "",
-                           "abc",
-                           "def",
-                           "1",
-                           "2",
-                         },
-                         {0, 1, 1, 1, 1},
-                         stream,
-                         mr)
-                         .release());
-  return std::make_unique<cudf::table>(std::move(columns));
-}
-
-void makeStreamFromArrays(std::vector<nanoarrow::UniqueArray> arrays,
-                          nanoarrow::UniqueSchema schema,
-                          ArrowArrayStream* out)
-{
-  auto* private_data  = new VectorOfArrays{std::move(arrays), std::move(schema)};
-  out->get_schema     = VectorOfArrays::get_schema;
-  out->get_next       = VectorOfArrays::get_next;
-  out->get_last_error = VectorOfArrays::get_last_error;
-  out->release        = VectorOfArrays::release;
-  out->private_data   = private_data;
-}
-
-std::tuple<std::unique_ptr<cudf::table>, nanoarrow::UniqueSchema, ArrowArrayStream>
-get_nanoarrow_stream(int num_copies, cuda::stream_ref stream, cudf::memory_resources mr)
-{
-  auto const temporary_mr        = mr.get_temporary_mr();
-  auto const temporary_resources = cudf::memory_resources{temporary_mr, temporary_mr};
-  std::vector<std::unique_ptr<cudf::table>> tables;
-  // The schema is unique across all tables.
-  nanoarrow::UniqueSchema schema;
-  std::vector<nanoarrow::UniqueArray> arrays;
-  for (auto i = 0; i < num_copies; ++i) {
-    auto [tbl, sch, arr] = get_nanoarrow_host_tables(3, stream, temporary_resources);
-    tables.push_back(std::move(tbl));
-    arrays.push_back(std::move(arr));
-    if (i == 0) { sch.move(schema.get()); }
-  }
-  std::vector<cudf::table_view> table_views;
-  for (auto const& table : tables) {
-    table_views.push_back(table->view());
-  }
-  auto expected = cudf::concatenate(table_views, stream, mr.get_output_mr());
-
-  ArrowArrayStream arrow_stream;
-  makeStreamFromArrays(std::move(arrays), std::move(schema), &arrow_stream);
-  return std::make_tuple(std::move(expected), std::move(schema), arrow_stream);
-}
 
 std::tuple<std::unique_ptr<cudf::column>, nanoarrow::UniqueSchema, ArrowArrayStream>
 get_nanoarrow_chunked_stream(int num_copies, cudf::size_type length)
