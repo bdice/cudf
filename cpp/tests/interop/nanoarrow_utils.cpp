@@ -9,51 +9,12 @@
 
 #include <cudf/column/column_factories.hpp>
 #include <cudf/concatenate.hpp>
-#include <cudf/dictionary/dictionary_factories.hpp>
 #include <cudf/dictionary/encode.hpp>
 #include <cudf/structs/structs_column_view.hpp>
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
 
 #include <iostream>
-
-std::unique_ptr<cudf::table> get_cudf_table(cuda::stream_ref stream, cudf::memory_resources mr)
-{
-  auto const temporary_mr = mr.get_temporary_mr();
-  std::vector<std::unique_ptr<cudf::column>> columns;
-  columns.emplace_back(cudf::test::fixed_width_column_wrapper<int32_t>(
-                         {1, 2, 5, 2, 7}, {true, false, true, true, true}, stream, mr)
-                         .release());
-  columns.emplace_back(
-    cudf::test::fixed_width_column_wrapper<int64_t>({1, 2, 3, 4, 5}, stream, mr).release());
-  columns.emplace_back(
-    cudf::test::strings_column_wrapper(
-      {"fff", "aaa", "", "fff", "ccc"}, {true, true, true, false, true}, stream, mr)
-      .release());
-
-  auto keys = cudf::test::fixed_width_column_wrapper<int32_t>({1, 2, 5, 7}, stream, temporary_mr);
-  auto indices = cudf::test::fixed_width_column_wrapper<int32_t>(
-    {0, 1, 2, 1, 3}, {1, 0, 1, 1, 1}, stream, temporary_mr);
-  columns.emplace_back(cudf::make_dictionary_column(keys, indices, stream, mr.get_output_mr()));
-
-  columns.emplace_back(
-    cudf::test::fixed_width_column_wrapper<bool>(
-      {true, false, true, false, true}, {true, false, true, true, false}, stream, mr)
-      .release());
-  columns.emplace_back(cudf::test::strings_column_wrapper(
-                         {
-                           "",
-                           "abc",
-                           "def",
-                           "1",
-                           "2",
-                         },
-                         {0, 1, 1, 1, 1},
-                         stream,
-                         mr)
-                         .release());
-  return std::make_unique<cudf::table>(std::move(columns));
-}
 
 void populate_list_from_col(ArrowArray* arr, cudf::lists_column_view view)
 {

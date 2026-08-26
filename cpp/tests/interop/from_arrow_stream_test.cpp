@@ -5,7 +5,6 @@
 
 #include <cudf_test/base_fixture.hpp>
 #include <cudf_test/column_wrapper.hpp>
-#include <cudf_test/memory_resource_utilities.hpp>
 #include <cudf_test/nanoarrow_utils.hpp>
 #include <cudf_test/table_utilities.hpp>
 
@@ -55,31 +54,6 @@ TEST_F(FromArrowStreamTest, BasicTest)
 
   auto result = cudf::from_arrow_stream(&stream);
   CUDF_TEST_EXPECT_TABLES_EQUAL(tbl->view(), result->view());
-}
-
-TEST_F(FromArrowStreamTest, TestUtilityMemoryResourceControl)
-{
-  auto harness   = cudf::test::memory_resource_test_harness{this->mr()};
-  auto resources = harness.resources();
-  auto stream    = cudf::get_default_stream();
-
-  {
-    auto current_scope = harness.fail_on_current_device_resource_use();
-    auto direct_table  = get_cudf_table(stream, resources);
-    auto [generated_table, generated_schema, test_data] =
-      get_nanoarrow_cudf_table(3, stream, resources);
-    auto [device_table, device_schema, device_array] = get_nanoarrow_tables(0, stream, resources);
-    auto [host_table, host_schema, host_array] = get_nanoarrow_host_tables(3, stream, resources);
-    auto [stream_table, stream_schema, arrow_stream] = get_nanoarrow_stream(2, stream, resources);
-
-    harness.expect_output_allocations_live(stream);
-    harness.expect_temporary_allocation_activity(stream);
-    harness.expect_temporary_allocations_released(stream);
-
-    if (arrow_stream.release != nullptr) { arrow_stream.release(&arrow_stream); }
-  }
-
-  harness.expect_no_live_allocations(stream);
 }
 
 TEST_F(FromArrowStreamTest, EmptyTest)

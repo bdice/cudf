@@ -274,17 +274,6 @@ get_nanoarrow_tables(cudf::size_type length    = 10000,
 
 void populate_list_from_col(ArrowArray* arr, cudf::lists_column_view view);
 
-/**
- * @brief Create the standard cuDF table used by Arrow interop tests.
- *
- * @param stream CUDA stream used for device memory operations and kernel launches
- * @param mr Memory resources used for returned table allocations and helper temporaries
- * @return Generated cuDF table
- */
-std::unique_ptr<cudf::table> get_cudf_table(
-  cuda::stream_ref stream   = cudf::get_default_stream(),
-  cudf::memory_resources mr = cudf::get_current_device_resource_ref());
-
 template <typename T>
 struct nanoarrow_storage_type {};
 
