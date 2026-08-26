@@ -35,14 +35,14 @@ struct tdigest_gen {
   // @cond
   template <typename T, typename Func>
   std::unique_ptr<column> operator()(Func op, column_view const& values, int delta)
-    requires(is_numeric<T>() || is_fixed_point<T>())
+    requires(cudf::is_numeric<T>() || cudf::is_fixed_point<T>())
   {
     return op(values, delta);
   }
 
   template <typename T, typename Func>
   std::unique_ptr<column> operator()(Func op, column_view const& values, int delta)
-    requires(!is_numeric<T>() && !is_fixed_point<T>())
+    requires(!cudf::is_numeric<T>() && !cudf::is_fixed_point<T>())
   {
     CUDF_FAIL("Invalid tdigest test type");
   }
@@ -76,12 +76,12 @@ inline std::unique_ptr<column> generate_typed_percentile_distribution(
   std::vector<double> const& buckets,
   std::vector<int> const& sizes,
   data_type t,
-  bool sorted             = false,
-  cuda::stream_ref stream = get_default_stream(),
-  memory_resources mr     = get_current_device_resource_ref())
+  bool sorted               = false,
+  cuda::stream_ref stream   = get_default_stream(),
+  cudf::memory_resources mr = get_current_device_resource_ref())
 {
   auto const temporary_mr        = mr.get_temporary_mr();
-  auto const temporary_resources = memory_resources{temporary_mr, temporary_mr};
+  auto const temporary_resources = cudf::memory_resources{temporary_mr, temporary_mr};
   srand(0);
 
   std::vector<double> values;
@@ -99,7 +99,7 @@ inline std::unique_ptr<column> generate_typed_percentile_distribution(
   if (sorted) { std::sort(values.begin(), values.end()); }
 
   fixed_width_column_wrapper<double> src(values.begin(), values.end(), stream, temporary_resources);
-  return cast(src, t, stream, mr.get_output_mr());
+  return cudf::cast(src, t, stream, mr.get_output_mr());
 }
 
 // "standardized" means the parameters sent into generate_typed_percentile_distribution. the intent
@@ -117,10 +117,10 @@ inline std::unique_ptr<column> generate_typed_percentile_distribution(
  * @return Generated column
  */
 inline std::unique_ptr<column> generate_standardized_percentile_distribution(
-  data_type t             = data_type{type_id::FLOAT64},
-  bool sorted             = false,
-  cuda::stream_ref stream = get_default_stream(),
-  memory_resources mr     = get_current_device_resource_ref())
+  data_type t               = data_type{type_id::FLOAT64},
+  bool sorted               = false,
+  cuda::stream_ref stream   = get_default_stream(),
+  cudf::memory_resources mr = get_current_device_resource_ref())
 {
   std::vector<double> buckets{10.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f, 70.0f, 80.0, 90.0f, 100.0f};
   std::vector<int> b_sizes{
@@ -136,10 +136,10 @@ inline std::unique_ptr<column> generate_standardized_percentile_distribution(
  * @param stream CUDA stream used for device memory operations and kernel launches
  * @param mr Memory resources used for temporary device allocations
  */
-void tdigest_sample_compare(tdigest::tdigest_column_view const& tdv,
+void tdigest_sample_compare(cudf::tdigest::tdigest_column_view const& tdv,
                             std::vector<expected_value> const& h_expected,
-                            cuda::stream_ref stream = get_default_stream(),
-                            memory_resources mr     = get_current_device_resource_ref());
+                            cuda::stream_ref stream   = get_default_stream(),
+                            cudf::memory_resources mr = get_current_device_resource_ref());
 
 /**
  * @brief Compare the min/max values of a tdigest against inputs.
@@ -151,15 +151,15 @@ void tdigest_sample_compare(tdigest::tdigest_column_view const& tdv,
  * @param mr Memory resources used for temporary device allocations
  */
 template <typename T>
-void tdigest_minmax_compare(tdigest::tdigest_column_view const& tdv,
-                            column_view const& input_values,
-                            cuda::stream_ref stream = get_default_stream(),
-                            memory_resources mr     = get_current_device_resource_ref())
+void tdigest_minmax_compare(cudf::tdigest::tdigest_column_view const& tdv,
+                            cudf::column_view const& input_values,
+                            cuda::stream_ref stream   = get_default_stream(),
+                            cudf::memory_resources mr = get_current_device_resource_ref())
 {
   auto const temporary_mr = mr.get_temporary_mr();
-  using ScalarType        = scalar_type_t<T>;
+  using ScalarType        = cudf::scalar_type_t<T>;
 
-  auto [col_min, col_max] = minmax(input_values, stream, temporary_mr);
+  auto [col_min, col_max] = cudf::minmax(input_values, stream, temporary_mr);
 
   auto min_scalar   = static_cast<ScalarType*>(col_min.get());
   auto max_scalar   = static_cast<ScalarType*>(col_max.get());
@@ -193,34 +193,35 @@ struct expected_tdigest {
  */
 std::unique_ptr<column> make_expected_tdigest_column(
   std::vector<expected_tdigest> const& groups,
-  cuda::stream_ref stream = get_default_stream(),
-  memory_resources mr     = get_current_device_resource_ref());
+  cuda::stream_ref stream   = get_default_stream(),
+  cudf::memory_resources mr = get_current_device_resource_ref());
 
 // shared test for groupby/reduction.
 template <typename T, typename Func>
 void tdigest_simple_aggregation(Func op,
-                                cuda::stream_ref stream = get_default_stream(),
-                                memory_resources mr     = get_current_device_resource_ref())
+                                cuda::stream_ref stream   = get_default_stream(),
+                                cudf::memory_resources mr = get_current_device_resource_ref())
 {
   auto const temporary_mr                     = mr.get_temporary_mr();
-  auto const temporary_resources              = memory_resources{temporary_mr, temporary_mr};
+  auto const temporary_resources              = cudf::memory_resources{temporary_mr, temporary_mr};
   bool is_cpu_cluster_computation_disabled[2] = {true, false};
   for (int idx = 0; idx < 2; idx++) {
-    tdigest::detail::is_cpu_cluster_computation_disabled = is_cpu_cluster_computation_disabled[idx];
+    cudf::tdigest::detail::is_cpu_cluster_computation_disabled =
+      is_cpu_cluster_computation_disabled[idx];
 
     // create a tdigest that has far fewer values in it than the delta value. this should result
     // in every value remaining uncompressed
     fixed_width_column_wrapper<T> values(
       {126, 15, 1, 99, 67}, rmm::cuda_stream_view{stream}, temporary_resources);
     int const delta = 1000;
-    auto result =
-      type_dispatcher(static_cast<column_view>(values).type(), tdigest_gen{}, op, values, delta);
+    auto result     = cudf::type_dispatcher(
+      static_cast<column_view>(values).type(), tdigest_gen{}, op, values, delta);
 
     fixed_width_column_wrapper<T> raw_mean(
       {1, 15, 67, 99, 126}, rmm::cuda_stream_view{stream}, temporary_resources);
     fixed_width_column_wrapper<double> weight(
       {1, 1, 1, 1, 1}, rmm::cuda_stream_view{stream}, temporary_resources);
-    auto mean        = cast(raw_mean, data_type{type_id::FLOAT64}, stream, temporary_mr);
+    auto mean        = cudf::cast(raw_mean, data_type{type_id::FLOAT64}, stream, temporary_mr);
     double const min = 1;
     double const max = 126;
     auto expected    = make_expected_tdigest_column({{*mean,
@@ -236,15 +237,17 @@ void tdigest_simple_aggregation(Func op,
 
 // shared test for groupby/reduction.
 template <typename T, typename Func>
-void tdigest_simple_with_nulls_aggregation(Func op,
-                                           cuda::stream_ref stream = get_default_stream(),
-                                           memory_resources mr = get_current_device_resource_ref())
+void tdigest_simple_with_nulls_aggregation(
+  Func op,
+  cuda::stream_ref stream   = get_default_stream(),
+  cudf::memory_resources mr = get_current_device_resource_ref())
 {
   auto const temporary_mr                     = mr.get_temporary_mr();
-  auto const temporary_resources              = memory_resources{temporary_mr, temporary_mr};
+  auto const temporary_resources              = cudf::memory_resources{temporary_mr, temporary_mr};
   bool is_cpu_cluster_computation_disabled[2] = {true, false};
   for (int idx = 0; idx < 2; idx++) {
-    tdigest::detail::is_cpu_cluster_computation_disabled = is_cpu_cluster_computation_disabled[idx];
+    cudf::tdigest::detail::is_cpu_cluster_computation_disabled =
+      is_cpu_cluster_computation_disabled[idx];
 
     // create a tdigest that has far fewer values in it than the delta value. this should result
     // in every value remaining uncompressed
@@ -253,14 +256,14 @@ void tdigest_simple_with_nulls_aggregation(Func op,
                                          rmm::cuda_stream_view{stream},
                                          temporary_resources);
     int const delta = 1000;
-    auto result =
-      type_dispatcher(static_cast<column_view>(values).type(), tdigest_gen{}, op, values, delta);
+    auto result     = cudf::type_dispatcher(
+      static_cast<column_view>(values).type(), tdigest_gen{}, op, values, delta);
 
     fixed_width_column_wrapper<T> raw_mean(
       {1, 44, 67, 100, 122}, rmm::cuda_stream_view{stream}, temporary_resources);
     fixed_width_column_wrapper<double> weight(
       {1, 1, 1, 1, 1}, rmm::cuda_stream_view{stream}, temporary_resources);
-    auto mean        = cast(raw_mean, data_type{type_id::FLOAT64}, stream, temporary_mr);
+    auto mean        = cudf::cast(raw_mean, data_type{type_id::FLOAT64}, stream, temporary_mr);
     double const min = 1;
     double const max = 122;
     auto expected    = make_expected_tdigest_column({{*mean,
@@ -276,15 +279,17 @@ void tdigest_simple_with_nulls_aggregation(Func op,
 
 // shared test for groupby/reduction.
 template <typename T, typename Func>
-void tdigest_simple_all_nulls_aggregation(Func op,
-                                          cuda::stream_ref stream = get_default_stream(),
-                                          memory_resources mr = get_current_device_resource_ref())
+void tdigest_simple_all_nulls_aggregation(
+  Func op,
+  cuda::stream_ref stream   = get_default_stream(),
+  cudf::memory_resources mr = get_current_device_resource_ref())
 {
   auto const temporary_mr                     = mr.get_temporary_mr();
-  auto const temporary_resources              = memory_resources{temporary_mr, temporary_mr};
+  auto const temporary_resources              = cudf::memory_resources{temporary_mr, temporary_mr};
   bool is_cpu_cluster_computation_disabled[2] = {true, false};
   for (int idx = 0; idx < 2; idx++) {
-    tdigest::detail::is_cpu_cluster_computation_disabled = is_cpu_cluster_computation_disabled[idx];
+    cudf::tdigest::detail::is_cpu_cluster_computation_disabled =
+      is_cpu_cluster_computation_disabled[idx];
 
     // create a tdigest that has far fewer values in it than the delta value. this should result
     // in every value remaining uncompressed
@@ -293,11 +298,11 @@ void tdigest_simple_all_nulls_aggregation(Func op,
                                          rmm::cuda_stream_view{stream},
                                          temporary_resources);
     int const delta = 1000;
-    auto result =
-      type_dispatcher(static_cast<column_view>(values).type(), tdigest_gen{}, op, values, delta);
+    auto result     = cudf::type_dispatcher(
+      static_cast<column_view>(values).type(), tdigest_gen{}, op, values, delta);
 
     // NOTE: an empty tdigest column still has 1 row.
-    auto expected = tdigest::detail::make_empty_tdigests_column(1, stream, temporary_mr);
+    auto expected = cudf::tdigest::detail::make_empty_tdigests_column(1, stream, temporary_mr);
 
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(*result, *expected, debug_output_level::FIRST_ERROR, stream, mr);
   }
@@ -308,20 +313,21 @@ void tdigest_simple_all_nulls_aggregation(Func op,
 template <typename Func, typename MergeFunc>
 void tdigest_merge_simple(Func op,
                           MergeFunc merge_op,
-                          cuda::stream_ref stream = get_default_stream(),
-                          memory_resources mr     = get_current_device_resource_ref())
+                          cuda::stream_ref stream   = get_default_stream(),
+                          cudf::memory_resources mr = get_current_device_resource_ref())
 {
   auto const temporary_mr                     = mr.get_temporary_mr();
-  auto const temporary_resources              = memory_resources{temporary_mr, temporary_mr};
+  auto const temporary_resources              = cudf::memory_resources{temporary_mr, temporary_mr};
   bool is_cpu_cluster_computation_disabled[2] = {true, false};
   for (int idx = 0; idx < 2; idx++) {
-    tdigest::detail::is_cpu_cluster_computation_disabled = is_cpu_cluster_computation_disabled[idx];
+    cudf::tdigest::detail::is_cpu_cluster_computation_disabled =
+      is_cpu_cluster_computation_disabled[idx];
 
     auto values = generate_standardized_percentile_distribution(
       data_type{type_id::FLOAT64}, false, stream, temporary_resources);
     CUDF_EXPECTS(values->size() == 750000, "Unexpected distribution size");
 
-    auto split_values = split(*values, {250000, 500000}, stream);
+    auto split_values = cudf::split(*values, {250000, 500000}, stream);
 
     int const delta = 1000;
 
@@ -345,7 +351,7 @@ void tdigest_merge_simple(Func op,
       // merge them
       auto merge_input = cudf::concatenate(part_views, stream, temporary_mr);
       auto result      = merge_op(*merge_input, merge_delta);
-      tdigest::tdigest_column_view tdv(*result);
+      cudf::tdigest::tdigest_column_view tdv(*result);
 
       // verify centroids
       std::vector<expected_value> expected{{0, 0.00013945158577498588, 2},
@@ -372,18 +378,19 @@ void tdigest_merge_simple(Func op,
 // shared test for groupby/reduction.
 template <typename MergeFunc>
 void tdigest_merge_empty(MergeFunc merge_op,
-                         cuda::stream_ref stream = get_default_stream(),
-                         memory_resources mr     = get_current_device_resource_ref())
+                         cuda::stream_ref stream   = get_default_stream(),
+                         cudf::memory_resources mr = get_current_device_resource_ref())
 {
   auto const temporary_mr                     = mr.get_temporary_mr();
   bool is_cpu_cluster_computation_disabled[2] = {true, false};
   for (int idx = 0; idx < 2; idx++) {
-    tdigest::detail::is_cpu_cluster_computation_disabled = is_cpu_cluster_computation_disabled[idx];
+    cudf::tdigest::detail::is_cpu_cluster_computation_disabled =
+      is_cpu_cluster_computation_disabled[idx];
 
     // 3 empty tdigests all in the same group
-    auto a = tdigest::detail::make_empty_tdigests_column(1, stream, temporary_mr);
-    auto b = tdigest::detail::make_empty_tdigests_column(1, stream, temporary_mr);
-    auto c = tdigest::detail::make_empty_tdigests_column(1, stream, temporary_mr);
+    auto a = cudf::tdigest::detail::make_empty_tdigests_column(1, stream, temporary_mr);
+    auto b = cudf::tdigest::detail::make_empty_tdigests_column(1, stream, temporary_mr);
+    auto c = cudf::tdigest::detail::make_empty_tdigests_column(1, stream, temporary_mr);
     std::vector<column_view> cols;
     cols.push_back(*a);
     cols.push_back(*b);
@@ -393,7 +400,7 @@ void tdigest_merge_empty(MergeFunc merge_op,
     auto const delta = 1000;
     auto result      = merge_op(*values, delta);
 
-    auto expected = tdigest::detail::make_empty_tdigests_column(1, stream, temporary_mr);
+    auto expected = cudf::tdigest::detail::make_empty_tdigests_column(1, stream, temporary_mr);
 
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(*expected, *result, debug_output_level::FIRST_ERROR, stream, mr);
   }

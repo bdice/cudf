@@ -23,10 +23,10 @@
 namespace cudf {
 namespace test {
 
-void tdigest_sample_compare(tdigest::tdigest_column_view const& tdv,
+void tdigest_sample_compare(cudf::tdigest::tdigest_column_view const& tdv,
                             std::vector<expected_value> const& h_expected,
                             cuda::stream_ref stream,
-                            memory_resources mr)
+                            cudf::memory_resources mr)
 {
   auto const temporary_mr   = mr.get_temporary_mr();
   column_view result_mean   = tdv.means();
@@ -53,18 +53,24 @@ void tdigest_sample_compare(tdigest::tdigest_column_view const& tdv,
   auto d_expected_weight =
     cudf::detail::make_device_uvector_async(h_expected_weight, stream, temporary_mr);
 
-  auto map                 = device_span<size_type const>(d_expected_src);
-  auto sampled_result_mean = std::move(
-    gather(table_view({result_mean}), map, out_of_bounds_policy::DONT_CHECK, stream, temporary_mr)
-      ->release()
-      .front());
-  auto sampled_result_weight = std::move(
-    gather(table_view({result_weight}), map, out_of_bounds_policy::DONT_CHECK, stream, temporary_mr)
-      ->release()
-      .front());
+  auto map                   = cudf::device_span<cudf::size_type const>(d_expected_src);
+  auto sampled_result_mean   = std::move(cudf::gather(cudf::table_view({result_mean}),
+                                                    map,
+                                                    cudf::out_of_bounds_policy::DONT_CHECK,
+                                                    stream,
+                                                    temporary_mr)
+                                         ->release()
+                                         .front());
+  auto sampled_result_weight = std::move(cudf::gather(cudf::table_view({result_weight}),
+                                                      map,
+                                                      cudf::out_of_bounds_policy::DONT_CHECK,
+                                                      stream,
+                                                      temporary_mr)
+                                           ->release()
+                                           .front());
 
-  auto expected_mean   = device_span<double const>(d_expected_mean);
-  auto expected_weight = device_span<double const>(d_expected_weight);
+  auto expected_mean   = cudf::device_span<double const>(d_expected_mean);
+  auto expected_weight = cudf::device_span<double const>(d_expected_weight);
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(
     expected_mean, *sampled_result_mean, debug_output_level::FIRST_ERROR, default_ulp, stream, mr);
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(
@@ -82,15 +88,15 @@ std::unique_ptr<column> make_expected_tdigest_column(std::vector<expected_tdiges
   // make an individual digest
   auto make_digest = [&](expected_tdigest const& tdigest) {
     std::vector<std::unique_ptr<column>> inner_children;
-    inner_children.push_back(std::make_unique<column>(tdigest.mean, stream, temporary_mr));
-    inner_children.push_back(std::make_unique<column>(tdigest.weight, stream, temporary_mr));
+    inner_children.push_back(std::make_unique<cudf::column>(tdigest.mean, stream, temporary_mr));
+    inner_children.push_back(std::make_unique<cudf::column>(tdigest.weight, stream, temporary_mr));
     // tdigest struct
-    auto tdigests = make_structs_column(
+    auto tdigests = cudf::make_structs_column(
       tdigest.mean.size(), std::move(inner_children), 0, {}, stream, temporary_mr);
 
     auto offsets = fixed_width_column_wrapper<int32_t>(
       {0, tdigest.mean.size()}, rmm::cuda_stream_view{stream}, temporary_resources);
-    auto list = make_lists_column(1, offsets.release(), std::move(tdigests), 0, {});
+    auto list = cudf::make_lists_column(1, offsets.release(), std::move(tdigests), 0, {});
 
     auto min_col = fixed_width_column_wrapper<double>(
       {tdigest.min}, rmm::cuda_stream_view{stream}, temporary_resources);
