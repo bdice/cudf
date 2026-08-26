@@ -12,7 +12,6 @@ on:
         description: 'cuDF commit SHA or branch'
         type: string
         required: false
-        default: 'main'
       cudf_spark_jni_repository: &cudf_spark_jni_repository
         description: 'cudf-spark-jni repository'
         type: string
