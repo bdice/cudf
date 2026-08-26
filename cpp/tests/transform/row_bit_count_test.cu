@@ -243,9 +243,7 @@ TYPED_TEST(RowBitCountTyped, ListsWithNulls)
   cudf::test::fixed_width_column_wrapper<cudf::size_type> inner_offsets{0, 2, 5, 6, 9, 9};
   std::vector<bool> inner_list_validity{1, 1, 1, 1, 0};
   auto [null_mask, null_count] =
-    cudf::test::detail::make_null_mask(inner_list_validity.begin(),
-                                       inner_list_validity.end(),
-                                       cudf::get_current_device_resource_ref());
+    cudf::test::detail::make_null_mask(inner_list_validity.begin(), inner_list_validity.end());
   auto inner_list = cudf::make_lists_column(
     5, inner_offsets.release(), values.release(), null_count, std::move(null_mask));
   cudf::test::fixed_width_column_wrapper<cudf::size_type> outer_offsets{0, 2, 2, 3, 5};
@@ -555,7 +553,7 @@ TEST_F(RowBitCount, EmptyChildColumnInListOfStrings)
   // Test with a list<string> column with 4 empty list rows.
   // Note: Since there are no strings in any of the lists,
   //       the lists column's child can be empty.
-  auto offsets   = cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 0, 0, 0, 0};
+  auto offsets   = cudf::test::fixed_width_column_wrapper<int32_t>{0, 0, 0, 0, 0};
   auto lists_col = cudf::make_lists_column(
     4, offsets.release(), cudf::make_empty_column(cudf::data_type{cudf::type_id::STRING}), 0, {});
 
@@ -574,7 +572,7 @@ TEST_F(RowBitCount, EmptyChildColumnInListOfLists)
     return cudf::empty_like(exemplar);
   };
 
-  auto offsets   = cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 0, 0, 0, 0};
+  auto offsets   = cudf::test::fixed_width_column_wrapper<int32_t>{0, 0, 0, 0, 0};
   auto lists_col = cudf::make_lists_column(4, offsets.release(), empty_child_lists_column(), 0, {});
 
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(

@@ -99,7 +99,8 @@ inline std::unique_ptr<column> generate_typed_percentile_distribution(
 
   if (sorted) { std::sort(values.begin(), values.end()); }
 
-  cudf::test::fixed_width_column_wrapper<double> src(values.begin(), values.end(), temporary_mr);
+  cudf::test::fixed_width_column_wrapper<double> src(
+    values.begin(), values.end(), cudf::get_default_stream(), temporary_mr);
   return cudf::cast(src, t, cudf::get_default_stream(), mr.get_output_mr());
 }
 
@@ -162,10 +163,8 @@ void tdigest_minmax_compare(cudf::tdigest::tdigest_column_view const& tdv,
   auto expected_max = static_cast<double>(max_scalar->value());
 
   double tdv_min, tdv_max;
-  EXPECT_EQ(cudaMemcpy(&tdv_min, tdv.min_begin(), sizeof(double), cudaMemcpyDeviceToHost),
-            cudaSuccess);
-  EXPECT_EQ(cudaMemcpy(&tdv_max, tdv.max_begin(), sizeof(double), cudaMemcpyDeviceToHost),
-            cudaSuccess);
+  EXPECT_EQ(cudaMemcpy(&tdv_min, tdv.min_begin(), sizeof(double), cudaMemcpyDefault), cudaSuccess);
+  EXPECT_EQ(cudaMemcpy(&tdv_max, tdv.max_begin(), sizeof(double), cudaMemcpyDefault), cudaSuccess);
 
   EXPECT_EQ(tdv_min, expected_min);
   EXPECT_EQ(tdv_max, expected_max);
@@ -205,13 +204,16 @@ void tdigest_simple_aggregation(Func op,
 
     // create a tdigest that has far fewer values in it than the delta value. this should result
     // in every value remaining uncompressed
-    cudf::test::fixed_width_column_wrapper<T> values({126, 15, 1, 99, 67}, temporary_resources);
+    cudf::test::fixed_width_column_wrapper<T> values(
+      {126, 15, 1, 99, 67}, cudf::get_default_stream(), temporary_resources);
     int const delta = 1000;
     auto result     = cudf::type_dispatcher(
       static_cast<column_view>(values).type(), tdigest_gen{}, op, values, delta);
 
-    cudf::test::fixed_width_column_wrapper<T> raw_mean({1, 15, 67, 99, 126}, temporary_resources);
-    cudf::test::fixed_width_column_wrapper<double> weight({1, 1, 1, 1, 1}, temporary_resources);
+    cudf::test::fixed_width_column_wrapper<T> raw_mean(
+      {1, 15, 67, 99, 126}, cudf::get_default_stream(), temporary_resources);
+    cudf::test::fixed_width_column_wrapper<double> weight(
+      {1, 1, 1, 1, 1}, cudf::get_default_stream(), temporary_resources);
     auto mean =
       cudf::cast(raw_mean, data_type{type_id::FLOAT64}, cudf::get_default_stream(), temporary_mr);
     double const min = 1;
@@ -222,8 +224,11 @@ void tdigest_simple_aggregation(Func op,
                                                       static_cast<double>(static_cast<T>(max))}},
                                                  temporary_resources);
 
-    CUDF_TEST_EXPECT_COLUMNS_EQUAL(
-      *result, *expected, cudf::test::debug_output_level::FIRST_ERROR, mr);
+    CUDF_TEST_EXPECT_COLUMNS_EQUAL(*result,
+                                   *expected,
+                                   cudf::test::debug_output_level::FIRST_ERROR,
+                                   cudf::get_default_stream(),
+                                   mr);
   }
 }
 
@@ -243,13 +248,16 @@ void tdigest_simple_with_nulls_aggregation(
     // in every value remaining uncompressed
     cudf::test::fixed_width_column_wrapper<T> values({122, 15, 1, 99, 67, 101, 100, 84, 44, 2},
                                                      {1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+                                                     cudf::get_default_stream(),
                                                      temporary_resources);
     int const delta = 1000;
     auto result     = cudf::type_dispatcher(
       static_cast<column_view>(values).type(), tdigest_gen{}, op, values, delta);
 
-    cudf::test::fixed_width_column_wrapper<T> raw_mean({1, 44, 67, 100, 122}, temporary_resources);
-    cudf::test::fixed_width_column_wrapper<double> weight({1, 1, 1, 1, 1}, temporary_resources);
+    cudf::test::fixed_width_column_wrapper<T> raw_mean(
+      {1, 44, 67, 100, 122}, cudf::get_default_stream(), temporary_resources);
+    cudf::test::fixed_width_column_wrapper<double> weight(
+      {1, 1, 1, 1, 1}, cudf::get_default_stream(), temporary_resources);
     auto mean =
       cudf::cast(raw_mean, data_type{type_id::FLOAT64}, cudf::get_default_stream(), temporary_mr);
     double const min = 1;
@@ -260,8 +268,11 @@ void tdigest_simple_with_nulls_aggregation(
                                                       static_cast<double>(static_cast<T>(max))}},
                                                  temporary_resources);
 
-    CUDF_TEST_EXPECT_COLUMNS_EQUAL(
-      *result, *expected, cudf::test::debug_output_level::FIRST_ERROR, mr);
+    CUDF_TEST_EXPECT_COLUMNS_EQUAL(*result,
+                                   *expected,
+                                   cudf::test::debug_output_level::FIRST_ERROR,
+                                   cudf::get_default_stream(),
+                                   mr);
   }
 }
 
@@ -281,6 +292,7 @@ void tdigest_simple_all_nulls_aggregation(
     // in every value remaining uncompressed
     cudf::test::fixed_width_column_wrapper<T> values({122, 15, 1, 99, 67, 101, 100, 84, 44, 2},
                                                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                     cudf::get_default_stream(),
                                                      temporary_resources);
     int const delta = 1000;
     auto result     = cudf::type_dispatcher(
@@ -290,8 +302,11 @@ void tdigest_simple_all_nulls_aggregation(
     auto expected = cudf::tdigest::detail::make_empty_tdigests_column(
       1, cudf::get_default_stream(), temporary_mr);
 
-    CUDF_TEST_EXPECT_COLUMNS_EQUAL(
-      *result, *expected, cudf::test::debug_output_level::FIRST_ERROR, mr);
+    CUDF_TEST_EXPECT_COLUMNS_EQUAL(*result,
+                                   *expected,
+                                   cudf::test::debug_output_level::FIRST_ERROR,
+                                   cudf::get_default_stream(),
+                                   mr);
   }
 }
 
@@ -391,8 +406,11 @@ void tdigest_merge_empty(MergeFunc merge_op,
     auto expected = cudf::tdigest::detail::make_empty_tdigests_column(
       1, cudf::get_default_stream(), temporary_mr);
 
-    CUDF_TEST_EXPECT_COLUMNS_EQUAL(
-      *expected, *result, cudf::test::debug_output_level::FIRST_ERROR, mr);
+    CUDF_TEST_EXPECT_COLUMNS_EQUAL(*expected,
+                                   *result,
+                                   cudf::test::debug_output_level::FIRST_ERROR,
+                                   cudf::get_default_stream(),
+                                   mr);
   }
 }
 

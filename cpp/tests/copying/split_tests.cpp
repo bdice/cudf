@@ -23,7 +23,6 @@
 #include <rmm/device_buffer.hpp>
 
 #include <cuda/iterator>
-#include <thrust/iterator/transform_iterator.h>
 
 #include <array>
 #include <limits>
@@ -219,7 +218,7 @@ void split_custom_column(SplitFunc Split,
 
   std::vector<std::string> base_strings(
     {"banana", "pear", "apple", "pecans", "vanilla", "cat", "mouse", "green"});
-  auto string_randomizer = thrust::make_transform_iterator(
+  auto string_randomizer = cuda::transform_iterator(
     cuda::counting_iterator<cudf::size_type>{0},
     [&base_strings](cudf::size_type i) { return base_strings[rand() % base_strings.size()]; });
 
@@ -978,16 +977,14 @@ void split_structs_no_children(SplitFunc Split, CompareFunc Compare, bool split 
   // all nulls
   {
     std::vector<bool> struct_validity{false, false, false, false};
-    auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-      struct_validity.begin(), struct_validity.end(), cudf::get_current_device_resource_ref());
+    auto [null_mask, null_count] =
+      cudf::test::detail::make_null_mask(struct_validity.begin(), struct_validity.end());
     auto struct_column = cudf::make_structs_column(4, {}, null_count, std::move(null_mask));
 
     if (split) {
       std::vector<bool> expected_validity{false, false};
       std::tie(null_mask, null_count) =
-        cudf::test::detail::make_null_mask(expected_validity.begin(),
-                                           expected_validity.end(),
-                                           cudf::get_current_device_resource_ref());
+        cudf::test::detail::make_null_mask(expected_validity.begin(), expected_validity.end());
       auto expected = cudf::make_structs_column(2, {}, null_count, std::move(null_mask));
 
       // split
@@ -1028,16 +1025,14 @@ void split_structs_no_children(SplitFunc Split, CompareFunc Compare, bool split 
   // all nulls, empty output column
   {
     std::vector<bool> struct_validity{false, false, false, false};
-    auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-      struct_validity.begin(), struct_validity.end(), cudf::get_current_device_resource_ref());
+    auto [null_mask, null_count] =
+      cudf::test::detail::make_null_mask(struct_validity.begin(), struct_validity.end());
     auto struct_column = cudf::make_structs_column(4, {}, null_count, std::move(null_mask));
 
     if (split) {
       std::vector<bool> expected_validity0{false, false, false, false};
       std::tie(null_mask, null_count) =
-        cudf::test::detail::make_null_mask(expected_validity0.begin(),
-                                           expected_validity0.end(),
-                                           cudf::get_current_device_resource_ref());
+        cudf::test::detail::make_null_mask(expected_validity0.begin(), expected_validity0.end());
       auto expected0 = cudf::make_structs_column(4, {}, null_count, std::move(null_mask));
 
       auto expected1 = cudf::make_structs_column(0, {}, 0, rmm::device_buffer{});
@@ -1262,8 +1257,8 @@ void split_nested_list_of_structs(SplitFunc Split, CompareFunc Compare, bool spl
   cudf::test::fixed_width_column_wrapper<int> outer_offsets_col(outer_offsets.begin(),
                                                                 outer_offsets.end());
   std::vector<bool> outer_validity{true, true, true, false, true, true, false};
-  auto [outer_null_mask, outer_null_count] = cudf::test::detail::make_null_mask(
-    outer_validity.begin(), outer_validity.end(), cudf::get_current_device_resource_ref());
+  auto [outer_null_mask, outer_null_count] =
+    cudf::test::detail::make_null_mask(outer_validity.begin(), outer_validity.end());
   auto outer_list = [&] {
     auto tmp = make_lists_column(static_cast<cudf::size_type>(outer_validity.size()),
                                  outer_offsets_col.release(),
@@ -1690,8 +1685,7 @@ TEST_F(ContiguousSplitUntypedTest, ValidityRepartition)
   });
   cudf::size_type const num_rows = 2000000;
   auto col                       = cudf::sequence(num_rows, cudf::numeric_scalar<int8_t>{0});
-  auto [null_mask, null_count]   = cudf::test::detail::make_null_mask(
-    rvalids, rvalids + num_rows, cudf::get_current_device_resource_ref());
+  auto [null_mask, null_count]   = cudf::test::detail::make_null_mask(rvalids, rvalids + num_rows);
   col->set_null_mask(std::move(null_mask), null_count);
 
   cudf::table_view t({*col});
@@ -1712,8 +1706,7 @@ TEST_F(ContiguousSplitUntypedTest, ValidityRepartitionChunked)
   });
   cudf::size_type const num_rows = 2000000;
   auto col                       = cudf::sequence(num_rows, cudf::numeric_scalar<int8_t>{0});
-  auto [null_mask, null_count]   = cudf::test::detail::make_null_mask(
-    rvalids, rvalids + num_rows, cudf::get_current_device_resource_ref());
+  auto [null_mask, null_count]   = cudf::test::detail::make_null_mask(rvalids, rvalids + num_rows);
   col->set_null_mask(std::move(null_mask), null_count);
 
   cudf::table_view t({*col});
@@ -1760,7 +1753,7 @@ TEST_F(ContiguousSplitUntypedTest, DISABLED_VeryLargeColumnTestChunked)
 }
 
 // Disabled as this test requires about 7GB of device memory.
-// See https://github.com/rapidsai/cudf/issues/20876 for more info.
+// See https://github.com/NVIDIA/cudf/issues/20876 for more info.
 TEST_F(ContiguousSplitUntypedTest, DISABLED_ChunkedPackNextReturnValueOver2GB)
 {
   auto const mr = cudf::get_current_device_resource_ref();

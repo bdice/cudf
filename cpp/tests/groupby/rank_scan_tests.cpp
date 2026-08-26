@@ -330,9 +330,9 @@ TYPED_TEST(typed_groupby_rank_scan_test, structsWithNullPushdown)
       {"0a", "0a", "2a", "2a", "3b", "5", "6c", "6c", "6c", "9", "9", "10d"}, null_at(8)};
     auto struct_column = cudf::test::structs_column_wrapper{nums_member, strings_member}.release();
     // Reset null-mask, a posteriori. Nulls will not be pushed down to children.
-    auto const null_iter         = nulls_at({1, 2, 11});
-    auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-      null_iter, null_iter + num_rows, cudf::get_current_device_resource_ref());
+    auto const null_iter = nulls_at({1, 2, 11});
+    auto [null_mask, null_count] =
+      cudf::test::detail::make_null_mask(null_iter, null_iter + num_rows);
     struct_column->set_null_mask(std::move(null_mask), null_count);
     return struct_column;
   };
@@ -395,7 +395,7 @@ TYPED_TEST(typed_groupby_rank_scan_test, structsWithNullPushdown)
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(*agg_results[1].results[2], expected_percent_for_null);
 }
 
-/* List support dependent on https://github.com/rapidsai/cudf/issues/8683
+/* List support dependent on https://github.com/NVIDIA/cudf/issues/8683
 template <typename T>
 struct list_groupby_rank_scan_test : public cudf::test::BaseFixture {
 };

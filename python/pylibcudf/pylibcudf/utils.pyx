@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from cython.operator import dereference
@@ -16,10 +16,18 @@ from rmm.pylibrmm.memory_resource cimport (
     get_current_device_resource,
 )
 
-from rmm.pylibrmm.stream import DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
+from rmm.pylibrmm.stream import DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM, Stream
+
+from pylibcudf.typing import CudaStreamLike, HasCudaStream
 
 
 import os
+
+
+__all__ = [
+    "CudaStreamLike",
+    "HasCudaStream",
+]
 
 
 # Check the environment for the variable CUDF_PER_THREAD_STREAM. If it is set,
@@ -47,7 +55,7 @@ cdef vector[reference_wrapper[const scalar]] _as_vector(list source):
     return c_scalars
 
 
-cpdef Stream _get_stream(object stream = None):
+cpdef Stream _get_stream(object stream: CudaStreamLike | None = None):
     if stream is None:
         return CUDF_DEFAULT_STREAM
     if isinstance(stream, Stream):

@@ -45,11 +45,10 @@ TEST_F(ByteCastTest, int16ValuesWithNulls)
     {false, true, false, true, false});
 
   auto int16_data = cudf::test::fixed_width_column_wrapper<uint8_t>{0x00, 0x64, 0x80, 0x00};
-  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-    odd_validity, odd_validity + 5, cudf::get_current_device_resource_ref());
-  auto int16_expected = cudf::make_lists_column(
+  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(odd_validity, odd_validity + 5);
+  auto int16_expected          = cudf::make_lists_column(
     5,
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 0, 2, 2, 4, 4}.release(),
+    cudf::test::fixed_width_column_wrapper<int32_t>{0, 0, 2, 2, 4, 4}.release(),
     int16_data.release(),
     null_count,
     std::move(null_mask));
@@ -91,12 +90,12 @@ TEST_F(ByteCastTest, int32ValuesWithNulls)
 
   auto int32_data = cudf::test::fixed_width_column_wrapper<uint8_t>{
     0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x9c, 0x7f, 0xff, 0xff, 0xff};
-  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-    even_validity, even_validity + 5, cudf::get_current_device_resource_ref());
+  auto [null_mask, null_count] =
+    cudf::test::detail::make_null_mask(even_validity, even_validity + 5);
 
   auto int32_expected = cudf::make_lists_column(
     5,
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 4, 4, 8, 8, 12}.release(),
+    cudf::test::fixed_width_column_wrapper<int32_t>{0, 4, 4, 8, 8, 12}.release(),
     int32_data.release(),
     null_count,
     std::move(null_mask));
@@ -146,11 +145,10 @@ TEST_F(ByteCastTest, int64ValuesWithNulls)
 
   auto int64_data = cudf::test::fixed_width_column_wrapper<uint8_t>{
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x64, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-    odd_validity, odd_validity + 5, cudf::get_current_device_resource_ref());
-  auto int64_expected = cudf::make_lists_column(
+  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(odd_validity, odd_validity + 5);
+  auto int64_expected          = cudf::make_lists_column(
     5,
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 0, 8, 8, 16, 16}.release(),
+    cudf::test::fixed_width_column_wrapper<int32_t>{0, 0, 8, 8, 16, 16}.release(),
     int64_data.release(),
     null_count,
     std::move(null_mask));
@@ -207,11 +205,11 @@ TEST_F(ByteCastTest, fp32ValuesWithNulls)
 
   auto fp32_data = cudf::test::fixed_width_column_wrapper<uint8_t>{
     0x00, 0x00, 0x00, 0x00, 0xc2, 0xc8, 0x00, 0x00, 0x7f, 0x7f, 0xff, 0xff};
-  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-    even_validity, even_validity + 5, cudf::get_current_device_resource_ref());
+  auto [null_mask, null_count] =
+    cudf::test::detail::make_null_mask(even_validity, even_validity + 5);
   auto fp32_expected = cudf::make_lists_column(
     5,
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 4, 4, 8, 8, 12}.release(),
+    cudf::test::fixed_width_column_wrapper<int32_t>{0, 4, 4, 8, 8, 12}.release(),
     fp32_data.release(),
     null_count,
     std::move(null_mask));
@@ -278,11 +276,10 @@ TEST_F(ByteCastTest, fp64ValuesWithNulls)
 
   auto fp64_data = cudf::test::fixed_width_column_wrapper<uint8_t>{
     0x40, 0x59, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-    odd_validity, odd_validity + 5, cudf::get_current_device_resource_ref());
-  auto fp64_expected = cudf::make_lists_column(
+  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(odd_validity, odd_validity + 5);
+  auto fp64_expected           = cudf::make_lists_column(
     5,
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 0, 8, 8, 16, 16}.release(),
+    cudf::test::fixed_width_column_wrapper<int32_t>{0, 0, 8, 8, 16, 16}.release(),
     fp64_data.release(),
     null_count,
     std::move(null_mask));
@@ -334,9 +331,9 @@ TEST_F(ByteCastTest, StringValuesWithNulls)
 
     // Set nulls by `set_null_mask` so the output column will have non-empty nulls.
     // This is intentional.
-    auto const null_iter         = cudf::test::iterators::nulls_at({2, 4});
-    auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-      null_iter, null_iter + output->size(), cudf::get_current_device_resource_ref());
+    auto const null_iter = cudf::test::iterators::nulls_at({2, 4});
+    auto [null_mask, null_count] =
+      cudf::test::detail::make_null_mask(null_iter, null_iter + output->size());
     output->set_null_mask(std::move(null_mask), null_count);
     return output;
   }();

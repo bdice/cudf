@@ -6,6 +6,7 @@
 #pragma once
 
 #include <cudf_test/column_wrapper.hpp>
+#include <cudf_test/default_stream.hpp>
 
 #include <cudf/detail/iterator.cuh>
 #include <cudf/utilities/export.hpp>
@@ -26,12 +27,12 @@ using time_point_ms =
  * The period is inferred from `count` and difference between `start`
  * and `stop`.
  *
- * @tparam Rep The arithmetic type representing the number of ticks
- * @tparam Period A cuda::std::ratio representing the tick period (i.e. the
- *number of seconds per tick)
+ * @tparam T The timestamp type of the generated column's elements
+ * @tparam nullable Whether the generated column carries a validity mask
  * @param count The number of timestamps to create
  * @param start The first timestamp as a cuda::std::chrono::time_point
  * @param stop The last timestamp as a cuda::std::chrono::time_point
+ * @param stream CUDA stream used for device memory operations
  * @param mr Memory resources used to allocate the returned column
  */
 template <typename T, bool nullable = false>
@@ -39,7 +40,8 @@ inline cudf::test::fixed_width_column_wrapper<T, int64_t> generate_timestamps(
   int32_t count,
   time_point_ms start,
   time_point_ms stop,
-  cudf::memory_resources mr = cudf::get_current_device_resource_ref())
+  rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
+  cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
 {
   using Rep        = typename T::rep;
   using Period     = typename T::period;
@@ -60,10 +62,10 @@ inline cudf::test::fixed_width_column_wrapper<T, int64_t> generate_timestamps(
   if (nullable) {
     auto mask =
       cudf::detail::make_counting_transform_iterator(0, [](auto i) { return i % 2 == 0; });
-    return cudf::test::fixed_width_column_wrapper<T, int64_t>(iter, iter + count, mask, mr);
+    return cudf::test::fixed_width_column_wrapper<T, int64_t>(iter, iter + count, mask, stream, mr);
   } else {
     // This needs to be in an else to quash `statement_not_reachable` warnings
-    return cudf::test::fixed_width_column_wrapper<T, int64_t>(iter, iter + count, mr);
+    return cudf::test::fixed_width_column_wrapper<T, int64_t>(iter, iter + count, stream, mr);
   }
 }
 

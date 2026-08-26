@@ -75,9 +75,13 @@ void tdigest_sample_compare(cudf::tdigest::tdigest_column_view const& tdv,
                                       *sampled_result_mean,
                                       cudf::test::debug_output_level::FIRST_ERROR,
                                       cudf::test::default_ulp,
+                                      cudf::get_default_stream(),
                                       mr);
-  CUDF_TEST_EXPECT_COLUMNS_EQUAL(
-    expected_weight, *sampled_result_weight, cudf::test::debug_output_level::FIRST_ERROR, mr);
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_weight,
+                                 *sampled_result_weight,
+                                 cudf::test::debug_output_level::FIRST_ERROR,
+                                 cudf::get_default_stream(),
+                                 mr);
 }
 
 std::unique_ptr<column> make_expected_tdigest_column(std::vector<expected_tdigest> const& groups,
@@ -101,12 +105,14 @@ std::unique_ptr<column> make_expected_tdigest_column(std::vector<expected_tdiges
                                               cudf::get_default_stream(),
                                               temporary_mr);
 
-    auto offsets =
-      cudf::test::fixed_width_column_wrapper<int32_t>({0, tdigest.mean.size()}, temporary_mr);
+    auto offsets = cudf::test::fixed_width_column_wrapper<int32_t>(
+      {0, tdigest.mean.size()}, cudf::get_default_stream(), temporary_mr);
     auto list = cudf::make_lists_column(1, offsets.release(), std::move(tdigests), 0, {});
 
-    auto min_col = cudf::test::fixed_width_column_wrapper<double>({tdigest.min}, temporary_mr);
-    auto max_col = cudf::test::fixed_width_column_wrapper<double>({tdigest.max}, temporary_mr);
+    auto min_col = cudf::test::fixed_width_column_wrapper<double>(
+      std::initializer_list<double>{tdigest.min}, cudf::get_default_stream(), temporary_mr);
+    auto max_col = cudf::test::fixed_width_column_wrapper<double>(
+      std::initializer_list<double>{tdigest.max}, cudf::get_default_stream(), temporary_mr);
 
     std::vector<std::unique_ptr<column>> children;
     children.push_back(std::move(list));

@@ -34,12 +34,14 @@ namespace detail {
  * @param col The column view
  * @param delimiter The delimiter to put between strings
  * @param indent Indentation for all output
+ * @param stream CUDA stream used for device memory operations
  * @param mr Memory resources used for temporary device allocations
  */
 std::string to_string(cudf::column_view const& col,
                       std::string const& delimiter,
-                      std::string const& indent = "",
-                      cudf::memory_resources mr = cudf::get_current_device_resource_ref());
+                      std::string const& indent    = "",
+                      rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
+                      cudf::memory_resources mr    = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Formats a null mask as a string
@@ -82,12 +84,14 @@ std::string to_string(std::vector<bitmask_type> const& null_mask,
  *
  * @param col The column view
  * @param indent Indentation for all output
+ * @param stream CUDA stream used for device memory operations
  * @param mr Memory resources used for temporary device allocations
  */
 std::vector<std::string> to_strings(
   cudf::column_view const& col,
-  std::string const& indent = "",
-  cudf::memory_resources mr = cudf::get_current_device_resource_ref());
+  std::string const& indent    = "",
+  rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
+  cudf::memory_resources mr    = cudf::get_current_device_resource_ref());
 
 }  // namespace detail
 
@@ -143,6 +147,7 @@ std::string get_nested_type_str(cudf::column_view const& view)
 
 template <typename NestedColumnView>
 std::string nested_offsets_to_string(NestedColumnView const& c,
+                                     rmm::cuda_stream_view stream,
                                      cudf::memory_resources mr,
                                      std::string const& delimiter = ", ")
 {
@@ -153,22 +158,19 @@ std::string nested_offsets_to_string(NestedColumnView const& c,
   size_type output_size = c.size() + 1;
 
   // the first offset value to normalize everything against
-  size_type first =
-    cudf::detail::get_value<size_type>(offsets, c.offset(), cudf::get_default_stream());
-  rmm::device_uvector<size_type> shifted_offsets(
-    output_size, cudf::get_default_stream(), mr.get_temporary_mr());
+  size_type first = cudf::detail::get_value<size_type>(offsets, c.offset(), stream);
+  rmm::device_uvector<size_type> shifted_offsets(output_size, stream, mr.get_temporary_mr());
 
   // normalize the offset values for the column offset
   size_type const* d_offsets = offsets.head<size_type>() + c.offset();
   thrust::transform(
-    rmm::exec_policy_nosync(cudf::get_default_stream(), mr.get_temporary_mr()),
+    rmm::exec_policy_nosync(stream, mr.get_temporary_mr()),
     d_offsets,
     d_offsets + output_size,
     shifted_offsets.begin(),
     [first] __device__(int32_t offset) { return static_cast<size_type>(offset - first); });
 
-  auto const h_shifted_offsets =
-    cudf::detail::make_host_vector(shifted_offsets, cudf::get_default_stream());
+  auto const h_shifted_offsets = cudf::detail::make_host_vector(shifted_offsets, stream);
   std::ostringstream buffer;
   for (size_t idx = 0; idx < h_shifted_offsets.size(); idx++) {
     buffer << h_shifted_offsets[idx];
@@ -182,10 +184,11 @@ struct column_view_printer {
   void operator()(cudf::column_view const& col,
                   std::vector<std::string>& out,
                   std::string const&,
+                  rmm::cuda_stream_view stream,
                   cudf::memory_resources mr)
     requires(is_numeric<Element>())
   {
-    auto h_data = cudf::test::to_host<Element>(col, mr);
+    auto h_data = cudf::test::to_host<Element>(col, stream, mr);
 
     out.resize(col.size());
 
@@ -210,6 +213,7 @@ struct column_view_printer {
   void operator()(cudf::column_view const& col,
                   std::vector<std::string>& out,
                   std::string const& indent,
+                  rmm::cuda_stream_view stream,
                   cudf::memory_resources mr)
     requires(is_timestamp<Element>())
   {
@@ -229,20 +233,21 @@ struct column_view_printer {
     }();
 
     auto col_as_strings = cudf::strings::from_timestamps(
-      col, format, cudf::strings_column_view{}, cudf::get_default_stream(), mr.get_temporary_mr());
+      col, format, cudf::strings_column_view{}, stream, mr.get_temporary_mr());
     if (col_as_strings->size() == 0) { return; }
 
-    this->template operator()<cudf::string_view>(*col_as_strings, out, indent, mr);
+    this->template operator()<cudf::string_view>(*col_as_strings, out, indent, stream, mr);
   }
 
   template <typename Element>
   void operator()(cudf::column_view const& col,
                   std::vector<std::string>& out,
                   std::string const&,
+                  rmm::cuda_stream_view stream,
                   cudf::memory_resources mr)
     requires(cudf::is_fixed_point<Element>())
   {
-    auto const h_data = cudf::test::to_host<Element>(col, mr);
+    auto const h_data = cudf::test::to_host<Element>(col, stream, mr);
     if (col.nullable()) {
       std::transform(cuda::counting_iterator<size_type>{0},
                      cuda::counting_iterator{col.size()},
@@ -264,6 +269,7 @@ struct column_view_printer {
   void operator()(cudf::column_view const& col,
                   std::vector<std::string>& out,
                   std::string const&,
+                  rmm::cuda_stream_view stream,
                   cudf::memory_resources mr)
     requires(std::is_same_v<Element, cudf::string_view>)
   {
@@ -271,7 +277,7 @@ struct column_view_printer {
     //  Implementation for strings, call special to_host variant
     //
     if (col.is_empty()) return;
-    auto h_data = cudf::test::to_host<std::string>(col, mr);
+    auto h_data = cudf::test::to_host<std::string>(col, stream, mr);
 
     // explicitly replace some special whitespace characters with their literal equivalents
     auto cleaned = [](std::string_view in) {
@@ -306,12 +312,13 @@ struct column_view_printer {
   void operator()(cudf::column_view const& col,
                   std::vector<std::string>& out,
                   std::string const&,
+                  rmm::cuda_stream_view stream,
                   cudf::memory_resources mr)
     requires(std::is_same_v<Element, cudf::dictionary32>)
   {
     cudf::dictionary_column_view dictionary(col);
     if (col.is_empty()) return;
-    std::vector<std::string> keys    = detail::to_strings(dictionary.keys(), "", mr);
+    std::vector<std::string> keys    = detail::to_strings(dictionary.keys(), "", stream, mr);
     std::vector<std::string> indices = detail::to_strings({dictionary.indices().type(),
                                                            dictionary.size(),
                                                            dictionary.indices().head(),
@@ -319,6 +326,7 @@ struct column_view_printer {
                                                            dictionary.null_count(),
                                                            dictionary.offset()},
                                                           "",
+                                                          stream,
                                                           mr);
     out.insert(out.end(), keys.begin(), keys.end());
     if (!indices.empty()) {
@@ -333,10 +341,11 @@ struct column_view_printer {
   void operator()(cudf::column_view const& col,
                   std::vector<std::string>& out,
                   std::string const&,
+                  rmm::cuda_stream_view stream,
                   cudf::memory_resources mr)
     requires(is_duration<Element>())
   {
-    auto h_data = cudf::test::to_host<Element>(col, mr);
+    auto h_data = cudf::test::to_host<Element>(col, stream, mr);
 
     out.resize(col.size());
 
@@ -362,29 +371,33 @@ struct column_view_printer {
   void operator()(cudf::column_view const& col,
                   std::vector<std::string>& out,
                   std::string const& indent,
+                  rmm::cuda_stream_view stream,
                   cudf::memory_resources mr)
     requires(std::is_same_v<Element, cudf::list_view>)
   {
     lists_column_view lcv(col);
 
     // propagate slicing to the child if necessary
-    column_view child    = lcv.get_sliced_child(cudf::get_default_stream());
+    column_view child    = lcv.get_sliced_child(stream);
     bool const is_sliced = lcv.offset() > 0 || child.offset() > 0;
 
     std::string tmp =
       get_nested_type_str(col) + (is_sliced ? "(sliced)" : "") + ":\n" + indent +
       "Length : " + std::to_string(lcv.size()) + "\n" + indent +
-      "Offsets : " + (lcv.size() > 0 ? nested_offsets_to_string(lcv, mr) : "") + "\n" +
+      "Offsets : " + (lcv.size() > 0 ? nested_offsets_to_string(lcv, stream, mr) : "") + "\n" +
       (lcv.parent().nullable()
          ? indent + "Null count: " + std::to_string(lcv.null_count()) + "\n" +
-             detail::to_string(cudf::test::bitmask_to_host(col, mr), col.size(), indent) + "\n"
+             detail::to_string(cudf::test::bitmask_to_host(col, stream, mr), col.size(), indent) +
+             "\n"
          : "") +
       // non-nested types don't typically display their null masks, so do it here for convenience.
       (!is_nested(child.type()) && child.nullable()
-         ? "   " + detail::to_string(cudf::test::bitmask_to_host(child, mr), child.size(), indent) +
+         ? "   " +
+             detail::to_string(
+               cudf::test::bitmask_to_host(child, stream, mr), child.size(), indent) +
              "\n"
          : "") +
-      (detail::to_string(child, ", ", indent + "   ", mr)) + "\n";
+      (detail::to_string(child, ", ", indent + "   ", stream, mr)) + "\n";
 
     out.push_back(tmp);
   }
@@ -393,6 +406,7 @@ struct column_view_printer {
   void operator()(cudf::column_view const& col,
                   std::vector<std::string>& out,
                   std::string const& indent,
+                  rmm::cuda_stream_view stream,
                   cudf::memory_resources mr)
     requires(std::is_same_v<Element, cudf::struct_view>)
   {
@@ -404,27 +418,29 @@ struct column_view_printer {
                << indent << "Length : " << view.size() << ":\n";
     if (view.nullable()) {
       out_stream << indent << "Null count: " << view.null_count() << "\n"
-                 << detail::to_string(cudf::test::bitmask_to_host(col, mr), col.size(), indent)
+                 << detail::to_string(
+                      cudf::test::bitmask_to_host(col, stream, mr), col.size(), indent)
                  << "\n";
     }
 
     auto iter = cuda::counting_iterator<cudf::size_type>{0};
-    std::transform(iter,
-                   iter + view.num_children(),
-                   std::ostream_iterator<std::string>(out_stream, "\n"),
-                   [&](size_type index) {
-                     auto child = view.get_sliced_child(index, cudf::get_default_stream());
+    std::transform(
+      iter,
+      iter + view.num_children(),
+      std::ostream_iterator<std::string>(out_stream, "\n"),
+      [&](size_type index) {
+        auto child = view.get_sliced_child(index, stream);
 
-                     // non-nested types don't typically display their null masks, so do it here for
-                     // convenience.
-                     return (!is_nested(child.type()) && child.nullable()
-                               ? "   " +
-                                   detail::to_string(
-                                     cudf::test::bitmask_to_host(child, mr), child.size(), indent) +
-                                   "\n"
-                               : "") +
-                            detail::to_string(child, ", ", indent + "   ", mr);
-                   });
+        // non-nested types don't typically display their null masks, so do it here for
+        // convenience.
+        return (!is_nested(child.type()) && child.nullable()
+                  ? "   " +
+                      detail::to_string(
+                        cudf::test::bitmask_to_host(child, stream, mr), child.size(), indent) +
+                      "\n"
+                  : "") +
+               detail::to_string(child, ", ", indent + "   ", stream, mr);
+      });
 
     out.push_back(out_stream.str());
   }
@@ -439,10 +455,11 @@ namespace detail {
  */
 std::vector<std::string> to_strings(cudf::column_view const& col,
                                     std::string const& indent,
+                                    rmm::cuda_stream_view stream,
                                     cudf::memory_resources mr)
 {
   std::vector<std::string> reply;
-  cudf::type_dispatcher(col.type(), column_view_printer{}, col, reply, indent, mr);
+  cudf::type_dispatcher(col.type(), column_view_printer{}, col, reply, indent, stream, mr);
   return reply;
 }
 
@@ -454,10 +471,11 @@ std::vector<std::string> to_strings(cudf::column_view const& col,
 std::string to_string(cudf::column_view const& col,
                       std::string const& delimiter,
                       std::string const& indent,
+                      rmm::cuda_stream_view stream,
                       cudf::memory_resources mr)
 {
   std::ostringstream buffer;
-  std::vector<std::string> h_data = to_strings(col, indent, mr);
+  std::vector<std::string> h_data = to_strings(col, indent, stream, mr);
 
   buffer << indent;
   std::copy(h_data.begin(),
@@ -488,16 +506,19 @@ std::string to_string(std::vector<bitmask_type> const& null_mask,
 
 }  // namespace detail
 
-std::vector<std::string> to_strings(cudf::column_view const& col, cudf::memory_resources mr)
+std::vector<std::string> to_strings(cudf::column_view const& col,
+                                    rmm::cuda_stream_view stream,
+                                    cudf::memory_resources mr)
 {
-  return detail::to_strings(col, "", mr);
+  return detail::to_strings(col, "", stream, mr);
 }
 
 std::string to_string(cudf::column_view const& col,
                       std::string const& delimiter,
+                      rmm::cuda_stream_view stream,
                       cudf::memory_resources mr)
 {
-  return detail::to_string(col, delimiter, "", mr);
+  return detail::to_string(col, delimiter, "", stream, mr);
 }
 
 std::string to_string(std::vector<bitmask_type> const& null_mask, size_type null_mask_size)
@@ -505,9 +526,12 @@ std::string to_string(std::vector<bitmask_type> const& null_mask, size_type null
   return detail::to_string(null_mask, null_mask_size);
 }
 
-void print(cudf::column_view const& col, std::ostream& os, cudf::memory_resources mr)
+void print(cudf::column_view const& col,
+           std::ostream& os,
+           rmm::cuda_stream_view stream,
+           cudf::memory_resources mr)
 {
-  os << to_string(col, ",", mr) << std::endl;
+  os << to_string(col, ",", stream, mr) << std::endl;
 }
 
 }  // namespace cudf::test

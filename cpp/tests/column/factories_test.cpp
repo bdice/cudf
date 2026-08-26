@@ -703,8 +703,7 @@ TEST_F(ListsZeroLengthColumnTest, SuperimposeNulls)
     auto offsets = offset_t{0, 3, 3, 5}.release();
 
     auto const valid_iter        = cudf::test::iterators::null_at(2);
-    auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-      valid_iter, valid_iter + 3, cudf::get_current_device_resource_ref());
+    auto [null_mask, null_count] = cudf::test::detail::make_null_mask(valid_iter, valid_iter + 3);
 
     auto tmp = cudf::make_lists_column(
       3, std::move(offsets), std::move(child), null_count, std::move(null_mask));

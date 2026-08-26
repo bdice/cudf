@@ -21,12 +21,12 @@
 #include <cudf/utilities/type_checks.hpp>
 #include <cudf/utilities/type_dispatcher.hpp>
 
-#include <rmm/cuda_stream_view.hpp>
 #include <rmm/exec_policy.hpp>
 
 #include <cuda/std/iterator>
 #include <cuda/std/limits>
 #include <cuda/std/utility>
+#include <cuda/stream>
 #include <thrust/binary_search.h>
 #include <thrust/execution_policy.h>
 #include <thrust/transform.h>
@@ -121,7 +121,7 @@ template <typename T, typename LeftComparator, typename RightComparator>
 std::unique_ptr<column> label_bins(column_view const& input,
                                    column_view const& left_edges,
                                    column_view const& right_edges,
-                                   rmm::cuda_stream_view stream,
+                                   cuda::stream_ref stream,
                                    cudf::memory_resources resources)
 {
   auto output              = make_numeric_column(data_type(type_to_id<size_type>()),
@@ -185,7 +185,7 @@ struct bin_type_dispatcher {
                                      inclusive left_inclusive,
                                      column_view const& right_edges,
                                      inclusive right_inclusive,
-                                     rmm::cuda_stream_view stream,
+                                     cuda::stream_ref stream,
                                      cudf::memory_resources resources)
     requires(detail::is_supported_bin_type<T>())
   {
@@ -206,7 +206,7 @@ std::unique_ptr<column> label_bins(column_view const& input,
                                    inclusive left_inclusive,
                                    column_view const& right_edges,
                                    inclusive right_inclusive,
-                                   rmm::cuda_stream_view stream,
+                                   cuda::stream_ref stream,
                                    cudf::memory_resources resources)
 {
   CUDF_FUNC_RANGE();
@@ -241,7 +241,7 @@ std::unique_ptr<column> label_bins(column_view const& input,
                                    inclusive left_inclusive,
                                    column_view const& right_edges,
                                    inclusive right_inclusive,
-                                   rmm::cuda_stream_view stream,
+                                   cuda::stream_ref stream,
                                    cudf::memory_resources resources)
 {
   CUDF_FUNC_RANGE();

@@ -75,6 +75,7 @@ void expect_timestamp_output_uses_resource()
       100,
       cudf::test::time_point_ms{milliseconds{-1000}},
       cudf::test::time_point_ms{milliseconds{1000}},
+      cudf::test::get_default_stream(),
       resources);
   });
 }

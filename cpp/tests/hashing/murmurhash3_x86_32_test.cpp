@@ -252,28 +252,28 @@ TEST_F(MurmurHashTest, ListOfStruct)
                                                         true,
                                                         true}};
 
-  auto offsets = cudf::test::fixed_width_column_wrapper<cudf::size_type>{
+  auto offsets = cudf::test::fixed_width_column_wrapper<int32_t>{
     0, 0, 0, 0, 0, 2, 3, 4, 5, 6, 8, 10, 12, 14, 15, 16, 17, 18};
 
-  auto list_nullmask           = std::vector<bool>{true,
-                                                   true,
-                                                   false,
-                                                   false,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true};
-  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-    list_nullmask.begin(), list_nullmask.end(), cudf::get_current_device_resource_ref());
+  auto list_nullmask = std::vector<bool>{true,
+                                         true,
+                                         false,
+                                         false,
+                                         true,
+                                         true,
+                                         true,
+                                         true,
+                                         true,
+                                         true,
+                                         true,
+                                         true,
+                                         true,
+                                         true,
+                                         true,
+                                         true,
+                                         true};
+  auto [null_mask, null_count] =
+    cudf::test::detail::make_null_mask(list_nullmask.begin(), list_nullmask.end());
   auto list_column = cudf::make_lists_column(
     17, offsets.release(), struct_col.release(), null_count, std::move(null_mask));
 
@@ -339,16 +339,16 @@ TEST_F(MurmurHashTest, ListOfEmptyStruct)
 
   auto struct_validity = std::vector<bool>{
     false, false, false, false, false, false, false, false, true, true, true, true, true, true};
-  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-    struct_validity.begin(), struct_validity.end(), cudf::get_current_device_resource_ref());
+  auto [null_mask, null_count] =
+    cudf::test::detail::make_null_mask(struct_validity.begin(), struct_validity.end());
   auto struct_col = cudf::make_structs_column(14, {}, null_count, std::move(null_mask));
 
-  auto offsets = cudf::test::fixed_width_column_wrapper<cudf::size_type>{
-    0, 0, 0, 0, 0, 2, 4, 6, 7, 8, 9, 10, 12, 14};
+  auto offsets =
+    cudf::test::fixed_width_column_wrapper<int32_t>{0, 0, 0, 0, 0, 2, 4, 6, 7, 8, 9, 10, 12, 14};
   auto list_nullmask = std::vector<bool>{
     true, true, false, false, true, true, true, true, true, true, true, true, true};
-  std::tie(null_mask, null_count) = cudf::test::detail::make_null_mask(
-    list_nullmask.begin(), list_nullmask.end(), cudf::get_current_device_resource_ref());
+  std::tie(null_mask, null_count) =
+    cudf::test::detail::make_null_mask(list_nullmask.begin(), list_nullmask.end());
   auto list_column = cudf::make_lists_column(
     13, offsets.release(), std::move(struct_col), null_count, std::move(null_mask));
 
@@ -381,10 +381,10 @@ TEST_F(MurmurHashTest, EmptyDeepList)
   // Internal empty list
   auto list1 = cudf::test::lists_column_wrapper<int>{};
 
-  auto offsets       = cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 0, 0, 0, 0};
+  auto offsets       = cudf::test::fixed_width_column_wrapper<int32_t>{0, 0, 0, 0, 0};
   auto list_nullmask = std::vector<bool>{true, true, false, false};
-  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-    list_nullmask.begin(), list_nullmask.end(), cudf::get_current_device_resource_ref());
+  auto [null_mask, null_count] =
+    cudf::test::detail::make_null_mask(list_nullmask.begin(), list_nullmask.end());
   auto list_column = cudf::make_lists_column(
     4, offsets.release(), list1.release(), null_count, std::move(null_mask));
 

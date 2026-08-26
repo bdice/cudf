@@ -7,7 +7,6 @@
 #include <cudf_test/column_utilities.hpp>
 #include <cudf_test/column_wrapper.hpp>
 #include <cudf_test/iterator_utilities.hpp>
-#include <cudf_test/memory_resource_utilities.hpp>
 #include <cudf_test/type_lists.hpp>
 
 #include <cudf/column/column_factories.hpp>
@@ -19,9 +18,6 @@
 #include <rmm/device_buffer.hpp>
 
 #include <cuda/iterator>
-
-using cudf::test::expect_output_uses_distinct_resources;
-using cudf::test::expect_output_uses_resource;
 
 struct ListColumnWrapperTest : public cudf::test::BaseFixture {};
 template <typename T>
@@ -36,92 +32,6 @@ using FixedWidthTypesNotBool = cudf::test::Concat<cudf::test::IntegralTypesNotBo
                                                   cudf::test::DurationTypes,
                                                   cudf::test::TimestampTypes>;
 TYPED_TEST_SUITE(ListColumnWrapperTestTyped, FixedWidthTypesNotBool);
-
-TEST_F(ListColumnWrapperTest, ExplicitMemoryResourceOverloadMatrix)
-{
-  using LCW = cudf::test::lists_column_wrapper<int32_t>;
-
-  auto const elements = std::vector<int32_t>{1, 2, 3, 4};
-  auto const validity = std::vector<bool>{true, false, true, false};
-
-  expect_output_uses_resource([](auto& mr) { return LCW(mr); });
-
-  expect_output_uses_resource([&](auto& mr) { return LCW(elements.begin(), elements.end(), mr); });
-
-  expect_output_uses_resource([](auto& mr) {
-    auto ref = rmm::device_async_resource_ref{mr};
-    return LCW({1, 2, 3, 4}, ref);
-  });
-
-  expect_output_uses_resource([&](auto& mr) { return LCW({1, 2, 3, 4}, validity.begin(), mr); });
-
-  expect_output_uses_resource(
-    [&](auto& mr) { return LCW(elements.begin(), elements.end(), validity.begin(), mr); });
-
-  expect_output_uses_resource([](auto& mr) { return LCW::make_one_empty_row_column(true, mr); });
-  expect_output_uses_resource([](auto& mr) { return LCW::make_one_empty_row_column(false, mr); });
-}
-
-TEST_F(ListColumnWrapperTest, StringLeavesUseExplicitMemoryResource)
-{
-  using LCW = cudf::test::lists_column_wrapper<cudf::string_view>;
-
-  auto const validity = std::vector<bool>{true, false, true};
-
-  expect_output_uses_resource([](auto& mr) { return LCW({"one", "two", "three"}, mr); });
-
-  expect_output_uses_resource(
-    [&](auto& mr) { return LCW({"one", "two", "three"}, validity.begin(), mr); });
-}
-
-TEST_F(ListColumnWrapperTest, NestedOutputsUseExplicitMemoryResource)
-{
-  using LCW = cudf::test::lists_column_wrapper<int32_t>;
-
-  expect_output_uses_resource(
-    [](auto& mr) { return LCW(std::initializer_list<LCW>{LCW{1, 2}, LCW{}, LCW{3, 4, 5}}, mr); });
-
-  expect_output_uses_resource([](auto& mr) {
-    auto const validity = std::vector<bool>{true, false, true};
-    return LCW(std::initializer_list<LCW>{LCW{1, 2}, LCW{9, 10}, LCW{3, 4}}, validity.begin(), mr);
-  });
-
-  expect_output_uses_resource([](auto& mr) {
-    return LCW(
-      std::initializer_list<LCW>{
-        LCW(std::initializer_list<LCW>{LCW(std::initializer_list<LCW>{LCW{1, 2}})}),
-        LCW{},
-        LCW(std::initializer_list<LCW>{LCW{}})},
-      mr);
-  });
-}
-
-TEST_F(ListColumnWrapperTest, FlatOutputUsesDistinctResources)
-{
-  using LCW = cudf::test::lists_column_wrapper<int32_t>;
-
-  auto const elements = std::vector<int32_t>{1, 2, 3, 4};
-  auto const validity = std::vector<bool>{true, false, true, false};
-
-  expect_output_uses_distinct_resources(
-    [&](auto mr) { return LCW(elements.begin(), elements.end(), validity.begin(), mr); });
-}
-
-TEST_F(ListColumnWrapperTest, NormalizedHierarchyUsesTemporaryResource)
-{
-  using LCW = cudf::test::lists_column_wrapper<int32_t>;
-
-  expect_output_uses_distinct_resources(
-    [](auto mr) {
-      return LCW(
-        std::initializer_list<LCW>{
-          LCW(std::initializer_list<LCW>{LCW(std::initializer_list<LCW>{LCW{1, 2}})}),
-          LCW(std::initializer_list<LCW>{LCW{}})},
-        mr);
-    },
-    cudf::test::memory_resource_expectations{cudf::test::output_allocation_expectation::EXACT,
-                                             cudf::test::temporary_allocation_expectation::SOME});
-}
 
 TYPED_TEST(ListColumnWrapperTestTyped, List)
 {
@@ -1431,9 +1341,8 @@ TYPED_TEST(ListColumnWrapperTestTyped, ListsOfStructs)
   EXPECT_EQ(struct_column->size(), num_struct_rows);
   EXPECT_TRUE(!struct_column->nullable());
 
-  auto lists_column_offsets =
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 2, 4, 8}.release();
-  auto num_lists = lists_column_offsets->size() - 1;
+  auto lists_column_offsets = cudf::test::fixed_width_column_wrapper<int32_t>{0, 2, 4, 8}.release();
+  auto num_lists            = lists_column_offsets->size() - 1;
   auto lists_column =
     make_lists_column(num_lists, std::move(lists_column_offsets), std::move(struct_column), 0, {});
 
@@ -1461,12 +1370,11 @@ TYPED_TEST(ListColumnWrapperTestTyped, ListsOfStructsWithValidity)
   EXPECT_EQ(struct_column->size(), num_struct_rows);
   EXPECT_TRUE(!struct_column->nullable());
 
-  auto lists_column_offsets =
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 2, 4, 8}.release();
-  auto list_null_mask          = {1, 1, 0};
-  auto num_lists               = lists_column_offsets->size() - 1;
-  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-    list_null_mask.begin(), list_null_mask.end(), cudf::get_current_device_resource_ref());
+  auto lists_column_offsets = cudf::test::fixed_width_column_wrapper<int32_t>{0, 2, 4, 8}.release();
+  auto list_null_mask       = {1, 1, 0};
+  auto num_lists            = lists_column_offsets->size() - 1;
+  auto [null_mask, null_count] =
+    cudf::test::detail::make_null_mask(list_null_mask.begin(), list_null_mask.end());
   auto lists_column = [&] {
     auto tmp = cudf::make_lists_column(num_lists,
                                        std::move(lists_column_offsets),
@@ -1499,14 +1407,13 @@ TYPED_TEST(ListColumnWrapperTestTyped, ListsOfListsOfStructs)
   EXPECT_EQ(struct_column->size(), num_struct_rows);
   EXPECT_TRUE(!struct_column->nullable());
 
-  auto lists_column_offsets =
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 2, 4, 8}.release();
-  auto num_lists = lists_column_offsets->size() - 1;
+  auto lists_column_offsets = cudf::test::fixed_width_column_wrapper<int32_t>{0, 2, 4, 8}.release();
+  auto num_lists            = lists_column_offsets->size() - 1;
   auto lists_column =
     make_lists_column(num_lists, std::move(lists_column_offsets), std::move(struct_column), 0, {});
 
   auto lists_of_lists_column_offsets =
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 2, 3}.release();
+    cudf::test::fixed_width_column_wrapper<int32_t>{0, 2, 3}.release();
   auto num_lists_of_lists               = lists_of_lists_column_offsets->size() - 1;
   auto lists_of_lists_of_structs_column = make_lists_column(
     num_lists_of_lists, std::move(lists_of_lists_column_offsets), std::move(lists_column), 0, {});
@@ -1537,12 +1444,11 @@ TYPED_TEST(ListColumnWrapperTestTyped, ListsOfListsOfStructsWithValidity)
   EXPECT_EQ(struct_column->size(), num_struct_rows);
   EXPECT_TRUE(!struct_column->nullable());
 
-  auto lists_column_offsets =
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 2, 4, 8}.release();
-  auto num_lists               = lists_column_offsets->size() - 1;
-  auto list_null_mask          = {1, 1, 0};
-  auto [null_mask, null_count] = cudf::test::detail::make_null_mask(
-    list_null_mask.begin(), list_null_mask.end(), cudf::get_current_device_resource_ref());
+  auto lists_column_offsets = cudf::test::fixed_width_column_wrapper<int32_t>{0, 2, 4, 8}.release();
+  auto num_lists            = lists_column_offsets->size() - 1;
+  auto list_null_mask       = {1, 1, 0};
+  auto [null_mask, null_count] =
+    cudf::test::detail::make_null_mask(list_null_mask.begin(), list_null_mask.end());
   auto lists_column = [&] {
     auto tmp = cudf::make_lists_column(num_lists,
                                        std::move(lists_column_offsets),
@@ -1553,14 +1459,12 @@ TYPED_TEST(ListColumnWrapperTestTyped, ListsOfListsOfStructsWithValidity)
   }();
 
   auto lists_of_lists_column_offsets =
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{0, 2, 3}.release();
+    cudf::test::fixed_width_column_wrapper<int32_t>{0, 2, 3}.release();
   auto num_lists_of_lists      = lists_of_lists_column_offsets->size() - 1;
   auto list_of_lists_null_mask = {1, 0};
 
-  std::tie(null_mask, null_count) =
-    cudf::test::detail::make_null_mask(list_of_lists_null_mask.begin(),
-                                       list_of_lists_null_mask.end(),
-                                       cudf::get_current_device_resource_ref());
+  std::tie(null_mask, null_count) = cudf::test::detail::make_null_mask(
+    list_of_lists_null_mask.begin(), list_of_lists_null_mask.end());
   auto lists_of_lists_of_structs_column = [&] {
     auto tmp = cudf::make_lists_column(num_lists_of_lists,
                                        std::move(lists_of_lists_column_offsets),
@@ -1615,7 +1519,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, LargeListsOfStructsWithValidity)
   auto num_list_rows = num_struct_rows / 50;
   auto list_offset_iterator =
     cudf::detail::make_counting_transform_iterator(0, [](auto i) { return i * 50; });
-  auto list_offset_column = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+  auto list_offset_column = cudf::test::fixed_width_column_wrapper<int32_t>(
                               list_offset_iterator, list_offset_iterator + num_list_rows + 1)
                               .release();
   auto lists_column = make_lists_column(

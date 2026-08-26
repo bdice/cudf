@@ -73,6 +73,7 @@ void expect_label_bins_uses_explicit_memory_resources(
       CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected,
                                      result->view(),
                                      cudf::test::debug_output_level::FIRST_ERROR,
+                                     stream,
                                      comparison_resources);
     },
     expectations,
@@ -165,11 +166,13 @@ TEST_F(BinTestFixture, ExplicitMemoryResourcesNumeric)
 {
   auto harness   = cudf::test::memory_resource_test_harness{this->mr()};
   auto resources = cudf::memory_resources{harness.setup_mr(), harness.setup_mr()};
-  fwc_wrapper<int32_t> input({0, 1, 2, 3, 4, 5, 6}, resources);
-  fwc_wrapper<int32_t> left_edges({0, 2, 4}, resources);
-  fwc_wrapper<int32_t> right_edges({2, 4, 6}, resources);
-  fwc_wrapper<cudf::size_type> expected(
-    {0, 0, 1, 1, 2, 2, 0}, {true, true, true, true, true, true, false}, resources);
+  fwc_wrapper<int32_t> input({0, 1, 2, 3, 4, 5, 6}, cudf::get_default_stream(), resources);
+  fwc_wrapper<int32_t> left_edges({0, 2, 4}, cudf::get_default_stream(), resources);
+  fwc_wrapper<int32_t> right_edges({2, 4, 6}, cudf::get_default_stream(), resources);
+  fwc_wrapper<cudf::size_type> expected({0, 0, 1, 1, 2, 2, 0},
+                                        {true, true, true, true, true, true, false},
+                                        cudf::get_default_stream(),
+                                        resources);
 
   expect_label_bins_uses_explicit_memory_resources(
     harness, input, left_edges, right_edges, expected, true);
@@ -179,10 +182,12 @@ TEST_F(BinTestFixture, ExplicitMemoryResourcesNullableNumeric)
 {
   auto harness   = cudf::test::memory_resource_test_harness{this->mr()};
   auto resources = cudf::memory_resources{harness.setup_mr(), harness.setup_mr()};
-  fwc_wrapper<int32_t> input({1, 3, 5, 7}, {true, false, true, true}, resources);
-  fwc_wrapper<int32_t> left_edges({0, 2, 4, 6}, resources);
-  fwc_wrapper<int32_t> right_edges({2, 4, 6, 8}, resources);
-  fwc_wrapper<cudf::size_type> expected({0, 0, 2, 3}, {true, false, true, true}, resources);
+  fwc_wrapper<int32_t> input(
+    {1, 3, 5, 7}, {true, false, true, true}, cudf::get_default_stream(), resources);
+  fwc_wrapper<int32_t> left_edges({0, 2, 4, 6}, cudf::get_default_stream(), resources);
+  fwc_wrapper<int32_t> right_edges({2, 4, 6, 8}, cudf::get_default_stream(), resources);
+  fwc_wrapper<cudf::size_type> expected(
+    {0, 0, 2, 3}, {true, false, true, true}, cudf::get_default_stream(), resources);
 
   expect_label_bins_uses_explicit_memory_resources(
     harness, input, left_edges, right_edges, expected, true);
@@ -192,10 +197,14 @@ TEST_F(BinTestFixture, ExplicitMemoryResourcesStrings)
 {
   auto harness   = cudf::test::memory_resource_test_harness{this->mr()};
   auto resources = cudf::memory_resources{harness.setup_mr(), harness.setup_mr()};
-  cudf::test::strings_column_wrapper input({"abc", "bcd", "cde", "def", "efg"}, resources);
-  cudf::test::strings_column_wrapper left_edges({"a", "b", "c", "d", "e"}, resources);
-  cudf::test::strings_column_wrapper right_edges({"b", "c", "d", "e", "f"}, resources);
-  fwc_wrapper<cudf::size_type> expected({0, 1, 2, 3, 4}, {true, true, true, true, true}, resources);
+  cudf::test::strings_column_wrapper input(
+    {"abc", "bcd", "cde", "def", "efg"}, cudf::get_default_stream(), resources);
+  cudf::test::strings_column_wrapper left_edges(
+    {"a", "b", "c", "d", "e"}, cudf::get_default_stream(), resources);
+  cudf::test::strings_column_wrapper right_edges(
+    {"b", "c", "d", "e", "f"}, cudf::get_default_stream(), resources);
+  fwc_wrapper<cudf::size_type> expected(
+    {0, 1, 2, 3, 4}, {true, true, true, true, true}, cudf::get_default_stream(), resources);
 
   expect_label_bins_uses_explicit_memory_resources(
     harness, input, left_edges, right_edges, expected, true);
@@ -205,10 +214,10 @@ TEST_F(BinTestFixture, ExplicitMemoryResourcesEmpty)
 {
   auto harness   = cudf::test::memory_resource_test_harness{this->mr()};
   auto resources = cudf::memory_resources{harness.setup_mr(), harness.setup_mr()};
-  fwc_wrapper<int32_t> input(resources);
-  fwc_wrapper<int32_t> left_edges({0, 2, 4}, resources);
-  fwc_wrapper<int32_t> right_edges({2, 4, 6}, resources);
-  fwc_wrapper<cudf::size_type> expected(resources);
+  fwc_wrapper<int32_t> input;
+  fwc_wrapper<int32_t> left_edges({0, 2, 4}, cudf::get_default_stream(), resources);
+  fwc_wrapper<int32_t> right_edges({2, 4, 6}, cudf::get_default_stream(), resources);
+  fwc_wrapper<cudf::size_type> expected;
 
   expect_label_bins_uses_explicit_memory_resources(
     harness, input, left_edges, right_edges, expected, false);
