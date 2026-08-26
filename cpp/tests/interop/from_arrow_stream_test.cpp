@@ -5,6 +5,7 @@
 
 #include <cudf_test/base_fixture.hpp>
 #include <cudf_test/column_wrapper.hpp>
+#include <cudf_test/memory_resource_utilities.hpp>
 #include <cudf_test/nanoarrow_utils.hpp>
 #include <cudf_test/table_utilities.hpp>
 
@@ -15,8 +16,6 @@
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
 #include <cudf/utilities/type_checks.hpp>
-
-#include <rmm/mr/statistics_resource_adaptor.hpp>
 
 #include <numeric>
 #include <vector>
@@ -60,31 +59,27 @@ TEST_F(FromArrowStreamTest, BasicTest)
 
 TEST_F(FromArrowStreamTest, TestUtilityMemoryResourceControl)
 {
-  auto upstream     = this->mr();
-  auto output_mr    = rmm::mr::statistics_resource_adaptor(upstream);
-  auto temporary_mr = rmm::mr::statistics_resource_adaptor(upstream);
-  auto resources    = cudf::memory_resources{output_mr, temporary_mr};
-  auto stream       = cudf::get_default_stream();
+  auto harness   = cudf::test::memory_resource_test_harness{this->mr()};
+  auto resources = harness.resources();
+  auto stream    = cudf::get_default_stream();
 
   {
-    auto direct_table = get_cudf_table(stream, resources);
+    auto current_scope = harness.fail_on_current_device_resource_use();
+    auto direct_table  = get_cudf_table(stream, resources);
     auto [generated_table, generated_schema, test_data] =
       get_nanoarrow_cudf_table(3, stream, resources);
     auto [device_table, device_schema, device_array] = get_nanoarrow_tables(0, stream, resources);
     auto [host_table, host_schema, host_array] = get_nanoarrow_host_tables(3, stream, resources);
     auto [stream_table, stream_schema, arrow_stream] = get_nanoarrow_stream(2, stream, resources);
 
-    stream.synchronize();
-    EXPECT_GT(output_mr.get_bytes_counter().value, 0);
-    EXPECT_EQ(temporary_mr.get_bytes_counter().value, 0);
-    EXPECT_GT(temporary_mr.get_bytes_counter().total, 0);
+    harness.expect_output_allocations_live(stream);
+    harness.expect_temporary_allocation_activity(stream);
+    harness.expect_temporary_allocations_released(stream);
 
     if (arrow_stream.release != nullptr) { arrow_stream.release(&arrow_stream); }
   }
 
-  stream.synchronize();
-  EXPECT_EQ(output_mr.get_bytes_counter().value, 0);
-  EXPECT_EQ(temporary_mr.get_bytes_counter().value, 0);
+  harness.expect_no_live_allocations(stream);
 }
 
 TEST_F(FromArrowStreamTest, EmptyTest)

@@ -150,7 +150,11 @@ static ArrowBufferAllocator noop_alloc = (struct ArrowBufferAllocator){
 // populate an ArrowArray with pointers to the raw device buffers of a cudf::column_view
 // and use the no-op alloc so that the ArrowArray doesn't presume ownership of the data
 template <typename T>
-void populate_from_col(ArrowArray* arr, cudf::column_view view)
+void populate_from_col(
+  ArrowArray* arr,
+  cudf::column_view view,
+  [[maybe_unused]] cuda::stream_ref stream   = cudf::get_default_stream(),
+  [[maybe_unused]] cudf::memory_resources mr = cudf::get_current_device_resource_ref())
   requires(cudf::is_fixed_width<T>() && !cudf::is_boolean<T>())
 {
   arr->length     = view.size();
@@ -250,11 +254,7 @@ void populate_dict_from_col(ArrowArray* arr,
   ArrowArrayBuffer(arr, 1)->size_bytes = sizeof(IND_TYPE) * dview.indices().size();
   ArrowArrayBuffer(arr, 1)->data       = const_cast<uint8_t*>(dview.indices().data<uint8_t>());
 
-  if constexpr (cudf::is_boolean<KEY_TYPE>() or std::same_as<KEY_TYPE, cudf::string_view>) {
-    populate_from_col<KEY_TYPE>(arr->dictionary, dview.keys(), stream, mr);
-  } else {
-    populate_from_col<KEY_TYPE>(arr->dictionary, dview.keys());
-  }
+  populate_from_col<KEY_TYPE>(arr->dictionary, dview.keys(), stream, mr);
 }
 
 using vector_of_columns = std::vector<std::unique_ptr<cudf::column>>;
