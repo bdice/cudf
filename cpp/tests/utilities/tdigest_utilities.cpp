@@ -79,10 +79,10 @@ void tdigest_sample_compare(cudf::tdigest::tdigest_column_view const& tdv,
 
 std::unique_ptr<column> make_expected_tdigest_column(std::vector<expected_tdigest> const& groups,
                                                      cuda::stream_ref stream,
-                                                     memory_resources mr)
+                                                     cudf::memory_resources mr)
 {
   auto const temporary_mr        = mr.get_temporary_mr();
-  auto const temporary_resources = memory_resources{temporary_mr, temporary_mr};
+  auto const temporary_resources = cudf::memory_resources{temporary_mr, temporary_mr};
   std::vector<std::unique_ptr<column>> tdigests;
 
   // make an individual digest
