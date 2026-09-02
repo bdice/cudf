@@ -378,7 +378,7 @@ TYPED_TEST(groupby_nth_element_lists_test, Basics)
   using lists = cudf::test::lists_column_wrapper<V, int32_t>;
 
   auto keys   = cudf::test::fixed_width_column_wrapper<K, int32_t>{1, 1, 2, 2, 3, 3};
-  auto values = lists{{1, 2}, {3, 4}, {5, 6, 7}, lists{}, {9, 10}, {11}};
+  auto values = lists{{1, 2}, {3, 4}, {5, 6, 7}, {}, {9, 10}, {11}};
 
   auto expected_keys   = cudf::test::fixed_width_column_wrapper<K, int32_t>{1, 2, 3};
   auto expected_values = lists{{1, 2}, {5, 6, 7}, {9, 10}};

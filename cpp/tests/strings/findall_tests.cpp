@@ -30,15 +30,9 @@ TEST_F(StringsFindallTests, FindallTest)
   auto pattern = std::string("\\d+-\\w+");
 
   using LCW = cudf::test::lists_column_wrapper<cudf::string_view>;
-  LCW expected({LCW{"3-A"},
-                LCW{"4-May", "5-Day", "6-Hay"},
-                LCW{"12-Dec", "2021-Jan"},
-                LCW{},
-                LCW{},
-                LCW{},
-                LCW{},
-                LCW{"25-9000"}},
-               valids.data());
+  LCW expected(
+    {{"3-A"}, {"4-May", "5-Day", "6-Hay"}, {"12-Dec", "2021-Jan"}, {}, {}, {}, {}, {"25-9000"}},
+    valids.data());
   auto prog    = cudf::strings::regex_program::create(pattern);
   auto results = cudf::strings::findall(sv, *prog);
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
@@ -51,7 +45,7 @@ TEST_F(StringsFindallTests, Multiline)
 
   auto pattern = std::string("^abc$");
   using LCW    = cudf::test::lists_column_wrapper<cudf::string_view>;
-  LCW expected({LCW{"abc", "abc"}, LCW{"abc"}, LCW{"abc"}, LCW{}, LCW{"abc"}});
+  LCW expected({{"abc", "abc"}, {"abc"}, {"abc"}, {}, {"abc"}});
   auto prog = cudf::strings::regex_program::create(pattern, cudf::strings::regex_flags::MULTILINE);
   auto results = cudf::strings::findall(view, *prog);
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
@@ -64,7 +58,7 @@ TEST_F(StringsFindallTests, DotAll)
 
   auto pattern = std::string("b.*f");
   using LCW    = cudf::test::lists_column_wrapper<cudf::string_view>;
-  LCW expected({LCW{"bc\nfa\nef"}, LCW{"bbc\nfff"}, LCW{"bcdéf"}, LCW{}});
+  LCW expected({{"bc\nfa\nef"}, {"bbc\nfff"}, {"bcdéf"}, {}});
   auto prog    = cudf::strings::regex_program::create(pattern, cudf::strings::regex_flags::DOTALL);
   auto results = cudf::strings::findall(view, *prog);
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
@@ -84,15 +78,14 @@ TEST_F(StringsFindallTests, SpecialNewLines)
     cudf::strings::regex_program::create("^zzé$", cudf::strings::regex_flags::EXT_NEWLINE);
   auto results = cudf::strings::findall(view, *prog);
   using LCW    = cudf::test::lists_column_wrapper<cudf::string_view>;
-  LCW expected({LCW{}, LCW{}, LCW{"zzé"}, LCW{}, LCW{"zzé"}, LCW{}});
+  LCW expected({{}, {}, {"zzé"}, {}, {"zzé"}, {}});
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(results->view(), expected);
 
   auto both_flags = static_cast<cudf::strings::regex_flags>(
     cudf::strings::regex_flags::EXT_NEWLINE | cudf::strings::regex_flags::MULTILINE);
   auto prog_ml = cudf::strings::regex_program::create("^zzé$", both_flags);
   results      = cudf::strings::findall(view, *prog_ml);
-  LCW expected_ml(
-    {LCW{"zzé", "zzé"}, LCW{"zzé"}, LCW{"zzé"}, LCW{}, LCW{"zzé"}, LCW{"zzé", "zzé"}});
+  LCW expected_ml({{"zzé", "zzé"}, {"zzé"}, {"zzé"}, {}, {"zzé"}, {"zzé", "zzé"}});
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected_ml);
 }
 
@@ -107,7 +100,7 @@ TEST_F(StringsFindallTests, MediumRegex)
   auto results      = cudf::strings::findall(strings_view, *prog);
 
   using LCW = cudf::test::lists_column_wrapper<cudf::string_view>;
-  LCW expected({LCW{"first words 1234", "just numbers 9876"}, LCW{}});
+  LCW expected({{"first words 1234", "just numbers 9876"}, {}});
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
 }
 
@@ -133,7 +126,7 @@ TEST_F(StringsFindallTests, LargeRegex)
   auto results      = cudf::strings::findall(strings_view, *prog);
 
   using LCW = cudf::test::lists_column_wrapper<cudf::string_view>;
-  LCW expected({LCW{large_regex.c_str()}, LCW{}, LCW{}});
+  LCW expected({{large_regex.c_str()}, {}, {}});
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
 }
 
@@ -160,7 +153,7 @@ TEST_F(StringsFindallTests, NoMatches)
 
   auto pattern = std::string("^zzz$");
   using LCW    = cudf::test::lists_column_wrapper<cudf::string_view>;
-  LCW expected({LCW{}, LCW{}, LCW{}, LCW{}, LCW{}});
+  LCW expected({{}, {}, {}, {}, {}});
   auto prog    = cudf::strings::regex_program::create(pattern);
   auto results = cudf::strings::findall(sv, *prog);
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
@@ -198,23 +191,15 @@ TEST_F(StringsFindallTests, OneCaptureGroup)
   auto pattern = std::string("(\\d+)-\\w+");
 
   using LCW = cudf::test::lists_column_wrapper<cudf::string_view>;
-  LCW expected(
-    {LCW{"3"}, LCW{"4", "5", "6"}, LCW{"12", "2021"}, LCW{}, LCW{}, LCW{}, LCW{}, LCW{"25"}},
-    valids.data());
+  LCW expected({{"3"}, {"4", "5", "6"}, {"12", "2021"}, {}, {}, {}, {}, {"25"}}, valids.data());
   auto prog    = cudf::strings::regex_program::create(pattern);
   auto results = cudf::strings::findall(sv, *prog);
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
 
-  expected = LCW({LCW{"3-A"},
-                  LCW{"4-May", "5-Day", "6-Hay"},
-                  LCW{"12-Dec", "2021-Jan"},
-                  LCW{},
-                  LCW{},
-                  LCW{},
-                  LCW{},
-                  LCW{"25-9000"}},
-                 valids.data());
-  prog     = cudf::strings::regex_program::create(
+  expected =
+    LCW({{"3-A"}, {"4-May", "5-Day", "6-Hay"}, {"12-Dec", "2021-Jan"}, {}, {}, {}, {}, {"25-9000"}},
+        valids.data());
+  prog = cudf::strings::regex_program::create(
     pattern, cudf::strings::regex_flags::DEFAULT, cudf::strings::capture_groups::NON_CAPTURE);
   results = cudf::strings::findall(sv, *prog);
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
@@ -232,7 +217,7 @@ TEST_F(StringsFindallTests, AlternationPriorityFirstWins)
   auto results = cudf::strings::findall(sv, *prog);
 
   using LCW = cudf::test::lists_column_wrapper<cudf::string_view>;
-  LCW expected({LCW{"foo"}, LCW{"foo"}, LCW{"foo"}, LCW{}, LCW{"foo"}, LCW{}});
+  LCW expected({{"foo"}, {"foo"}, {"foo"}, {}, {"foo"}, {}});
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
 }
 
@@ -242,17 +227,17 @@ TEST_F(StringsFindallTests, EmptyMatch)
   auto sv    = cudf::strings_column_view(input);
   using LCW  = cudf::test::lists_column_wrapper<cudf::string_view>;
 
-  auto expected = LCW({LCW{}, LCW{}, LCW{}});
+  auto expected = LCW({{}, {}, {}});
   auto prog     = cudf::strings::regex_program::create("^$", cudf::strings::regex_flags::MULTILINE);
   auto results  = cudf::strings::findall(sv, *prog);
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
 
-  expected = LCW({LCW{}, LCW{"", "", "", ""}, LCW{"", "", "", ""}});
+  expected = LCW({{}, {"", "", "", ""}, {"", "", "", ""}});
   prog     = cudf::strings::regex_program::create("\\b");
   results  = cudf::strings::findall(sv, *prog);
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);
 
-  expected = LCW({LCW{}, LCW{"", "", "", ""}, LCW{"", "", "", ""}});
+  expected = LCW({{}, {"", "", "", ""}, {"", "", "", ""}});
   prog     = cudf::strings::regex_program::create("(\\b)");
   results  = cudf::strings::findall(sv, *prog);
   CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(results->view(), expected);

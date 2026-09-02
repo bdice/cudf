@@ -233,23 +233,23 @@ template <typename T>
 lcw ascending()
   requires(std::is_same_v<T, cudf::list_view>)
 {
-  return lcw{lcw{lcw{lcw{0}}, lcw{lcw{0}}, lcw{lcw{0}}},
-             lcw{lcw{lcw{0}, lcw{0}, lcw{0}}},
-             lcw{lcw{lcw{0, 0}}, lcw{lcw{0, 0, 0, 0, 0, 0, 0, 0}}, lcw{lcw{0}}},
-             lcw{lcw{lcw{0, 0, 0}}},
-             lcw{lcw{lcw{0, 0, 0}}, lcw{lcw{0}}, lcw{lcw{0}}}};
+  return lcw{{{{0}}, {{0}}, {{0}}},
+             {{{0}, {0}, {0}}},
+             {{{0, 0}}, {{0, 0, 0, 0, 0, 0, 0, 0}}, {{0}}},
+             {{{0, 0, 0}}},
+             {{{0, 0, 0}}, {{0}}, {{0}}}};
 }
 
 template <typename T>
 lcw descending()
   requires(std::is_same_v<T, cudf::list_view>)
 {
-  return lcw{lcw{lcw{lcw{0, 0, 0}}, lcw{lcw{0}}, lcw{lcw{0}}},
-             lcw{lcw{lcw{0, 0, 0}}},
-             lcw{lcw{lcw{0, 0}}, lcw{lcw{0, 0, 0, 0, 0, 0, 0, 0}}, lcw{lcw{0}}},
+  return lcw{{{{0, 0, 0}}, {{0}}, {{0}}},
+             {{{0, 0, 0}}},
+             {{{0, 0}}, {{0, 0, 0, 0, 0, 0, 0, 0}}, {{0}}},
 
-             lcw{lcw{lcw{0}, lcw{0}, lcw{0}}},
-             lcw{lcw{lcw{0}}, lcw{lcw{0}}, lcw{lcw{0}}}};
+             {{{0}, {0}, {0}}},
+             {{{0}}, {{0}}, {{0}}}};
 }
 
 template <>

@@ -72,11 +72,10 @@ TYPED_TEST(GatherTestListTyped, GatherNothing)
 
   // List<T>
   {
-    Init list{{1, 2, 3, 4}, {5}, {6, 7}, {8, 9, 10}};
+    LCW<T> list{{{1, 2, 3, 4}, {5}, {6, 7}, {8, 9, 10}}, stream, mr};
     cudf::test::fixed_width_column_wrapper<int> gather_map{};
 
-    auto const list_col = LCW<T>(list, stream, mr);
-    cudf::table_view source_table({list_col});
+    cudf::table_view source_table({list});
     auto results = cudf::gather(
       source_table, gather_map, cudf::out_of_bounds_policy::DONT_CHECK, stream, mr.get_output_mr());
 

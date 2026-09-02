@@ -102,21 +102,21 @@ TYPED_TEST(SegmentedGatherTest, GatherNothing)
   // List<T>
   {
     I32Init list{{1, 2, 3, 4}, {5}, {6, 7}, {8, 9, 10}};
-    auto const gather_map = LCW<int>{LCW<int>{}, LCW<int>{}, LCW<int>{}, LCW<int>{}};
+    auto const gather_map = LCW<int>{{}, {}, {}, {}};
     auto const results =
       cudf::lists::segmented_gather(cudf::lists_column_view{LCW<T>(list, stream, mr)},
                                     cudf::lists_column_view{gather_map},
                                     cudf::out_of_bounds_policy::DONT_CHECK,
                                     stream,
                                     mr.get_output_mr());
-    auto const expected = LCW<T>{LCW<T>{}, LCW<T>{}, LCW<T>{}, LCW<T>{}};
+    auto const expected = LCW<T>{{}, {}, {}, {}};
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       *results, expected, cudf::test::debug_output_level::FIRST_ERROR, stream, mr);
   }
   // List<List<T>>
   {
     I32Init list{{{1, 2, 3, 4}, {5}}, {{6, 7}}, {I32Init{}, {8, 9, 10}}};
-    auto const gather_map = LCW<int>{LCW<int>{}, LCW<int>{}, LCW<int>{}};
+    auto const gather_map = LCW<int>{{}, {}, {}};
     auto const results =
       cudf::lists::segmented_gather(cudf::lists_column_view{LCW<T>(list, stream, mr)},
                                     cudf::lists_column_view{gather_map},
@@ -134,7 +134,7 @@ TYPED_TEST(SegmentedGatherTest, GatherNothing)
   // List<List<List<T>>>
   {
     I32Init list{{{{1, 2, 3, 4}, {5}}}, {{{6, 7}, {8, 9, 10}}}};
-    auto const gather_map = LCW<int>{LCW<int>{}, LCW<int>{}};
+    auto const gather_map = LCW<int>{{}, {}};
     auto const results =
       cudf::lists::segmented_gather(cudf::lists_column_view{LCW<T>(list, stream, mr)},
                                     cudf::lists_column_view{gather_map},
@@ -526,15 +526,17 @@ TYPED_TEST(SegmentedGatherTest, GatherNestedWithEmpties)
   auto const stream = this->stream();
   auto const mr     = this->resources();
 
-  I32Init list{{{2, 3}, I32Init{}}, {{6, 7, 8}, {9, 10, 11}, {12, 13, 14}}, {I32Init{}}};
+  auto const list = I32Init::nested(
+    {{{2, 3}, I32Init{}}, {{6, 7, 8}, {9, 10, 11}, {12, 13, 14}}, I32Init::nested({I32Init{}})});
   // Per-row singleton lists: brace LCWs (I32Init{{0},{0},{0}} flattens to one list of three).
-  auto const gather_map = LCW<int>{LCW<int>{0}, LCW<int>{0}, LCW<int>{0}};
+  auto const gather_map = LCW<int>({{0}, {0}, {0}});
   auto results = cudf::lists::segmented_gather(cudf::lists_column_view{LCW<T>(list, stream, mr)},
                                                cudf::lists_column_view{gather_map},
                                                cudf::out_of_bounds_policy::DONT_CHECK,
                                                stream,
                                                mr.get_output_mr());
-  I32Init expected{{{2, 3}}, {{6, 7, 8}}, {I32Init{}}};  // skip one null, gather one null.
+  auto const expected = I32Init::nested(
+    {{{2, 3}}, {{6, 7, 8}}, I32Init::nested({I32Init{}})});  // skip one null, gather one null.
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(results->view(),
                                  LCW<T>(expected, stream, mr),
                                  cudf::test::debug_output_level::FIRST_ERROR,

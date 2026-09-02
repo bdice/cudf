@@ -44,9 +44,8 @@ TEST_F(StringsCombineTest, Join)
 TEST_F(StringsCombineTest, JoinLists)
 {
   using STR_LISTS  = cudf::test::lists_column_wrapper<cudf::string_view>;
-  auto const input = STR_LISTS{
-    STR_LISTS{"a", "bb", "ccc"}, STR_LISTS{"ddd", "efgh", "ijk"}, STR_LISTS{"zzz", "xxxxx"}};
-  auto view = cudf::lists_column_view(input);
+  auto const input = STR_LISTS{{"a", "bb", "ccc"}, {"ddd", "efgh", "ijk"}, {"zzz", "xxxxx"}};
+  auto view        = cudf::lists_column_view(input);
 
   auto separators      = cudf::test::strings_column_wrapper({"_", ".", " "});
   auto separators_view = cudf::strings_column_view(separators);

@@ -138,8 +138,7 @@ TEST_F(StringsConvertTest, ListsFormat)
 {
   using STR_LISTS = cudf::test::lists_column_wrapper<cudf::string_view>;
   auto const input =
-    STR_LISTS{{STR_LISTS{"a", "bb", "ccc"}, STR_LISTS{}, STR_LISTS{"ddd", "ee", "f"}},
-              {STR_LISTS{"gg", "hhh"}, STR_LISTS{"i", "", "", "jj"}}};
+    STR_LISTS{{{"a", "bb", "ccc"}, {}, {"ddd", "ee", "f"}}, {{"gg", "hhh"}, {"i", "", "", "jj"}}};
   auto view        = cudf::lists_column_view(input);
   auto null_scalar = cudf::string_scalar("NULL", true, cudf::test::get_default_stream());
   auto separators  = cudf::strings_column_view(cudf::test::strings_column_wrapper());

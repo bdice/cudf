@@ -446,11 +446,6 @@ TYPED_TEST(ListColumnWrapperTestTyped, EmptyLists)
 {
   using T = TypeParam;
 
-  // to disambiguate between {} == 0 and {} == List{0}
-  // Also, see note about compiler issues when declaring nested
-  // empty lists in lists_column_wrapper documentation
-  using LCW = cudf::test::lists_column_wrapper<T, int32_t>;
-
   // List<T>, empty
   //
   // List<T>:
@@ -473,7 +468,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, EmptyLists)
   // Children :
   {
     // equivalent to  {}
-    cudf::test::lists_column_wrapper<T, int32_t> list{LCW{}};
+    cudf::test::lists_column_wrapper<T, int32_t> list{{}};
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 1);
@@ -492,7 +487,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, EmptyLists)
   // Children :
   {
     // equivalent to  {}
-    cudf::test::lists_column_wrapper<T, int32_t> list{LCW{}, LCW{}};
+    cudf::test::lists_column_wrapper<T, int32_t> list{{}, {}};
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 2);
@@ -513,7 +508,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, EmptyLists)
   {
     // equivalent to  {{1, 2}, {}, {3, 4}}
 
-    cudf::test::lists_column_wrapper<T, int32_t> list{{1, 2}, LCW{}, {3, 4}};
+    cudf::test::lists_column_wrapper<T, int32_t> list{{1, 2}, {}, {3, 4}};
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -543,7 +538,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, EmptyLists)
   {
     // equivalent to  { {{}}, {{1, 2}, {}, {3, 4}}, {{}, {5, 6, 7, 8}, {}} }
     cudf::test::lists_column_wrapper<T, int32_t> list{
-      {LCW{}}, {{1, 2}, LCW{}, {3, 4}}, {LCW{}, {5, 6, 7, 8}, LCW{}}};
+      {{}}, {{1, 2}, {}, {3, 4}}, {{}, {5, 6, 7, 8}, {}}};
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -574,9 +569,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, EmptyListsWithValidity)
 {
   using T = TypeParam;
 
-  // to disambiguate between {} == 0 and {} == List{0}
-  // Also, see note about compiler issues when declaring nested
-  // empty lists in lists_column_wrapper documentation
+  // Use nested() to disambiguate between {} == 0 and {} == List{0}.
   using LCW = cudf::test::lists_column_wrapper<T, int32_t>;
 
   auto valids = cudf::test::iterators::valids_at_multiples_of(2);
@@ -591,7 +584,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, EmptyListsWithValidity)
   // Children :
   {
     // equivalent to  {{}, NULL}
-    cudf::test::lists_column_wrapper<T, int32_t> list{{LCW{}, LCW{}}, valids};
+    cudf::test::lists_column_wrapper<T, int32_t> list{{{}, {}}, valids};
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 2);
@@ -613,7 +606,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, EmptyListsWithValidity)
   // Children :
   {
     // equivalent to  {{}, NULL, {}}
-    cudf::test::lists_column_wrapper<T, int32_t> list{{LCW{}, {1, 2, 3}, LCW{}}, valids};
+    cudf::test::lists_column_wrapper<T, int32_t> list{{{}, {1, 2, 3}, {}}, valids};
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -636,7 +629,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, EmptyListsWithValidity)
   //   1, 2, 3
   {
     // equivalent to  {{}, NULL, {1, 2, 3}}
-    cudf::test::lists_column_wrapper<T, int32_t> list{{LCW{}, LCW{}, {1, 2, 3}}, valids};
+    cudf::test::lists_column_wrapper<T, int32_t> list{{{}, {}, {1, 2, 3}}, valids};
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -664,7 +657,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, EmptyListsWithValidity)
   {
     // equivalent to  { {{}}, NULL, {{}, {5, 6, 7, 8}, {}} }
     cudf::test::lists_column_wrapper<T, int32_t> list{
-      {{LCW{}}, {{1, 2}, LCW{}, {3, 4}}, {LCW{}, {5, 6, 7, 8}, LCW{}}}, valids};
+      {LCW::nested({{}}), {{1, 2}, {}, {3, 4}}, {{}, {5, 6, 7, 8}, {}}}, valids};
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -694,10 +687,9 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
 {
   using T = TypeParam;
 
-  // to disambiguate between {} == 0 and {} == List{0}
-  // Also, see note about compiler issues when declaring nested
-  // empty lists in lists_column_wrapper documentation
-  using LCW = cudf::test::lists_column_wrapper<T, int32_t>;
+  // Use nested() to disambiguate between {} == 0 and {} == List{0}.
+  using LCW        = cudf::test::lists_column_wrapper<T, int32_t>;
+  auto const empty = decltype(LCW::nested({})){};
 
   // List<List<List<T>>>:
   // Length : 3
@@ -712,7 +704,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
   //      Offsets : 0, 0
   //      Children :
   {
-    cudf::test::lists_column_wrapper<T, int32_t> list{{{LCW{}}}, {LCW{}}, LCW{}};
+    LCW list({LCW::nested({LCW::nested({empty})}), LCW::nested({empty}), empty});
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -757,7 +749,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
   //       Offsets : 0, 0
   //       Children :
   {
-    cudf::test::lists_column_wrapper<T, int32_t> list{LCW{}, {LCW{}}, {{LCW{}}}};
+    LCW list({empty, LCW::nested({empty}), LCW::nested({LCW::nested({empty})})});
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -804,7 +796,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
   //         1, 2, 3
   {
     // { {}, {{{1,2,3}}}, {{}} }
-    cudf::test::lists_column_wrapper<T, int32_t> list{LCW{}, {{{1, 2, 3}}}, {LCW{}}};
+    LCW list({empty, LCW::nested({LCW::nested({{1, 2, 3}})}), LCW::nested({empty})});
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -855,7 +847,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
   {
     // { {{{}}}, {{}}, null }
     std::vector<bool> valids{true, true, false};
-    cudf::test::lists_column_wrapper<T, int32_t> list{{{{LCW{}}}, {LCW{}}, LCW{}}, valids.begin()};
+    LCW list({LCW::nested({LCW::nested({empty})}), LCW::nested({empty}), empty}, valids.begin());
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -902,7 +894,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
   {
     // { {{{}}}, null, {} }
     std::vector<bool> valids{true, false, true};
-    cudf::test::lists_column_wrapper<T, int32_t> list{{{{LCW{}}}, {LCW{}}, LCW{}}, valids.begin()};
+    LCW list({LCW::nested({LCW::nested({empty})}), LCW::nested({empty}), empty}, valids.begin());
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -945,7 +937,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
   {
     // { null, {{}}, {} }
     std::vector<bool> valids{false, true, true};
-    cudf::test::lists_column_wrapper<T, int32_t> list{{{{LCW{}}}, {LCW{}}, LCW{}}, valids.begin()};
+    LCW list({LCW::nested({}), LCW::nested({empty}), LCW::nested({})}, valids.begin());
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -979,7 +971,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
   {
     // { null, null, null }
     std::vector<bool> valids{false, false, false};
-    cudf::test::lists_column_wrapper<T, int32_t> list{{{{LCW{}}}, {LCW{}}, LCW{}}, valids.begin()};
+    LCW list({LCW::nested({}), LCW::nested({}), LCW::nested({})}, valids.begin());
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -1008,7 +1000,7 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
   {
     // { null, null, null }
     std::vector<bool> valids{false, false, false};
-    cudf::test::lists_column_wrapper<T, int32_t> list{{LCW{}, {{LCW{}}}, {LCW{}}}, valids.begin()};
+    LCW list({LCW::nested({}), LCW::nested({}), LCW::nested({})}, valids.begin());
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -1041,7 +1033,8 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
   {
     // { {null}, {{}}, {} }
     std::vector<bool> valids{false};
-    cudf::test::lists_column_wrapper<T, int32_t> list{{{{LCW{}}}, valids.begin()}, {LCW{}}, LCW{}};
+    auto const null_row = LCW::nested({LCW::nested({})}, valids.begin());
+    LCW list({null_row, LCW::nested({LCW::nested({})}), LCW::nested({})});
 
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 3);
@@ -1083,8 +1076,10 @@ TYPED_TEST(ListColumnWrapperTestTyped, IncompleteHierarchies)
 
   {
     // { {{{1, 2, 3}, {4, 5}}}, {{}, {{}}}, {}, {{}, {}} }
-    cudf::test::lists_column_wrapper<T, int32_t> list{
-      {{{1, 2, 3}, {4, 5}}}, {LCW{}, {LCW{}}}, LCW{}, {LCW{}, LCW{}}};
+    LCW list({LCW::nested({{{1, 2, 3}, {4, 5}}}),
+              {LCW::nested({}), LCW::nested({empty})},
+              LCW::nested({}),
+              {LCW::nested({}), LCW::nested({})}});
     cudf::lists_column_view lcv(list);
     EXPECT_EQ(lcv.size(), 4);
 
@@ -1318,9 +1313,7 @@ TEST_F(ListColumnWrapperTest, MismatchedHierarchies)
 {
   using T = int;
 
-  // to disambiguate between {} == 0 and {} == List{0}
-  // Also, see note about compiler issues when declaring nested
-  // empty lists in lists_column_wrapper documentation
+  // Use nested() to disambiguate between {} == 0 and {} == List{0}.
   using LCW = cudf::test::lists_column_wrapper<T>;
 
   // trying to build a column out of a List<List<int>> column, and a List<int> column
