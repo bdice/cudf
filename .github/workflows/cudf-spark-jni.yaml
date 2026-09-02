@@ -84,8 +84,6 @@ jobs:
           rapids-install-sccache
           rapids-configure-sccache
 
-          export CPP_PARALLEL_LEVEL="$PARALLEL_LEVEL"
-
           # Don't use the build cluster for CMake's compiler tests
           echo -e '\nset(ENV{SCCACHE_NO_DIST_COMPILE} "1")' >> thirdparty/cudf-pins/add_dependency_pins.cmake
 
