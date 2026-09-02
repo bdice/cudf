@@ -135,8 +135,7 @@ TEST_F(ScalarTest, AsyncStringConstructionOwnsHostSource)
   auto upstream = cudf::get_current_device_resource_ref();
   int allocations{0};
   rmm::mr::callback_memory_resource mr{
-    [upstream, &gate, &allocations](
-      std::size_t bytes, rmm::cuda_stream_view stream, void*) mutable {
+    [upstream, &gate, &allocations](std::size_t bytes, auto stream, void*) mutable {
       auto* ptr = upstream.allocate(stream, bytes, cuda::mr::default_cuda_malloc_alignment);
       if (allocations++ == 1) {
         CUDF_CUDA_TRY(cudaLaunchHostFunc(
@@ -144,7 +143,7 @@ TEST_F(ScalarTest, AsyncStringConstructionOwnsHostSource)
       }
       return ptr;
     },
-    [upstream](void* ptr, std::size_t bytes, rmm::cuda_stream_view stream, void*) mutable {
+    [upstream](void* ptr, std::size_t bytes, auto stream, void*) mutable {
       upstream.deallocate(stream, ptr, bytes, cuda::mr::default_cuda_malloc_alignment);
     }};
   std::string expected{"expected"};

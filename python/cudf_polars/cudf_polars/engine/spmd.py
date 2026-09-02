@@ -64,6 +64,7 @@ from cudf_polars.utils.config import (
     MemoryResourceConfig,
     SPMDContext,
     StreamingExecutor,
+    configure_kvikio,
     resolve_kvikio_nthreads,
     resolve_kvikio_statistics,
 )
@@ -136,10 +137,12 @@ def evaluate_pipeline_spmd_mode(
     if quent_context is not None:
         quent_logger = config_options.executor.spmd_context.quent_logger
         assert quent_logger is not None
+        query = quent_context.query_for(query_id)
         quent_context._emit_query_group_events(quent_logger)
-        quent_context._emit_query_events(quent_logger)
+        quent_context._emit_query_events(quent_logger, query)
         local_quent_context = LocalQuentContext(
             context=quent_context,
+            query=query,
             worker=Worker(
                 id=config_options.executor.spmd_context.worker_id,
                 engine=quent_context.engine,
@@ -159,8 +162,10 @@ def evaluate_pipeline_spmd_mode(
     )
     if quent_context is not None:
         assert config_options.executor.spmd_context.quent_logger is not None
+        assert local_quent_context is not None
         quent_context._emit_query_exit_events(
-            config_options.executor.spmd_context.quent_logger
+            config_options.executor.spmd_context.quent_logger,
+            local_quent_context.query,
         )
     return df, metadata if collect_metadata else None
 
@@ -438,7 +443,7 @@ class SPMDEngine(StreamingEngine):
         )
         bind_to_gpu(hw_binding)
 
-        kvikio.defaults.set("num_threads", executor_options["kvikio_nthreads"])
+        configure_kvikio(executor_options["kvikio_nthreads"])
 
         self.rapidsmpf_options = resolve_rapidsmpf_options(rapidsmpf_options)
         mr_config: MemoryResourceConfig = engine_options.get(
@@ -629,10 +634,10 @@ class SPMDEngine(StreamingEngine):
             existing_kvikio_nthreads = existing_executor_options.get("kvikio_nthreads")
             if existing_kvikio_nthreads is not None:
                 executor_options.setdefault("kvikio_nthreads", existing_kvikio_nthreads)
+        configure_kvikio(executor_options["kvikio_nthreads"])
         executor_options.setdefault(
             "kvikio_statistics", resolve_kvikio_statistics(executor_options)
         )
-        kvikio.defaults.set("num_threads", executor_options["kvikio_nthreads"])
         engine_options = engine_options or {}
         quent_context: cudf_polars.quent.QuentContext | None = executor_options.get(
             "quent_context"

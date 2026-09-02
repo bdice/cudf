@@ -26,11 +26,11 @@
 #include <cudf/utilities/traits.hpp>
 #include <cudf/utilities/type_dispatcher.hpp>
 
-#include <rmm/cuda_stream_view.hpp>
 #include <rmm/device_buffer.hpp>
 
 #include <cuda/iterator>
 #include <cuda/std/functional>
+#include <cuda/stream>
 #include <thrust/copy.h>
 #include <thrust/host_vector.h>
 
@@ -161,7 +161,7 @@ template <typename ElementTo,
           std::enable_if_t<not cudf::is_fixed_point<ElementTo>()>* = nullptr>
 rmm::device_buffer make_elements(InputIterator begin,
                                  InputIterator end,
-                                 rmm::cuda_stream_view stream,
+                                 cuda::stream_ref stream,
                                  cudf::memory_resources mr)
 {
   static_assert(cudf::is_fixed_width<ElementTo>(), "Unexpected non-fixed width type.");
@@ -170,7 +170,7 @@ rmm::device_buffer make_elements(InputIterator begin,
   std::transform(
     begin, end, elements.begin(), fixed_width_type_converter<ElementFrom, ElementTo>{});
   rmm::device_buffer buffer{elements.data(), size * sizeof(ElementTo), stream, mr.get_output_mr()};
-  stream.synchronize();  // wait for async H2D before host source is destroyed
+  stream.sync();  // wait for async H2D before host source is destroyed
   return buffer;
 }
 
@@ -197,7 +197,7 @@ template <typename ElementTo,
                            cudf::is_fixed_point<ElementTo>()>* = nullptr>
 rmm::device_buffer make_elements(InputIterator begin,
                                  InputIterator end,
-                                 rmm::cuda_stream_view stream,
+                                 cuda::stream_ref stream,
                                  cudf::memory_resources mr)
 {
   using RepType   = typename ElementTo::rep;
@@ -205,7 +205,7 @@ rmm::device_buffer make_elements(InputIterator begin,
   auto elements   = thrust::host_vector<RepType>(size);
   std::transform(begin, end, elements.begin(), fixed_width_type_converter<ElementFrom, RepType>{});
   rmm::device_buffer buffer{elements.data(), size * sizeof(RepType), stream, mr.get_output_mr()};
-  stream.synchronize();  // wait for async H2D before host source is destroyed
+  stream.sync();  // wait for async H2D before host source is destroyed
   return buffer;
 }
 
@@ -228,7 +228,7 @@ template <typename ElementTo,
                            cudf::is_fixed_point<ElementTo>()>* = nullptr>
 rmm::device_buffer make_elements(InputIterator begin,
                                  InputIterator end,
-                                 rmm::cuda_stream_view stream,
+                                 cuda::stream_ref stream,
                                  cudf::memory_resources mr)
 {
   using namespace numeric;
@@ -241,7 +241,7 @@ rmm::device_buffer make_elements(InputIterator begin,
   auto elements   = thrust::host_vector<RepType>(size);
   std::transform(begin, end, elements.begin(), [](ElementTo const fp) { return fp.value(); });
   rmm::device_buffer buffer{elements.data(), size * sizeof(RepType), stream, mr.get_output_mr()};
-  stream.synchronize();  // wait for async H2D before host source is destroyed
+  stream.sync();  // wait for async H2D before host source is destroyed
   return buffer;
 }
 //! @endcond
@@ -298,15 +298,15 @@ template <typename ValidityIterator>
 std::pair<rmm::device_buffer, cudf::size_type> make_null_mask(
   ValidityIterator begin,
   ValidityIterator end,
-  rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-  cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+  cuda::stream_ref stream   = cudf::test::get_default_stream(),
+  cudf::memory_resources mr = cudf::get_current_device_resource_ref())
 {
   auto [null_mask, null_count] = make_null_mask_vector(begin, end);
   rmm::device_buffer d_mask{null_mask.data(),
                             cudf::bitmask_allocation_size_bytes(cudf::distance(begin, end)),
                             stream,
                             mr.get_output_mr()};
-  stream.synchronize();  // wait for async H2D before host source is destroyed
+  stream.sync();  // wait for async H2D before host source is destroyed
   return {std::move(d_mask), null_count};
 }
 
@@ -385,8 +385,8 @@ class fixed_width_column_wrapper : public detail::column_wrapper {
   template <typename InputIterator>
   fixed_width_column_wrapper(InputIterator begin,
                              InputIterator end,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     auto const size = cudf::distance(begin, end);
@@ -427,8 +427,8 @@ class fixed_width_column_wrapper : public detail::column_wrapper {
   fixed_width_column_wrapper(InputIterator begin,
                              InputIterator end,
                              ValidityIterator v,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     auto const size              = cudf::distance(begin, end);
@@ -457,8 +457,8 @@ class fixed_width_column_wrapper : public detail::column_wrapper {
    */
   template <typename ElementFrom>
   fixed_width_column_wrapper(std::initializer_list<ElementFrom> elements,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : fixed_width_column_wrapper(std::cbegin(elements), std::cend(elements), stream, mr)
   {
   }
@@ -485,8 +485,8 @@ class fixed_width_column_wrapper : public detail::column_wrapper {
   template <typename ElementFrom>
   fixed_width_column_wrapper(std::initializer_list<ElementFrom> elements,
                              std::initializer_list<bool> validity,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : fixed_width_column_wrapper(
         std::cbegin(elements), std::cend(elements), std::cbegin(validity), stream, mr)
   {
@@ -514,8 +514,8 @@ class fixed_width_column_wrapper : public detail::column_wrapper {
   template <typename ValidityIterator, typename ElementFrom>
   fixed_width_column_wrapper(std::initializer_list<ElementFrom> element_list,
                              ValidityIterator v,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : fixed_width_column_wrapper(std::cbegin(element_list), std::cend(element_list), v, stream, mr)
   {
   }
@@ -544,8 +544,8 @@ class fixed_width_column_wrapper : public detail::column_wrapper {
   fixed_width_column_wrapper(InputIterator begin,
                              InputIterator end,
                              std::initializer_list<bool> const& validity,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : fixed_width_column_wrapper(begin, end, std::cbegin(validity), stream, mr)
   {
   }
@@ -571,8 +571,8 @@ class fixed_width_column_wrapper : public detail::column_wrapper {
    */
   template <typename ElementFrom>
   fixed_width_column_wrapper(std::initializer_list<std::pair<ElementFrom, bool>> elements,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
   {
     auto values   = std::vector<ElementFrom>{};
     auto validity = std::vector<bool>{};
@@ -618,8 +618,8 @@ class fixed_point_column_wrapper : public detail::column_wrapper {
   fixed_point_column_wrapper(FixedPointRepIterator begin,
                              FixedPointRepIterator end,
                              numeric::scale_type scale,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     CUDF_EXPECTS(numeric::is_supported_representation_type<Rep>(), "not valid representation type");
@@ -630,7 +630,7 @@ class fixed_point_column_wrapper : public detail::column_wrapper {
     auto const data_type = cudf::data_type{id, static_cast<int32_t>(scale)};
     rmm::device_buffer data{elements.data(), size * sizeof(Rep), stream, mr.get_output_mr()};
     wrapped.reset(new cudf::column{data_type, size, std::move(data), rmm::device_buffer{}, 0});
-    stream.synchronize();  // wait for async H2D before host source is destroyed
+    stream.sync();  // wait for async H2D before host source is destroyed
   }
 
   /**
@@ -649,8 +649,8 @@ class fixed_point_column_wrapper : public detail::column_wrapper {
    */
   fixed_point_column_wrapper(std::initializer_list<Rep> values,
                              numeric::scale_type scale,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : fixed_point_column_wrapper(std::cbegin(values), std::cend(values), scale, stream, mr)
   {
   }
@@ -689,8 +689,8 @@ class fixed_point_column_wrapper : public detail::column_wrapper {
                              FixedPointRepIterator end,
                              ValidityIterator v,
                              numeric::scale_type scale,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     CUDF_EXPECTS(numeric::is_supported_representation_type<Rep>(), "not valid representation type");
@@ -703,7 +703,7 @@ class fixed_point_column_wrapper : public detail::column_wrapper {
     rmm::device_buffer data{elements.data(), size * sizeof(Rep), stream, mr.get_output_mr()};
     wrapped.reset(
       new cudf::column{data_type, size, std::move(data), std::move(null_mask), null_count});
-    stream.synchronize();  // wait for async H2D before host source is destroyed
+    stream.sync();  // wait for async H2D before host source is destroyed
   }
 
   /**
@@ -728,8 +728,8 @@ class fixed_point_column_wrapper : public detail::column_wrapper {
   fixed_point_column_wrapper(std::initializer_list<Rep> elements,
                              std::initializer_list<bool> validity,
                              numeric::scale_type scale,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : fixed_point_column_wrapper(
         std::cbegin(elements), std::cend(elements), std::cbegin(validity), scale, stream, mr)
   {
@@ -759,8 +759,8 @@ class fixed_point_column_wrapper : public detail::column_wrapper {
   fixed_point_column_wrapper(std::initializer_list<Rep> element_list,
                              ValidityIterator v,
                              numeric::scale_type scale,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : fixed_point_column_wrapper(
         std::cbegin(element_list), std::cend(element_list), v, scale, stream, mr)
   {
@@ -793,8 +793,8 @@ class fixed_point_column_wrapper : public detail::column_wrapper {
                              FixedPointRepIterator end,
                              std::initializer_list<bool> const& validity,
                              numeric::scale_type scale,
-                             rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                             cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                             cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                             cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : fixed_point_column_wrapper(begin, end, std::cbegin(validity), scale, stream, mr)
   {
   }
@@ -838,8 +838,8 @@ class strings_column_wrapper : public detail::column_wrapper {
   template <typename StringsIterator>
   strings_column_wrapper(StringsIterator begin,
                          StringsIterator end,
-                         rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                         cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                         cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                         cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     size_type num_strings = std::distance(begin, end);
@@ -892,8 +892,8 @@ class strings_column_wrapper : public detail::column_wrapper {
   strings_column_wrapper(StringsIterator begin,
                          StringsIterator end,
                          ValidityIterator v,
-                         rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                         cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                         cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                         cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     size_type num_strings = std::distance(begin, end);
@@ -928,8 +928,8 @@ class strings_column_wrapper : public detail::column_wrapper {
    * @param mr Memory resources used to allocate the returned column
    */
   strings_column_wrapper(std::initializer_list<std::string> strings,
-                         rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                         cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                         cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                         cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : strings_column_wrapper(std::cbegin(strings), std::cend(strings), stream, mr)
   {
   }
@@ -957,8 +957,8 @@ class strings_column_wrapper : public detail::column_wrapper {
   template <typename ValidityIterator>
   strings_column_wrapper(std::initializer_list<std::string> strings,
                          ValidityIterator v,
-                         rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                         cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                         cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                         cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : strings_column_wrapper(std::cbegin(strings), std::cend(strings), v, stream, mr)
   {
   }
@@ -982,8 +982,8 @@ class strings_column_wrapper : public detail::column_wrapper {
    */
   strings_column_wrapper(std::initializer_list<std::string> strings,
                          std::initializer_list<bool> validity,
-                         rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                         cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                         cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                         cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : strings_column_wrapper(
         std::cbegin(strings), std::cend(strings), std::cbegin(validity), stream, mr)
   {
@@ -1012,8 +1012,8 @@ class strings_column_wrapper : public detail::column_wrapper {
    * @param mr Memory resources used to allocate the returned column
    */
   strings_column_wrapper(std::initializer_list<std::pair<std::string, bool>> strings,
-                         rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                         cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                         cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                         cudf::memory_resources mr = cudf::get_current_device_resource_ref())
   {
     auto values   = std::vector<std::string>{};
     auto validity = std::vector<bool>{};
@@ -1077,15 +1077,15 @@ class dictionary_column_wrapper : public detail::column_wrapper {
   template <typename InputIterator>
   dictionary_column_wrapper(InputIterator begin,
                             InputIterator end,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     wrapped = cudf::dictionary::encode(fixed_width_column_wrapper<KeyElementTo, SourceElementT>(
                                          begin, end, stream, mr.get_temporary_mr()),
                                        cudf::data_type{type_id::INT32},
                                        stream,
-                                       mr.get_output_mr());
+                                       mr);
   }
 
   /**
@@ -1119,15 +1119,15 @@ class dictionary_column_wrapper : public detail::column_wrapper {
   dictionary_column_wrapper(InputIterator begin,
                             InputIterator end,
                             ValidityIterator v,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     wrapped = cudf::dictionary::encode(fixed_width_column_wrapper<KeyElementTo, SourceElementT>(
                                          begin, end, v, stream, mr.get_temporary_mr()),
                                        cudf::data_type{type_id::INT32},
                                        stream,
-                                       mr.get_output_mr());
+                                       mr);
   }
 
   /**
@@ -1147,8 +1147,8 @@ class dictionary_column_wrapper : public detail::column_wrapper {
    */
   template <typename ElementFrom>
   dictionary_column_wrapper(std::initializer_list<ElementFrom> elements,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : dictionary_column_wrapper(std::cbegin(elements), std::cend(elements), stream, mr)
   {
   }
@@ -1176,8 +1176,8 @@ class dictionary_column_wrapper : public detail::column_wrapper {
   template <typename ElementFrom>
   dictionary_column_wrapper(std::initializer_list<ElementFrom> elements,
                             std::initializer_list<bool> validity,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : dictionary_column_wrapper(
         std::cbegin(elements), std::cend(elements), std::cbegin(validity), stream, mr)
   {
@@ -1206,8 +1206,8 @@ class dictionary_column_wrapper : public detail::column_wrapper {
   template <typename ValidityIterator, typename ElementFrom>
   dictionary_column_wrapper(std::initializer_list<ElementFrom> element_list,
                             ValidityIterator v,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : dictionary_column_wrapper(std::cbegin(element_list), std::cend(element_list), v, stream, mr)
   {
   }
@@ -1238,8 +1238,8 @@ class dictionary_column_wrapper : public detail::column_wrapper {
   dictionary_column_wrapper(InputIterator begin,
                             InputIterator end,
                             std::initializer_list<bool> const& validity,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : dictionary_column_wrapper(begin, end, std::cbegin(validity), stream, mr)
   {
   }
@@ -1309,15 +1309,15 @@ class dictionary_column_wrapper<std::string> : public detail::column_wrapper {
   template <typename StringsIterator>
   dictionary_column_wrapper(StringsIterator begin,
                             StringsIterator end,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     wrapped =
       cudf::dictionary::encode(strings_column_wrapper(begin, end, stream, mr.get_temporary_mr()),
                                cudf::data_type{type_id::INT32},
                                stream,
-                               mr.get_output_mr());
+                               mr);
   }
 
   /**
@@ -1354,15 +1354,15 @@ class dictionary_column_wrapper<std::string> : public detail::column_wrapper {
   dictionary_column_wrapper(StringsIterator begin,
                             StringsIterator end,
                             ValidityIterator v,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     wrapped =
       cudf::dictionary::encode(strings_column_wrapper(begin, end, v, stream, mr.get_temporary_mr()),
                                cudf::data_type{type_id::INT32},
                                stream,
-                               mr.get_output_mr());
+                               mr);
   }
 
   /**
@@ -1380,8 +1380,8 @@ class dictionary_column_wrapper<std::string> : public detail::column_wrapper {
    * @param mr Memory resources used to allocate the returned column
    */
   dictionary_column_wrapper(std::initializer_list<std::string> strings,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : dictionary_column_wrapper(std::cbegin(strings), std::cend(strings), stream, mr)
   {
   }
@@ -1409,8 +1409,8 @@ class dictionary_column_wrapper<std::string> : public detail::column_wrapper {
   template <typename ValidityIterator>
   dictionary_column_wrapper(std::initializer_list<std::string> strings,
                             ValidityIterator v,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : dictionary_column_wrapper(std::cbegin(strings), std::cend(strings), v, stream, mr)
   {
   }
@@ -1434,8 +1434,8 @@ class dictionary_column_wrapper<std::string> : public detail::column_wrapper {
    */
   dictionary_column_wrapper(std::initializer_list<std::string> strings,
                             std::initializer_list<bool> validity,
-                            rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                            cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                            cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                            cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : dictionary_column_wrapper(
         std::cbegin(strings), std::cend(strings), std::cbegin(validity), stream, mr)
   {
@@ -1443,10 +1443,10 @@ class dictionary_column_wrapper<std::string> : public detail::column_wrapper {
 };
 
 /**
- * @brief True when `T` is convertible to `rmm::cuda_stream_view`.
+ * @brief True when `T` is convertible to `cuda::stream_ref`.
  */
 template <typename T>
-concept convertible_to_cuda_stream_view = std::is_convertible_v<T&, rmm::cuda_stream_view>;
+concept convertible_to_cuda_stream_ref = std::is_convertible_v<T&, cuda::stream_ref>;
 
 /**
  * @brief `column_wrapper` derived class for wrapping columns of structs.
@@ -1491,7 +1491,7 @@ class structs_column_wrapper : public detail::column_wrapper {
    */
   structs_column_wrapper(std::vector<std::unique_ptr<cudf::column>>&& child_columns,
                          std::vector<bool> const& validity = {},
-                         rmm::cuda_stream_view stream      = cudf::test::get_default_stream(),
+                         cuda::stream_ref stream           = cudf::test::get_default_stream(),
                          cudf::memory_resources mr = cudf::get_current_device_resource_ref())
   {
     init(std::move(child_columns), validity, stream, mr);
@@ -1528,7 +1528,7 @@ class structs_column_wrapper : public detail::column_wrapper {
   structs_column_wrapper(
     std::initializer_list<std::reference_wrapper<detail::column_wrapper>> child_column_wrappers,
     std::vector<bool> const& validity = {},
-    rmm::cuda_stream_view stream      = cudf::test::get_default_stream(),
+    cuda::stream_ref stream           = cudf::test::get_default_stream(),
     cudf::memory_resources mr         = cudf::get_current_device_resource_ref())
   {
     std::vector<std::unique_ptr<cudf::column>> child_columns;
@@ -1569,9 +1569,9 @@ class structs_column_wrapper : public detail::column_wrapper {
   structs_column_wrapper(
     std::initializer_list<std::reference_wrapper<detail::column_wrapper>> child_column_wrappers,
     V validity_iter,
-    rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-    cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
-    requires(!convertible_to_cuda_stream_view<V>)
+    cuda::stream_ref stream   = cudf::test::get_default_stream(),
+    cudf::memory_resources mr = cudf::get_current_device_resource_ref())
+    requires(!convertible_to_cuda_stream_ref<V>)
   {
     std::vector<std::unique_ptr<cudf::column>> child_columns;
     child_columns.reserve(child_column_wrappers.size());
@@ -1588,7 +1588,7 @@ class structs_column_wrapper : public detail::column_wrapper {
  private:
   void init(std::vector<std::unique_ptr<cudf::column>>&& child_columns,
             std::vector<bool> const& validity,
-            rmm::cuda_stream_view stream,
+            cuda::stream_ref stream,
             cudf::memory_resources mr)
   {
     size_type num_rows = child_columns.empty() ? 0 : child_columns[0]->size();
@@ -1617,7 +1617,7 @@ class structs_column_wrapper : public detail::column_wrapper {
   template <typename V>
   void init(std::vector<std::unique_ptr<cudf::column>>&& child_columns,
             V validity_iterator,
-            rmm::cuda_stream_view stream,
+            cuda::stream_ref stream,
             cudf::memory_resources mr)
   {
     size_type const num_rows = child_columns.empty() ? 0 : child_columns[0]->size();

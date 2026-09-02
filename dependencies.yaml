@@ -143,14 +143,6 @@ files:
       - cuda_static
       - cuda_version
       - build_java
-  test_java:
-    output: none
-    includes:
-      - build_all
-      - cuda
-      - cuda_version
-      - depends_on_libcudf
-      - test_java
   test_notebooks:
     output: none
     includes:
@@ -303,6 +295,7 @@ files:
       - depends_on_libnvcomp
       - depends_on_librmm
       - depends_on_rapids_logger
+      - run_libcudf
   py_build_pylibcudf:
     output: pyproject
     matrix:
@@ -1071,6 +1064,11 @@ dependencies:
           # Cap below 3.0.4 (rather than just excluding it) until a fixed
           # release is confirmed upstream, then raise the bound.
           - &pandas pandas>=3.0.0,<3.0.4a0
+  run_libcudf:
+    common:
+      - output_types: [requirements, pyproject]
+        packages:
+          - cuda-pathfinder
   run_pylibcudf:
     common:
       - output_types: [conda, requirements, constraints, pyproject]
@@ -1144,15 +1142,6 @@ dependencies:
           - libcudf_kafka==26.10.*,>=0.0.0a0
           - libcudf-tests==26.10.*,>=0.0.0a0
           - libcudf-streaming-tests==26.10.*,>=0.0.0a0
-  test_java:
-    common:
-      - output_types: conda
-        packages:
-          - *cmake_ver
-          - ninja
-          - maven
-          - openjdk=8.*
-          - boost
   test_python_common:
     common:
       - output_types: [conda, requirements, constraints, pyproject]

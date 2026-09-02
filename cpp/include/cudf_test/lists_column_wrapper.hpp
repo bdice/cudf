@@ -18,10 +18,10 @@
 #include <cudf/utilities/traits.hpp>
 #include <cudf/utilities/type_dispatcher.hpp>
 
-#include <rmm/cuda_stream_view.hpp>
 #include <rmm/device_buffer.hpp>
 
 #include <cuda/std/functional>
+#include <cuda/stream>
 #include <thrust/copy.h>
 
 #include <algorithm>
@@ -378,8 +378,8 @@ class lists_column_wrapper : public detail::column_wrapper {
    */
   template <typename Element>
   lists_column_wrapper(std::initializer_list<Element> elements,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                       cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     requires(cudf::is_fixed_width<T>() && std::is_convertible_v<Element, SourceElementT>)
     : column_wrapper{}
   {
@@ -422,8 +422,8 @@ class lists_column_wrapper : public detail::column_wrapper {
     }
   lists_column_wrapper(InputIterator begin,
                        InputIterator end,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                       cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     build_from_non_nested(leaf_wrapper_t(begin, end, stream, mr).release(), stream, mr);
@@ -449,8 +449,8 @@ class lists_column_wrapper : public detail::column_wrapper {
   template <typename Element, typename ValidityIterator>
   lists_column_wrapper(std::initializer_list<Element> elements,
                        ValidityIterator v,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                       cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     requires(cudf::is_fixed_width<T>() && std::is_convertible_v<Element, SourceElementT>)
     : column_wrapper{}
   {
@@ -488,8 +488,8 @@ class lists_column_wrapper : public detail::column_wrapper {
   lists_column_wrapper(InputIterator begin,
                        InputIterator end,
                        ValidityIterator v,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                       cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     build_from_non_nested(leaf_wrapper_t(begin, end, v, stream, mr).release(), stream, mr);
@@ -511,8 +511,8 @@ class lists_column_wrapper : public detail::column_wrapper {
    */
   template <typename Element>
   lists_column_wrapper(std::initializer_list<Element> elements,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                       cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     requires(std::is_same_v<T, cudf::string_view> && std::is_constructible_v<std::string, Element>)
     : column_wrapper{}
   {
@@ -539,8 +539,8 @@ class lists_column_wrapper : public detail::column_wrapper {
   template <typename Element, typename ValidityIterator>
   lists_column_wrapper(std::initializer_list<Element> elements,
                        ValidityIterator v,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                       cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     requires(std::is_same_v<T, cudf::string_view> && std::is_constructible_v<std::string, Element>)
     : column_wrapper{}
   {
@@ -577,8 +577,8 @@ class lists_column_wrapper : public detail::column_wrapper {
    * @param mr Memory resources used to allocate the returned column
    */
   lists_column_wrapper(std::initializer_list<initializer_type> elements,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                       cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : lists_column_wrapper(initializer_type(elements), stream, mr)
   {
   }
@@ -632,8 +632,8 @@ class lists_column_wrapper : public detail::column_wrapper {
   template <typename ValidityIterator>
   lists_column_wrapper(std::initializer_list<initializer_type> elements,
                        ValidityIterator v,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                       cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : lists_column_wrapper(initializer_type(elements, v), stream, mr)
   {
   }
@@ -657,8 +657,8 @@ class lists_column_wrapper : public detail::column_wrapper {
    * @param mr Memory resources used to allocate the returned column
    */
   lists_column_wrapper(initializer_type init,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                       cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     : column_wrapper{}
   {
     if (!init.nested()) {
@@ -684,8 +684,8 @@ class lists_column_wrapper : public detail::column_wrapper {
   template <typename ValidityIterator>
   lists_column_wrapper(initializer_type init,
                        ValidityIterator validity,
-                       rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-                       cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+                       cuda::stream_ref stream   = cudf::test::get_default_stream(),
+                       cudf::memory_resources mr = cudf::get_current_device_resource_ref())
     requires requires(ValidityIterator i) {
       static_cast<bool>(*i);
       ++i;
@@ -703,9 +703,9 @@ class lists_column_wrapper : public detail::column_wrapper {
    * @return A list column containing a single empty row
    */
   static lists_column_wrapper<T> make_one_empty_row_column(
-    bool valid                   = true,
-    rmm::cuda_stream_view stream = cudf::test::get_default_stream(),
-    cudf::memory_resources mr    = cudf::get_current_device_resource_ref())
+    bool valid                = true,
+    cuda::stream_ref stream   = cudf::test::get_default_stream(),
+    cudf::memory_resources mr = cudf::get_current_device_resource_ref())
   {
     cudf::test::fixed_width_column_wrapper<int32_t> offsets({0, 0}, stream, mr);
     cudf::test::fixed_width_column_wrapper<int> values{};
@@ -760,7 +760,7 @@ class lists_column_wrapper : public detail::column_wrapper {
   template <typename ListsRange>
   void build_from_nested(ListsRange const& elements,
                          std::vector<bool> const& v,
-                         rmm::cuda_stream_view stream,
+                         cuda::stream_ref stream,
                          cudf::memory_resources mr)
   {
     auto valids = cudf::detail::make_counting_transform_iterator(
@@ -834,7 +834,7 @@ class lists_column_wrapper : public detail::column_wrapper {
    *
    */
   void build_from_non_nested(std::unique_ptr<column> c,
-                             rmm::cuda_stream_view stream,
+                             cuda::stream_ref stream,
                              cudf::memory_resources mr)
   {
     CUDF_EXPECTS(c->type().id() == type_id::EMPTY || !cudf::is_nested(c->type()),
@@ -896,7 +896,7 @@ class lists_column_wrapper : public detail::column_wrapper {
    */
   std::unique_ptr<column> normalize_column(column_view const& col,
                                            column_view const& expected_hierarchy,
-                                           rmm::cuda_stream_view stream,
+                                           cuda::stream_ref stream,
                                            rmm::device_async_resource_ref temp_mr)
   {
     // if are at the bottom of the short column, it must be empty
@@ -923,7 +923,7 @@ class lists_column_wrapper : public detail::column_wrapper {
     ListsRange const& elements,
     column_view& expected_hierarchy,
     int expected_depth,
-    rmm::cuda_stream_view stream,
+    cuda::stream_ref stream,
     rmm::device_async_resource_ref temp_mr)
   {
     std::vector<std::unique_ptr<column>> stubs;
