@@ -603,6 +603,17 @@ class lists_column_wrapper : public detail::column_wrapper {
   }
 
   /**
+   * @brief Construct an empty lists column with an explicit stream and memory resource
+   *
+   * @param stream CUDA stream used for device memory operations
+   * @param mr Memory resources used to allocate the returned column
+   */
+  lists_column_wrapper(cuda::stream_ref stream, cudf::memory_resources mr)
+    : lists_column_wrapper(initializer_type{}, stream, mr)
+  {
+  }
+
+  /**
    * @brief Construct a lists column of nested lists from an initializer list of values
    * and a validity iterator.
    *

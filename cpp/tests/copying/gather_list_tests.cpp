@@ -79,7 +79,7 @@ TYPED_TEST(GatherTestListTyped, GatherNothing)
     auto results = cudf::gather(
       source_table, gather_map, cudf::out_of_bounds_policy::DONT_CHECK, stream, mr.get_output_mr());
 
-    LCW<T> expected;
+    LCW<T> expected(stream, mr);
 
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(
       results->view().column(0), expected, cudf::test::debug_output_level::FIRST_ERROR, stream, mr);
