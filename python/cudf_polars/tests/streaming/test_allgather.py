@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 import polars as pl
 
 import pylibcudf as plc
-from cudf_streaming.streaming.table_chunk import TableChunk
+from cudf_streaming.table_chunk import TableChunk
 
 from cudf_polars.dsl.ir import IRExecutionContext
 from cudf_polars.streaming.actor_graph.collectives.allgather import AllGatherManager
@@ -40,7 +40,7 @@ async def _test_allgather(engine) -> None:
     allgather = AllGatherManager(context, comm, 0)
     with allgather.inserting() as inserter:
         for i, table in enumerate(tables):
-            inserter.insert(
+            await inserter.insert(
                 i,
                 TableChunk.from_pylibcudf_table(
                     table, stream, exclusive_view=True, br=context.br()

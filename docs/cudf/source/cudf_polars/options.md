@@ -107,7 +107,9 @@ Environment variables follow these patterns:
 | `max_rows_per_partition` | Maximum number of rows per partition. Only used for in-memory `DataFrame` sources, never for disk IO or dynamic planning.                           | `1_000_000` |
 | `broadcast_limit`        | Maximum number of bytes for broadcast joins.                                                                                                        | auto        |
 | `target_partition_size`  | Target partition size in bytes. Used for IO and dynamic planning. `0` means auto.                                                                   | auto        |
+| `max_concurrent_io_tasks` | Number of concurrent IO producer tasks for each scan node. Tune with an integer or a `{"local": ..., "remote": ...}` dict. | auto        |
 | `dynamic_planning`       | Dynamic planning configuration, dict or {class}`~cudf_polars.utils.config.DynamicPlanningOptions`. `None` disables.                                 | enabled     |
+| `join_filter_pushdown`   | Configuration for join filter pushdown plan rewrites, dict or {class}`~cudf_polars.utils.config.JoinFilterPushdownOptions`. `None` disables.        | enabled     |
 | `sink_to_directory`      | Whether `.sink_*()` writes its output as a directory. The `spmd`, `ray`, and `dask` engines always use `True`; passing `False` raises `ValueError`. | `True`      |
 
 ### Category: `engine`
@@ -117,7 +119,6 @@ Environment variables follow these patterns:
 | `raise_on_fail`          | Raise an error instead of falling back to CPU execution.                                                                      | `False`                   |
 | `parquet_options`        | Parquet configuration, dict or {class}`~cudf_polars.utils.config.ParquetOptions`.                                             | —                         |
 | `memory_resource_config` | RMM configuration, dict or {class}`~cudf_polars.utils.config.MemoryResourceConfig`.                                           | —                         |
-| `cuda_stream_policy`     | CUDA stream policy (`"default"`, `"pool"`, or a configuration dict).                                                          | —                         |
 | `hardware_binding`       | Hardware binding policy. Pass a {class}`~cudf_polars.engine.hardware_binding.HardwareBindingPolicy` for fine-grained control. | `HardwareBindingPolicy()` |
 | `allow_gpu_sharing`      | When `False` (default), the engine raises if multiple ranks share the same physical GPU.                                      | `False`                   |
 

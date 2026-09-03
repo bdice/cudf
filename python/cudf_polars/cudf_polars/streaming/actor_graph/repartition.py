@@ -7,8 +7,8 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, Any
 
-from cudf_streaming.streaming.channel_metadata import ChannelMetadata
-from cudf_streaming.streaming.table_chunk import (
+from cudf_streaming.channel_metadata import ChannelMetadata
+from cudf_streaming.table_chunk import (
     TableChunk,
     make_table_chunks_available_or_wait,
 )
@@ -148,7 +148,7 @@ async def concatenate_node(
             allgather = AllGatherManager(context, comm, collective_id)
             with allgather.inserting() as inserter:
                 while (msg := await ch_in.recv(context)) is not None:
-                    inserter.insert(
+                    await inserter.insert(
                         seq_num, TableChunk.from_message(msg, br=context.br())
                     )
                     seq_num += 1

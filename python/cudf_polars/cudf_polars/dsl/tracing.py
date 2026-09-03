@@ -56,6 +56,7 @@ class Scope(enum.StrEnum):
 
     PLAN = "plan"
     ACTOR = "actor"
+    IO_TASK = "io_task"
     EVALUATE_IR_NODE = "evaluate_ir_node"
 
 
@@ -161,6 +162,10 @@ def log_do_evaluate(
     if not LOG_TRACES:
         return func
     else:  # pragma: no cover; requires CUDF_POLARS_LOG_TRACES=1
+        # do this just once
+        pynvml.nvmlInit()
+        maybe_handle = get_device_handle()
+        pid = _getpid()
 
         @functools.wraps(func)
         def wrapper(
@@ -168,10 +173,6 @@ def log_do_evaluate(
             *args: P.args,
             **kwargs: P.kwargs,
         ) -> cudf_polars.containers.DataFrame:
-            # do this just once
-            pynvml.nvmlInit()
-            maybe_handle = get_device_handle()
-            pid = _getpid()
             log = structlog.get_logger()
 
             # By convention, all non-dataframe arguments (non-child) come first.

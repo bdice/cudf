@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 import math
 import pickle
@@ -370,6 +370,79 @@ def test_rolling_numba_udf_with_offset():
     )
 
 
+@pytest.mark.parametrize("window_size", [1, 2, 3])
+@pytest.mark.parametrize("min_periods", [1, 2, 3])
+def test_rolling_groupby_numba_udf(window_size, min_periods):
+    if min_periods > window_size:
+        pytest.skip("min_periods cannot exceed window_size")
+    pdf = pd.DataFrame(
+        {
+            "a": [1, 1, 1, 2, 2, 2, 2],
+            "b": [1.0, 2.0, 4.0, 8.0, 9.0, 4.0, 2.0],
+        }
+    )
+    gdf = cudf.from_pandas(pdf)
+
+    def some_func(A):
+        b = 0
+        for a in A:
+            b = b + a**2
+        return b / len(A)
+
+    assert_eq(
+        pdf.groupby("a").rolling(window_size, min_periods).apply(some_func),
+        gdf.groupby("a").rolling(window_size, min_periods).apply(some_func),
+    )
+
+
+def test_rolling_numba_udf_base_indexer():
+    indexer = pd.api.indexers.FixedForwardWindowIndexer(window_size=3)
+    pdf = pd.DataFrame({"a": [1.0, 2.0, 4.0, 9.0, 9.0, 4.0]})
+    gdf = cudf.from_pandas(pdf)
+
+    def some_func(A):
+        b = 0
+        for a in A:
+            b = b + a
+        return b / len(A)
+
+    assert_eq(
+        pdf.rolling(window=indexer, min_periods=1).apply(some_func),
+        gdf.rolling(window=indexer, min_periods=1).apply(some_func),
+    )
+
+
+def test_rolling_numba_udf_empty_window_min_periods_zero():
+    indexer = pd.api.indexers.FixedForwardWindowIndexer(window_size=0)
+    pdf = pd.DataFrame({"a": [1.0, 2.0, 4.0, 9.0, 9.0, 4.0]})
+    gdf = cudf.from_pandas(pdf)
+
+    def window_sum(window):
+        total = 0.0
+        for value in window:
+            total += value
+        return total
+
+    expected = pdf.rolling(window=indexer, min_periods=0).apply(window_sum)
+    actual = gdf.rolling(window=indexer, min_periods=0).apply(window_sum)
+    assert_eq(expected, actual)
+
+
+def test_rolling_numba_udf_with_nulls_raises():
+    def some_func(A):
+        b = 0
+        for a in A:
+            b = b + a
+        return b
+
+    gsr = cudf.Series([1.0, None, 3.0, 4.0])
+    with pytest.raises(
+        NotImplementedError,
+        match="Handling UDF with null values is not yet supported",
+    ):
+        gsr.rolling(2).apply(some_func)
+
+
 def test_rolling_groupby_simple(supported_rolling_reductions):
     pdf = pd.DataFrame(
         {
@@ -545,3 +618,59 @@ def test_rolling_min_periods_zero():
     result = s.rolling(2, min_periods=0).sum()
     expected = ps.rolling(2, min_periods=0).sum()
     assert_eq(result, expected)
+
+
+@pytest.mark.parametrize("method", ["max", "min", "sum", "mean", "std", "var"])
+def test_rolling_categorical_aggregates_values_not_codes(method):
+    # pandas window aggregations operate on the category values, not the
+    # codes.
+    psr = pd.Series(np.arange(10, 0, -2), dtype="category")
+    gsr = cudf.from_pandas(psr)
+    assert_eq(
+        getattr(psr.rolling(2), method)(),
+        getattr(gsr.rolling(2), method)(),
+    )
+
+
+def test_groupby_rolling_as_index_false():
+    # pandas returns the group keys as leading columns with the original
+    # (group-ordered) index when as_index=False.
+    pdf = pd.DataFrame(
+        {"id": ["A", "A", "B", "B"], "num": [100.0, 200.0, 150.0, 250.0]},
+        index=pd.Index([10, 11, 12, 13], name="idx"),
+    )
+    gdf = cudf.from_pandas(pdf)
+    assert_eq(
+        pdf.groupby("id", as_index=False).rolling(2, min_periods=1).mean(),
+        gdf.groupby("id", as_index=False).rolling(2, min_periods=1).mean(),
+    )
+
+
+def test_groupby_rolling_no_sort_first_appearance_order():
+    # With sort=False pandas keeps groups in order of first appearance.
+    pdf = pd.DataFrame({"foo": [2, 1, 2], "bar": [2.0, 1.0, 3.0]})
+    gdf = cudf.from_pandas(pdf)
+    assert_eq(
+        pdf.groupby("foo", sort=False).rolling(1).min(),
+        gdf.groupby("foo", sort=False).rolling(1).min(),
+    )
+
+
+def test_groupby_rolling_base_indexer_raises():
+    gdf = cudf.DataFrame({"a": [1.0, 2.0, 3.0]}, index=[0, 0, 1])
+
+    class SimpleIndexer(BaseIndexer):
+        def get_window_bounds(
+            self,
+            num_values=0,
+            min_periods=None,
+            center=None,
+            closed=None,
+            step=None,
+        ):
+            end = np.arange(num_values, dtype=np.int64) + 1
+            start = np.maximum(end - self.window_size, 0)
+            return start, end
+
+    with pytest.raises(NotImplementedError):
+        gdf.groupby(gdf.index).rolling(SimpleIndexer(window_size=2)).sum()

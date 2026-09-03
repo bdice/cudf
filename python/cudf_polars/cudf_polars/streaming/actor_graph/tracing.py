@@ -1,11 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 """Tracing infrastructure for the RapidsMPF streaming runtime."""
 
 from __future__ import annotations
 
 import dataclasses
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from rapidsmpf.streaming.core.message import Message
 
@@ -13,7 +13,7 @@ from cudf_polars.dsl.tracing import LOG_TRACES, Scope
 from cudf_polars.streaming.explain import SerializablePlan
 
 if TYPE_CHECKING:
-    from cudf_streaming.streaming.table_chunk import TableChunk
+    from cudf_streaming.table_chunk import TableChunk
     from rapidsmpf.streaming.core.channel import Channel
     from rapidsmpf.streaming.core.context import Context
 
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from cudf_polars.utils.config import ConfigOptions
 
 
+@dataclasses.dataclass(slots=True)
 class ActorTracer:
     """
     Tracer for a single streaming actor (IR node).
@@ -46,22 +47,13 @@ class ActorTracer:
         (e.g., after an allgather). Affects how rows are merged.
     """
 
-    __slots__ = (
-        "chunk_count",
-        "decision",
-        "duplicated",
-        "ir_id",
-        "ir_type",
-        "row_count",
-    )
-
-    def __init__(self, ir_id: int | None = None, ir_type: str | None = None) -> None:
-        self.ir_id = ir_id
-        self.ir_type = ir_type
-        self.row_count: int | None = None
-        self.chunk_count: int = 0
-        self.decision: str | None = None
-        self.duplicated: bool = False
+    ir_id: int | None = None
+    ir_type: str | None = None
+    row_count: int | None = None
+    chunk_count: int = 0
+    decision: str | None = None
+    duplicated: bool = False
+    extra: dict[str, Any] = dataclasses.field(default_factory=dict)
 
     def add_chunk(self, *, chunk: TableChunk | None = None) -> None:
         """
@@ -82,6 +74,15 @@ class ActorTracer:
     def set_duplicated(self, *, duplicated: bool = True) -> None:
         """Mark output rows as duplicated across ranks."""
         self.duplicated = duplicated
+
+    def set_extra(self, key: str, value: Any) -> None:
+        """
+        Attach structured metadata to the current actor trace event.
+
+        This is useful for nested runtime decisions that do not have a
+        separate IR node, but should still be logged with their parent actor.
+        """
+        self.extra[key] = value
 
 
 async def send_chunk(

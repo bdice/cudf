@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 set -euo pipefail
@@ -18,10 +18,29 @@ LIBCUDF_STREAMING_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-na
 CUDF_STREAMING_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_python cudf-streaming cudf --stable --cuda "$RAPIDS_CUDA_VERSION")")
 
 # generate constraints (possibly pinning to oldest support versions of dependencies)
-rapids-generate-pip-constraints py_test_cudf_polars "${PIP_CONSTRAINT}"
+rapids-generate-pip-constraints py_test_cudf_polars "${PIP_CONSTRAINT}" constraints
 
 read -r -a VERSIONS <<< "$(python ci/utils/get_matrix_values.py dependencies.yaml test_cudf_polars_compat polars_compat_version)"
+
+if [[ "${POLARS_VERSIONS:-all}" == "endpoints" ]] && [[ ${#VERSIONS[@]} -ge 2 ]]; then
+    VERSIONS=("${VERSIONS[0]}" "${VERSIONS[-1]}")
+fi
+
 LATEST_VERSION="${VERSIONS[-1]}"
+
+if [[ "${POLARS_VERSIONS:-all}" == "endpoints" ]] && [[ ${#VERSIONS[@]} -eq 2 ]]; then
+    # Split the two endpoint versions across the two CUDA-major matrix entries so each
+    # entry tests one version in parallel, instead of both serially in a single job.
+    # LATEST_VERSION (set above) is left untouched, so coverage is still only enforced
+    # on whichever entry ends up testing it.
+    read -r -a CUDA_MAJORS <<< "$(python ci/utils/get_matrix_values.py dependencies.yaml all cuda | tr ' ' '\n' | cut -d. -f1 | sort -nu | tr '\n' ' ')"
+    THIS_CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
+    if [[ "${THIS_CUDA_MAJOR}" == "${CUDA_MAJORS[0]}" ]]; then
+        VERSIONS=("${VERSIONS[0]}")
+    else
+        VERSIONS=("${VERSIONS[-1]}")
+    fi
+fi
 
 # shellcheck disable=SC2317
 function set_exitcode()
@@ -84,12 +103,13 @@ for version in "${VERSIONS[@]}"; do
         COVERAGE_ARGS=(--no-cov)
     fi
 
+    # Fail fast (-x) rather than trying to continue because failed tests pollute the state
     ./ci/run_cudf_polars_pytests.sh \
-        -vv \
         "${COVERAGE_ARGS[@]}" \
         --numprocesses=4 \
         --dist=worksteal \
         --durations 10 --durations-min 10 \
+        -x \
         -ra \
         --junitxml="${RAPIDS_TESTS_DIR}/junit-cudf-polars-${version}.xml"
 
@@ -101,6 +121,7 @@ for version in "${VERSIONS[@]}"; do
         EXITCODE=1
         FAILED+=("${version}")
         rapids-logger "Tests failed for polars ${version}.*"
+        break
     else
         PASSED+=("${version}")
         rapids-logger "Tests passed for polars ${version}.*"
