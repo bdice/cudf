@@ -23,20 +23,6 @@ author = "NVIDIA Corporation"
 version = f"{DASK_CUDF_VERSION.major:02}.{DASK_CUDF_VERSION.minor:02}"
 release = f"{DASK_CUDF_VERSION.major:02}.{DASK_CUDF_VERSION.minor:02}.{DASK_CUDF_VERSION.micro:02}"
 
-rapids_branch_file = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "RAPIDS_BRANCH"
-)
-try:
-    with open(rapids_branch_file) as f:
-        RAPIDS_BRANCH = f.read().strip()
-except FileNotFoundError:
-    RAPIDS_BRANCH = "main"
-nvidia_docs_intersphinx_version = (
-    RAPIDS_BRANCH.removeprefix("release/")
-    if RAPIDS_BRANCH.startswith("release/")
-    else "latest"
-)
-
 language = "en"
 
 
@@ -94,14 +80,14 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "pyarrow": ("https://arrow.apache.org/docs/", None),
     "cudf": (
-        f"https://docs.nvidia.com/cudf/{nvidia_docs_intersphinx_version}/",
+        f"https://docs.nvidia.com/cudf/{version}/",
         None,
     ),
     "dask": ("https://docs.dask.org/en/stable/", None),
     # Temporarily disable pandas intersphinx: https://github.com/pandas-dev/pandas/issues/64584
     # "pandas": ("https://pandas.pydata.org/docs/", None),
     "dask-cuda": (
-        f"https://docs.nvidia.com/dask-cuda/{nvidia_docs_intersphinx_version}/",
+        f"https://docs.nvidia.com/dask-cuda/{version}/",
         None,
     ),
 }
