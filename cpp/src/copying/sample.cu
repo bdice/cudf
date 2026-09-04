@@ -19,7 +19,6 @@
 #include <cuda/iterator>
 #include <cuda/std/random>
 #include <cuda/stream>
-#include <thrust/random/linear_congruential_engine.h>
 #include <thrust/shuffle.h>
 
 namespace cudf {
@@ -65,13 +64,11 @@ std::unique_ptr<table> sample(table_view const& input,
                                           cudf::get_current_device_resource_ref());
     auto gather_map_mutable_view = gather_map->mutable_view();
     // Shuffle all the row indices
-    // TODO: Replace thrust::minstd_rand with cuda::std::philox4x32 when updating to CCCL 3.5 with
-    // NVIDIA/cccl#9319.
     thrust::shuffle_copy(rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
                          cuda::counting_iterator<size_type>{0},
                          cuda::counting_iterator<size_type>{num_rows},
                          gather_map_mutable_view.begin<size_type>(),
-                         thrust::minstd_rand(seed));
+                         cuda::std::philox4x32(seed));
 
     auto gather_map_view = (n == num_rows)
                              ? gather_map->view()

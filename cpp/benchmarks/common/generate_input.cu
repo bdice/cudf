@@ -46,7 +46,6 @@
 #include <thrust/iterator/transform_iterator.h>
 #include <thrust/iterator/transform_output_iterator.h>
 #include <thrust/iterator/zip_iterator.h>
-#include <thrust/random/linear_congruential_engine.h>
 #include <thrust/scan.h>
 #include <thrust/shuffle.h>
 #include <thrust/tabulate.h>
@@ -823,13 +822,10 @@ std::unique_ptr<cudf::column> create_distinct_rows_column(data_profile const& pr
   auto col  = cudf::sequence(num_rows, *init);
 
   // Shuffle to randomize order while preserving uniqueness
-  // thrust::shuffle requires thrust:: engines due to URBG interface mismatch
-  // TODO: Replace thrust::minstd_rand with cuda::std::philox4x32 when updating to CCCL 3.5 with
-  // NVIDIA/cccl#9319.
   thrust::shuffle(thrust::device,
                   col->mutable_view().template begin<T>(),
                   col->mutable_view().template end<T>(),
-                  thrust::minstd_rand(engine()));
+                  cuda::std::philox4x32(engine()));
 
   if (profile.get_null_probability().has_value()) {
     auto valid_dist =

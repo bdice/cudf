@@ -16,7 +16,6 @@
 #include <cuda/functional>
 #include <cuda/std/random>
 #include <thrust/execution_policy.h>
-#include <thrust/random/linear_congruential_engine.h>
 #include <thrust/shuffle.h>
 #include <thrust/tabulate.h>
 
@@ -82,17 +81,14 @@ std::pair<std::unique_ptr<cudf::table>, std::unique_ptr<cudf::table>> generate_i
                      }));
 
   // Shuffle gather maps to avoid cache effects
-  // thrust::shuffle requires thrust:: engines due to URBG interface mismatch
-  // TODO: Replace thrust::minstd_rand with cuda::std::philox4x32 when updating to CCCL 3.5 with
-  // NVIDIA/cccl#9319.
   thrust::shuffle(thrust::device,
                   build_table_gather_map->mutable_view().begin<cudf::size_type>(),
                   build_table_gather_map->mutable_view().end<cudf::size_type>(),
-                  thrust::minstd_rand{12345});
+                  cuda::std::philox4x32{12345});
   thrust::shuffle(thrust::device,
                   probe_table_gather_map->mutable_view().begin<cudf::size_type>(),
                   probe_table_gather_map->mutable_view().end<cudf::size_type>(),
-                  thrust::minstd_rand{67890});
+                  cuda::std::philox4x32{67890});
 
   auto build_table = cudf::gather(unique_rows_build_table->view(),
                                   build_table_gather_map->view(),

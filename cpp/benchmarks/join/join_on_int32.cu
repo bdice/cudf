@@ -17,7 +17,7 @@
 
 #include <rmm/exec_policy.hpp>
 
-#include <thrust/random/linear_congruential_engine.h>
+#include <cuda/std/random>
 #include <thrust/shuffle.h>
 
 #include <nvbench/nvbench.cuh>
@@ -121,12 +121,10 @@ std::unique_ptr<cudf::column> generate_int32_keys(cudf::size_type num_rows, cudf
 
   // Shuffle the generated data to reduce bias from data locality.
   // Use a fixed seed for reproducibility across benchmark runs.
-  // TODO: Replace thrust::minstd_rand with cuda::std::philox4x32 when updating to CCCL 3.5 with
-  // NVIDIA/cccl#9319.
   thrust::shuffle(rmm::exec_policy_nosync(stream),
                   result->mutable_view().begin<int32_t>(),
                   result->mutable_view().end<int32_t>(),
-                  thrust::minstd_rand{12345});
+                  cuda::std::philox4x32{12345});
 
   return result;
 }
