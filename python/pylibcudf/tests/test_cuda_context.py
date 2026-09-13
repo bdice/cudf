@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pyarrow as pa
 import pytest
-from cuda.bindings import driver, runtime
+from cuda.bindings import runtime
 
 import pylibcudf as plc
 
@@ -17,87 +17,71 @@ import pylibcudf as plc
     [
         None,
         runtime.cudaStream_t(runtime.cudaStreamDefault),
+        runtime.cudaStream_t(runtime.cudaStreamLegacy),
         runtime.cudaStream_t(runtime.cudaStreamPerThread),
     ],
 )
-def test_get_stream_initializes_thread_context(stream):
-    assert driver.cuInit(0) == (driver.CUresult.CUDA_SUCCESS,)
+def test_empty_like_on_fresh_thread(stream):
+    column = plc.Column.from_arrow(pa.array([1, 2, 3]))
 
-    def get_stream():
-        status, context = driver.cuCtxGetCurrent()
-        assert status == driver.CUresult.CUDA_SUCCESS
-        assert int(context) == 0
-        plc.utils._get_stream(stream)
-        status, context = driver.cuCtxGetCurrent()
-        assert status == driver.CUresult.CUDA_SUCCESS
-        assert int(context) != 0
-        plc.utils._get_stream(stream)
-        assert driver.cuCtxGetCurrent() == (status, context)
-        assert driver.cuCtxPopCurrent() == (status, context)
-        plc.utils._get_stream(stream)
-        assert driver.cuCtxGetCurrent() == (status, context)
+    def empty_like():
+        result = plc.copying.empty_like(column, stream=stream)
+        assert result.size() == 0
+        if stream is not None:
+            assert plc.utils._get_stream(stream).__cuda_stream__() == (
+                0,
+                int(stream),
+            )
 
     with ThreadPoolExecutor(max_workers=1) as pool:
-        pool.submit(get_stream).result()
+        pool.submit(empty_like).result()
 
 
-def test_get_stream_preserves_current_context():
-    assert driver.cuInit(0) == (driver.CUresult.CUDA_SUCCESS,)
-    status, device = driver.cuDeviceGet(0)
-    assert status == driver.CUresult.CUDA_SUCCESS
-    status, context = driver.cuDevicePrimaryCtxRetain(device)
-    assert status == driver.CUresult.CUDA_SUCCESS
+def test_get_stream_preserves_current_device():
+    status, count = runtime.cudaGetDeviceCount()
+    assert status == runtime.cudaError_t.cudaSuccess
 
-    def get_stream():
-        assert driver.cuCtxPushCurrent(context) == (
-            driver.CUresult.CUDA_SUCCESS,
+    def get_stream(device):
+        assert runtime.cudaSetDevice(device) == (
+            runtime.cudaError_t.cudaSuccess,
         )
+        status, stream = runtime.cudaStreamCreate()
+        assert status == runtime.cudaError_t.cudaSuccess
         try:
             plc.utils._get_stream()
-            assert driver.cuCtxGetCurrent() == (
-                driver.CUresult.CUDA_SUCCESS,
-                context,
+            assert plc.utils._get_stream(stream).__cuda_stream__() == (
+                0,
+                int(stream),
+            )
+            assert runtime.cudaGetDevice() == (
+                runtime.cudaError_t.cudaSuccess,
+                device,
             )
         finally:
-            assert driver.cuCtxPopCurrent() == (
-                driver.CUresult.CUDA_SUCCESS,
-                context,
+            assert runtime.cudaStreamDestroy(stream) == (
+                runtime.cudaError_t.cudaSuccess,
             )
-        status, current = driver.cuCtxGetCurrent()
-        assert status == driver.CUresult.CUDA_SUCCESS
-        assert int(current) == 0
 
-    try:
-        with ThreadPoolExecutor(max_workers=1) as pool:
-            pool.submit(get_stream).result()
-    finally:
-        assert driver.cuDevicePrimaryCtxRelease(device) == (
-            driver.CUresult.CUDA_SUCCESS,
-        )
-
-
-def test_empty_like_on_fresh_thread():
-    column = plc.Column.from_arrow(pa.array([1, 2, 3]))
     with ThreadPoolExecutor(max_workers=1) as pool:
-        result = pool.submit(plc.copying.empty_like, column).result()
-    assert result.size() == 0
+        for device in range(count):
+            pool.submit(get_stream, device).result()
 
 
-def test_get_stream_initializes_cuda():
+def test_get_stream_rejects_integer_handle():
+    with pytest.raises(TypeError):
+        plc.utils._get_stream(runtime.cudaStreamDefault)
+
+
+def test_empty_like_initializes_cuda():
     subprocess.run(
         [
             sys.executable,
             "-c",
             """
-from cuda.bindings import driver
 import pylibcudf as plc
 
-status, _ = driver.cuCtxGetCurrent()
-assert status == driver.CUresult.CUDA_ERROR_NOT_INITIALIZED
-plc.utils._get_stream()
-status, context = driver.cuCtxGetCurrent()
-assert status == driver.CUresult.CUDA_SUCCESS
-assert int(context) != 0
+column = plc.Column(plc.DataType(plc.TypeId.INT32), 0, None, None, 0, 0, [])
+assert plc.copying.empty_like(column).size() == 0
 """,
         ],
         check=True,
