@@ -7,15 +7,18 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pyarrow as pa
 import pytest
-from cuda.bindings import driver
-
-from rmm.pylibrmm.stream import DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
+from cuda.bindings import driver, runtime
 
 import pylibcudf as plc
 
 
 @pytest.mark.parametrize(
-    "stream", [None, DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM]
+    "stream",
+    [
+        None,
+        runtime.cudaStream_t(runtime.cudaStreamDefault),
+        runtime.cudaStream_t(runtime.cudaStreamPerThread),
+    ],
 )
 def test_get_stream_initializes_thread_context(stream):
     assert driver.cuInit(0) == (driver.CUresult.CUDA_SUCCESS,)
