@@ -67,7 +67,7 @@ cdef vector[reference_wrapper[const scalar]] _as_vector(list source):
     return c_scalars
 
 
-cpdef Stream _get_stream(object stream: CudaStreamLike | None = None):
+cdef inline int _ensure_cuda_context() except -1:
     cdef CUcontext context = NULL
     cdef CUresult status = cuCtxGetCurrent(&context)
     cdef cudaError_t runtime_status
@@ -78,7 +78,11 @@ cpdef Stream _get_stream(object stream: CudaStreamLike | None = None):
             runtime_status = cudaFree(NULL)
         if runtime_status != cudaSuccess:
             raise RuntimeError(f"Failed to initialize CUDA context: {runtime_status}")
+    return 0
 
+
+cpdef Stream _get_stream(object stream: CudaStreamLike | None = None):
+    _ensure_cuda_context()
     if stream is None:
         return CUDF_DEFAULT_STREAM
     if isinstance(stream, Stream):
