@@ -5,7 +5,6 @@
 
 #include "join/filter_join_indices/filter_join_indices_kernel.hpp"
 #include "join/filter_join_indices/filter_join_indices_output_size_kernel.hpp"
-#include "join/filter_join_indices/full_join.hpp"
 #include "join/join_common_utils.hpp"
 
 #include <cudf/ast/detail/expression_parser.hpp>
@@ -35,13 +34,11 @@
 
 #include <cub/cub.cuh>
 #include <cuco/static_set.cuh>
-#include <cuda/atomic>
 #include <cuda/functional>
 #include <cuda/iterator>
 #include <cuda/std/functional>
 #include <cuda/std/tuple>
 #include <cuda/stream>
-#include <thrust/for_each.h>
 #include <thrust/reduce.h>
 #include <thrust/transform.h>
 
@@ -51,83 +48,6 @@
 
 namespace cudf {
 namespace detail {
-
-std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
-          std::unique_ptr<rmm::device_uvector<size_type>>>
-filter_full_join_indices(size_type left_num_rows,
-                         size_type right_num_rows,
-                         device_span<size_type const> left_indices,
-                         device_span<size_type const> right_indices,
-                         device_span<bool const> predicate_results,
-                         std::optional<std::size_t> output_size,
-                         cuda::stream_ref stream,
-                         rmm::device_async_resource_ref mr)
-{
-  // A failed candidate does not imply that either row is unmatched: another candidate may pass.
-  // Mark successful matches by row identity before constructing either side's unmatched rows.
-  auto left_matched = make_zeroed_device_uvector_async<size_type>(
-    left_num_rows, stream, cudf::get_current_device_resource_ref());
-  auto right_matched = make_zeroed_device_uvector_async<size_type>(
-    right_num_rows, stream, cudf::get_current_device_resource_ref());
-  auto const left_matched_ptr  = left_matched.data();
-  auto const right_matched_ptr = right_matched.data();
-  auto const is_match          = [=] __device__(std::size_t i) -> bool {
-    return left_indices[i] >= 0 && left_indices[i] < left_num_rows && right_indices[i] >= 0 &&
-           right_indices[i] < right_num_rows && predicate_results[i];
-  };
-  auto const begin = cuda::counting_iterator<std::size_t>{0};
-  thrust::for_each(
-    rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
-    begin,
-    begin + left_indices.size(),
-    [=] __device__(std::size_t i) -> void {
-      if (is_match(i)) {
-        cuda::atomic_ref<size_type, cuda::thread_scope_device>{left_matched_ptr[left_indices[i]]}
-          .store(1, cuda::memory_order_relaxed);
-        cuda::atomic_ref<size_type, cuda::thread_scope_device>{right_matched_ptr[right_indices[i]]}
-          .store(1, cuda::memory_order_relaxed);
-      }
-    });
-  auto const left_unmatched = [=] __device__(size_type i) -> bool {
-    return left_matched_ptr[i] == 0;
-  };
-  auto const right_unmatched = [=] __device__(size_type i) -> bool {
-    return right_matched_ptr[i] == 0;
-  };
-  auto const num_left_unmatched =
-    cudf::detail::count_if(begin, begin + left_num_rows, left_unmatched, stream);
-  auto const num_right_unmatched =
-    cudf::detail::count_if(begin, begin + right_num_rows, right_unmatched, stream);
-  auto const num_matches =
-    output_size.has_value()
-      ? *output_size - num_left_unmatched - num_right_unmatched
-      : cudf::detail::count_if(begin, begin + left_indices.size(), is_match, stream);
-  auto const size   = num_matches + num_left_unmatched + num_right_unmatched;
-  auto left_result  = std::make_unique<rmm::device_uvector<size_type>>(size, stream, mr);
-  auto right_result = std::make_unique<rmm::device_uvector<size_type>>(size, stream, mr);
-  if (num_matches > 0) {
-    auto const input =
-      cuda::make_zip_iterator(cuda::std::tuple{left_indices.begin(), right_indices.begin()});
-    auto const output =
-      cuda::make_zip_iterator(cuda::std::tuple{left_result->begin(), right_result->begin()});
-    cudf::detail::copy_if_async(
-      input, input + left_indices.size(), begin, output, is_match, stream);
-  }
-  if (num_left_unmatched > 0) {
-    cudf::detail::copy_if_async(
-      begin, begin + left_num_rows, left_result->begin() + num_matches, left_unmatched, stream);
-    CUDF_CUDA_TRY(cub::DeviceTransform::Fill(
-      right_result->begin() + num_matches, num_left_unmatched, JoinNoMatch, stream.get()));
-  }
-  if (num_right_unmatched > 0) {
-    auto const offset = num_matches + num_left_unmatched;
-    CUDF_CUDA_TRY(cub::DeviceTransform::Fill(
-      left_result->begin() + offset, num_right_unmatched, JoinNoMatch, stream.get()));
-    cudf::detail::copy_if_async(
-      begin, begin + right_num_rows, right_result->begin() + offset, right_unmatched, stream);
-  }
-  return {std::move(left_result), std::move(right_result)};
-}
 
 std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
           std::unique_ptr<rmm::device_uvector<size_type>>>
@@ -240,6 +160,7 @@ filter_join_indices(cudf::table_view const& left,
 
   auto predicate_results_ptr = predicate_results.data();
   auto left_ptr              = left_indices.data();
+  auto right_ptr             = right_indices.data();
 
   auto make_result_vectors = [&](std::size_t size) {
     return std::pair{std::make_unique<rmm::device_uvector<size_type>>(size, stream, mr),
@@ -384,14 +305,67 @@ filter_join_indices(cudf::table_view const& left,
     return std::pair{std::move(filtered_left_indices), std::move(filtered_right_indices)};
 
   } else if (join_kind == join_kind::FULL_JOIN) {
-    return filter_full_join_indices(left.num_rows(),
-                                    right.num_rows(),
-                                    left_indices,
-                                    right_indices,
-                                    predicate_results,
-                                    output_size,
-                                    stream,
-                                    mr);
+    // FULL_JOIN: Optimized implementation using stream compaction
+    // Strategy: Use a single scan to identify failed matches, then use stream compaction
+
+    // First, identify failed matched pairs
+    auto is_failed_matched_pair = [=] __device__(size_type i) -> bool {
+      return !predicate_results_ptr[i] && left_ptr[i] != JoinNoMatch && right_ptr[i] != JoinNoMatch;
+    };
+
+    // Count failed matches for output sizing
+    auto const failed_matched_count =
+      output_size.has_value()
+        ? *output_size - left_indices.size()
+        : cudf::detail::count_if(
+            cuda::counting_iterator<cudf::size_type>{0},
+            cuda::counting_iterator{static_cast<size_type>(left_indices.size())},
+            is_failed_matched_pair,
+            stream);
+    auto const result_size = left_indices.size() + failed_matched_count;
+
+    if (result_size == 0) { return make_empty_result(); }
+
+    auto [filtered_left_indices, filtered_right_indices] = make_result_vectors(result_size);
+
+    // Use two-step approach with optimized memory management
+    // Step 1: Handle primary pairs
+    thrust::transform(rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
+                      cuda::counting_iterator<cudf::size_type>{0},
+                      cuda::counting_iterator{static_cast<size_type>(left_indices.size())},
+                      cuda::make_zip_iterator(cuda::std::tuple{filtered_left_indices->begin(),
+                                                               filtered_right_indices->begin()}),
+                      [=] __device__(size_type i) -> cuda::std::tuple<size_type, size_type> {
+                        auto const left_idx  = left_ptr[i];
+                        auto const right_idx = right_ptr[i];
+                        // For FULL JOIN: preserve original unmatched rows, nullify right side of
+                        // failed matches
+                        auto const output_right_idx =
+                          (predicate_results_ptr[i] || left_idx == JoinNoMatch) ? right_idx
+                                                                                : JoinNoMatch;
+
+                        return cuda::std::tuple{left_idx, output_right_idx};
+                      });
+
+    // Step 2: Add secondary pairs for failed matches using stream compaction
+    if (failed_matched_count > 0) {
+      auto secondary_iter = cuda::make_zip_iterator(
+        cuda::std::tuple{filtered_left_indices->begin() + left_indices.size(),
+                         filtered_right_indices->begin() + left_indices.size()});
+
+      auto failed_match_iter = cudf::detail::make_counting_transform_iterator(
+        0, [=] __device__(size_type i) -> cuda::std::tuple<size_type, size_type> {
+          return cuda::std::tuple{JoinNoMatch, right_ptr[i]};
+        });
+      cudf::detail::copy_if_async(failed_match_iter,
+                                  failed_match_iter + left_indices.size(),
+                                  cuda::counting_iterator<cudf::size_type>{0},
+                                  secondary_iter,
+                                  is_failed_matched_pair,
+                                  stream);
+    }
+
+    return std::pair{std::move(filtered_left_indices), std::move(filtered_right_indices)};
 
   } else {
     CUDF_FAIL("Unsupported join kind for filter_join_indices");
@@ -442,13 +416,11 @@ filter_join_indices_output_size(cudf::table_view const& left,
   detail::grid_1d const config(left_indices.size(), DEFAULT_JOIN_BLOCK_SIZE);
   auto const shmem_per_block = parser.shmem_per_thread * DEFAULT_JOIN_BLOCK_SIZE;
 
-  auto const counts_size =
-    join_kind == join_kind::FULL_JOIN
-      ? static_cast<std::size_t>(left.num_rows()) + right.num_rows()
-      : (join_kind == join_kind::LEFT_JOIN ? static_cast<std::size_t>(left.num_rows())
-                                           : left_indices.size());
+  auto const counts_size = join_kind == join_kind::LEFT_JOIN
+                             ? static_cast<std::size_t>(left.num_rows())
+                             : left_indices.size();
   auto output_counts =
-    join_kind != join_kind::INNER_JOIN
+    join_kind == join_kind::LEFT_JOIN
       ? cudf::detail::make_zeroed_device_uvector_async<size_type>(counts_size, stream, mr)
       : rmm::device_uvector<size_type>(counts_size, stream, mr);
 
@@ -476,19 +448,6 @@ filter_join_indices_output_size(cudf::table_view const& left,
                       output_counts.begin(),
                       cuda::proclaim_return_type<size_type>(
                         [] __device__(size_type count) { return count > 0 ? count : 1; }));
-  }
-
-  if (join_kind == join_kind::FULL_JOIN) {
-    auto const counts    = output_counts.data();
-    auto const left_size = static_cast<std::size_t>(left.num_rows());
-    thrust::transform(rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
-                      cuda::counting_iterator<std::size_t>{0},
-                      cuda::counting_iterator<std::size_t>{counts_size},
-                      output_counts.begin(),
-                      [=] __device__(std::size_t i) -> size_type {
-                        return i < left_size ? (counts[i] > 0 ? counts[i] : 1)
-                                             : (counts[i] == 0 ? 1 : 0);
-                      });
   }
 
   std::size_t const total =
