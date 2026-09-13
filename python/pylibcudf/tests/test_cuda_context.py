@@ -72,7 +72,7 @@ def test_get_stream_rejects_integer_handle():
         plc.utils._get_stream(runtime.cudaStreamDefault)
 
 
-def test_empty_like_initializes_cuda():
+def test_empty_like_initializes_cuda(tmp_path):
     subprocess.run(
         [
             sys.executable,
@@ -85,4 +85,5 @@ assert plc.copying.empty_like(column).size() == 0
 """,
         ],
         check=True,
+        cwd=tmp_path,
     )
