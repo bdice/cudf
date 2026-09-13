@@ -1985,8 +1985,10 @@ public class TableTest extends CudfTestBase {
     // Sort on both maps: join output order is unspecified, so when one left row has several
     // right matches their relative order is free.  Ordering by the left map alone leaves that
     // free choice in the comparison.
-    try (ColumnVector leftMap = maps[0].toColumnView(0, numRows).copyToColumnVector();
-         ColumnVector rightMap = maps[1].toColumnView(0, numRows).copyToColumnVector();
+    try (ColumnView leftView = maps[0].toColumnView(0, numRows);
+         ColumnView rightView = maps[1].toColumnView(0, numRows);
+         ColumnVector leftMap = leftView.copyToColumnVector();
+         ColumnVector rightMap = rightView.copyToColumnVector();
          Table result = new Table(leftMap, rightMap);
          Table orderedResult = result.orderBy(OrderByArg.asc(0, true), OrderByArg.asc(1, true))) {
       assertTablesAreEqual(expected, orderedResult);
@@ -2765,6 +2767,176 @@ public class TableTest extends CudfTestBase {
   }
 
   @Test
+  void testFilterLeftJoinGatherMapsWithNullableCandidatesAndReusableHashJoin() {
+    final int inv = Integer.MIN_VALUE;
+    BinaryOperation expression = new BinaryOperation(BinaryOperator.GREATER,
+        new ColumnReference(0, TableReference.LEFT),
+        new ColumnReference(0, TableReference.RIGHT));
+    try (Table rightKeys = new Table.TestBuilder().column(1, 1, 1).build();
+         Table rightConditional = new Table.TestBuilder().column(5, 15, null).build();
+         HashJoin rightHash = new HashJoin(rightKeys, false);
+         CompiledExpression condition = expression.compile()) {
+      for (int value : new int[]{10, 20}) {
+        try (Table leftKeys = new Table.TestBuilder().column(1, 1).build();
+             Table leftConditional = new Table.TestBuilder().column(value, 0).build();
+             Table expected = value == 10 ?
+                 new Table.TestBuilder().column(0, 1).column(0, inv).build() :
+                 new Table.TestBuilder().column(0, 0, 1).column(0, 1, inv).build()) {
+          GatherMap[] equalityMaps = leftKeys.leftJoinGatherMaps(rightHash);
+          try (GatherMap leftEqualityMap = equalityMaps[0];
+               GatherMap rightEqualityMap = equalityMaps[1]) {
+            GatherMap[] filteredMaps = Table.filterJoinGatherMaps(
+                leftEqualityMap, rightEqualityMap, leftConditional, rightConditional,
+                condition, JoinKind.LEFT);
+            try (GatherMap leftFilteredMap = filteredMaps[0];
+                 GatherMap rightFilteredMap = filteredMaps[1]) {
+              verifyJoinGatherMaps(filteredMaps, expected);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Test
+  void testFilterInnerJoinGatherMapsWithNullableCandidates() {
+    BinaryOperation expression = new BinaryOperation(BinaryOperator.GREATER,
+        new ColumnReference(0, TableReference.LEFT),
+        new ColumnReference(0, TableReference.RIGHT));
+    try (Table rightKeys = new Table.TestBuilder().column(1, 1, 1).build();
+         Table rightConditional = new Table.TestBuilder().column(5, 15, null).build();
+         HashJoin rightHash = new HashJoin(rightKeys, false);
+         Table leftKeys = new Table.TestBuilder().column(1, 1, 1).build();
+         Table leftConditional = new Table.TestBuilder().column(10, 0, null).build();
+         CompiledExpression condition = expression.compile();
+         Table expected = new Table.TestBuilder().column(0).column(0).build()) {
+      GatherMap[] equalityMaps = leftKeys.innerJoinGatherMaps(rightHash);
+      try (GatherMap leftEqualityMap = equalityMaps[0];
+           GatherMap rightEqualityMap = equalityMaps[1]) {
+        GatherMap[] filteredMaps = Table.filterJoinGatherMaps(
+            leftEqualityMap, rightEqualityMap, leftConditional, rightConditional,
+            condition, JoinKind.INNER);
+        try (GatherMap leftFilteredMap = filteredMaps[0];
+             GatherMap rightFilteredMap = filteredMaps[1]) {
+          verifyJoinGatherMaps(filteredMaps, expected);
+        }
+      }
+    }
+  }
+
+  private GatherMap[] equalityJoinGatherMaps(Table leftKeys, HashJoin rightHash, JoinKind kind) {
+    switch (kind) {
+      case INNER:
+        return leftKeys.innerJoinGatherMaps(rightHash);
+      case LEFT:
+        return leftKeys.leftJoinGatherMaps(rightHash);
+      case FULL:
+        return leftKeys.fullJoinGatherMaps(rightHash);
+      default:
+        throw new AssertionError(kind);
+    }
+  }
+
+  @Test
+  void testFilterOuterJoinGatherMapsWithEmptyTables() {
+    final int inv = Integer.MIN_VALUE;
+    BinaryOperation expression = new BinaryOperation(BinaryOperator.GREATER,
+        new ColumnReference(0, TableReference.LEFT),
+        new ColumnReference(0, TableReference.RIGHT));
+    try (CompiledExpression condition = expression.compile()) {
+      for (JoinKind kind : new JoinKind[]{JoinKind.LEFT, JoinKind.FULL}) {
+        // Empty left, empty right, and both empty, using maps of the matching join kind.
+        for (int emptySide = 0; emptySide < 3; ++emptySide) {
+          Integer[] leftValues = emptySide == 1 ? new Integer[]{1} : new Integer[0];
+          Integer[] rightValues = emptySide == 0 ? new Integer[]{1} : new Integer[0];
+          int[] expectedLeft = emptySide == 1 ? new int[]{0} :
+              kind == JoinKind.FULL && emptySide == 0 ? new int[]{inv} : new int[0];
+          int[] expectedRight = emptySide == 1 ? new int[]{inv} :
+              kind == JoinKind.FULL && emptySide == 0 ? new int[]{0} : new int[0];
+          try (Table left = new Table.TestBuilder().column(leftValues).build();
+               Table right = new Table.TestBuilder().column(rightValues).build();
+               HashJoin rightHash = new HashJoin(right, false);
+               ColumnVector expectedLeftColumn = ColumnVector.fromInts(expectedLeft);
+               ColumnVector expectedRightColumn = ColumnVector.fromInts(expectedRight);
+               Table expected = new Table(expectedLeftColumn, expectedRightColumn)) {
+            GatherMap[] equalityMaps = equalityJoinGatherMaps(left, rightHash, kind);
+            try (GatherMap leftEqualityMap = equalityMaps[0];
+                 GatherMap rightEqualityMap = equalityMaps[1]) {
+              GatherMap[] filteredMaps = Table.filterJoinGatherMaps(
+                  leftEqualityMap, rightEqualityMap, left, right, condition, kind);
+              try (GatherMap leftFilteredMap = filteredMaps[0];
+                   GatherMap rightFilteredMap = filteredMaps[1]) {
+                verifyJoinGatherMaps(filteredMaps, expected);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Test
+  void testFilterJoinGatherMapsIndependentOwnership() {
+    final int inv = Integer.MIN_VALUE;
+    BinaryOperation expression = new BinaryOperation(BinaryOperator.GREATER,
+        new ColumnReference(0, TableReference.LEFT),
+        new ColumnReference(0, TableReference.RIGHT));
+    try (Table leftKeys = new Table.TestBuilder().column(1, 2).build();
+         Table rightKeys = new Table.TestBuilder().column(1, 3).build();
+         Table leftConditional = new Table.TestBuilder().column(10, 20).build();
+         Table rightConditional = new Table.TestBuilder().column(5, 30).build();
+         HashJoin rightHash = new HashJoin(rightKeys, false);
+         CompiledExpression condition = expression.compile()) {
+      for (JoinKind kind : JoinKind.values()) {
+        int[] expectedLeft = kind == JoinKind.INNER ? new int[]{0} :
+            kind == JoinKind.LEFT ? new int[]{0, 1} : new int[]{inv, 0, 1};
+        int[] expectedRight = kind == JoinKind.INNER ? new int[]{0} :
+            kind == JoinKind.LEFT ? new int[]{0, inv} : new int[]{1, 0, inv};
+        try (ColumnVector expectedLeftColumn = ColumnVector.fromInts(expectedLeft);
+             ColumnVector expectedRightColumn = ColumnVector.fromInts(expectedRight);
+             Table expected = new Table(expectedLeftColumn, expectedRightColumn)) {
+          GatherMap[] equalityMaps = equalityJoinGatherMaps(leftKeys, rightHash, kind);
+          GatherMap[] survivingMaps;
+          try (GatherMap leftEqualityMap = equalityMaps[0];
+               GatherMap rightEqualityMap = equalityMaps[1];
+               ColumnView leftView = leftEqualityMap.toColumnView(
+                   0, (int) leftEqualityMap.getRowCount());
+               ColumnView rightView = rightEqualityMap.toColumnView(
+                   0, (int) rightEqualityMap.getRowCount());
+               ColumnVector originalLeft = leftView.copyToColumnVector();
+               ColumnVector originalRight = rightView.copyToColumnVector()) {
+            GatherMap[] firstMaps = Table.filterJoinGatherMaps(
+                leftEqualityMap, rightEqualityMap, leftConditional, rightConditional,
+                condition, kind);
+            try (GatherMap firstLeft = firstMaps[0]; GatherMap firstRight = firstMaps[1]) {
+              verifyJoinGatherMaps(firstMaps, expected);
+              assertColumnsAreEqual(originalLeft, leftView);
+              assertColumnsAreEqual(originalRight, rightView);
+            }
+            // Closing outputs must leave the original maps reusable and unchanged.
+            survivingMaps = Table.filterJoinGatherMaps(
+                leftEqualityMap, rightEqualityMap, leftConditional, rightConditional,
+                condition, kind);
+            try {
+              assertColumnsAreEqual(originalLeft, leftView);
+              assertColumnsAreEqual(originalRight, rightView);
+            } catch (Throwable t) {
+              survivingMaps[0].close();
+              survivingMaps[1].close();
+              throw t;
+            }
+          }
+          // The second output must remain readable after the input maps have been closed.
+          try (GatherMap survivingLeft = survivingMaps[0];
+               GatherMap survivingRight = survivingMaps[1]) {
+            verifyJoinGatherMaps(survivingMaps, expected);
+          }
+        }
+      }
+    }
+  }
+
+  @Test
   void testFilterJoinGatherMapsWithEmptyMaps() {
     BinaryOperation expression = new BinaryOperation(BinaryOperator.GREATER,
         new ColumnReference(0, TableReference.LEFT),
@@ -3250,6 +3422,73 @@ public class TableTest extends CudfTestBase {
         }
       }
     }
+  }
+
+  private void checkFilterFullJoinGatherMaps(Integer[] leftValues, Integer[] rightValues,
+                                            int[] expectedLeft, int[] expectedRight) {
+    Integer[] leftKeyValues = new Integer[leftValues.length];
+    Integer[] rightKeyValues = new Integer[rightValues.length];
+    Arrays.fill(leftKeyValues, 1);
+    Arrays.fill(rightKeyValues, 1);
+    BinaryOperation expression = new BinaryOperation(BinaryOperator.GREATER,
+        new ColumnReference(0, TableReference.LEFT),
+        new ColumnReference(0, TableReference.RIGHT));
+    try (Table leftKeys = new Table.TestBuilder().column(leftKeyValues).build();
+         Table rightKeys = new Table.TestBuilder().column(rightKeyValues).build();
+         Table leftConditional = new Table.TestBuilder().column(leftValues).build();
+         Table rightConditional = new Table.TestBuilder().column(rightValues).build();
+         HashJoin rightHash = new HashJoin(rightKeys, false);
+         CompiledExpression condition = expression.compile();
+         ColumnVector expectedLeftColumn = ColumnVector.fromInts(expectedLeft);
+         ColumnVector expectedRightColumn = ColumnVector.fromInts(expectedRight);
+         Table expected = new Table(expectedLeftColumn, expectedRightColumn)) {
+      GatherMap[] equalityMaps = leftKeys.fullJoinGatherMaps(rightHash);
+      try (GatherMap leftEqualityMap = equalityMaps[0];
+           GatherMap rightEqualityMap = equalityMaps[1]) {
+        GatherMap[] filteredMaps = Table.filterJoinGatherMaps(
+            leftEqualityMap, rightEqualityMap, leftConditional, rightConditional,
+            condition, JoinKind.FULL);
+        try (GatherMap leftFilteredMap = filteredMaps[0];
+             GatherMap rightFilteredMap = filteredMaps[1]) {
+          verifyJoinGatherMaps(filteredMaps, expected);
+        }
+      }
+      // All equality keys are identical, so the conditional join is an independent reference.
+      GatherMap[] referenceMaps = leftConditional.conditionalFullJoinGatherMaps(
+          rightConditional, condition);
+      try (GatherMap leftReferenceMap = referenceMaps[0];
+           GatherMap rightReferenceMap = referenceMaps[1]) {
+        verifyJoinGatherMaps(referenceMaps, expected);
+      }
+    }
+  }
+
+  @Test
+  void testFilterFullJoinGatherMapsWithDuplicateMixedCandidates() {
+    final int inv = Integer.MIN_VALUE;
+    checkFilterFullJoinGatherMaps(new Integer[]{10}, new Integer[]{5, 15},
+        new int[]{inv, 0}, new int[]{1, 0});
+  }
+
+  @Test
+  void testFilterFullJoinGatherMapsWithDuplicateRejectedCandidates() {
+    final int inv = Integer.MIN_VALUE;
+    checkFilterFullJoinGatherMaps(new Integer[]{0}, new Integer[]{5, 15},
+        new int[]{inv, inv, 0}, new int[]{0, 1, inv});
+  }
+
+  @Test
+  void testFilterFullJoinGatherMapsWithDuplicateLeftKeys() {
+    final int inv = Integer.MIN_VALUE;
+    checkFilterFullJoinGatherMaps(new Integer[]{10, 0}, new Integer[]{5},
+        new int[]{0, 1}, new int[]{0, inv});
+  }
+
+  @Test
+  void testFilterFullJoinGatherMapsWithNullableDuplicateCandidates() {
+    final int inv = Integer.MIN_VALUE;
+    checkFilterFullJoinGatherMaps(new Integer[]{10}, new Integer[]{5, null},
+        new int[]{inv, 0}, new int[]{1, 0});
   }
 
   @Test
