@@ -299,13 +299,14 @@ std::unique_ptr<cudf::table> cross_join(
  * The behavior depends on the join type:
  * - INNER_JOIN: Only pairs that satisfy the predicate and have valid indices are kept.
  * - LEFT_JOIN: All left rows are preserved. Failed predicates nullify right indices.
- * - FULL_JOIN: All rows from both sides are preserved. Failed predicates create separate pairs.
+ * - FULL_JOIN: Keeps passing pairs and adds exactly one unmatched pair for each row on either
+ *   side with no passing match.
  *
- * Note on JoinNoMatch pairs: If an input pair already contains `JoinNoMatch` in either
- * position, the predicate cannot be evaluated and the pair passes through unchanged. The
- * "separate pairs" splitting only occurs when both indices are valid but the predicate fails.
- * For example, a FULL_JOIN pair `(5, 10)` that fails the predicate becomes two pairs:
- * `(5, JoinNoMatch)` and `(JoinNoMatch, 10)`, ensuring both rows appear in the output.
+ * The input maps must come from an equality join of the requested kind, with row indices
+ * corresponding to the supplied conditional tables. Null predicate results are nonmatches.
+ * Unmatched rows in valid outer-join maps are preserved without evaluating the predicate.
+ * A failed candidate does not create an unmatched row if another candidate for that row passes.
+ * Empty input maps produce empty output maps, without completing an outer join.
  *
  * ## Usage Pattern
  *
@@ -382,9 +383,9 @@ filter_join_indices(cudf::table_view const& left,
  * per-output contribution counts whose sum is that total. The counts are laid out per `join_kind`
  * so that each entry records how many output rows the corresponding input contributes:
  * - INNER_JOIN: indexed per input pair; entry `i` is `1` if the predicate passes and `0` otherwise.
- * - FULL_JOIN: indexed per input pair; entry `i` is `1` for a preserved pair (predicate passes or
- *   the pair already contains a `JoinNoMatch`) and `2` for a failed valid pair (which splits into
- *   `(left, JoinNoMatch)` and `(JoinNoMatch, right)`).
+ * - FULL_JOIN: one entry per left row followed by one per right row. Left entries count passing
+ *   valid pairs, floored to `1`; right entries are `1` for rows with no passing match and `0`
+ *   otherwise. Empty input maps return empty counts.
  * - LEFT_JOIN: indexed per left row; each entry holds the number of passing pairs for that left
  *   row, floored to `1` to account for the synthetic `(left, JoinNoMatch)` entry.
  *
@@ -428,7 +429,8 @@ filter_join_indices_output_size(
  * The behavior depends on the join type (same as filter_join_indices):
  * - INNER_JOIN: Only pairs that satisfy the predicate and have valid indices are kept.
  * - LEFT_JOIN: All left rows are preserved. Failed predicates nullify right indices.
- * - FULL_JOIN: All rows from both sides are preserved. Failed predicates create separate pairs.
+ * - FULL_JOIN: Keeps passing pairs and adds exactly one unmatched pair for each row on either
+ *   side with no passing match.
  *
  * ## Usage Pattern
  *
