@@ -4,7 +4,6 @@
  */
 
 #include "join/filter_join_indices/filter_join_indices_jit_kernel.cuh"
-#include "join/filter_join_indices/full_join.hpp"
 #include "join/jit/filter_join_kernel.cuh"
 
 #include <cudf/column/column_device_view.cuh>
@@ -177,7 +176,6 @@ void launch_join_filter_kernel(kernel const& kernel,
 std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
           std::unique_ptr<rmm::device_uvector<size_type>>>
 apply_join_semantics(cudf::table_view const& left,
-                     cudf::table_view const& right,
                      cudf::device_span<size_type const> left_indices,
                      cudf::device_span<size_type const> right_indices,
                      rmm::device_uvector<bool> const& predicate_results,
@@ -303,16 +301,6 @@ apply_join_semantics(cudf::table_view const& left,
 
     return std::pair{std::move(filtered_left_indices), std::move(filtered_right_indices)};
 
-  } else if (join_kind == join_kind::FULL_JOIN) {
-    return filter_full_join_indices(left.num_rows(),
-                                    right.num_rows(),
-                                    left_indices,
-                                    right_indices,
-                                    predicate_results,
-                                    std::nullopt,
-                                    stream,
-                                    mr);
-
   } else {
     CUDF_FAIL("Unsupported join kind for filter_join_indices_jit");
   }
@@ -350,9 +338,8 @@ filter_join_indices_jit(cudf::table_view const& left,
                "Left and right index arrays must have the same size",
                std::invalid_argument);
 
-  CUDF_EXPECTS(join_kind == join_kind::INNER_JOIN || join_kind == join_kind::LEFT_JOIN ||
-                 join_kind == join_kind::FULL_JOIN,
-               "filter_join_indices_jit only supports INNER_JOIN, LEFT_JOIN, and FULL_JOIN.",
+  CUDF_EXPECTS(join_kind == join_kind::INNER_JOIN || join_kind == join_kind::LEFT_JOIN,
+               "filter_join_indices_jit only supports INNER_JOIN and LEFT_JOIN.",
                std::invalid_argument);
 
   validate_column_types(left, "left");
@@ -401,7 +388,7 @@ filter_join_indices_jit(cudf::table_view const& left,
 
   // Apply same join semantics as AST version
   return apply_join_semantics(
-    left, right, left_indices, right_indices, predicate_results, join_kind, stream, mr);
+    left, left_indices, right_indices, predicate_results, join_kind, stream, mr);
 }
 
 std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
@@ -421,9 +408,8 @@ filter_join_indices_jit(cudf::table_view const& left,
                "Left and right index arrays must have the same size",
                std::invalid_argument);
 
-  CUDF_EXPECTS(join_kind == join_kind::INNER_JOIN || join_kind == join_kind::LEFT_JOIN ||
-                 join_kind == join_kind::FULL_JOIN,
-               "filter_join_indices_jit only supports INNER_JOIN, LEFT_JOIN, and FULL_JOIN.",
+  CUDF_EXPECTS(join_kind == join_kind::INNER_JOIN || join_kind == join_kind::LEFT_JOIN,
+               "filter_join_indices_jit only supports INNER_JOIN and LEFT_JOIN.",
                std::invalid_argument);
 
   validate_column_types(left, "left");
@@ -463,7 +449,7 @@ filter_join_indices_jit(cudf::table_view const& left,
                             mr);
 
   return apply_join_semantics(
-    left, right, left_indices, right_indices, predicate_results, join_kind, stream, mr);
+    left, left_indices, right_indices, predicate_results, join_kind, stream, mr);
 }
 
 }  // namespace detail
