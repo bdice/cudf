@@ -120,11 +120,17 @@ filter_full_join_indices(size_type left_num_rows,
       right_result->begin() + num_matches, num_left_unmatched, JoinNoMatch, stream.get()));
   }
   if (num_right_unmatched > 0) {
-    auto const offset = num_matches + num_left_unmatched;
-    CUDF_CUDA_TRY(cub::DeviceTransform::Fill(
-      left_result->begin() + offset, num_right_unmatched, JoinNoMatch, stream.get()));
-    cudf::detail::copy_if_async(
-      begin, begin + right_num_rows, right_result->begin() + offset, right_unmatched, stream);
+    // Retain capacity for the full result while finalization appends the unmatched right rows.
+    auto const left_join_size = num_matches + num_left_unmatched;
+    left_result->resize(left_join_size, stream);
+    right_result->resize(left_join_size, stream);
+    return finalize_full_join({std::move(left_result), std::move(right_result)},
+                              left_num_rows,
+                              right_num_rows,
+                              right_matched,
+                              stream,
+                              mr,
+                              static_cast<size_type>(num_right_unmatched));
   }
   return {std::move(left_result), std::move(right_result)};
 }
