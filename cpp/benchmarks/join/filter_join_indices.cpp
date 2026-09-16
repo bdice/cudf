@@ -123,10 +123,11 @@ void nvbench_filter_join_indices_full_join(nvbench::state& state,
                                 cudf::join_kind::LEFT_JOIN);
     std::array<cudf::device_span<cudf::size_type const>, 1> left_partials{*filtered.first};
     std::array<cudf::device_span<cudf::size_type const>, 1> right_partials{*filtered.second};
-    return cudf::hash_join::finalize_partitioned_full_join(left_partials,
-                                                           right_partials,
-                                                           left_conditional_input.num_rows(),
-                                                           right_conditional_input.num_rows());
+    return cudf::hash_join::finalize_partitioned_full_join(
+      {left_partials.data(), left_partials.size()},
+      {right_partials.data(), right_partials.size()},
+      left_conditional_input.num_rows(),
+      right_conditional_input.num_rows());
   };
 
   auto dtypes = cycle_dtypes(get_type_or_group(static_cast<int32_t>(DataType)), num_keys);
