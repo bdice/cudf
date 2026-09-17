@@ -4,6 +4,7 @@
  */
 
 #include "join/filter_join_indices/filter_join_indices_jit_kernel.cuh"
+#include "join/filter_join_indices/full_join.hpp"
 #include "join/jit/filter_join_kernel.cuh"
 
 #include <cudf/column/column_device_view.cuh>
@@ -338,8 +339,9 @@ filter_join_indices_jit(cudf::table_view const& left,
                "Left and right index arrays must have the same size",
                std::invalid_argument);
 
-  CUDF_EXPECTS(join_kind == join_kind::INNER_JOIN || join_kind == join_kind::LEFT_JOIN,
-               "filter_join_indices_jit only supports INNER_JOIN and LEFT_JOIN.",
+  CUDF_EXPECTS(join_kind == join_kind::INNER_JOIN || join_kind == join_kind::LEFT_JOIN ||
+                 join_kind == join_kind::FULL_JOIN,
+               "filter_join_indices_jit only supports INNER_JOIN, LEFT_JOIN, and FULL_JOIN.",
                std::invalid_argument);
 
   validate_column_types(left, "left");
@@ -351,6 +353,23 @@ filter_join_indices_jit(cudf::table_view const& left,
   };
 
   if (left_indices.empty()) { return make_empty_result(); }
+
+  if (join_kind == join_kind::FULL_JOIN) {
+    auto left_maps = full_to_left_join_indices(
+      left_indices, right_indices, stream, cudf::get_current_device_resource_ref());
+    auto filtered_left =
+      cudf::detail::filter_join_indices_jit(left,
+                                            right,
+                                            device_span<size_type const>{*left_maps.first},
+                                            device_span<size_type const>{*left_maps.second},
+                                            predicate_code,
+                                            join_kind::LEFT_JOIN,
+                                            is_ptx,
+                                            stream,
+                                            mr);
+    return finalize_full_join(
+      std::move(filtered_left), left.num_rows(), right.num_rows(), std::nullopt, stream, mr);
+  }
 
   // Compile JIT kernel
   std::vector<transform_input> inputs;
@@ -408,8 +427,9 @@ filter_join_indices_jit(cudf::table_view const& left,
                "Left and right index arrays must have the same size",
                std::invalid_argument);
 
-  CUDF_EXPECTS(join_kind == join_kind::INNER_JOIN || join_kind == join_kind::LEFT_JOIN,
-               "filter_join_indices_jit only supports INNER_JOIN and LEFT_JOIN.",
+  CUDF_EXPECTS(join_kind == join_kind::INNER_JOIN || join_kind == join_kind::LEFT_JOIN ||
+                 join_kind == join_kind::FULL_JOIN,
+               "filter_join_indices_jit only supports INNER_JOIN, LEFT_JOIN, and FULL_JOIN.",
                std::invalid_argument);
 
   validate_column_types(left, "left");
@@ -418,6 +438,22 @@ filter_join_indices_jit(cudf::table_view const& left,
   if (left_indices.empty()) {
     return std::pair{std::make_unique<rmm::device_uvector<size_type>>(0, stream, mr),
                      std::make_unique<rmm::device_uvector<size_type>>(0, stream, mr)};
+  }
+
+  if (join_kind == join_kind::FULL_JOIN) {
+    auto left_maps = full_to_left_join_indices(
+      left_indices, right_indices, stream, cudf::get_current_device_resource_ref());
+    auto filtered_left =
+      cudf::detail::filter_join_indices_jit(left,
+                                            right,
+                                            device_span<size_type const>{*left_maps.first},
+                                            device_span<size_type const>{*left_maps.second},
+                                            predicate,
+                                            join_kind::LEFT_JOIN,
+                                            stream,
+                                            mr);
+    return finalize_full_join(
+      std::move(filtered_left), left.num_rows(), right.num_rows(), std::nullopt, stream, mr);
   }
 
   // Convert AST predicate to JIT code

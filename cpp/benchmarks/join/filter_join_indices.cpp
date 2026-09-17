@@ -8,8 +8,6 @@
 #include <cudf/join/hash_join.hpp>
 #include <cudf/join/join.hpp>
 
-#include <array>
-
 auto const num_keys = 2;
 
 template <bool Nullable, cudf::null_equality NullEquality, data_type DataType>
@@ -112,22 +110,14 @@ void nvbench_filter_join_indices_full_join(nvbench::state& state,
                  cudf::ast::operation binary_pred,
                  cudf::null_equality compare_nulls) {
     auto hash_joiner                   = cudf::hash_join(right_equality_input, compare_nulls);
-    auto [left_indices, right_indices] = hash_joiner.left_join(left_equality_input);
+    auto [left_indices, right_indices] = hash_joiner.full_join(left_equality_input);
 
-    auto filtered =
-      cudf::filter_join_indices(left_conditional_input,
-                                right_conditional_input,
-                                cudf::device_span<cudf::size_type const>(*left_indices),
-                                cudf::device_span<cudf::size_type const>(*right_indices),
-                                binary_pred,
-                                cudf::join_kind::LEFT_JOIN);
-    std::array<cudf::device_span<cudf::size_type const>, 1> left_partials{*filtered.first};
-    std::array<cudf::device_span<cudf::size_type const>, 1> right_partials{*filtered.second};
-    return cudf::hash_join::finalize_partitioned_full_join(
-      {left_partials.data(), left_partials.size()},
-      {right_partials.data(), right_partials.size()},
-      left_conditional_input.num_rows(),
-      right_conditional_input.num_rows());
+    return cudf::filter_join_indices(left_conditional_input,
+                                     right_conditional_input,
+                                     cudf::device_span<cudf::size_type const>(*left_indices),
+                                     cudf::device_span<cudf::size_type const>(*right_indices),
+                                     binary_pred,
+                                     cudf::join_kind::FULL_JOIN);
   };
 
   auto dtypes = cycle_dtypes(get_type_or_group(static_cast<int32_t>(DataType)), num_keys);

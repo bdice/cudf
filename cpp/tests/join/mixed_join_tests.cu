@@ -2093,16 +2093,16 @@ struct FilteredFullJoinTest : public cudf::test::BaseFixture {
     cudf::table_view right{{rv}};
     auto const predicate =
       cudf::ast::operation{cudf::ast::ast_operator::GREATER, col_ref_left_0, col_ref_right_0};
-    auto maps                = cudf::left_join(cudf::table_view{{lk}}, cudf::table_view{{rk}});
+    auto maps                = cudf::full_join(cudf::table_view{{lk}}, cudf::table_view{{rk}});
     auto const original_maps = to_pairs(maps);
     auto const li            = cudf::device_span<cudf::size_type const>{*maps.first};
     auto const ri            = cudf::device_span<cudf::size_type const>{*maps.second};
-    auto constexpr kind      = cudf::join_kind::LEFT_JOIN;
+    auto constexpr kind      = cudf::join_kind::FULL_JOIN;
 
     // Independent host oracle tracks matches by row identity, including duplicate keys.
     std::vector<index_pair> expected;
     std::vector<bool> right_matched(right_values.size(), false);
-    std::vector<cudf::size_type> expected_counts(left_values.size(), 0);
+    std::vector<cudf::size_type> expected_counts(left_values.size() + right_values.size(), 0);
     for (cudf::size_type l = 0; l < static_cast<cudf::size_type>(left_values.size()); ++l) {
       bool matched = false;
       for (cudf::size_type r = 0; r < static_cast<cudf::size_type>(right_values.size()); ++r) {
@@ -2120,7 +2120,10 @@ struct FilteredFullJoinTest : public cudf::test::BaseFixture {
       }
     }
     for (cudf::size_type r = 0; r < static_cast<cudf::size_type>(right_values.size()); ++r) {
-      if (!right_matched[r]) { expected.emplace_back(cudf::JoinNoMatch, r); }
+      if (!right_matched[r]) {
+        expected.emplace_back(cudf::JoinNoMatch, r);
+        expected_counts[left_values.size() + r] = 1;
+      }
     }
     std::sort(expected.begin(), expected.end());
 
@@ -2136,14 +2139,17 @@ struct FilteredFullJoinTest : public cudf::test::BaseFixture {
                 cudf::table_view{{lk, lv}}, cudf::table_view{{rk, rv}}, condition)),
               expected);
 
-    auto finalize = [&](PairJoinReturn const& filtered) {
-      std::vector<cudf::device_span<cudf::size_type const>> left_partials{*filtered.first};
-      std::vector<cudf::device_span<cudf::size_type const>> right_partials{*filtered.second};
-      return cudf::hash_join::finalize_partitioned_full_join(
-        left_partials, right_partials, left.num_rows(), right.num_rows());
-    };
-    auto ast_result = finalize(cudf::filter_join_indices(left, right, li, ri, predicate, kind));
+    auto ast_result = cudf::filter_join_indices(left, right, li, ri, predicate, kind);
     EXPECT_EQ(to_pairs(ast_result), expected);
+
+    auto left_maps     = cudf::left_join(cudf::table_view{{lk}}, cudf::table_view{{rk}});
+    auto filtered_left = cudf::filter_join_indices(
+      left, right, *left_maps.first, *left_maps.second, predicate, cudf::join_kind::LEFT_JOIN);
+    std::vector<cudf::device_span<cudf::size_type const>> left_partials{*filtered_left.first};
+    std::vector<cudf::device_span<cudf::size_type const>> right_partials{*filtered_left.second};
+    auto explicit_composition = cudf::hash_join::finalize_partitioned_full_join(
+      left_partials, right_partials, left.num_rows(), right.num_rows());
+    EXPECT_EQ(to_pairs(ast_result), to_pairs(explicit_composition));
     auto [size, counts] =
       cudf::filter_join_indices_output_size(left, right, li, ri, predicate, kind);
     EXPECT_EQ(size,
@@ -2157,16 +2163,14 @@ struct FilteredFullJoinTest : public cudf::test::BaseFixture {
                          .first;
     EXPECT_EQ(host_counts, expected_counts);
     EXPECT_EQ(std::accumulate(host_counts.begin(), host_counts.end(), std::size_t{0}), size);
-    EXPECT_EQ(
-      to_pairs(finalize(cudf::filter_join_indices(left, right, li, ri, predicate, kind, size))),
-      expected);
-    EXPECT_EQ(
-      to_pairs(finalize(cudf::filter_join_indices_jit(left, right, li, ri, predicate, kind))),
-      expected);
+    EXPECT_EQ(to_pairs(cudf::filter_join_indices(left, right, li, ri, predicate, kind, size)),
+              expected);
+    EXPECT_EQ(to_pairs(cudf::filter_join_indices_jit(left, right, li, ri, predicate, kind)),
+              expected);
     if (std::all_of(left_valid.begin(), left_valid.end(), [](bool v) { return v; }) &&
         std::all_of(right_valid.begin(), right_valid.end(), [](bool v) { return v; })) {
-      EXPECT_EQ(to_pairs(finalize(cudf::filter_join_indices_jit(
-                  left, right, li, ri, make_jit_comparison<int>(1, 1, 0, 0, ">"), kind))),
+      EXPECT_EQ(to_pairs(cudf::filter_join_indices_jit(
+                  left, right, li, ri, make_jit_comparison<int>(1, 1, 0, 0, ">"), kind)),
                 expected);
     }
     EXPECT_EQ(to_pairs(maps), original_maps);
@@ -2202,7 +2206,7 @@ TEST_F(FilteredFullJoinTest, EmptyMapsWithNonemptyTables)
   cudf::device_span<cudf::size_type const> empty;
   auto const predicate =
     cudf::ast::operation{cudf::ast::ast_operator::GREATER, col_ref_left_0, col_ref_right_0};
-  auto constexpr kind = cudf::join_kind::LEFT_JOIN;
+  auto constexpr kind = cudf::join_kind::FULL_JOIN;
   EXPECT_TRUE(
     to_pairs(cudf::filter_join_indices(table, table, empty, empty, predicate, kind)).empty());
   auto [size, counts] =
@@ -2222,31 +2226,4 @@ TEST_F(FilteredFullJoinTest, EmptyMapsWithNonemptyTables)
 TEST_F(FilteredFullJoinTest, ManyToManyMixedMatches)
 {
   test({1, 1, 1, 2, 3}, {1, 10, 20, 30, 40}, {1, 1, 1, 2, 4}, {5, 15, 25, 35, 45});
-}
-
-TEST_F(FilteredFullJoinTest, RejectsFullJoin)
-{
-  cudf::test::fixed_width_column_wrapper<int> values{1, 2};
-  cudf::table_view table{{values}};
-  auto maps = cudf::left_join(table, table);
-  auto const predicate =
-    cudf::ast::operation{cudf::ast::ast_operator::GREATER, col_ref_left_0, col_ref_right_0};
-  auto const predicate_code = make_jit_comparison<int>(1, 1, 0, 0, ">");
-  auto constexpr kind       = cudf::join_kind::FULL_JOIN;
-  for (bool empty : {false, true}) {
-    auto const li = empty ? cudf::device_span<cudf::size_type const>{}
-                          : cudf::device_span<cudf::size_type const>{*maps.first};
-    auto const ri = empty ? cudf::device_span<cudf::size_type const>{}
-                          : cudf::device_span<cudf::size_type const>{*maps.second};
-    EXPECT_THROW(cudf::filter_join_indices(table, table, li, ri, predicate, kind),
-                 std::invalid_argument);
-    EXPECT_THROW(cudf::filter_join_indices(table, table, li, ri, predicate, kind, 0),
-                 std::invalid_argument);
-    EXPECT_THROW((void)cudf::filter_join_indices_output_size(table, table, li, ri, predicate, kind),
-                 std::invalid_argument);
-    EXPECT_THROW(cudf::filter_join_indices_jit(table, table, li, ri, predicate, kind),
-                 std::invalid_argument);
-    EXPECT_THROW(cudf::filter_join_indices_jit(table, table, li, ri, predicate_code, kind),
-                 std::invalid_argument);
-  }
 }

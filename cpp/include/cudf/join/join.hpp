@@ -300,6 +300,8 @@ std::unique_ptr<cudf::table> cross_join(
  * - INNER_JOIN: Only pairs that satisfy the predicate and have valid indices are kept.
  * - LEFT_JOIN: Keeps passing pairs and adds exactly one unmatched pair for each left row
  *   with no passing match.
+ * - FULL_JOIN: Keeps passing pairs and adds exactly one unmatched pair for each row on either
+ *   side with no passing match.
  *
  * The input maps must come from an equality join of the requested kind, with row indices
  * corresponding to the supplied conditional tables. Null predicate results are nonmatches.
@@ -307,11 +309,9 @@ std::unique_ptr<cudf::table> cross_join(
  * A failed candidate does not create an unmatched row if another candidate for that row passes.
  * Empty input maps produce empty output maps, without completing an outer join.
  *
- * FULL_JOIN is not supported. To produce a filtered full join, obtain LEFT join maps with
- * `hash_join::left_join`, filter them with LEFT_JOIN, and pass the filtered maps as one pair of
- * partials to `hash_join::finalize_partitioned_full_join`. Finalization appends exactly one
- * unmatched entry for each right row with no surviving match. For a combined equality and
- * conditional full join, `mixed_full_join` provides this composition directly.
+ * FULL_JOIN internally removes the unmatched-right entries from the input maps, applies LEFT_JOIN
+ * filtering, and finalizes the result by appending the unmatched-right complement. This avoids
+ * treating each rejected candidate as an unmatched row when equality keys repeat.
  *
  * ## Usage Pattern
  *
@@ -333,20 +333,13 @@ std::unique_ptr<cudf::table> cross_join(
  *   cudf::join_kind::INNER_JOIN);
  * @endcode
  *
- * A filtered full join uses the same filtering step with LEFT_JOIN, followed by finalization:
+ * A filtered full join uses FULL equality-join maps:
  *
  * @code{.cpp}
- * auto [left_indices, right_indices] = hash_joiner.left_join(left_equality_table);
+ * auto [left_indices, right_indices] = hash_joiner.full_join(left_equality_table);
  * auto filtered = cudf::filter_join_indices(
  *   left_conditional_table, right_conditional_table, *left_indices, *right_indices,
- *   predicate, cudf::join_kind::LEFT_JOIN);
- * std::array<cudf::device_span<cudf::size_type const>, 1> left_partials{*filtered.first};
- * std::array<cudf::device_span<cudf::size_type const>, 1> right_partials{*filtered.second};
- * auto full_result = cudf::hash_join::finalize_partitioned_full_join(
- *   left_partials,
- *   right_partials,
- *   left_conditional_table.num_rows(),
- *   right_conditional_table.num_rows());
+ *   predicate, cudf::join_kind::FULL_JOIN);
  * @endcode
  *
  * ## Example
@@ -364,7 +357,7 @@ std::unique_ptr<cudf::table> cross_join(
  * @endcode
  *
  *
- * @throw std::invalid_argument if join_kind is not INNER_JOIN or LEFT_JOIN.
+ * @throw std::invalid_argument if join_kind is not INNER_JOIN, LEFT_JOIN, or FULL_JOIN.
  * @throw std::invalid_argument if left_indices and right_indices have different sizes.
  * @throw std::invalid_argument if predicate does not produce a Boolean output.
  *
@@ -373,7 +366,7 @@ std::unique_ptr<cudf::table> cross_join(
  * @param left_indices Device span of row indices in the left table from hash join.
  * @param right_indices Device span of row indices in the right table from hash join.
  * @param predicate An AST expression that returns a boolean for each pair of rows.
- * @param join_kind The type of join operation. Must be INNER_JOIN or LEFT_JOIN.
+ * @param join_kind The type of join operation. Must be INNER_JOIN, LEFT_JOIN, or FULL_JOIN.
  * @param output_size Optional precomputed number of output rows. When provided, skips the internal
  *        size-counting pass. Behavior is undefined if it differs from the size the function would
  *        otherwise produce for the same inputs.
@@ -404,6 +397,9 @@ filter_join_indices(cudf::table_view const& left,
  * per-output contribution counts whose sum is that total. The counts are laid out per `join_kind`
  * so that each entry records how many output rows the corresponding input contributes:
  * - INNER_JOIN: indexed per input pair; entry `i` is `1` if the predicate passes and `0` otherwise.
+ * - FULL_JOIN: one entry per left row followed by one per right row. Left entries count passing
+ *   valid pairs, floored to `1`; right entries are `1` for rows with no passing match and `0`
+ *   otherwise. Empty input maps return empty counts.
  * - LEFT_JOIN: indexed per left row; each entry holds the number of passing pairs for that left
  *   row, floored to `1` to account for the synthetic `(left, JoinNoMatch)` entry.
  *
@@ -411,10 +407,9 @@ filter_join_indices(cudf::table_view const& left,
  * compose `filter_join_indices` (for example, the mixed join APIs). The layout above is an
  * implementation detail that callers should treat as opaque rather than rely upon.
  * The input-map contract is the same as `filter_join_indices`. Empty maps return zero size and
- * empty counts. FULL_JOIN is not supported; when composing a full join from filtered LEFT maps,
- * this function sizes only the LEFT filtering result, before appending unmatched right rows.
+ * empty counts.
  *
- * @throw std::invalid_argument if `join_kind` is not INNER_JOIN or LEFT_JOIN.
+ * @throw std::invalid_argument if `join_kind` is not INNER_JOIN, LEFT_JOIN, or FULL_JOIN.
  * @throw std::invalid_argument if `left_indices` and `right_indices` have different sizes.
  * @throw std::invalid_argument if `predicate` does not produce a Boolean output.
  *
@@ -423,7 +418,7 @@ filter_join_indices(cudf::table_view const& left,
  * @param left_indices Device span of row indices in the left table.
  * @param right_indices Device span of row indices in the right table.
  * @param predicate An AST expression that returns a boolean for each pair of rows.
- * @param join_kind The type of join operation. Must be INNER_JOIN or LEFT_JOIN.
+ * @param join_kind The type of join operation. Must be INNER_JOIN, LEFT_JOIN, or FULL_JOIN.
  * @param stream CUDA stream used for kernel launches and memory operations.
  * @param mr Device memory resource used to allocate the returned contribution counts.
  *
@@ -447,12 +442,14 @@ filter_join_indices_output_size(
  * This function provides a JIT-compiled alternative to filter_join_indices(),
  * taking a string-based predicate that gets compiled to optimized GPU code.
  * The input-map contract and filtered full-join composition are the same as `filter_join_indices`.
- * FULL_JOIN is not supported; use LEFT_JOIN and finalize the filtered maps.
+ * FULL_JOIN is handled internally by LEFT filtering followed by finalization.
  *
  * The behavior depends on the join type (same as filter_join_indices):
  * - INNER_JOIN: Only pairs that satisfy the predicate and have valid indices are kept.
  * - LEFT_JOIN: Keeps passing pairs and adds exactly one unmatched pair for each left row
  *   with no passing match.
+ * - FULL_JOIN: Keeps passing pairs and adds exactly one unmatched pair for each row on either
+ *   side with no passing match.
  *
  * ## Usage Pattern
  *
@@ -488,7 +485,7 @@ filter_join_indices_output_size(
  * The first parameter is a pointer to a bool that the function must set to `true` or `false`.
  * The remaining parameters correspond to columns in the left table followed by the right table.
  *
- * @throw std::invalid_argument if join_kind is not INNER_JOIN or LEFT_JOIN.
+ * @throw std::invalid_argument if join_kind is not INNER_JOIN, LEFT_JOIN, or FULL_JOIN.
  * @throw std::invalid_argument if left_indices and right_indices have different sizes.
  * @throw cudf::jit_compilation_error if predicate_code fails to compile.
  *
@@ -497,7 +494,7 @@ filter_join_indices_output_size(
  * @param left_indices Device span of row indices in the left table from hash join.
  * @param right_indices Device span of row indices in the right table from hash join.
  * @param predicate_code String containing CUDA device code for predicate function.
- * @param join_kind The type of join operation. Must be INNER_JOIN or LEFT_JOIN.
+ * @param join_kind The type of join operation. Must be INNER_JOIN, LEFT_JOIN, or FULL_JOIN.
  * @param is_ptx Whether predicate_code contains PTX assembly instead of CUDA C++.
  * @param stream CUDA stream used for kernel launches and memory operations.
  * @param mr Device memory resource used to allocate output indices.
@@ -524,16 +521,16 @@ filter_join_indices_jit(
  * This overload converts an AST expression referencing columns from both left and right
  * tables into JIT-compiled CUDA code and uses it to filter the join index pairs.
  * The input-map contract and filtered full-join composition are the same as `filter_join_indices`.
- * FULL_JOIN is not supported; use LEFT_JOIN and finalize the filtered maps.
+ * FULL_JOIN is handled internally by LEFT filtering followed by finalization.
  *
- * @throw std::invalid_argument if join_kind is not INNER_JOIN or LEFT_JOIN.
+ * @throw std::invalid_argument if join_kind is not INNER_JOIN, LEFT_JOIN, or FULL_JOIN.
  *
  * @param left The left table for predicate evaluation
  * @param right The right table for predicate evaluation
  * @param left_indices Device span of row indices in left table from join
  * @param right_indices Device span of row indices in right table from join
  * @param predicate An AST expression that returns a boolean for each pair of rows
- * @param join_kind The type of join operation (INNER_JOIN or LEFT_JOIN)
+ * @param join_kind The type of join operation (INNER_JOIN, LEFT_JOIN, or FULL_JOIN)
  * @param stream CUDA stream for operations
  * @param mr Device memory resource
  * @return A pair of device vectors [filtered_left_indices, filtered_right_indices]
