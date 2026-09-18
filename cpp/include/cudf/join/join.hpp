@@ -309,10 +309,6 @@ std::unique_ptr<cudf::table> cross_join(
  * A failed candidate does not create an unmatched row if another candidate for that row passes.
  * Empty input maps produce empty output maps, without completing an outer join.
  *
- * FULL_JOIN internally removes the unmatched-right entries from the input maps, applies LEFT_JOIN
- * filtering, and finalizes the result by appending the unmatched-right complement. This avoids
- * treating each rejected candidate as an unmatched row when equality keys repeat.
- *
  * ## Usage Pattern
  *
  * Typical usage involves performing an equality-based hash join first, then filtering
@@ -331,15 +327,6 @@ std::unique_ptr<cudf::table> cross_join(
  *   *right_indices,          // Indices from hash join
  *   predicate,               // AST expression: e.g., left.col0 > right.col0
  *   cudf::join_kind::INNER_JOIN);
- * @endcode
- *
- * A filtered full join uses FULL equality-join maps:
- *
- * @code{.cpp}
- * auto [left_indices, right_indices] = hash_joiner.full_join(left_equality_table);
- * auto filtered = cudf::filter_join_indices(
- *   left_conditional_table, right_conditional_table, *left_indices, *right_indices,
- *   predicate, cudf::join_kind::FULL_JOIN);
  * @endcode
  *
  * ## Example
@@ -441,8 +428,7 @@ filter_join_indices_output_size(
  *
  * This function provides a JIT-compiled alternative to filter_join_indices(),
  * taking a string-based predicate that gets compiled to optimized GPU code.
- * The input-map contract and filtered full-join composition are the same as `filter_join_indices`.
- * FULL_JOIN is handled internally by LEFT filtering followed by finalization.
+ * The input-map contract is the same as `filter_join_indices`.
  *
  * The behavior depends on the join type (same as filter_join_indices):
  * - INNER_JOIN: Only pairs that satisfy the predicate and have valid indices are kept.
@@ -520,8 +506,7 @@ filter_join_indices_jit(
  *
  * This overload converts an AST expression referencing columns from both left and right
  * tables into JIT-compiled CUDA code and uses it to filter the join index pairs.
- * The input-map contract and filtered full-join composition are the same as `filter_join_indices`.
- * FULL_JOIN is handled internally by LEFT filtering followed by finalization.
+ * The input-map contract and join semantics are the same as `filter_join_indices`.
  *
  * @throw std::invalid_argument if join_kind is not INNER_JOIN, LEFT_JOIN, or FULL_JOIN.
  *
