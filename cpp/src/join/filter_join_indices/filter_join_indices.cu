@@ -17,7 +17,6 @@
 #include <cudf/detail/join/join.hpp>
 #include <cudf/detail/nvtx/ranges.hpp>
 #include <cudf/detail/utilities/cuda.cuh>
-#include <cudf/detail/utilities/dispatchers.hpp>
 #include <cudf/detail/utilities/grid_1d.cuh>
 #include <cudf/detail/utilities/vector_factories.hpp>
 #include <cudf/join/join.hpp>
@@ -424,22 +423,53 @@ filter_join_indices_output_size(cudf::table_view const& left,
       ? cudf::detail::make_zeroed_device_uvector_async<size_type>(counts_size, stream, mr)
       : rmm::device_uvector<size_type>(counts_size, stream, mr);
 
-  cudf::detail::dispatch_bool(has_nulls, [&](auto has_nulls_c) {
-    cudf::detail::dispatch_bool(has_complex_type, [&](auto has_complex_c) {
-      launch_filter_output_size_kernel<decltype(has_nulls_c)::value,
-                                       decltype(has_complex_c)::value>(
-        *left_table,
-        *right_table,
-        left_indices,
-        right_indices,
-        parser.device_expression_data,
-        config,
-        shmem_per_block,
-        join_kind,
-        output_counts.data(),
-        stream);
-    });
-  });
+  // Avoid generic lambda dispatch here because CUDA 13.1 performs access checking on private AST
+  // implementation types reachable through the captured expression parser.
+  if (has_nulls && has_complex_type) {
+    launch_filter_output_size_kernel<true, true>(*left_table,
+                                                 *right_table,
+                                                 left_indices,
+                                                 right_indices,
+                                                 parser.device_expression_data,
+                                                 config,
+                                                 shmem_per_block,
+                                                 join_kind,
+                                                 output_counts.data(),
+                                                 stream);
+  } else if (has_nulls && !has_complex_type) {
+    launch_filter_output_size_kernel<true, false>(*left_table,
+                                                  *right_table,
+                                                  left_indices,
+                                                  right_indices,
+                                                  parser.device_expression_data,
+                                                  config,
+                                                  shmem_per_block,
+                                                  join_kind,
+                                                  output_counts.data(),
+                                                  stream);
+  } else if (!has_nulls && has_complex_type) {
+    launch_filter_output_size_kernel<false, true>(*left_table,
+                                                  *right_table,
+                                                  left_indices,
+                                                  right_indices,
+                                                  parser.device_expression_data,
+                                                  config,
+                                                  shmem_per_block,
+                                                  join_kind,
+                                                  output_counts.data(),
+                                                  stream);
+  } else {
+    launch_filter_output_size_kernel<false, false>(*left_table,
+                                                   *right_table,
+                                                   left_indices,
+                                                   right_indices,
+                                                   parser.device_expression_data,
+                                                   config,
+                                                   shmem_per_block,
+                                                   join_kind,
+                                                   output_counts.data(),
+                                                   stream);
+  }
 
   if (join_kind == join_kind::LEFT_JOIN) {
     thrust::transform(rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
