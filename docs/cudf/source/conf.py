@@ -234,6 +234,7 @@ def clean_definitions(root):
                 node.tail = node.tail.replace(string, "")
 
     if _BREATHE_GE_5:
+        # Workaround for https://github.com/breathe-doc/breathe/issues/1081
         for type_ in root.findall(".//memberdef[@constexpr='yes']/type"):
             if "".join(type_.itertext()).strip() == "constexpr":
                 type_.clear()
