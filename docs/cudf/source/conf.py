@@ -55,6 +55,8 @@ _BREATHE_GE_5 = Version(breathe.__version__) >= Version("5")
 # TODO: ship this upstream in breathe. Today breathe doesn't render
 # docsect4 headers or the contents at all.
 def visit_docsect4(self, node):
+    # Breathe 5 stores the title separately from the tagged body children;
+    # Breathe 4 mixes both in content_, so the title must be filtered out.
     if _BREATHE_GE_5:
         title = self.render_tagged_iterable(node.title) if node.title else []
     else:
@@ -73,9 +75,13 @@ def visit_docsect4(self, node):
     return [section]
 
 
+# Breathe 5 dispatches on parser node types; Breathe 4 uses string names.
 if _BREATHE_GE_5:
     SphinxRenderer.node_handlers[parser.Node_docSect4Type] = visit_docsect4
 
+    # Restore template arguments lost by Breathe 5 so distinct class
+    # specializations do not collide in Sphinx's C++ domain.
+    # https://github.com/breathe-doc/breathe/issues/1074
     def join_nested_name(self, names):
         domain = self.get_domain()
         name = ("::" if not domain or domain == "cpp" else ".").join(names)
@@ -235,6 +241,9 @@ def clean_definitions(root):
 
     if _BREATHE_GE_5:
         # Workaround for https://github.com/breathe-doc/breathe/issues/1081
+        # Breathe 5 emits constexpr from the member attribute but fails to
+        # strip a type containing only constexpr (as on constructors). Clearing
+        # that redundant type avoids an invalid "constexpr constexpr" declaration.
         for type_ in root.findall(".//memberdef[@constexpr='yes']/type"):
             if "".join(type_.itertext()).strip() == "constexpr":
                 type_.clear()
