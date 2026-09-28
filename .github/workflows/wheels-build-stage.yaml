@@ -40,7 +40,7 @@ permissions:
 
 jobs:
   compute-matrix:
-    uses: rapidsai/shared-workflows/.github/workflows/compute-matrix.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/compute-matrix.yaml@pr-matrix-l4-to-rtxpro6000
     with:
       build_type: ${{ inputs.build_type }}
       matrix_name: wheels-build
