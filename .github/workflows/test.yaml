@@ -172,7 +172,7 @@ jobs:
       # https://github.com/NVIDIA/cudf/issues/23498
       matrix_filter: map(select(.GPU != "gb300" and .GPU != "gh200"))
   # Test the packaged cuDF Java JAR built by build.yaml java-build for every Maven classifier.
-  java-tests:
+  java-test:
     permissions:
       actions: read
       contents: read

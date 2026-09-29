@@ -26,7 +26,7 @@ jobs:
       - conda-python-cudf-polars-tests
       - conda-python-other-tests
       - java-build
-      - java-tests
+      - java-test
       - conda-notebook-tests
       - docs-build
       - docs-build-matrix
@@ -518,7 +518,7 @@ jobs:
       script: "ci/build_java.sh"
       file-to-upload: output_jars
       artifact-name-prefix: cudf_java
-  java-tests:
+  java-test:
     needs: [java-build]
     if: ${{ !cancelled() && needs.java-build.result == 'success' }}
     permissions:
