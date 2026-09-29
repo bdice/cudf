@@ -1201,7 +1201,7 @@ sorted_codec_parameters sort_tasks(device_span<device_span<uint8_t const> const>
                                    device_span<device_span<uint8_t> const> outputs,
                                    task_type task_type,
                                    cuda::stream_ref stream,
-                                   rmm::device_async_resource_ref mr)
+                                   cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   rmm::device_uvector<std::size_t> order(inputs.size(), stream, mr);
@@ -1320,7 +1320,7 @@ sorted_codec_parameters sort_decompression_tasks(
   device_span<device_span<uint8_t const> const> inputs,
   device_span<device_span<uint8_t> const> outputs,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   return sort_tasks(inputs, outputs, task_type::DECOMPRESSION, stream, mr);
 }
@@ -1328,7 +1328,7 @@ sorted_codec_parameters sort_decompression_tasks(
 sorted_codec_parameters sort_compression_tasks(device_span<device_span<uint8_t const> const> inputs,
                                                device_span<device_span<uint8_t> const> outputs,
                                                cuda::stream_ref stream,
-                                               rmm::device_async_resource_ref mr)
+                                               cudf::device_resource_ref mr)
 {
   return sort_tasks(inputs, outputs, task_type::COMPRESSION, stream, mr);
 }

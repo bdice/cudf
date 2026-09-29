@@ -326,7 +326,7 @@ class aggregate_reader_metadata : public aggregate_reader_metadata_base {
   [[nodiscard]] std::unique_ptr<cudf::column> build_all_true_row_mask(
     std::span<std::vector<size_type> const> row_group_indices,
     cuda::stream_ref stream,
-    rmm::device_async_resource_ref mr) const;
+    cudf::device_resource_ref mr) const;
 
   /**
    * @brief Builds a row mask based on the data pages that survive page-level statistics based on
@@ -348,7 +348,7 @@ class aggregate_reader_metadata : public aggregate_reader_metadata_base {
     std::span<cudf::size_type const> output_column_schemas,
     std::reference_wrapper<ast::expression const> filter,
     cuda::stream_ref stream,
-    rmm::device_async_resource_ref mr) const;
+    cudf::device_resource_ref mr) const;
 
   /**
    * @brief Computes which data pages need decoding to construct input columns based on the row mask

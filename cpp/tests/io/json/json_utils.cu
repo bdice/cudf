@@ -32,7 +32,7 @@ std::vector<cudf::io::table_with_metadata> split_byte_range_reading(
   cudf::io::json_reader_options const& creader_opts,
   IndexType chunk_size,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   auto total_source_size = [&sources]() {
     return std::accumulate(sources.begin(), sources.end(), 0ul, [=](size_t sum, auto& source) {
@@ -109,7 +109,7 @@ template std::vector<cudf::io::table_with_metadata> split_byte_range_reading<std
   cudf::io::json_reader_options const& creader_opts,
   std::int32_t chunk_size,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 template std::vector<cudf::io::table_with_metadata> split_byte_range_reading<std::int64_t>(
   cudf::host_span<std::unique_ptr<cudf::io::datasource>> sources,
@@ -118,7 +118,7 @@ template std::vector<cudf::io::table_with_metadata> split_byte_range_reading<std
   cudf::io::json_reader_options const& creader_opts,
   std::int64_t chunk_size,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 rmm::device_uvector<cudf::size_type> string_offset_to_length(
   cudf::strings_column_view const& column, cuda::stream_ref stream)

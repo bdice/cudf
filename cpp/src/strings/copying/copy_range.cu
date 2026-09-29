@@ -49,7 +49,7 @@ std::unique_ptr<column> copy_range(strings_column_view const& source,
                                    size_type source_end,
                                    size_type target_begin,
                                    cuda::stream_ref stream,
-                                   rmm::device_async_resource_ref mr)
+                                   cudf::device_resource_ref mr)
 {
   auto target_end = target_begin + (source_end - source_begin);
   CUDF_EXPECTS(

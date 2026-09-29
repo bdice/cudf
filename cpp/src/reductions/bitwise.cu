@@ -25,7 +25,7 @@ struct dispatch_void_if_non_integral {
 std::unique_ptr<scalar> bitwise_reduction(bitwise_op bit_op,
                                           column_view const& col,
                                           cuda::stream_ref stream,
-                                          rmm::device_async_resource_ref mr)
+                                          cudf::device_resource_ref mr)
 {
   auto const dtype =
     cudf::is_dictionary(col.type()) ? dictionary_column_view(col).keys().type() : col.type();

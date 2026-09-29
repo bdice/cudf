@@ -501,7 +501,7 @@ reader_impl::reader_impl(std::vector<std::unique_ptr<datasource>>&& sources,
                          std::vector<FileMetaData>&& parquet_metadatas,
                          parquet_reader_options const& options,
                          cuda::stream_ref stream,
-                         rmm::device_async_resource_ref mr)
+                         cudf::device_resource_ref mr)
   : reader_impl(0 /*chunk_read_limit*/,
                 0 /*input_pass_read_limit*/,
                 std::forward<std::vector<std::unique_ptr<cudf::io::datasource>>>(sources),
@@ -518,7 +518,7 @@ reader_impl::reader_impl(std::size_t chunk_read_limit,
                          std::vector<FileMetaData>&& file_metadatas,
                          parquet_reader_options const& options,
                          cuda::stream_ref stream,
-                         rmm::device_async_resource_ref mr)
+                         cudf::device_resource_ref mr)
   : _stream{std::move(stream)},
     _mr{std::move(mr)},
     _options{options.get_timestamp_type(),

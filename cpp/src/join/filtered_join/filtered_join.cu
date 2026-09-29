@@ -21,7 +21,6 @@
 #include <rmm/device_uvector.hpp>
 #include <rmm/exec_policy.hpp>
 #include <rmm/mr/polymorphic_allocator.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuco/extent.cuh>
 #include <cuda/iterator>
@@ -127,7 +126,7 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> filtered_join::semi_anti_j
   cudf::table_view const& left,
   join_kind kind,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   cudf::scoped_range range{"filtered_join::semi_anti_join"};
 
@@ -158,7 +157,7 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> filtered_join::semi_anti_j
 }
 
 std::unique_ptr<rmm::device_uvector<cudf::size_type>> filtered_join::semi_join(
-  cudf::table_view const& left, cuda::stream_ref stream, rmm::device_async_resource_ref mr)
+  cudf::table_view const& left, cuda::stream_ref stream, cudf::device_resource_ref mr)
 {
   // Early return for empty right or left table
   if (_right.num_rows() == 0 || left.num_rows() == 0) {
@@ -169,7 +168,7 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> filtered_join::semi_join(
 }
 
 std::unique_ptr<rmm::device_uvector<cudf::size_type>> filtered_join::anti_join(
-  cudf::table_view const& left, cuda::stream_ref stream, rmm::device_async_resource_ref mr)
+  cudf::table_view const& left, cuda::stream_ref stream, cudf::device_resource_ref mr)
 {
   // Early return for empty left table
   if (left.num_rows() == 0) {
@@ -211,13 +210,13 @@ filtered_join::filtered_join(cudf::table_view const& build,
 }
 
 std::unique_ptr<rmm::device_uvector<size_type>> filtered_join::semi_join(
-  cudf::table_view const& probe, cuda::stream_ref stream, rmm::device_async_resource_ref mr) const
+  cudf::table_view const& probe, cuda::stream_ref stream, cudf::device_resource_ref mr) const
 {
   return _impl->semi_join(probe, stream, mr);
 }
 
 std::unique_ptr<rmm::device_uvector<size_type>> filtered_join::anti_join(
-  cudf::table_view const& probe, cuda::stream_ref stream, rmm::device_async_resource_ref mr) const
+  cudf::table_view const& probe, cuda::stream_ref stream, cudf::device_resource_ref mr) const
 {
   return _impl->anti_join(probe, stream, mr);
 }

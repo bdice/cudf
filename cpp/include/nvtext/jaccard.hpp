@@ -64,8 +64,8 @@ std::unique_ptr<cudf::column> jaccard_index(
   cudf::strings_column_view const& input1,
   cudf::strings_column_view const& input2,
   cudf::size_type width,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /** @} */  // end of group
 }  // namespace CUDF_EXPORT nvtext

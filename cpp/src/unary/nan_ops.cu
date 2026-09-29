@@ -24,7 +24,7 @@ struct nan_dispatcher {
   std::unique_ptr<column> operator()(cudf::column_view const& input,
                                      Predicate predicate,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(std::is_floating_point_v<T>)
   {
     auto input_device_view = column_device_view::create(input, stream);
@@ -52,7 +52,7 @@ struct nan_dispatcher {
   std::unique_ptr<column> operator()(cudf::column_view const& input,
                                      Predicate predicate,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(!std::is_floating_point_v<T>)
   {
     CUDF_FAIL("NAN is not supported in a Non-floating point type column");
@@ -61,7 +61,7 @@ struct nan_dispatcher {
 
 std::unique_ptr<column> is_nan(cudf::column_view const& input,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
 {
   auto predicate = [] __device__(auto element_validity_pair) {
     return element_validity_pair.second and std::isnan(element_validity_pair.first);
@@ -72,7 +72,7 @@ std::unique_ptr<column> is_nan(cudf::column_view const& input,
 
 std::unique_ptr<column> is_not_nan(cudf::column_view const& input,
                                    cuda::stream_ref stream,
-                                   rmm::device_async_resource_ref mr)
+                                   cudf::device_resource_ref mr)
 {
   auto predicate = [] __device__(auto element_validity_pair) {
     return !element_validity_pair.second or !std::isnan(element_validity_pair.first);
@@ -85,7 +85,7 @@ std::unique_ptr<column> is_not_nan(cudf::column_view const& input,
 
 std::unique_ptr<column> is_nan(cudf::column_view const& input,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::is_nan(input, stream, mr);
@@ -93,7 +93,7 @@ std::unique_ptr<column> is_nan(cudf::column_view const& input,
 
 std::unique_ptr<column> is_not_nan(cudf::column_view const& input,
                                    cuda::stream_ref stream,
-                                   rmm::device_async_resource_ref mr)
+                                   cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::is_not_nan(input, stream, mr);

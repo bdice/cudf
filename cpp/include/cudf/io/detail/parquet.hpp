@@ -61,7 +61,7 @@ class reader {
                   std::vector<FileMetaData>&& parquet_metadatas,
                   parquet_reader_options const& options,
                   cuda::stream_ref stream,
-                  rmm::device_async_resource_ref mr);
+                  cudf::device_resource_ref mr);
 
   /**
    * @brief Destructor explicitly-declared to avoid inlined in header
@@ -148,7 +148,7 @@ class chunked_reader : private reader {
                           std::vector<parquet::FileMetaData>&& parquet_metadatas,
                           parquet_reader_options const& options,
                           cuda::stream_ref stream,
-                          rmm::device_async_resource_ref mr);
+                          cudf::device_resource_ref mr);
 
   /**
    * @brief Destructor explicitly-declared to avoid inlined in header.

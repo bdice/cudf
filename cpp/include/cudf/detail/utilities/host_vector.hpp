@@ -199,7 +199,7 @@ class rmm_host_allocator {
   [[nodiscard]] bool is_device_accessible() const { return _is_device_accessible; }
 
  private:
-  rmm::host_async_resource_ref mr;
+  cudf::host_resource_ref mr;
   cuda::stream_ref stream;
   bool _is_device_accessible;
 };

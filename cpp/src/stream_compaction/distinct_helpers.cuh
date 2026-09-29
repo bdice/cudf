@@ -13,7 +13,6 @@
 
 #include <rmm/device_uvector.hpp>
 #include <rmm/exec_policy.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuco/operator.hpp>
 #include <cuda/iterator>
@@ -28,7 +27,7 @@ template <typename Set>
 rmm::device_uvector<size_type> reduce_by_row_keep_any(Set& set,
                                                       size_type num_rows,
                                                       cuda::stream_ref stream,
-                                                      rmm::device_async_resource_ref mr)
+                                                      cudf::device_resource_ref mr)
 {
   auto output_indices = rmm::device_uvector<size_type>(num_rows, stream, mr);
 
@@ -44,7 +43,7 @@ rmm::device_uvector<size_type> reduce_by_row_keep_first_last_none(Set& set,
                                                                   size_type num_rows,
                                                                   duplicate_keep_option keep,
                                                                   cuda::stream_ref stream,
-                                                                  rmm::device_async_resource_ref mr)
+                                                                  cudf::device_resource_ref mr)
 {
   auto output_indices = rmm::device_uvector<size_type>(num_rows, stream, mr);
   auto reduction_results =

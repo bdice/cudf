@@ -175,7 +175,7 @@ struct rpartition_fn : public partition_fn {
 std::unique_ptr<table> partition(strings_column_view const& strings,
                                  string_scalar const& delimiter,
                                  cuda::stream_ref stream,
-                                 rmm::device_async_resource_ref mr)
+                                 cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(delimiter.is_valid(stream), "Parameter delimiter must be valid");
   auto strings_count = strings.size();
@@ -202,7 +202,7 @@ std::unique_ptr<table> partition(strings_column_view const& strings,
 std::unique_ptr<table> rpartition(strings_column_view const& strings,
                                   string_scalar const& delimiter,
                                   cuda::stream_ref stream,
-                                  rmm::device_async_resource_ref mr)
+                                  cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(delimiter.is_valid(stream), "Parameter delimiter must be valid");
   auto strings_count = strings.size();
@@ -233,7 +233,7 @@ std::unique_ptr<table> rpartition(strings_column_view const& strings,
 std::unique_ptr<table> partition(strings_column_view const& input,
                                  string_scalar const& delimiter,
                                  cuda::stream_ref stream,
-                                 rmm::device_async_resource_ref mr)
+                                 cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::partition(input, delimiter, stream, mr);
@@ -242,7 +242,7 @@ std::unique_ptr<table> partition(strings_column_view const& input,
 std::unique_ptr<table> rpartition(strings_column_view const& input,
                                   string_scalar const& delimiter,
                                   cuda::stream_ref stream,
-                                  rmm::device_async_resource_ref mr)
+                                  cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::rpartition(input, delimiter, stream, mr);

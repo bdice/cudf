@@ -9,11 +9,11 @@
 #include <cudf_test/cudf_gtest.hpp>
 #include <cudf_test/default_stream.hpp>
 
+#include <cudf/types.hpp>
 #include <cudf/utilities/memory_resource.hpp>
 
 #include <rmm/mr/callback_memory_resource.hpp>
 #include <rmm/mr/statistics_resource_adaptor.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/memory_resource>
 #include <cuda/stream>
@@ -89,7 +89,7 @@ class memory_resource_test_harness {
    * @param upstream Resource used by each independent statistics adaptor
    */
   explicit memory_resource_test_harness(
-    rmm::device_async_resource_ref upstream = cudf::get_current_device_resource_ref());
+    cudf::device_resource_ref upstream = cudf::get_current_device_resource_ref());
 
   /** @brief Return the statistics resource used to construct test inputs and expected results. */
   [[nodiscard]] rmm::mr::statistics_resource_adaptor& setup_mr() noexcept;

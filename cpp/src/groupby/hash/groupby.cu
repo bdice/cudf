@@ -36,7 +36,7 @@ std::unique_ptr<table> dispatch_groupby(table_view const& keys,
                                         bool const keys_have_nulls,
                                         null_policy const include_null_keys,
                                         cuda::stream_ref stream,
-                                        rmm::device_async_resource_ref mr)
+                                        cudf::device_resource_ref mr)
 {
   auto const null_keys_are_equal  = null_equality::EQUAL;
   auto const has_null             = nullate::DYNAMIC{cudf::has_nested_nulls(keys)};
@@ -136,7 +136,7 @@ std::pair<std::unique_ptr<table>, std::vector<aggregation_result>> groupby(
   std::span<aggregation_request const> requests,
   null_policy include_null_keys,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   cudf::detail::result_cache cache(requests.size());
 

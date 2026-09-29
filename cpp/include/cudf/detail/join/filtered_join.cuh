@@ -13,7 +13,6 @@
 
 #include <rmm/device_uvector.hpp>
 #include <rmm/mr/polymorphic_allocator.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuco/bucket_storage.cuh>
 #include <cuco/extent.cuh>
@@ -141,21 +140,23 @@ class filtered_join {
   /**
    * @brief Returns indices of left table rows that have matching keys in the right table
    */
-  std::unique_ptr<rmm::device_uvector<cudf::size_type>> semi_join(
-    cudf::table_view const& left, cuda::stream_ref stream, rmm::device_async_resource_ref mr);
+  std::unique_ptr<rmm::device_uvector<cudf::size_type>> semi_join(cudf::table_view const& left,
+                                                                  cuda::stream_ref stream,
+                                                                  cudf::device_resource_ref mr);
 
   /**
    * @brief Returns indices of left table rows that do not have matching keys in the right table
    */
-  std::unique_ptr<rmm::device_uvector<cudf::size_type>> anti_join(
-    cudf::table_view const& left, cuda::stream_ref stream, rmm::device_async_resource_ref mr);
+  std::unique_ptr<rmm::device_uvector<cudf::size_type>> anti_join(cudf::table_view const& left,
+                                                                  cuda::stream_ref stream,
+                                                                  cudf::device_resource_ref mr);
 
  private:
   std::unique_ptr<rmm::device_uvector<cudf::size_type>> semi_anti_join(
     cudf::table_view const& left,
     join_kind kind,
     cuda::stream_ref stream,
-    rmm::device_async_resource_ref mr);
+    cudf::device_resource_ref mr);
 
   // Queries the hash table for every left row and writes the matches to contains_map.
   template <int32_t CGSize, typename Iterator, typename Ref>

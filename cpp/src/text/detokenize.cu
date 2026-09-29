@@ -123,7 +123,7 @@ std::unique_ptr<cudf::column> detokenize(cudf::strings_column_view const& string
                                          cudf::column_view const& row_indices,
                                          cudf::string_scalar const& separator,
                                          cuda::stream_ref stream,
-                                         rmm::device_async_resource_ref mr)
+                                         cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(separator.is_valid(stream), "Parameter separator must be valid");
   CUDF_EXPECTS(row_indices.size() == strings.size(),
@@ -167,7 +167,7 @@ std::unique_ptr<cudf::column> detokenize(cudf::strings_column_view const& input,
                                          cudf::column_view const& row_indices,
                                          cudf::string_scalar const& separator,
                                          cuda::stream_ref stream,
-                                         rmm::device_async_resource_ref mr)
+                                         cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::detokenize(input, row_indices, separator, stream, mr);

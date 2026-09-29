@@ -19,7 +19,7 @@ std::unique_ptr<column> rolling_window(column_view const& input,
                                        size_type min_periods,
                                        rolling_aggregation const& agg,
                                        cuda::stream_ref stream,
-                                       rmm::device_async_resource_ref mr)
+                                       cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
 

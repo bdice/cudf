@@ -496,7 +496,7 @@ bool inline sha_leaf_type_check(data_type dt)
 template <typename Hasher>
 std::unique_ptr<column> sha_hash(table_view const& input,
                                  cuda::stream_ref stream,
-                                 rmm::device_async_resource_ref mr)
+                                 cudf::device_resource_ref mr)
 {
   if (input.num_rows() == 0) { return cudf::make_empty_column(cudf::type_id::STRING); }
 

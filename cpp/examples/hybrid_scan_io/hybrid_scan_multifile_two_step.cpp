@@ -43,7 +43,7 @@ struct hybrid_scan_two_step_fn {
   int const num_threads;
   bool const verbose;
   rmm::cuda_stream_pool const& stream_pool;
-  rmm::device_async_resource_ref mr;
+  cudf::device_resource_ref mr;
 
   void operator()(int tid)
   {

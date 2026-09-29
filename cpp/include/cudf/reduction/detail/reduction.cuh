@@ -49,7 +49,7 @@ std::unique_ptr<scalar> reduce(InputIterator d_in,
                                op::simple_op<Op> op,
                                std::optional<OutputType> init,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
   requires(is_fixed_width<OutputType>() && not cudf::is_fixed_point<OutputType>())
 {
   auto const binary_op     = cudf::detail::cast_functor<OutputType>(op.get_binary_op());
@@ -90,7 +90,7 @@ std::unique_ptr<scalar> reduce(InputIterator d_in,
                                op::simple_op<Op> op,
                                std::optional<OutputType> init,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
   requires(is_fixed_point<OutputType>())
 {
   CUDF_FAIL(
@@ -107,7 +107,7 @@ std::unique_ptr<scalar> reduce(InputIterator d_in,
                                op::simple_op<Op> op,
                                std::optional<OutputType> init,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
   requires(std::is_same_v<OutputType, string_view>)
 {
   auto const binary_op     = cudf::detail::cast_functor<OutputType>(op.get_binary_op());
@@ -172,7 +172,7 @@ std::unique_ptr<scalar> reduce(InputIterator d_in,
                                cudf::size_type valid_count,
                                cudf::size_type ddof,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
 {
   auto const binary_op     = cudf::detail::cast_functor<IntermediateType>(op.get_binary_op());
   auto const initial_value = op.template get_identity<IntermediateType>();

@@ -192,7 +192,7 @@ struct page_stats_caster : public stats_caster_base {
                                                  size_type schema_idx,
                                                  data_type dtype,
                                                  cuda::stream_ref stream,
-                                                 rmm::device_async_resource_ref mr) const
+                                                 cudf::device_resource_ref mr) const
   {
     if constexpr (cudf::is_compound<T>() and not cuda::std::is_same_v<T, string_view>) {
       CUDF_FAIL("Compound types other than strings do not have statistics");
@@ -224,7 +224,7 @@ std::unique_ptr<cudf::column> aggregate_reader_metadata::build_row_mask_with_pag
   std::span<cudf::size_type const> output_column_schemas,
   std::reference_wrapper<ast::expression const> filter,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr) const
+  cudf::device_resource_ref mr) const
 {
   CUDF_FUNC_RANGE();
 

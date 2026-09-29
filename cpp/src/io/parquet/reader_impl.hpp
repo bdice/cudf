@@ -56,7 +56,7 @@ class reader_impl {
                        std::vector<FileMetaData>&& parquet_metadatas,
                        parquet_reader_options const& options,
                        cuda::stream_ref stream,
-                       rmm::device_async_resource_ref mr);
+                       cudf::device_resource_ref mr);
 
   /**
    * @brief Read an entire set or a subset of data and returns a set of columns
@@ -105,7 +105,7 @@ class reader_impl {
                        std::vector<FileMetaData>&& parquet_metadatas,
                        parquet_reader_options const& options,
                        cuda::stream_ref stream,
-                       rmm::device_async_resource_ref mr);
+                       cudf::device_resource_ref mr);
 
   reader_impl(reader_impl const&)            = delete;
   reader_impl& operator=(reader_impl const&) = delete;
@@ -512,7 +512,7 @@ class reader_impl {
   void apply_decimal_width_cast(std::vector<std::unique_ptr<cudf::column>>& out_columns);
 
   cuda::stream_ref _stream;
-  rmm::device_async_resource_ref _mr{cudf::get_current_device_resource_ref()};
+  cudf::device_resource_ref _mr{cudf::get_current_device_resource_ref()};
 
   // Reader configs.
   struct {

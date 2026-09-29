@@ -21,7 +21,7 @@
 namespace cudf {
 namespace detail {
 std::pair<std::unique_ptr<cuda::device_buffer<std::byte>>, cudf::size_type> bools_to_mask(
-  column_view const& input, cuda::stream_ref stream, rmm::device_async_resource_ref mr)
+  column_view const& input, cuda::stream_ref stream, cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(input.type().id() == type_id::BOOL8, "Input is not of type bool");
 
@@ -54,7 +54,7 @@ std::pair<std::unique_ptr<cuda::device_buffer<std::byte>>, cudf::size_type> bool
 }  // namespace detail
 
 std::pair<std::unique_ptr<cuda::device_buffer<std::byte>>, cudf::size_type> bools_to_mask(
-  column_view const& input, cuda::stream_ref stream, rmm::device_async_resource_ref mr)
+  column_view const& input, cuda::stream_ref stream, cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::bools_to_mask(input, stream, mr);

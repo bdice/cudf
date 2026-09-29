@@ -22,7 +22,7 @@ std::unique_ptr<rmm::device_uvector<size_type>> hash_join<Hasher>::make_match_co
   join_kind join,
   table_view const& left,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr) const
+  cudf::device_resource_ref mr) const
 {
   auto match_counts = std::make_unique<rmm::device_uvector<size_type>>(left.num_rows(), stream, mr);
 
@@ -84,6 +84,6 @@ template std::unique_ptr<rmm::device_uvector<size_type>>
 hash_join<hash_join_hasher>::make_match_counts(join_kind,
                                                cudf::table_view const&,
                                                cuda::stream_ref,
-                                               rmm::device_async_resource_ref) const;
+                                               cudf::device_resource_ref) const;
 
 }  // namespace cudf::detail

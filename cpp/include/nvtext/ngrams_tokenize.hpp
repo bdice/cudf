@@ -72,8 +72,8 @@ std::unique_ptr<cudf::column> ngrams_tokenize(
   cudf::size_type ngrams,
   cudf::string_scalar const& delimiter,
   cudf::string_scalar const& separator,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /** @} */  // end of group
 }  // namespace CUDF_EXPORT nvtext

@@ -21,7 +21,7 @@ struct count_scalar_fn {
     requires(cudf::is_numeric_not_bool<T>())
   std::unique_ptr<cudf::scalar> operator()(size_type count,
                                            cuda::stream_ref stream,
-                                           rmm::device_async_resource_ref mr) const
+                                           cudf::device_resource_ref mr) const
   {
     auto const value = static_cast<T>(count);
     return cudf::make_fixed_width_scalar<T>(value, stream, mr);
@@ -31,7 +31,7 @@ struct count_scalar_fn {
     requires(not cudf::is_numeric_not_bool<T>())
   std::unique_ptr<cudf::scalar> operator()(size_type,
                                            cuda::stream_ref,
-                                           rmm::device_async_resource_ref) const
+                                           cudf::device_resource_ref) const
   {
     CUDF_FAIL("COUNT is not supported for boolean or non-numeric types", std::invalid_argument);
   }
@@ -42,7 +42,7 @@ std::unique_ptr<cudf::scalar> count(column_view const& col,
                                     cudf::null_policy null_handling,
                                     cudf::data_type const output_dtype,
                                     cuda::stream_ref stream,
-                                    rmm::device_async_resource_ref mr)
+                                    cudf::device_resource_ref mr)
 {
   auto const count = col.size() - (null_handling == null_policy::EXCLUDE ? col.null_count() : 0);
   return cudf::type_dispatcher(output_dtype, count_scalar_fn{}, count, stream, mr);

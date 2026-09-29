@@ -104,7 +104,7 @@ struct hybrid_scan_fn {
   bool use_page_index;
   cudf::io::parquet_reader_options const& options;
   cuda::stream_ref const stream;
-  rmm::device_async_resource_ref const mr;
+  cudf::device_resource_ref const mr;
   void operator()() const
   {
     CUDF_FUNC_RANGE();
@@ -148,7 +148,7 @@ auto hybrid_scan_pipelined(io_source const& io_source,
                            split_strategy split_strategy,
                            bool use_page_index,
                            rmm::cuda_stream_pool const& stream_pool,
-                           rmm::device_async_resource_ref mr)
+                           cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
 

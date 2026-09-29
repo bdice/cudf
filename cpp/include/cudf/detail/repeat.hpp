@@ -18,22 +18,22 @@ namespace detail {
 
 /**
  * @copydoc cudf::repeat(table_view const&, column_view const&, bool,
- * cuda::stream_ref, rmm::device_async_resource_ref)
+ * cuda::stream_ref, cudf::device_resource_ref)
  */
 std::unique_ptr<table> repeat(table_view const& input_table,
                               column_view const& count,
                               bool check_count,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr);
+                              cudf::device_resource_ref mr);
 
 /**
  * @copydoc cudf::repeat(table_view const&, size_type,
- * cuda::stream_ref, rmm::device_async_resource_ref)
+ * cuda::stream_ref, cudf::device_resource_ref)
  */
 std::unique_ptr<table> repeat(table_view const& input_table,
                               size_type count,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr);
+                              cudf::device_resource_ref mr);
 
 }  // namespace detail
 }  // namespace cudf

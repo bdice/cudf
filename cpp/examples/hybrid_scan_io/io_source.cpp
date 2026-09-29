@@ -17,7 +17,7 @@
 #include <fstream>
 #include <string>
 
-rmm::host_async_resource_ref pinned_memory_resource()
+cudf::host_resource_ref pinned_memory_resource()
 {
   static auto mr = rmm::mr::pinned_host_memory_resource{};
   return mr;

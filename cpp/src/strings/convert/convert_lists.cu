@@ -184,7 +184,7 @@ std::unique_ptr<column> format_list_column(lists_column_view const& input,
                                            string_scalar const& na_rep,
                                            strings_column_view const& separators,
                                            cuda::stream_ref stream,
-                                           rmm::device_async_resource_ref mr)
+                                           cudf::device_resource_ref mr)
 {
   if (input.is_empty()) return make_empty_column(data_type{type_id::STRING});
 
@@ -228,7 +228,7 @@ std::unique_ptr<column> format_list_column(lists_column_view const& input,
                                            string_scalar const& na_rep,
                                            strings_column_view const& separators,
                                            cuda::stream_ref stream,
-                                           rmm::device_async_resource_ref mr)
+                                           cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::format_list_column(input, na_rep, separators, stream, mr);

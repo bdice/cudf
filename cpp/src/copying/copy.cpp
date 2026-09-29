@@ -106,7 +106,7 @@ std::unique_ptr<column> allocate_like(column_view const& input,
                                       size_type size,
                                       mask_allocation_policy mask_alloc,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   CUDF_EXPECTS(
@@ -173,7 +173,7 @@ std::unique_ptr<table> empty_like(table_view const& input_table)
 std::unique_ptr<column> allocate_like(column_view const& input,
                                       mask_allocation_policy mask_alloc,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::allocate_like(input, input.size(), mask_alloc, stream, mr);
@@ -183,7 +183,7 @@ std::unique_ptr<column> allocate_like(column_view const& input,
                                       size_type size,
                                       mask_allocation_policy mask_alloc,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::allocate_like(input, size, mask_alloc, stream, mr);

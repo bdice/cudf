@@ -50,7 +50,7 @@ struct group_sum_overflow_fn {
                                      size_type num_groups,
                                      cudf::device_span<size_type const> group_labels,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr) const
+                                     cudf::device_resource_ref mr) const
   {
     using DeviceType = cudf::device_storage_type_t<Source>;
 
@@ -120,7 +120,7 @@ std::unique_ptr<column> group_sum_overflow(column_view const& values,
                                            size_type num_groups,
                                            cudf::device_span<size_type const> group_labels,
                                            cuda::stream_ref stream,
-                                           rmm::device_async_resource_ref mr)
+                                           cudf::device_resource_ref mr)
 {
   return cudf::type_dispatcher(
     values.type(), group_sum_overflow_fn{}, values, num_groups, group_labels, stream, mr);

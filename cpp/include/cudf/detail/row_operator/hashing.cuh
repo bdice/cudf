@@ -243,7 +243,7 @@ class row_hasher {
    * comparisons using this object.
    * @param temp_mr Device memory resource used for temporary allocations
    */
-  row_hasher(table_view const& t, cuda::stream_ref stream, rmm::device_async_resource_ref temp_mr)
+  row_hasher(table_view const& t, cuda::stream_ref stream, cudf::device_resource_ref temp_mr)
     : d_t(preprocessed_table::create(t, stream, temp_mr))
   {
   }

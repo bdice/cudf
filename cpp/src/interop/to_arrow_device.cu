@@ -97,7 +97,7 @@ int set_contents(column::contents& contents, ArrowArray* out)
 struct dispatch_to_arrow_device {
   template <typename T,
             CUDF_ENABLE_IF(not is_rep_layout_compatible<T>() and not is_fixed_point<T>())>
-  int operator()(cudf::column&&, cuda::stream_ref, rmm::device_async_resource_ref, ArrowArray*)
+  int operator()(cudf::column&&, cuda::stream_ref, cudf::device_resource_ref, ArrowArray*)
   {
     CUDF_FAIL("Unsupported type for to_arrow_device", cudf::data_type_error);
   }
@@ -106,7 +106,7 @@ struct dispatch_to_arrow_device {
   template <typename T, CUDF_ENABLE_IF(is_rep_layout_compatible<T>() or is_fixed_point<T>())>
   int operator()(cudf::column&& column,
                  cuda::stream_ref stream,
-                 rmm::device_async_resource_ref mr,
+                 cudf::device_resource_ref mr,
                  ArrowArray* out)
   {
     nanoarrow::UniqueArray tmp;
@@ -133,7 +133,7 @@ int handle_empty_type_column(ArrowArray* array, cudf::column& column)
 template <>
 int dispatch_to_arrow_device::operator()<bool>(cudf::column&& column,
                                                cuda::stream_ref stream,
-                                               rmm::device_async_resource_ref mr,
+                                               cudf::device_resource_ref mr,
                                                ArrowArray* out)
 {
   nanoarrow::UniqueArray tmp;
@@ -152,7 +152,7 @@ int dispatch_to_arrow_device::operator()<bool>(cudf::column&& column,
 template <>
 int dispatch_to_arrow_device::operator()<cudf::string_view>(cudf::column&& column,
                                                             cuda::stream_ref stream,
-                                                            rmm::device_async_resource_ref mr,
+                                                            cudf::device_resource_ref mr,
                                                             ArrowArray* out)
 {
   ArrowType nanoarrow_type = NANOARROW_TYPE_STRING;
@@ -198,19 +198,19 @@ int dispatch_to_arrow_device::operator()<cudf::string_view>(cudf::column&& colum
 template <>
 int dispatch_to_arrow_device::operator()<cudf::list_view>(cudf::column&& column,
                                                           cuda::stream_ref stream,
-                                                          rmm::device_async_resource_ref mr,
+                                                          cudf::device_resource_ref mr,
                                                           ArrowArray* out);
 
 template <>
 int dispatch_to_arrow_device::operator()<cudf::dictionary32>(cudf::column&& column,
                                                              cuda::stream_ref stream,
-                                                             rmm::device_async_resource_ref mr,
+                                                             cudf::device_resource_ref mr,
                                                              ArrowArray* out);
 
 template <>
 int dispatch_to_arrow_device::operator()<cudf::struct_view>(cudf::column&& column,
                                                             cuda::stream_ref stream,
-                                                            rmm::device_async_resource_ref mr,
+                                                            cudf::device_resource_ref mr,
                                                             ArrowArray* out)
 {
   nanoarrow::UniqueArray tmp;
@@ -238,7 +238,7 @@ int dispatch_to_arrow_device::operator()<cudf::struct_view>(cudf::column&& colum
 template <>
 int dispatch_to_arrow_device::operator()<cudf::list_view>(cudf::column&& column,
                                                           cuda::stream_ref stream,
-                                                          rmm::device_async_resource_ref mr,
+                                                          cudf::device_resource_ref mr,
                                                           ArrowArray* out)
 {
   nanoarrow::UniqueArray tmp;
@@ -267,7 +267,7 @@ int dispatch_to_arrow_device::operator()<cudf::list_view>(cudf::column&& column,
 template <>
 int dispatch_to_arrow_device::operator()<cudf::dictionary32>(cudf::column&& column,
                                                              cuda::stream_ref stream,
-                                                             rmm::device_async_resource_ref mr,
+                                                             cudf::device_resource_ref mr,
                                                              ArrowArray* out)
 {
   nanoarrow::UniqueArray tmp;
@@ -303,7 +303,7 @@ int dispatch_to_arrow_device::operator()<cudf::dictionary32>(cudf::column&& colu
 struct dispatch_to_arrow_device_view {
   cudf::column_view column;
   cuda::stream_ref stream;
-  rmm::device_async_resource_ref mr;
+  cudf::device_resource_ref mr;
 
   template <typename T,
             CUDF_ENABLE_IF(not is_rep_layout_compatible<T>() and not is_fixed_point<T>())>
@@ -525,7 +525,7 @@ unique_device_array_t create_device_array(nanoarrow::UniqueArray&& out, cuda::st
 
 unique_device_array_t to_arrow_device(cudf::table&& table,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   nanoarrow::UniqueArray tmp;
   NANOARROW_THROW_NOT_OK(ArrowArrayInitFromType(tmp.get(), NANOARROW_TYPE_STRUCT));
@@ -551,7 +551,7 @@ unique_device_array_t to_arrow_device(cudf::table&& table,
 
 unique_device_array_t to_arrow_device(cudf::column&& col,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   nanoarrow::UniqueArray tmp;
 
@@ -567,7 +567,7 @@ unique_device_array_t to_arrow_device(cudf::column&& col,
 
 unique_device_array_t to_arrow_device(cudf::table_view const& table,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   nanoarrow::UniqueArray tmp;
   NANOARROW_THROW_NOT_OK(ArrowArrayInitFromType(tmp.get(), NANOARROW_TYPE_STRUCT));
@@ -588,7 +588,7 @@ unique_device_array_t to_arrow_device(cudf::table_view const& table,
 
 unique_device_array_t to_arrow_device(cudf::column_view const& col,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   nanoarrow::UniqueArray tmp;
 
@@ -602,7 +602,7 @@ unique_device_array_t to_arrow_device(cudf::column_view const& col,
 
 unique_device_array_t to_arrow_device(cudf::table&& table,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::to_arrow_device(std::move(table), stream, mr);
@@ -610,7 +610,7 @@ unique_device_array_t to_arrow_device(cudf::table&& table,
 
 unique_device_array_t to_arrow_device(cudf::column&& col,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::to_arrow_device(std::move(col), stream, mr);
@@ -618,7 +618,7 @@ unique_device_array_t to_arrow_device(cudf::column&& col,
 
 unique_device_array_t to_arrow_device(cudf::table_view const& table,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::to_arrow_device(table, stream, mr);
@@ -626,7 +626,7 @@ unique_device_array_t to_arrow_device(cudf::table_view const& table,
 
 unique_device_array_t to_arrow_device(cudf::column_view const& col,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::to_arrow_device(col, stream, mr);

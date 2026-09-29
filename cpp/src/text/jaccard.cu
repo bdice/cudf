@@ -447,7 +447,7 @@ std::unique_ptr<cudf::column> jaccard_index(cudf::strings_column_view const& inp
                                             cudf::strings_column_view const& input2,
                                             cudf::size_type width,
                                             cuda::stream_ref stream,
-                                            rmm::device_async_resource_ref mr)
+                                            cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(
     input1.size() == input2.size(), "input columns must be the same size", std::invalid_argument);
@@ -498,7 +498,7 @@ std::unique_ptr<cudf::column> jaccard_index(cudf::strings_column_view const& inp
                                             cudf::strings_column_view const& input2,
                                             cudf::size_type width,
                                             cuda::stream_ref stream,
-                                            rmm::device_async_resource_ref mr)
+                                            cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::jaccard_index(input1, input2, width, stream, mr);

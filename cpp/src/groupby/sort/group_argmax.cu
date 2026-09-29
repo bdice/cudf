@@ -20,7 +20,7 @@ std::unique_ptr<column> group_argmax(column_view const& values,
                                      cudf::device_span<size_type const> group_labels,
                                      column_view const& key_sort_order,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
 {
   auto dispatch_type = cudf::is_dictionary(values.type())
                          ? dictionary_column_view(values).keys().type()

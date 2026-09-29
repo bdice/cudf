@@ -114,6 +114,6 @@ compute_page_row_offsets_and_colchunk_page_offsets(
   size_type total_rows,
   std::reference_wrapper<ast::expression const> stats_expression,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 }  // namespace cudf::io::parquet::experimental::detail

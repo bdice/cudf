@@ -85,7 +85,7 @@ template <typename device_execute_functor>
 std::unique_ptr<column> wrap(strings_column_view const& strings,
                              size_type width,
                              cuda::stream_ref stream,
-                             rmm::device_async_resource_ref mr)
+                             cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(width > 0, "Positive wrap width required");
 
@@ -130,7 +130,7 @@ std::unique_ptr<column> wrap(strings_column_view const& strings,
 std::unique_ptr<column> wrap(strings_column_view const& strings,
                              size_type width,
                              cuda::stream_ref stream,
-                             rmm::device_async_resource_ref mr)
+                             cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::wrap<detail::execute_wrap>(strings, width, stream, mr);

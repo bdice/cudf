@@ -7,11 +7,11 @@
 
 #include <cudf/io/parquet_schema.hpp>
 #include <cudf/io/text/byte_range_info.hpp>
+#include <cudf/types.hpp>
 #include <cudf/utilities/span.hpp>
 
 #include <rmm/mr/cuda_async_memory_resource.hpp>
 #include <rmm/mr/pool_memory_resource.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/memory_resource>
 #include <cuda/stream>

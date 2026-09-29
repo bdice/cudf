@@ -25,8 +25,12 @@ from pylibcudf.libcudf.reduce cimport (
 from pylibcudf.libcudf.scalar.scalar cimport scalar
 from pylibcudf.libcudf.types cimport nan_policy, null_policy, size_type
 from rmm.pylibrmm.stream cimport Stream
+from pylibcudf.libcudf.types cimport (
+    any_resource,
+    device_accessible,
+    to_device_resource_ref,
+)
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
-from rmm.librmm.memory_resource cimport any_resource, device_accessible
 
 from .aggregation cimport Aggregation
 from .column cimport Column
@@ -109,7 +113,7 @@ cpdef Scalar reduce(
             data_type.c_obj,
             c_init,
             _cs,
-            mr.get_mr()
+            to_device_resource_ref(mr.get_mr())
         )
     return Scalar.from_libcudf(move(result))
 
@@ -158,7 +162,7 @@ cpdef Column scan(
             inclusive,
             null_policy.EXCLUDE,
             _cs,
-            mr.get_mr()
+            to_device_resource_ref(mr.get_mr())
         )
     return Column.from_libcudf(move(result), _stream, mr)
 
@@ -197,7 +201,7 @@ cpdef tuple[Scalar, Scalar] minmax(
 
     cdef column_view c_col = col.view()
     with nogil:
-        result = cpp_minmax(c_col, _cs, mr.get_mr())
+        result = cpp_minmax(c_col, _cs, to_device_resource_ref(mr.get_mr()))
 
     min_scalar = Scalar.from_libcudf(move(result.first))
     max_scalar = Scalar.from_libcudf(move(result.second))
@@ -398,7 +402,7 @@ cdef class ApproxDistinctCount:
         cdef DeviceMemoryResource _mr = _get_memory_resource(mr)
         cdef table_view c_input = input.view()
         cdef any_resource[device_accessible] c_mr = any_resource[device_accessible](
-            _mr.get_mr()
+            to_device_resource_ref(_mr.get_mr())
         )
         with nogil:
             self.c_obj.reset(

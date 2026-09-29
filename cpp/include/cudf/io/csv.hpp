@@ -1367,8 +1367,8 @@ class csv_reader_options_builder {
  */
 table_with_metadata read_csv(
   csv_reader_options options,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /** @} */  // end of group
 /**

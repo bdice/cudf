@@ -58,7 +58,7 @@ std::unique_ptr<column> simple_segmented_reduction(
   null_policy null_handling,
   std::optional<std::reference_wrapper<scalar const>> init,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   auto dcol               = cudf::column_device_view::create(col, stream);
   auto simple_op          = Op{};
@@ -144,7 +144,7 @@ std::unique_ptr<column> string_segmented_reduction(column_view const& col,
                                                    device_span<size_type const> offsets,
                                                    null_policy null_handling,
                                                    cuda::stream_ref stream,
-                                                   rmm::device_async_resource_ref mr)
+                                                   cudf::device_resource_ref mr)
 {
   // Pass to simple_segmented_reduction, get indices to gather, perform gather here.
   auto device_col = cudf::column_device_view::create(col, stream);
@@ -188,7 +188,7 @@ std::unique_ptr<column> string_segmented_reduction(column_view const& col,
                                                    device_span<size_type const> offsets,
                                                    null_policy null_handling,
                                                    cuda::stream_ref stream,
-                                                   rmm::device_async_resource_ref mr)
+                                                   cudf::device_resource_ref mr)
 {
   CUDF_FAIL("Segmented reduction on string column only supports min and max reduction.");
 }
@@ -214,7 +214,7 @@ std::unique_ptr<column> fixed_point_segmented_reduction(
   null_policy null_handling,
   std::optional<std::reference_wrapper<scalar const>> init,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   using RepType = device_storage_type_t<InputType>;
   auto result =
@@ -285,7 +285,7 @@ struct bool_result_column_dispatcher {
                                      null_policy null_handling,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(cudf::is_numeric<ElementType>())
   {
     return simple_segmented_reduction<ElementType, bool, Op>(
@@ -298,7 +298,7 @@ struct bool_result_column_dispatcher {
                                      null_policy,
                                      std::optional<std::reference_wrapper<scalar const>>,
                                      cuda::stream_ref,
-                                     rmm::device_async_resource_ref)
+                                     cudf::device_resource_ref)
     requires(not cudf::is_numeric<ElementType>())
   {
     CUDF_FAIL("Reduction operator not supported for this type");
@@ -332,7 +332,7 @@ struct same_column_type_dispatcher {
                                      null_policy null_handling,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
   {
     return simple_segmented_reduction<ElementType, ElementType, Op>(
       col, offsets, null_handling, init, stream, mr);
@@ -345,7 +345,7 @@ struct same_column_type_dispatcher {
                                      null_policy null_handling,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
   {
     CUDF_EXPECTS(!init.has_value(), "Initial value not supported for strings");
 
@@ -359,7 +359,7 @@ struct same_column_type_dispatcher {
                                      null_policy null_handling,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
   {
     return fixed_point_segmented_reduction<ElementType, Op>(
       col, offsets, null_handling, init, stream, mr);
@@ -371,7 +371,7 @@ struct same_column_type_dispatcher {
                                      null_policy,
                                      std::optional<std::reference_wrapper<scalar const>>,
                                      cuda::stream_ref,
-                                     rmm::device_async_resource_ref)
+                                     cudf::device_resource_ref)
   {
     CUDF_FAIL("Reduction operator not supported for this type");
   }
@@ -402,7 +402,7 @@ struct column_type_dispatcher {
                                          null_policy null_handling,
                                          std::optional<std::reference_wrapper<scalar const>> init,
                                          cuda::stream_ref stream,
-                                         rmm::device_async_resource_ref mr)
+                                         cudf::device_resource_ref mr)
     requires(std::is_floating_point<ElementType>::value)
   {
     // Floats are computed in double precision and then cast to the output type
@@ -429,7 +429,7 @@ struct column_type_dispatcher {
                                          null_policy null_handling,
                                          std::optional<std::reference_wrapper<scalar const>> init,
                                          cuda::stream_ref stream,
-                                         rmm::device_async_resource_ref mr)
+                                         cudf::device_resource_ref mr)
     requires(std::is_integral<ElementType>::value)
   {
     // Integers are computed in int64 precision and then cast to the output type.
@@ -458,7 +458,7 @@ struct column_type_dispatcher {
                                      null_policy null_handling,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(cudf::is_numeric<ElementType>())
   {
     // If the output type matches the input type, then reduce using that type
@@ -477,7 +477,7 @@ struct column_type_dispatcher {
                                      null_policy null_handling,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(cudf::is_fixed_point<ElementType>())
   {
     CUDF_EXPECTS(output_type == col.type(), "Output type must be same as input column type.");
@@ -492,7 +492,7 @@ struct column_type_dispatcher {
                                      null_policy,
                                      std::optional<std::reference_wrapper<scalar const>>,
                                      cuda::stream_ref,
-                                     rmm::device_async_resource_ref)
+                                     cudf::device_resource_ref)
     requires(not cudf::is_numeric<ElementType>() and not cudf::is_fixed_point<ElementType>())
   {
     CUDF_FAIL("Reduction operator not supported for this type");

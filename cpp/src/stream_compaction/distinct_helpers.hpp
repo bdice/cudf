@@ -16,7 +16,6 @@
 
 #include <rmm/device_uvector.hpp>
 #include <rmm/mr/polymorphic_allocator.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuco/extent.cuh>
 #include <cuco/probing_scheme.cuh>
@@ -97,7 +96,7 @@ template <typename Set>
 rmm::device_uvector<size_type> reduce_by_row_keep_any(Set& set,
                                                       size_type num_rows,
                                                       cuda::stream_ref stream,
-                                                      rmm::device_async_resource_ref mr);
+                                                      cudf::device_resource_ref mr);
 
 /**
  * @brief Returns row indices selected from groups of equal rows according to `keep`.
@@ -114,12 +113,11 @@ rmm::device_uvector<size_type> reduce_by_row_keep_any(Set& set,
  * @return A device vector containing the selected row indices
  */
 template <typename Set>
-rmm::device_uvector<size_type> reduce_by_row_keep_first_last_none(
-  Set& set,
-  size_type num_rows,
-  duplicate_keep_option keep,
-  cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+rmm::device_uvector<size_type> reduce_by_row_keep_first_last_none(Set& set,
+                                                                  size_type num_rows,
+                                                                  duplicate_keep_option keep,
+                                                                  cuda::stream_ref stream,
+                                                                  cudf::device_resource_ref mr);
 
 /**
  * @brief Returns row indices selected from groups of equal rows according to `keep`.
@@ -137,7 +135,7 @@ rmm::device_uvector<size_type> reduce_by_row(Set& set,
                                              size_type num_rows,
                                              duplicate_keep_option keep,
                                              cuda::stream_ref stream,
-                                             rmm::device_async_resource_ref mr)
+                                             cudf::device_resource_ref mr)
 {
   if (keep == duplicate_keep_option::KEEP_ANY) {
     return reduce_by_row_keep_any(set, num_rows, stream, mr);

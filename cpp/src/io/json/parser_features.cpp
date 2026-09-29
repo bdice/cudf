@@ -60,7 +60,7 @@ namespace cudf::io::json::detail {
 /// Created an empty column of the specified schema
 struct empty_column_functor {
   cuda::stream_ref stream;
-  rmm::device_async_resource_ref mr;
+  cudf::device_resource_ref mr;
 
   template <typename T, CUDF_ENABLE_IF(!cudf::is_nested<T>())>
   std::unique_ptr<column> operator()(schema_element const& schema) const
@@ -108,7 +108,7 @@ struct empty_column_functor {
 
 std::unique_ptr<column> make_empty_column(schema_element const& schema,
                                           cuda::stream_ref stream,
-                                          rmm::device_async_resource_ref mr)
+                                          cudf::device_resource_ref mr)
 {
   return cudf::type_dispatcher(schema.type, empty_column_functor{stream, mr}, schema);
 }
@@ -116,7 +116,7 @@ std::unique_ptr<column> make_empty_column(schema_element const& schema,
 /// Created all null column of the specified schema
 struct allnull_column_functor {
   cuda::stream_ref stream;
-  rmm::device_async_resource_ref mr;
+  cudf::device_resource_ref mr;
 
  private:
   [[nodiscard]] auto make_zeroed_offsets(size_type size) const
@@ -208,7 +208,7 @@ struct allnull_column_functor {
 std::unique_ptr<column> make_all_nulls_column(schema_element const& schema,
                                               size_type num_rows,
                                               cuda::stream_ref stream,
-                                              rmm::device_async_resource_ref mr)
+                                              cudf::device_resource_ref mr)
 {
   return cudf::type_dispatcher(schema.type, allnull_column_functor{stream, mr}, schema, num_rows);
 }

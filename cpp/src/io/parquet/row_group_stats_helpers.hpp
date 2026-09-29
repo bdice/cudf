@@ -56,7 +56,7 @@ struct row_group_stats_caster : public stats_caster_base {
   result_type operator()(host_span<int const> per_source_schema_indices,
                          cudf::data_type dtype,
                          cuda::stream_ref stream,
-                         rmm::device_async_resource_ref mr) const
+                         cudf::device_resource_ref mr) const
   {
     CUDF_EXPECTS(row_group_indices.size() == per_file_metadata.size(),
                  "Row-group indices must match parquet metadata sources",

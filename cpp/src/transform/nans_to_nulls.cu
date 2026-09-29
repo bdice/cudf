@@ -25,7 +25,7 @@ namespace detail {
 struct dispatch_nan_to_null {
   template <typename T>
   std::pair<std::unique_ptr<cuda::device_buffer<std::byte>>, cudf::size_type> operator()(
-    column_view const& input, cuda::stream_ref stream, rmm::device_async_resource_ref mr)
+    column_view const& input, cuda::stream_ref stream, cudf::device_resource_ref mr)
     requires(std::is_floating_point_v<T>)
   {
     auto input_device_view_ptr = column_device_view::create(input, stream);
@@ -48,7 +48,7 @@ struct dispatch_nan_to_null {
 
   template <typename T>
   std::pair<std::unique_ptr<cuda::device_buffer<std::byte>>, cudf::size_type> operator()(
-    column_view const& input, cuda::stream_ref stream, rmm::device_async_resource_ref mr)
+    column_view const& input, cuda::stream_ref stream, cudf::device_resource_ref mr)
     requires(!std::is_floating_point_v<T>)
   {
     CUDF_FAIL("Input column can't be a non-floating type");
@@ -58,7 +58,7 @@ struct dispatch_nan_to_null {
 struct copy_float_data_fn {
   column_view const& input;
   cuda::stream_ref stream;
-  rmm::device_async_resource_ref mr;
+  cudf::device_resource_ref mr;
 
   template <typename T>
     requires(std::is_floating_point_v<T>)
@@ -78,7 +78,7 @@ struct copy_float_data_fn {
 
 std::unique_ptr<column> column_nans_to_nulls(column_view const& input,
                                              cuda::stream_ref stream,
-                                             rmm::device_async_resource_ref mr)
+                                             cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(cudf::is_floating_point(input.type()),
                "Input must be a floating point type",
@@ -99,7 +99,7 @@ std::unique_ptr<column> column_nans_to_nulls(column_view const& input,
 
 std::unique_ptr<column> column_nans_to_nulls(column_view const& input,
                                              cuda::stream_ref stream,
-                                             rmm::device_async_resource_ref mr)
+                                             cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::column_nans_to_nulls(input, stream, mr);

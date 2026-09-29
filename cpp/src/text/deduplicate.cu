@@ -147,7 +147,7 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> build_suffix_array_fn(
   cudf::device_span<char const> chars_span,
   cudf::size_type min_width,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   auto const size = static_cast<cudf::size_type>(chars_span.size()) - min_width + (min_width > 0);
   auto indices    = rmm::device_uvector<cudf::size_type>(size, stream);
@@ -170,7 +170,7 @@ std::unique_ptr<cudf::column> resolve_duplicates_fn(
   cudf::device_span<cudf::size_type const> indices,
   cudf::size_type min_width,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   auto sizes = rmm::device_uvector<int16_t>(indices.size(), stream);
 
@@ -258,7 +258,7 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> build_suffix_array(
   cudf::strings_column_view const& input,
   cudf::size_type min_width,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   auto [first_offset, last_offset] =
     cudf::strings::detail::get_first_and_last_offset(input, stream);
@@ -279,7 +279,7 @@ std::unique_ptr<cudf::column> resolve_duplicates(cudf::strings_column_view const
                                                  cudf::device_span<cudf::size_type const> indices,
                                                  cudf::size_type min_width,
                                                  cuda::stream_ref stream,
-                                                 rmm::device_async_resource_ref mr)
+                                                 cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(min_width > 8, "min_width should be at least 8", std::invalid_argument);
 
@@ -408,7 +408,7 @@ std::unique_ptr<cudf::column> resolve_duplicates_pair_impl(
   cudf::device_span<cudf::size_type const> indices2,
   cudf::size_type min_width,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(min_width > 8, "min_width should be at least 8", std::invalid_argument);
 
@@ -549,7 +549,7 @@ std::unique_ptr<cudf::column> resolve_duplicates_pair(
   cudf::device_span<cudf::size_type const> indices2,
   cudf::size_type min_width,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   // force the 2nd input to be the smaller one
   return (indices1.size() < indices2.size())
@@ -564,7 +564,7 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> build_suffix_array(
   cudf::strings_column_view const& input,
   cudf::size_type min_width,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::build_suffix_array(input, min_width, stream, mr);
@@ -574,7 +574,7 @@ std::unique_ptr<cudf::column> resolve_duplicates(cudf::strings_column_view const
                                                  cudf::device_span<cudf::size_type const> indices,
                                                  cudf::size_type min_width,
                                                  cuda::stream_ref stream,
-                                                 rmm::device_async_resource_ref mr)
+                                                 cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::resolve_duplicates(input, indices, min_width, stream, mr);
@@ -587,7 +587,7 @@ std::unique_ptr<cudf::column> resolve_duplicates_pair(
   cudf::device_span<cudf::size_type const> indices2,
   cudf::size_type min_width,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::resolve_duplicates_pair(input1, indices1, input2, indices2, min_width, stream, mr);

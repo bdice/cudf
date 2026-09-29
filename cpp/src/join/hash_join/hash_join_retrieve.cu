@@ -36,7 +36,7 @@ std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
 hash_join<Hasher>::join_retrieve(cudf::table_view const& left,
                                  std::optional<std::size_t> output_size,
                                  cuda::stream_ref stream,
-                                 rmm::device_async_resource_ref mr) const
+                                 cudf::device_resource_ref mr) const
 {
   CUDF_FUNC_RANGE();
 
@@ -189,24 +189,21 @@ hash_join<Hasher>::join_retrieve(cudf::table_view const& left,
 
 template std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
                    std::unique_ptr<rmm::device_uvector<size_type>>>
-hash_join<hash_join_hasher>::join_retrieve<join_kind::INNER_JOIN>(
-  cudf::table_view const&,
-  std::optional<std::size_t>,
-  cuda::stream_ref,
-  rmm::device_async_resource_ref) const;
+hash_join<hash_join_hasher>::join_retrieve<join_kind::INNER_JOIN>(cudf::table_view const&,
+                                                                  std::optional<std::size_t>,
+                                                                  cuda::stream_ref,
+                                                                  cudf::device_resource_ref) const;
 template std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
                    std::unique_ptr<rmm::device_uvector<size_type>>>
-hash_join<hash_join_hasher>::join_retrieve<join_kind::LEFT_JOIN>(
-  cudf::table_view const&,
-  std::optional<std::size_t>,
-  cuda::stream_ref,
-  rmm::device_async_resource_ref) const;
+hash_join<hash_join_hasher>::join_retrieve<join_kind::LEFT_JOIN>(cudf::table_view const&,
+                                                                 std::optional<std::size_t>,
+                                                                 cuda::stream_ref,
+                                                                 cudf::device_resource_ref) const;
 template std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
                    std::unique_ptr<rmm::device_uvector<size_type>>>
-hash_join<hash_join_hasher>::join_retrieve<join_kind::FULL_JOIN>(
-  cudf::table_view const&,
-  std::optional<std::size_t>,
-  cuda::stream_ref,
-  rmm::device_async_resource_ref) const;
+hash_join<hash_join_hasher>::join_retrieve<join_kind::FULL_JOIN>(cudf::table_view const&,
+                                                                 std::optional<std::size_t>,
+                                                                 cuda::stream_ref,
+                                                                 cudf::device_resource_ref) const;
 
 }  // namespace cudf::detail

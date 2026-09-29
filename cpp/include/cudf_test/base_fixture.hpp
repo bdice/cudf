@@ -10,11 +10,10 @@
 #include <cudf_test/file_utilities.hpp>
 #include <cudf_test/memory_resource_utilities.hpp>
 
+#include <cudf/types.hpp>
 #include <cudf/utilities/export.hpp>
 #include <cudf/utilities/memory_resource.hpp>
 #include <cudf/utilities/traits.hpp>
-
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/memory_resource>
 #include <cuda/stream>
@@ -39,7 +38,7 @@ class BaseFixture : public ::testing::Test {
    * all tests inheriting from this fixture
    * @return reference to memory resource
    */
-  rmm::device_async_resource_ref mr() { return _mr; }
+  cudf::device_resource_ref mr() { return _mr; }
 };
 
 /**
@@ -92,7 +91,7 @@ class BaseFixtureWithParam : public ::testing::TestWithParam<T> {
    * all tests inheriting from this fixture
    * @return reference to memory resource
    */
-  [[nodiscard]] rmm::device_async_resource_ref mr() { return _mr; }
+  [[nodiscard]] cudf::device_resource_ref mr() { return _mr; }
 };
 
 /**

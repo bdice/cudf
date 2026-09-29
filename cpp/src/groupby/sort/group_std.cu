@@ -96,7 +96,7 @@ struct var_functor {
                                      cudf::device_span<size_type const> group_labels,
                                      size_type ddof,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(std::is_arithmetic_v<T>)
   {
     using ResultType = cudf::detail::target_type_t<T, aggregation::Kind::VARIANCE>;
@@ -169,7 +169,7 @@ std::unique_ptr<column> group_var(column_view const& values,
                                   cudf::device_span<size_type const> group_labels,
                                   size_type ddof,
                                   cuda::stream_ref stream,
-                                  rmm::device_async_resource_ref mr)
+                                  cudf::device_resource_ref mr)
 {
   auto values_type = cudf::is_dictionary(values.type())
                        ? dictionary_column_view(values).keys().type()

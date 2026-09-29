@@ -35,7 +35,7 @@ std::unique_ptr<column> split_record_fn(strings_column_view const& input,
                                         Tokenizer tokenizer,
                                         DelimiterFn delimiter_fn,
                                         cuda::stream_ref stream,
-                                        rmm::device_async_resource_ref mr)
+                                        cudf::device_resource_ref mr)
 {
   if (input.is_empty()) {
     return cudf::lists::detail::make_empty_lists_column(data_type{type_id::STRING});
@@ -69,7 +69,7 @@ std::unique_ptr<column> split_record_per_row_fn(strings_column_view const& input
                                                 string_view const d_delimiter,
                                                 size_type const max_tokens,
                                                 cuda::stream_ref stream,
-                                                rmm::device_async_resource_ref mr)
+                                                cudf::device_resource_ref mr)
 {
   if (input.is_empty()) {
     return cudf::lists::detail::make_empty_lists_column(data_type{type_id::STRING});
@@ -111,7 +111,7 @@ template <bool Forward>
 std::unique_ptr<column> split_record_ws_per_row_fn(strings_column_view const& input,
                                                    size_type const max_tokens,
                                                    cuda::stream_ref stream,
-                                                   rmm::device_async_resource_ref mr)
+                                                   cudf::device_resource_ref mr)
 {
   if (input.is_empty()) {
     return cudf::lists::detail::make_empty_lists_column(data_type{type_id::STRING});
@@ -153,7 +153,7 @@ std::unique_ptr<column> split_record_impl(strings_column_view const& input,
                                           string_scalar const& delimiter,
                                           size_type maxsplit,
                                           cuda::stream_ref stream,
-                                          rmm::device_async_resource_ref mr)
+                                          cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(delimiter.is_valid(stream), "Parameter delimiter must be valid");
 
@@ -191,7 +191,7 @@ std::unique_ptr<column> split_record(strings_column_view const& input,
                                      string_scalar const& delimiter,
                                      size_type maxsplit,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
 {
   return split_record_impl<true>(input, delimiter, maxsplit, stream, mr);
 }
@@ -200,7 +200,7 @@ std::unique_ptr<column> rsplit_record(strings_column_view const& input,
                                       string_scalar const& delimiter,
                                       size_type maxsplit,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   return split_record_impl<false>(input, delimiter, maxsplit, stream, mr);
 }
@@ -213,7 +213,7 @@ std::unique_ptr<column> split_record(strings_column_view const& input,
                                      string_scalar const& delimiter,
                                      size_type maxsplit,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::split_record(input, delimiter, maxsplit, stream, mr);
@@ -223,7 +223,7 @@ std::unique_ptr<column> rsplit_record(strings_column_view const& input,
                                       string_scalar const& delimiter,
                                       size_type maxsplit,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::rsplit_record(input, delimiter, maxsplit, stream, mr);

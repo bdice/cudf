@@ -11,7 +11,6 @@
 #include <cudf/utilities/span.hpp>
 
 #include <rmm/exec_policy.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/stream>
 #include <thrust/copy.h>
@@ -215,7 +214,7 @@ class output_builder {
   output_builder(size_type max_write_size,
                  size_type max_growth,
                  cuda::stream_ref stream,
-                 rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref())
+                 cudf::device_resource_ref mr = cudf::get_current_device_resource_ref())
     : _max_write_size{max_write_size}, _max_growth{max_growth}
   {
     CUDF_EXPECTS(max_write_size > 0, "Internal error");
@@ -323,7 +322,7 @@ class output_builder {
    * @return The output vector.
    */
   [[nodiscard]] rmm::device_uvector<T> gather(cuda::stream_ref stream,
-                                              rmm::device_async_resource_ref mr) const
+                                              cudf::device_resource_ref mr) const
   {
     rmm::device_uvector<T> output{size(), stream, mr};
     auto output_it = output.begin();

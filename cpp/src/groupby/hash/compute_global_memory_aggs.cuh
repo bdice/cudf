@@ -79,7 +79,7 @@ std::pair<std::unique_ptr<table>, rmm::device_uvector<size_type>> compute_aggs_d
   device_span<aggregation::Kind const> d_agg_kinds,
   std::span<int8_t const> is_agg_intermediate,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   auto const num_rows                = values.num_rows();
   auto [unique_keys, target_indices] = [&] {
@@ -128,7 +128,7 @@ std::pair<std::unique_ptr<table>, rmm::device_uvector<size_type>> compute_aggs_s
   device_span<aggregation::Kind const> d_agg_kinds,
   std::span<int8_t const> is_agg_intermediate,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   auto const num_rows = values.num_rows();
   auto const d_values = table_device_view::create(values, stream);
@@ -165,7 +165,7 @@ std::pair<std::unique_ptr<table>, rmm::device_uvector<size_type>> compute_global
   device_span<aggregation::Kind const> d_agg_kinds,
   std::span<int8_t const> is_agg_intermediate,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   return h_agg_kinds.size() > GROUPBY_DENSE_OUTPUT_THRESHOLD
            ? compute_aggs_dense_output(row_bitmask,

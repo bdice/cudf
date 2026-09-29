@@ -30,7 +30,7 @@ namespace detail {
 std::unique_ptr<column> replace_nulls(strings_column_view const& input,
                                       string_scalar const& repl,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
 {
   size_type strings_count = input.size();
   if (strings_count == 0) { return make_empty_column(type_id::STRING); }

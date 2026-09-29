@@ -79,7 +79,7 @@ std::unique_ptr<column> cast_to_integer(strings_column_view const& input,
                                         data_type output_type,
                                         endian swap,
                                         cuda::stream_ref stream,
-                                        rmm::device_async_resource_ref mr)
+                                        cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(cudf::is_integral_not_bool(output_type),
                "Output type must be an integer type",
@@ -110,7 +110,7 @@ std::unique_ptr<column> cast_to_integer(strings_column_view const& input,
                                         data_type output_type,
                                         endian swap,
                                         cuda::stream_ref stream,
-                                        rmm::device_async_resource_ref mr)
+                                        cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::cast_to_integer(input, output_type, swap, stream, mr);
@@ -173,7 +173,7 @@ struct from_integers_fn {
 std::unique_ptr<column> cast_from_integer(column_view const& integers,
                                           endian swap,
                                           cuda::stream_ref stream,
-                                          rmm::device_async_resource_ref mr)
+                                          cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(cudf::is_integral_not_bool(integers.type()),
                "Input type must be an integer type",
@@ -199,7 +199,7 @@ std::unique_ptr<column> cast_from_integer(column_view const& integers,
 std::unique_ptr<column> cast_from_integer(column_view const& integers,
                                           endian swap,
                                           cuda::stream_ref stream,
-                                          rmm::device_async_resource_ref mr)
+                                          cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::cast_from_integer(integers, swap, stream, mr);

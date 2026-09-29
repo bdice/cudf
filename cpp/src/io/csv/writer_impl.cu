@@ -251,7 +251,7 @@ struct escape_strings_fn {
 struct column_to_strings_fn {
   explicit column_to_strings_fn(csv_writer_options const& options,
                                 cuda::stream_ref stream,
-                                rmm::device_async_resource_ref mr)
+                                cudf::device_resource_ref mr)
     : options_(options), stream_(stream), mr_(mr)
   {
   }
@@ -392,7 +392,7 @@ struct column_to_strings_fn {
  private:
   csv_writer_options const& options_;
   cuda::stream_ref stream_;
-  rmm::device_async_resource_ref mr_;
+  cudf::device_resource_ref mr_;
 };
 }  // unnamed namespace
 
@@ -403,7 +403,7 @@ void write_chunked_begin(data_sink* out_sink,
                          host_span<std::string const> user_column_names,
                          csv_writer_options const& options,
                          cuda::stream_ref stream,
-                         rmm::device_async_resource_ref mr)
+                         cudf::device_resource_ref mr)
 {
   if (options.is_enabled_include_header()) {
     // need to generate column names if names are not provided
@@ -479,7 +479,7 @@ void write_chunked(data_sink* out_sink,
                    strings_column_view const& str_column_view,
                    csv_writer_options const& options,
                    cuda::stream_ref stream,
-                   rmm::device_async_resource_ref mr)
+                   cudf::device_resource_ref mr)
 {
   // algorithm outline:
   //

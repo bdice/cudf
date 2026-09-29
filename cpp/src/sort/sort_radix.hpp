@@ -34,7 +34,7 @@ bool is_radix_sortable(column_view const& column);
 std::unique_ptr<column> sort_radix(column_view const& input,
                                    bool ascending,
                                    cuda::stream_ref stream,
-                                   rmm::device_async_resource_ref mr);
+                                   cudf::device_resource_ref mr);
 
 /**
  * @brief Sort a column using radix sort

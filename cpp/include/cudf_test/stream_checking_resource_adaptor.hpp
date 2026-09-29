@@ -6,10 +6,10 @@
 
 #include <cudf_test/default_stream.hpp>
 
+#include <cudf/types.hpp>
 #include <cudf/utilities/memory_resource.hpp>
 
 #include <rmm/aligned.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/memory_resource>
 #include <cuda/stream>
@@ -53,9 +53,9 @@ class stream_checking_resource_adaptor final {
    *
    * @return The wrapped upstream resource
    */
-  [[nodiscard]] rmm::device_async_resource_ref get_upstream_resource() const noexcept
+  [[nodiscard]] cudf::device_resource_ref get_upstream_resource() const noexcept
   {
-    return rmm::device_async_resource_ref{
+    return cudf::device_resource_ref{
       const_cast<cuda::mr::any_resource<cuda::mr::device_accessible>&>(upstream_)};
   }
 

@@ -167,7 +167,7 @@ std::unique_ptr<cudf::table> test_hybrid_scan_column_selection(
   std::optional<std::vector<std::string>> const& payload_column_names,
   bool case_sensitive_names,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr,
+  cudf::device_resource_ref mr,
   rmm::mr::aligned_resource_adaptor& aligned_mr)
 {
   auto datasource     = cudf::io::datasource::create(cudf::host_span<std::byte const>(

@@ -359,7 +359,7 @@ constexpr auto min_segments_for_device_offsets = 1024;
   std::span<page_statistics_input const> inputs,
   std::size_t total_page_row_offsets,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   auto all_page_row_offsets =
     cudf::detail::make_empty_pinned_vector<size_type>(total_page_row_offsets, stream);
@@ -395,7 +395,7 @@ constexpr auto min_segments_for_device_offsets = 1024;
   cudf::device_span<size_type const> all_page_row_offsets,
   size_type total_rows,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   auto const temp_mr   = cudf::get_current_device_resource_ref();
   auto const num_items = static_cast<cuda::std::int64_t>(all_page_row_offsets.size());
@@ -426,7 +426,7 @@ constexpr auto min_segments_for_device_offsets = 1024;
   cudf::device_span<size_type const> input_slice_bounds,
   cudf::device_span<size_type const> segment_row_offsets,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   auto const num_inputs   = input_slice_bounds.size() - 1;
   auto const num_segments = segment_row_offsets.size() - 1;
@@ -656,7 +656,7 @@ std::unique_ptr<column> compute_row_mask_from_page_stats(
   size_type total_rows,
   std::reference_wrapper<ast::expression const> stats_expression,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
 

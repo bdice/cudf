@@ -19,7 +19,6 @@
 #include <cudf/utilities/span.hpp>
 
 #include <rmm/device_buffer.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/stream>
 
@@ -97,7 +96,7 @@ void setup_page_indexes(cudf::io::parquet::experimental::hybrid_scan_multifile c
   std::pair<std::vector<cudf::io::text::byte_range_info>, std::vector<cudf::size_type>> const&
     byte_ranges_and_source_map,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 /**
  * @brief Concatenate a vector of tables and return the resultant table
@@ -111,7 +110,7 @@ void setup_page_indexes(cudf::io::parquet::experimental::hybrid_scan_multifile c
 [[nodiscard]] std::unique_ptr<cudf::table> concatenate_tables(
   std::vector<std::unique_ptr<cudf::table>>&& tables,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 /**
  * @brief Creates a table and writes it to Parquet host buffer with column level statistics
@@ -164,7 +163,7 @@ template <typename T,
   cudf::io::parquet::experimental::hybrid_scan_reader& reader,
   cudf::io::parquet_reader_options const& options,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 /**
  * @brief Prune row groups using column chunk dictionaries via the multi-file hybrid scan reader
@@ -176,4 +175,4 @@ template <typename T,
   cudf::io::parquet::experimental::hybrid_scan_multifile& reader,
   cudf::io::parquet_reader_options const& options,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);

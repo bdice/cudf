@@ -998,7 +998,7 @@ transform_args ast_converter::compute_table(
   table_view const& right_table,
   std::string_view function_name,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   ast_converter converter{stream, mr, left_table, right_table};
 
@@ -1061,7 +1061,7 @@ transform_args ast_converter::filter(target target_id,
                                      table_view const& right_table,
                                      std::string_view function_name,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
 {
   auto filter = ast::detail::predicate{expr};
   std::array<std::reference_wrapper<ast::expression const>, 1> expressions{filter};

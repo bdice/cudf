@@ -39,14 +39,14 @@ struct reduction_parameters {
   data_type const output_dtype;
   std::optional<std::reference_wrapper<scalar const>> init;
   cuda::stream_ref stream;
-  rmm::device_async_resource_ref mr;
+  cudf::device_resource_ref mr;
 
   reduction_parameters(reduce_aggregation const& agg,
                        column_view const& col,
                        data_type const output_dtype,
                        std::optional<std::reference_wrapper<scalar const>> init,
                        cuda::stream_ref stream,
-                       rmm::device_async_resource_ref mr)
+                       cudf::device_resource_ref mr)
     : agg(agg), col(col), output_dtype(output_dtype), init(init), stream(stream), mr(std::move(mr))
   {
   }
@@ -476,7 +476,7 @@ std::unique_ptr<scalar> reduce(column_view const& col,
                                data_type output_dtype,
                                std::optional<std::reference_wrapper<scalar const>> init,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(!init.has_value() || cudf::have_same_types(col, init.value().get()),
                "column and initial value must be the same type",
@@ -518,7 +518,7 @@ std::unique_ptr<scalar> reduce(column_view const& col,
                                reduce_aggregation const& agg,
                                data_type output_dtype,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return reduction::detail::reduce(col, agg, output_dtype, std::nullopt, stream, mr);
@@ -529,7 +529,7 @@ std::unique_ptr<scalar> reduce(column_view const& col,
                                data_type output_dtype,
                                std::optional<std::reference_wrapper<scalar const>> init,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return reduction::detail::reduce(col, agg, output_dtype, init, stream, mr);

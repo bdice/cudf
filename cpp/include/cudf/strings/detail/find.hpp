@@ -14,7 +14,7 @@ namespace cudf::strings::detail {
 std::unique_ptr<column> contains(strings_column_view const& input,
                                  string_scalar const& target,
                                  cuda::stream_ref stream,
-                                 rmm::device_async_resource_ref mr);
+                                 cudf::device_resource_ref mr);
 
 /**
  * @copydoc cudf::strings::starts_with
@@ -22,7 +22,7 @@ std::unique_ptr<column> contains(strings_column_view const& input,
 std::unique_ptr<column> starts_with(strings_column_view const& input,
                                     string_scalar const& target,
                                     cuda::stream_ref stream,
-                                    rmm::device_async_resource_ref mr);
+                                    cudf::device_resource_ref mr);
 
 /**
  * @copydoc cudf::strings::ends_with
@@ -30,7 +30,7 @@ std::unique_ptr<column> starts_with(strings_column_view const& input,
 std::unique_ptr<column> ends_with(strings_column_view const& input,
                                   string_scalar const& target,
                                   cuda::stream_ref stream,
-                                  rmm::device_async_resource_ref mr);
+                                  cudf::device_resource_ref mr);
 
 /**
  * @copydoc cudf::strings::count
@@ -38,6 +38,6 @@ std::unique_ptr<column> ends_with(strings_column_view const& input,
 std::unique_ptr<column> count(strings_column_view const& input,
                               string_scalar const& target,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr);
+                              cudf::device_resource_ref mr);
 
 }  // namespace cudf::strings::detail

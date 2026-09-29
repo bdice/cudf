@@ -70,7 +70,7 @@ void generate_depth_remappings(
   std::vector<size_t> const& column_chunk_offsets,
   std::vector<size_type> const& chunk_source_map,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 /**
  * @brief Return the number of total pages from the given column chunks.

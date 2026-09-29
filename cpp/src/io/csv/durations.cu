@@ -163,7 +163,7 @@ struct dispatch_from_durations_fn {
   template <typename T>
   std::unique_ptr<column> operator()(column_view const& durations,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr) const
+                                     cudf::device_resource_ref mr) const
     requires(cudf::is_duration<T>())
   {
     size_type strings_count = durations.size();
@@ -201,7 +201,7 @@ struct dispatch_from_durations_fn {
   template <typename T>
   std::unique_ptr<column> operator()(column_view const&,
                                      cuda::stream_ref,
-                                     rmm::device_async_resource_ref) const
+                                     cudf::device_resource_ref) const
     requires(not cudf::is_duration<T>())
   {
     CUDF_FAIL("Values for from_durations function must be a duration type.");
@@ -212,7 +212,7 @@ struct dispatch_from_durations_fn {
 
 std::unique_ptr<column> pandas_format_durations(column_view const& durations,
                                                 cuda::stream_ref stream,
-                                                rmm::device_async_resource_ref mr)
+                                                cudf::device_resource_ref mr)
 {
   size_type strings_count = durations.size();
   if (strings_count == 0) return make_empty_column(type_id::STRING);

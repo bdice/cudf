@@ -27,7 +27,7 @@ rmm::device_uvector<bool> contains(table_view const& haystack,
                                    null_equality compare_nulls,
                                    nan_equality compare_nans,
                                    cuda::stream_ref stream,
-                                   rmm::device_async_resource_ref mr)
+                                   cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(cudf::have_same_types(haystack, needles), "Column types mismatch");
 

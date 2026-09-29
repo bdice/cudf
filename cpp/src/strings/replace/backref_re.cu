@@ -95,7 +95,7 @@ std::unique_ptr<column> replace_with_backrefs(strings_column_view const& input,
                                               regex_program const& prog,
                                               std::string_view replacement,
                                               cuda::stream_ref stream,
-                                              rmm::device_async_resource_ref mr)
+                                              cudf::device_resource_ref mr)
 {
   if (input.is_empty()) return make_empty_column(type_id::STRING);
 
@@ -139,7 +139,7 @@ std::unique_ptr<column> replace_with_backrefs(strings_column_view const& strings
                                               regex_program const& prog,
                                               std::string_view replacement,
                                               cuda::stream_ref stream,
-                                              rmm::device_async_resource_ref mr)
+                                              cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::replace_with_backrefs(strings, prog, replacement, stream, mr);

@@ -139,7 +139,7 @@ std::unique_ptr<column> nth_element(size_type n,
                                     FollowingIter following,
                                     size_type min_periods,
                                     cuda::stream_ref stream,
-                                    rmm::device_async_resource_ref mr)
+                                    cudf::device_resource_ref mr)
 {
   auto const gather_iter = cudf::detail::make_counting_transform_iterator(
     0,

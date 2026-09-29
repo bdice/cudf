@@ -21,7 +21,7 @@ using hash_value_type = uint64_t;
 std::unique_ptr<column> xxhash_64(table_view const& input,
                                   uint64_t seed,
                                   cuda::stream_ref stream,
-                                  rmm::device_async_resource_ref mr)
+                                  cudf::device_resource_ref mr)
 {
   auto output = make_numeric_column(data_type(type_to_id<hash_value_type>()),
                                     input.num_rows(),
@@ -53,7 +53,7 @@ std::unique_ptr<column> xxhash_64(table_view const& input,
 std::unique_ptr<column> xxhash_64(table_view const& input,
                                   uint64_t seed,
                                   cuda::stream_ref stream,
-                                  rmm::device_async_resource_ref mr)
+                                  cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::xxhash_64(input, seed, stream, mr);

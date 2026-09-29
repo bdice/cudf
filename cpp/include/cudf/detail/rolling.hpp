@@ -58,7 +58,7 @@ struct preprocessed_group_info {
  *            column_view const& following_window,
  *            size_type min_periods,
  *            rolling_aggregation const& agg,
- *            rmm::device_async_resource_ref mr)
+ *            cudf::device_resource_ref mr)
  *
  * @param stream CUDA stream used for device memory operations and kernel launches.
  */
@@ -68,7 +68,7 @@ std::unique_ptr<column> rolling_window(column_view const& input,
                                        size_type min_periods,
                                        rolling_aggregation const& agg,
                                        cuda::stream_ref stream,
-                                       rmm::device_async_resource_ref mr);
+                                       cudf::device_resource_ref mr);
 
 /**
  * @brief Make a column representing the window offsets for a range-based window
@@ -97,7 +97,7 @@ std::unique_ptr<column> rolling_window(column_view const& input,
   null_order null_order,
   range_window_type window,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 }  // namespace detail
 }  // namespace cudf

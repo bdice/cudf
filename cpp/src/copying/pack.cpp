@@ -273,7 +273,7 @@ table_view unpack(uint8_t const* metadata, uint8_t const* gpu_data)
  */
 packed_columns pack(cudf::table_view const& input,
                     cuda::stream_ref stream,
-                    rmm::device_async_resource_ref mr)
+                    cudf::device_resource_ref mr)
 {
   // do a contiguous_split with no splits to get the memory for the table
   // arranged as we want it
@@ -442,7 +442,7 @@ packed_metadata_view::column_view packed_metadata_view::column(size_type i) cons
  */
 packed_columns pack(cudf::table_view const& input,
                     cuda::stream_ref stream,
-                    rmm::device_async_resource_ref mr)
+                    cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::pack(input, stream, mr);

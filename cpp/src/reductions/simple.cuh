@@ -46,7 +46,7 @@ template <typename ElementType, typename ResultType, typename Op>
 std::unique_ptr<scalar> simple_reduction(column_view const& col,
                                          std::optional<std::reference_wrapper<scalar const>> init,
                                          cuda::stream_ref stream,
-                                         rmm::device_async_resource_ref mr)
+                                         cudf::device_resource_ref mr)
 {
   // reduction by iterator
   auto dcol      = cudf::column_device_view::create(col, stream);
@@ -99,7 +99,7 @@ std::unique_ptr<scalar> fixed_point_reduction(
   column_view const& col,
   std::optional<std::reference_wrapper<scalar const>> init,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   using Type = device_storage_type_t<DecimalXX>;
 
@@ -142,7 +142,7 @@ std::unique_ptr<scalar> dictionary_reduction(
   column_view const& col,
   std::optional<std::reference_wrapper<scalar const>> init,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(!init.has_value(), "Initial value not supported for dictionary reductions");
 
@@ -205,7 +205,7 @@ struct cast_numeric_scalar_fn {
   template <typename ResultType>
   std::unique_ptr<scalar> operator()(numeric_scalar<InputType>* input,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(is_supported<ResultType>())
   {
     auto d_input  = cudf::get_scalar_device_view(*input);
@@ -219,7 +219,7 @@ struct cast_numeric_scalar_fn {
   template <typename ResultType>
   std::unique_ptr<scalar> operator()(numeric_scalar<InputType>*,
                                      cuda::stream_ref,
-                                     rmm::device_async_resource_ref)
+                                     cudf::device_resource_ref)
     requires(not is_supported<ResultType>())
   {
     CUDF_FAIL("input data type is not convertible to output data type");
@@ -239,7 +239,7 @@ struct bool_result_element_dispatcher {
   std::unique_ptr<scalar> operator()(column_view const& col,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(std::is_arithmetic_v<ElementType>)
   {
     return simple_reduction<ElementType, bool, Op>(col, init, stream, mr);
@@ -249,7 +249,7 @@ struct bool_result_element_dispatcher {
   std::unique_ptr<scalar> operator()(column_view const&,
                                      std::optional<std::reference_wrapper<scalar const>>,
                                      cuda::stream_ref,
-                                     rmm::device_async_resource_ref)
+                                     cudf::device_resource_ref)
     requires(not std::is_arithmetic_v<ElementType>)
   {
     CUDF_FAIL("Reduction operator not supported for this type");
@@ -276,7 +276,7 @@ struct same_element_type_dispatcher {
   std::unique_ptr<scalar> resolve_key(column_view const& keys,
                                       scalar const& keys_index,
                                       cuda::stream_ref stream,
-                                      rmm::device_async_resource_ref mr)
+                                      cudf::device_resource_ref mr)
     requires(cudf::is_index_type<IndexType>())
   {
     auto& index = static_cast<numeric_scalar<IndexType> const&>(keys_index);
@@ -287,7 +287,7 @@ struct same_element_type_dispatcher {
   std::unique_ptr<scalar> resolve_key(column_view const&,
                                       scalar const&,
                                       cuda::stream_ref,
-                                      rmm::device_async_resource_ref)
+                                      cudf::device_resource_ref)
     requires(!cudf::is_index_type<IndexType>())
   {
     CUDF_FAIL("index type expected for dictionary column");
@@ -298,7 +298,7 @@ struct same_element_type_dispatcher {
   std::unique_ptr<scalar> operator()(column_view const& input,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(cudf::is_nested<ElementType>() &&
              (std::is_same_v<Op, cudf::reduction::detail::op::min> ||
               std::is_same_v<Op, cudf::reduction::detail::op::max>))
@@ -325,7 +325,7 @@ struct same_element_type_dispatcher {
   std::unique_ptr<scalar> operator()(column_view const& col,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(is_supported<ElementType>() && !cudf::is_nested<ElementType>() &&
              !cudf::is_fixed_point<ElementType>())
   {
@@ -341,7 +341,7 @@ struct same_element_type_dispatcher {
   std::unique_ptr<scalar> operator()(column_view const& col,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(cudf::is_fixed_point<ElementType>())
   {
     return fixed_point_reduction<ElementType, Op>(col, init, stream, mr);
@@ -351,7 +351,7 @@ struct same_element_type_dispatcher {
   std::unique_ptr<scalar> operator()(column_view const&,
                                      std::optional<std::reference_wrapper<scalar const>>,
                                      cuda::stream_ref,
-                                     rmm::device_async_resource_ref)
+                                     cudf::device_resource_ref)
     requires(not is_supported<ElementType>())
   {
     CUDF_FAIL("Reduction operator not supported for this type");
@@ -376,7 +376,7 @@ struct element_type_dispatcher {
   std::unique_ptr<scalar> reduce(column_view const& col,
                                  std::optional<std::reference_wrapper<scalar const>> init,
                                  cuda::stream_ref stream,
-                                 rmm::device_async_resource_ref mr)
+                                 cudf::device_resource_ref mr)
   {
     return !cudf::is_dictionary(col.type())
              ? simple_reduction<ElementType, OutputType, Op>(col, init, stream, mr)
@@ -399,7 +399,7 @@ struct element_type_dispatcher {
                                      data_type const output_type,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(cudf::is_numeric<ElementType>())
   {
     if (output_type.id() == cudf::type_to_id<ElementType>()) {
@@ -425,7 +425,7 @@ struct element_type_dispatcher {
                                      data_type const output_type,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(cudf::is_fixed_point<ElementType>())
   {
     CUDF_EXPECTS(output_type == col.type(), "Output type must be same as input column type.");
@@ -437,7 +437,7 @@ struct element_type_dispatcher {
                                      data_type const,
                                      std::optional<std::reference_wrapper<scalar const>> init,
                                      cuda::stream_ref,
-                                     rmm::device_async_resource_ref)
+                                     cudf::device_resource_ref)
     requires(not cudf::is_numeric<ElementType>() and not cudf::is_fixed_point<ElementType>())
   {
     CUDF_FAIL("Reduction operator not supported for this type");

@@ -53,7 +53,7 @@ struct SHA224Hash : HashBase<SHA224Hash> {
 
 std::unique_ptr<column> sha224(table_view const& input,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
 {
   return sha_hash<SHA224Hash>(input, stream, mr);
 }
@@ -62,7 +62,7 @@ std::unique_ptr<column> sha224(table_view const& input,
 
 std::unique_ptr<column> sha224(table_view const& input,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::sha224(input, stream, mr);

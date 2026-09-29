@@ -45,9 +45,9 @@ int main(int argc, char** argv)
     std::make_shared<rapidsmpf::MPI>(MPI_COMM_WORLD, progress_thread, log);
 
   // We will use the same stream, memory, and buffer resource throughout the example.
-  cuda::stream_ref stream           = cudf::get_default_stream();
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref();
-  auto br                           = rapidsmpf::BufferResource::create(mr);
+  cuda::stream_ref stream      = cudf::get_default_stream();
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref();
+  auto br                      = rapidsmpf::BufferResource::create(mr);
 
   // As input data, we use a helper function from the benchmark suite. It creates a
   // random cudf table with 2 columns and 100 rows. In this example, each MPI rank

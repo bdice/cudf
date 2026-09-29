@@ -242,7 +242,7 @@ class key_remap_table_interface {
   virtual std::unique_ptr<rmm::device_uvector<cudf::size_type>> probe(
     cudf::table_view const& left_keys,
     cuda::stream_ref stream,
-    rmm::device_async_resource_ref mr) const = 0;
+    cudf::device_resource_ref mr) const = 0;
 
   virtual bool has_metrics() const                        = 0;
   virtual cudf::size_type get_distinct_count() const      = 0;
@@ -371,7 +371,7 @@ class key_remap_table : public key_remap_table_interface {
   std::unique_ptr<rmm::device_uvector<cudf::size_type>> probe(
     cudf::table_view const& left_keys,
     cuda::stream_ref stream,
-    rmm::device_async_resource_ref mr) const override
+    cudf::device_resource_ref mr) const override
   {
     CUDF_FUNC_RANGE();
 
@@ -578,8 +578,9 @@ class key_remapping_impl {
   {
   }
 
-  std::unique_ptr<rmm::device_uvector<cudf::size_type>> probe(
-    cudf::table_view const& keys, cuda::stream_ref stream, rmm::device_async_resource_ref mr) const
+  std::unique_ptr<rmm::device_uvector<cudf::size_type>> probe(cudf::table_view const& keys,
+                                                              cuda::stream_ref stream,
+                                                              cudf::device_resource_ref mr) const
   {
     CUDF_EXPECTS(keys.num_columns() == _right.num_columns(),
                  "Mismatch in number of columns to be joined on",
@@ -654,7 +655,7 @@ std::unique_ptr<cudf::column> remap_keys_internal(detail::key_remapping_impl con
                                                   cudf::table_view const& keys,
                                                   cudf::size_type not_found_sentinel,
                                                   cuda::stream_ref stream,
-                                                  rmm::device_async_resource_ref mr)
+                                                  cudf::device_resource_ref mr)
 {
   auto indices = impl.probe(keys, stream, mr);
 
@@ -675,16 +676,17 @@ std::unique_ptr<cudf::column> remap_keys_internal(detail::key_remapping_impl con
 }
 }  // namespace
 
-std::unique_ptr<cudf::column> key_remapping::remap_right_keys(
-  cuda::stream_ref stream, rmm::device_async_resource_ref mr) const
+std::unique_ptr<cudf::column> key_remapping::remap_right_keys(cuda::stream_ref stream,
+                                                              cudf::device_resource_ref mr) const
 {
   CUDF_FUNC_RANGE();
   // Use the cached right table from the implementation
   return remap_keys_internal(*_impl, _impl->get_right(), KEY_REMAP_RIGHT_NULL, stream, mr);
 }
 
-std::unique_ptr<cudf::column> key_remapping::remap_left_keys(
-  cudf::table_view const& keys, cuda::stream_ref stream, rmm::device_async_resource_ref mr) const
+std::unique_ptr<cudf::column> key_remapping::remap_left_keys(cudf::table_view const& keys,
+                                                             cuda::stream_ref stream,
+                                                             cudf::device_resource_ref mr) const
 {
   CUDF_FUNC_RANGE();
   return remap_keys_internal(*_impl, keys, KEY_REMAP_NOT_FOUND, stream, mr);

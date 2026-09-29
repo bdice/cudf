@@ -79,7 +79,7 @@ struct transform_output {
   std::optional<size_type> row_size = std::nullopt,
   output_nullability null_policy    = output_nullability::PRESERVE,
   cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cudf::device_resource_ref mr      = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Describes a transform input independently of a particular column.
@@ -191,8 +191,8 @@ struct transform_program {
    */
   transform_program(table_view const& table,
                     std::span<std::reference_wrapper<ast::expression const> const> expressions,
-                    cuda::stream_ref stream           = cudf::get_default_stream(),
-                    rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+                    cuda::stream_ref stream      = cudf::get_default_stream(),
+                    cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
   /**
    * @brief Move constructor for transform_program
@@ -233,8 +233,8 @@ struct transform_program {
     std::span<transform_output const> outputs,
     std::vector<std::unique_ptr<column>>&& string_offsets,
     std::optional<size_type> row_size,
-    cuda::stream_ref stream           = cudf::get_default_stream(),
-    rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+    cuda::stream_ref stream      = cudf::get_default_stream(),
+    cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
   /**
    * @brief Evaluates the AST expressions used to construct this program on a table.
@@ -249,8 +249,8 @@ struct transform_program {
    */
   std::unique_ptr<table> run(
     table_view const& table,
-    cuda::stream_ref stream           = cudf::get_default_stream(),
-    rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+    cuda::stream_ref stream      = cudf::get_default_stream(),
+    cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 };
 
 /**
@@ -303,8 +303,8 @@ std::unique_ptr<table> transform(
   std::span<transform_output const> outputs,
   std::vector<std::unique_ptr<column>>&& string_offsets,
   std::optional<size_type> row_size,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Creates a new table by applying a transform function against every element of the input
@@ -333,8 +333,8 @@ std::unique_ptr<table> transform(
   std::span<transform_output const> outputs,
   std::vector<std::unique_ptr<column>>&& string_offsets,
   std::optional<size_type> row_size,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief The type of LTO Binary
@@ -391,8 +391,8 @@ std::unique_ptr<table> transform_lto(
   std::span<transform_output const> outputs,
   std::vector<std::unique_ptr<column>>&& string_offsets,
   std::optional<size_type> row_size,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Creates a null_mask from `input` by converting `NaN` elements to null rows
@@ -407,8 +407,8 @@ std::unique_ptr<table> transform_lto(
  */
 std::unique_ptr<column> column_nans_to_nulls(
   column_view const& input,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Compute a new column by evaluating an expression tree on a table.
@@ -431,8 +431,8 @@ std::unique_ptr<column> column_nans_to_nulls(
 std::unique_ptr<column> compute_column(
   table_view const& table,
   ast::expression const& expr,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Compute a new column by evaluating an expression tree on a table using a JIT-compiled
@@ -454,8 +454,8 @@ std::unique_ptr<column> compute_column(
 std::unique_ptr<column> compute_column_jit(
   table_view const& table,
   ast::expression const& expr,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Compute a new table by evaluating expression trees on a table using a JIT-compiled
@@ -482,8 +482,8 @@ std::unique_ptr<column> compute_column_jit(
 std::unique_ptr<table> compute_table_jit(
   table_view const& table,
   std::span<std::reference_wrapper<ast::expression const> const> expressions,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Creates a bitmask from a column of boolean elements.
@@ -503,8 +503,8 @@ std::unique_ptr<table> compute_table_jit(
  */
 std::pair<std::unique_ptr<cuda::device_buffer<std::byte>>, cudf::size_type> bools_to_mask(
   column_view const& input,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Encode the rows of the given table as integers
@@ -533,8 +533,8 @@ std::pair<std::unique_ptr<cuda::device_buffer<std::byte>>, cudf::size_type> bool
  */
 std::pair<std::unique_ptr<cudf::table>, std::unique_ptr<cudf::column>> encode(
   cudf::table_view const& input,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Encodes `input` by generating a new column for each value in `categories` indicating the
@@ -567,8 +567,8 @@ std::pair<std::unique_ptr<cudf::table>, std::unique_ptr<cudf::column>> encode(
 std::pair<std::unique_ptr<column>, table_view> one_hot_encode(
   column_view const& input,
   column_view const& categories,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Creates a boolean column from given bitmask.
@@ -596,8 +596,8 @@ std::unique_ptr<column> mask_to_bools(
   bitmask_type const* bitmask,
   size_type begin_bit,
   size_type end_bit,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Returns an approximate cumulative size in bits of all columns in the `table_view` for
@@ -627,8 +627,8 @@ std::unique_ptr<column> mask_to_bools(
  */
 std::unique_ptr<column> row_bit_count(
   table_view const& t,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Returns an approximate cumulative size in bits of all columns in the `table_view` for
@@ -652,8 +652,8 @@ std::unique_ptr<column> row_bit_count(
 std::unique_ptr<column> segmented_row_bit_count(
   table_view const& t,
   size_type segment_length,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /** @} */  // end of group
 }  // namespace CUDF_EXPORT cudf

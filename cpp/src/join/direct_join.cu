@@ -72,7 +72,7 @@ direct_inner_join(column_view const& left_keys,
                   column_view const& right_keys,
                   std::size_t capacity,
                   cuda::stream_ref stream,
-                  rmm::device_async_resource_ref mr)
+                  cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(
     left_keys.type().id() == type_id::UINT32 and right_keys.type().id() == type_id::UINT32,
@@ -131,7 +131,7 @@ direct_inner_join(column_view const& left_keys,
                   column_view const& right_keys,
                   std::size_t capacity,
                   cuda::stream_ref stream,
-                  rmm::device_async_resource_ref mr)
+                  cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::direct_inner_join(left_keys, right_keys, capacity, stream, mr);

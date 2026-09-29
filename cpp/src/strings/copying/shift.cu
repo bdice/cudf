@@ -82,7 +82,7 @@ std::unique_ptr<column> shift(strings_column_view const& input,
                               size_type offset,
                               scalar const& fill_value,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr)
+                              cudf::device_resource_ref mr)
 {
   auto d_fill_str = static_cast<string_scalar const&>(fill_value).value(stream);
 

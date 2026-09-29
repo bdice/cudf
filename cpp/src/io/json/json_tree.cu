@@ -231,7 +231,7 @@ tree_meta_t get_tree_representation(device_span<PdaTokenT const> tokens,
                                     device_span<SymbolOffsetT const> token_indices,
                                     bool is_strict_nested_boundaries,
                                     cuda::stream_ref stream,
-                                    rmm::device_async_resource_ref mr)
+                                    cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   // Whether a token does represent a node in the tree representation
@@ -801,7 +801,7 @@ std::pair<rmm::device_uvector<size_type>, rmm::device_uvector<size_type>> hash_n
   bool is_array_of_arrays,
   bool is_enabled_lines,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   auto const num_nodes = parent_node_ids.size();
@@ -953,7 +953,7 @@ std::pair<rmm::device_uvector<NodeIndexT>, rmm::device_uvector<NodeIndexT>> gene
   bool is_enabled_lines,
   bool is_enabled_experimental,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   auto const num_nodes = d_tree.node_categories.size();
@@ -1024,7 +1024,7 @@ rmm::device_uvector<size_type> compute_row_offsets(rmm::device_uvector<NodeIndex
                                                    bool is_array_of_arrays,
                                                    bool is_enabled_lines,
                                                    cuda::stream_ref stream,
-                                                   rmm::device_async_resource_ref mr)
+                                                   cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   auto const num_nodes = d_tree.node_categories.size();
@@ -1128,7 +1128,7 @@ records_orient_tree_traversal(device_span<SymbolT const> d_input,
                               bool is_enabled_lines,
                               bool is_enabled_experimental,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr)
+                              cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   auto [new_col_id, new_parent_col_id] = generate_column_id(

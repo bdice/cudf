@@ -37,7 +37,7 @@ struct find_index_fn {
   std::unique_ptr<scalar> operator()(dictionary_column_view const& input,
                                      scalar const& key,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr) const
+                                     cudf::device_resource_ref mr) const
     requires(not std::is_same_v<Element, dictionary32> and
              not std::is_same_v<Element, list_view> and not std::is_same_v<Element, struct_view>)
   {
@@ -73,7 +73,7 @@ struct find_index_fn {
   std::unique_ptr<scalar> operator()(dictionary_column_view const&,
                                      scalar const&,
                                      cuda::stream_ref,
-                                     rmm::device_async_resource_ref) const
+                                     cudf::device_resource_ref) const
     requires(std::is_same_v<Element, dictionary32> or std::is_same_v<Element, list_view> or
              std::is_same_v<Element, struct_view>)
   {
@@ -87,7 +87,7 @@ struct find_index_fn {
 std::unique_ptr<scalar> get_index(dictionary_column_view const& dictionary,
                                   scalar const& key,
                                   cuda::stream_ref stream,
-                                  rmm::device_async_resource_ref mr)
+                                  cudf::device_resource_ref mr)
 {
   if (dictionary.is_empty()) {
     return std::make_unique<numeric_scalar<int32_t>>(0, false, stream, mr);
@@ -103,7 +103,7 @@ std::unique_ptr<scalar> get_index(dictionary_column_view const& dictionary,
 std::unique_ptr<scalar> get_index(dictionary_column_view const& dictionary,
                                   scalar const& key,
                                   cuda::stream_ref stream,
-                                  rmm::device_async_resource_ref mr)
+                                  cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::get_index(dictionary, key, stream, mr);

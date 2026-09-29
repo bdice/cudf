@@ -5,9 +5,9 @@
 #pragma once
 
 #include <cudf/column/column.hpp>
+#include <cudf/types.hpp>
 
 #include <rmm/device_buffer.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/buffer>
 #include <cuda/stream>
@@ -35,7 +35,7 @@ std::unique_ptr<column> string_column_from_arrow_host(
   std::unique_ptr<cuda::device_buffer<std::byte>>&& mask,
   size_type null_count,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 /**
  * @brief Create offsets column for list or strings column
@@ -51,7 +51,7 @@ std::tuple<std::unique_ptr<column>, int64_t, int64_t> get_offsets_column(
   ArrowSchemaView const* schema,
   ArrowArray const* input,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 /**
  * @brief Create the offsets column for a fixed-size-list array
@@ -69,7 +69,7 @@ std::tuple<std::unique_ptr<column>, int64_t, int64_t> get_offsets_column(
 std::unique_ptr<column> make_fixed_size_list_offsets(size_type num_offsets,
                                                      int32_t width,
                                                      cuda::stream_ref stream,
-                                                     rmm::device_async_resource_ref mr);
+                                                     cudf::device_resource_ref mr);
 
 }  // namespace detail
 }  // namespace cudf

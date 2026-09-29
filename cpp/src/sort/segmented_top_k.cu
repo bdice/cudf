@@ -75,7 +75,7 @@ std::unique_ptr<column> segmented_top_k_order(column_view const& col,
                                               size_type k,
                                               order topk_order,
                                               cuda::stream_ref stream,
-                                              rmm::device_async_resource_ref mr)
+                                              cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(k >= 0, "k must be greater than or equal to 0", std::invalid_argument);
 
@@ -134,7 +134,7 @@ std::unique_ptr<column> segmented_top_k(column_view const& col,
                                         size_type k,
                                         order topk_order,
                                         cuda::stream_ref stream,
-                                        rmm::device_async_resource_ref mr)
+                                        cudf::device_resource_ref mr)
 {
   if (col.is_empty()) { return cudf::make_empty_column(col.type()); }
 
@@ -165,7 +165,7 @@ std::unique_ptr<column> segmented_top_k(column_view const& col,
                                         size_type k,
                                         order topk_order,
                                         cuda::stream_ref stream,
-                                        rmm::device_async_resource_ref mr)
+                                        cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::segmented_top_k(col, segment_offsets, k, topk_order, stream, mr);
@@ -176,7 +176,7 @@ std::unique_ptr<column> segmented_top_k_order(column_view const& col,
                                               size_type k,
                                               order topk_order,
                                               cuda::stream_ref stream,
-                                              rmm::device_async_resource_ref mr)
+                                              cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::segmented_top_k_order(col, segment_offsets, k, topk_order, stream, mr);

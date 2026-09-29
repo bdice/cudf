@@ -43,7 +43,7 @@ std::unique_ptr<cudf::column> segmented_nunique(column_view const& col,
                                                 device_span<size_type const> offsets,
                                                 null_policy null_handling,
                                                 cuda::stream_ref stream,
-                                                rmm::device_async_resource_ref mr)
+                                                cudf::device_resource_ref mr)
 {
   // only support non-nested types
   CUDF_EXPECTS(!cudf::is_nested(col.type()),

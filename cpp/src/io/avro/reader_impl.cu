@@ -348,7 +348,7 @@ std::vector<column_buffer> decode_data(metadata& meta,
                                        std::vector<std::pair<int, std::string>> const& selection,
                                        std::vector<data_type> const& column_types,
                                        cuda::stream_ref stream,
-                                       rmm::device_async_resource_ref mr)
+                                       cudf::device_resource_ref mr)
 {
   auto out_buffers = std::vector<column_buffer>();
 
@@ -460,7 +460,7 @@ std::vector<column_buffer> decode_data(metadata& meta,
 table_with_metadata read_avro(std::unique_ptr<cudf::io::datasource>&& source,
                               avro_reader_options const& options,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr)
+                              cudf::device_resource_ref mr)
 {
   auto skip_rows = options.get_skip_rows();
   auto num_rows  = options.get_num_rows();

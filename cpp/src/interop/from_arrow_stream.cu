@@ -12,8 +12,7 @@
 #include <cudf/interop.hpp>
 #include <cudf/null_mask.hpp>
 #include <cudf/table/table.hpp>
-
-#include <rmm/resource_ref.hpp>
+#include <cudf/types.hpp>
 
 #include <cuda/stream>
 
@@ -32,7 +31,7 @@ namespace {
 
 std::unique_ptr<column> make_empty_column_from_schema(ArrowSchema const* schema,
                                                       cuda::stream_ref stream,
-                                                      rmm::device_async_resource_ref mr)
+                                                      cudf::device_resource_ref mr)
 {
   ArrowSchemaView schema_view;
   NANOARROW_THROW_NOT_OK(ArrowSchemaViewInit(&schema_view, schema, nullptr));
@@ -78,7 +77,7 @@ std::unique_ptr<column> make_empty_column_from_schema(ArrowSchema const* schema,
 
 std::unique_ptr<table> from_arrow_stream(ArrowArrayStream* input,
                                          cuda::stream_ref stream,
-                                         rmm::device_async_resource_ref mr)
+                                         cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(input != nullptr, "input ArrowArrayStream must not be NULL", std::invalid_argument);
 
@@ -139,7 +138,7 @@ std::unique_ptr<table> from_arrow_stream(ArrowArrayStream* input,
 
 std::unique_ptr<column> from_arrow_stream_column(ArrowArrayStream* input,
                                                  cuda::stream_ref stream,
-                                                 rmm::device_async_resource_ref mr)
+                                                 cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(input != nullptr, "input ArrowArrayStream must not be NULL", std::invalid_argument);
 
@@ -190,7 +189,7 @@ std::unique_ptr<column> from_arrow_stream_column(ArrowArrayStream* input,
 
 std::unique_ptr<table> from_arrow_stream(ArrowArrayStream* input,
                                          cuda::stream_ref stream,
-                                         rmm::device_async_resource_ref mr)
+                                         cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::from_arrow_stream(input, stream, mr);
@@ -198,7 +197,7 @@ std::unique_ptr<table> from_arrow_stream(ArrowArrayStream* input,
 
 std::unique_ptr<column> from_arrow_stream_column(ArrowArrayStream* input,
                                                  cuda::stream_ref stream,
-                                                 rmm::device_async_resource_ref mr)
+                                                 cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::from_arrow_stream_column(input, stream, mr);

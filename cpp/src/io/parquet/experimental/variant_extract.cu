@@ -1135,7 +1135,7 @@ struct cast_variant_fn {
   cuda::device_buffer<std::byte> null_mask{
     cudf::create_null_mask(0, cudf::mask_state::UNALLOCATED)};
   cuda::stream_ref stream;
-  rmm::device_async_resource_ref mr;
+  cudf::device_resource_ref mr;
   // In-out status tracking; null when no status was requested.
   op_status* d_status{nullptr};
 
@@ -1299,7 +1299,7 @@ __device__ cuda::std::optional<variant_logical_type> logical_type_of(device_span
 
 std::unique_ptr<column> build_path_column(cudf::host_span<std::string const> steps,
                                           cuda::stream_ref stream,
-                                          rmm::device_async_resource_ref mr)
+                                          cudf::device_resource_ref mr)
 {
   auto const depth = steps.size();
 
@@ -1336,7 +1336,7 @@ std::unique_ptr<column> get_variant_field(column_view const& variant_column,
                                           std::string_view path,
                                           std::optional<mutable_column_view> status,
                                           cuda::stream_ref stream,
-                                          rmm::device_async_resource_ref mr)
+                                          cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(variant_column.type().id() == type_id::STRUCT,
                "VARIANT column must be struct type",
@@ -1454,7 +1454,7 @@ std::unique_ptr<column> cast_variant(column_view const& values,
                                      data_type desired_type,
                                      std::optional<mutable_column_view> status,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
 {
   validate_variant_child(values);
 
@@ -1513,7 +1513,7 @@ std::unique_ptr<column> cast_variant(column_view const& values,
 
 std::unique_ptr<column> get_variant_type_id(column_view const& values,
                                             cuda::stream_ref stream,
-                                            rmm::device_async_resource_ref mr)
+                                            cudf::device_resource_ref mr)
 {
   validate_variant_child(values);
   size_type const num_rows = values.size();
@@ -1558,7 +1558,7 @@ std::unique_ptr<column> get_variant_field(column_view const& variant_column,
                                           std::string_view path,
                                           std::optional<mutable_column_view> status,
                                           cuda::stream_ref stream,
-                                          rmm::device_async_resource_ref mr)
+                                          cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::get_variant_field(variant_column, path, status, stream, mr);
@@ -1568,7 +1568,7 @@ std::unique_ptr<column> cast_variant(column_view const& values,
                                      data_type desired_type,
                                      std::optional<mutable_column_view> status,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::cast_variant(values, desired_type, status, stream, mr);
@@ -1576,7 +1576,7 @@ std::unique_ptr<column> cast_variant(column_view const& values,
 
 std::unique_ptr<column> get_variant_type_id(column_view const& values,
                                             cuda::stream_ref stream,
-                                            rmm::device_async_resource_ref mr)
+                                            cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::get_variant_type_id(values, stream, mr);
@@ -1587,7 +1587,7 @@ std::unique_ptr<column> extract_variant_field(column_view const& variant_column,
                                               data_type desired_type,
                                               std::optional<mutable_column_view> status,
                                               cuda::stream_ref stream,
-                                              rmm::device_async_resource_ref mr)
+                                              cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   auto const temp_mr = cudf::get_current_device_resource_ref();

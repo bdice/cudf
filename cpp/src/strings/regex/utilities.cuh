@@ -112,7 +112,7 @@ auto make_strings_children(SizeAndExecuteFunction size_and_exec_fn,
                            ProgDevice& d_prog,
                            size_type strings_count,
                            cuda::stream_ref stream,
-                           rmm::device_async_resource_ref mr)
+                           cudf::device_resource_ref mr)
 {
   auto output_sizes        = rmm::device_uvector<size_type>(strings_count, stream);
   size_and_exec_fn.d_sizes = output_sizes.data();

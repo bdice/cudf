@@ -46,7 +46,7 @@ struct scan_dispatcher {
   std::unique_ptr<column> operator()(column_view const& input,
                                      bitmask_type const*,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(cuda::std::is_arithmetic_v<T>)
   {
     auto output_column =
@@ -85,7 +85,7 @@ std::unique_ptr<column> scan_exclusive(column_view const& input,
                                        scan_aggregation const& agg,
                                        null_policy null_handling,
                                        cuda::stream_ref stream,
-                                       rmm::device_async_resource_ref mr)
+                                       cudf::device_resource_ref mr)
 {
   auto [mask, null_count] = [&] {
     if (null_handling == null_policy::EXCLUDE) {

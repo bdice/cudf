@@ -10,8 +10,7 @@
 #include <cudf/sorting.hpp>
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
-
-#include <rmm/resource_ref.hpp>
+#include <cudf/types.hpp>
 
 #include <cuda/memory_resource>
 #include <cuda/stream>
@@ -222,7 +221,7 @@ inline void validate_packed_data(rapidsmpf::PackedData&& packed_data,
  */
 class DelayedMemoryResource {
  public:
-  DelayedMemoryResource(rmm::device_async_resource_ref upstream, std::chrono::milliseconds delay)
+  DelayedMemoryResource(cudf::device_resource_ref upstream, std::chrono::milliseconds delay)
     : upstream_{upstream}, delay_{delay}
   {
   }

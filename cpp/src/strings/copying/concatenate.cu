@@ -197,7 +197,7 @@ CUDF_KERNEL void fused_concatenate_string_chars_kernel(column_device_view const*
 
 std::unique_ptr<column> concatenate(host_span<column_view const> columns,
                                     cuda::stream_ref stream,
-                                    rmm::device_async_resource_ref mr)
+                                    cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   // Compute output sizes

@@ -10,6 +10,7 @@
 #include <cudf_test/stream_checking_resource_adaptor.hpp>
 
 #include <cudf/context.hpp>
+#include <cudf/types.hpp>
 #include <cudf/utilities/error.hpp>
 #include <cudf/utilities/export.hpp>
 #include <cudf/utilities/memory_resource.hpp>
@@ -24,7 +25,6 @@
 #include <rmm/mr/pinned_host_memory_resource.hpp>
 #include <rmm/mr/pool_memory_resource.hpp>
 #include <rmm/mr/statistics_resource_adaptor.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/memory_resource>
 #include <cuda/stream>
@@ -49,7 +49,7 @@ struct pinned_pool {
   rmm::mr::pool_memory_resource pool_mr;
 
   explicit pinned_pool(std::size_t pool_size)
-    : pool_mr{rmm::device_async_resource_ref{pinned_mr}, pool_size}
+    : pool_mr{cudf::device_resource_ref{pinned_mr}, pool_size}
   {
   }
 

@@ -7,10 +7,9 @@
 
 #include <cudf/detail/utilities/vector_factories.hpp>
 #include <cudf/io/text/detail/multistate.hpp>
+#include <cudf/types.hpp>
 #include <cudf/utilities/export.hpp>
 #include <cudf/utilities/span.hpp>
-
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/stream>
 
@@ -155,9 +154,7 @@ struct trie {
    * @param mr Memory resource to use for the device memory allocation
    * @return The trie.
    */
-  static trie create(std::string pattern,
-                     cuda::stream_ref stream,
-                     rmm::device_async_resource_ref mr)
+  static trie create(std::string pattern, cuda::stream_ref stream, cudf::device_resource_ref mr)
 
   {
     return create(std::vector<std::string>{std::move(pattern)}, stream, mr);
@@ -173,7 +170,7 @@ struct trie {
    */
   static trie create(std::vector<std::string> const& patterns,
                      cuda::stream_ref stream,
-                     rmm::device_async_resource_ref mr)
+                     cudf::device_resource_ref mr)
   {
     std::vector<char> tokens;
     std::vector<uint8_t> transitions;

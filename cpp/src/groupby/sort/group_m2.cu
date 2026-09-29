@@ -82,7 +82,7 @@ struct m2_functor {
                                      column_view const& group_means,
                                      cudf::device_span<size_type const> group_labels,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(std::is_arithmetic_v<T>)
   {
     using result_type = cudf::detail::target_type_t<T, aggregation::Kind::M2>;
@@ -123,7 +123,7 @@ std::unique_ptr<column> group_m2(column_view const& values,
                                  column_view const& group_means,
                                  cudf::device_span<size_type const> group_labels,
                                  cuda::stream_ref stream,
-                                 rmm::device_async_resource_ref mr)
+                                 cudf::device_resource_ref mr)
 {
   auto values_type = cudf::is_dictionary(values.type())
                        ? dictionary_column_view(values).keys().type()

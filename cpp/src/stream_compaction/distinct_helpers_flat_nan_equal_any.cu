@@ -10,7 +10,6 @@
 #include <cudf/types.hpp>
 
 #include <rmm/device_uvector.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/stream>
 
@@ -23,6 +22,6 @@ template rmm::device_uvector<size_type> reduce_by_row_keep_any(
     cudf::detail::row::equality::nan_equal_physical_equality_comparator>>& set,
   size_type num_rows,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 }  // namespace cudf::detail

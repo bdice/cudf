@@ -60,7 +60,7 @@ struct SHA512Hash : HashBase<SHA512Hash> {
 
 std::unique_ptr<column> sha512(table_view const& input,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
 {
   return sha_hash<SHA512Hash>(input, stream, mr);
 }
@@ -69,7 +69,7 @@ std::unique_ptr<column> sha512(table_view const& input,
 
 std::unique_ptr<column> sha512(table_view const& input,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr)
+                               cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::sha512(input, stream, mr);

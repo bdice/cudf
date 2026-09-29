@@ -7,6 +7,7 @@
 #include "jni_cccl_any_resource.hpp"
 
 #include <cudf/logger.hpp>
+#include <cudf/types.hpp>
 #include <cudf/utilities/error.hpp>
 #include <cudf/utilities/memory_resource.hpp>
 #include <cudf/utilities/pinned_memory.hpp>
@@ -24,7 +25,6 @@
 #include <rmm/mr/pinned_host_memory_resource.hpp>
 #include <rmm/mr/pool_memory_resource.hpp>
 #include <rmm/mr/tracking_resource_adaptor.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/memory_resource>
 #include <cuda/stream>
@@ -936,9 +936,9 @@ JNIEXPORT jlong JNICALL Java_ai_rapids_cudf_Rmm_allocInternal(JNIEnv* env,
   JNI_TRY
   {
     cudf::jni::auto_set_device(env);
-    rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref();
-    auto c_stream                     = cuda::stream_ref(reinterpret_cast<cudaStream_t>(stream));
-    void* ret                         = mr.allocate(c_stream, size, rmm::CUDA_ALLOCATION_ALIGNMENT);
+    cudf::device_resource_ref mr = cudf::get_current_device_resource_ref();
+    auto c_stream                = cuda::stream_ref(reinterpret_cast<cudaStream_t>(stream));
+    void* ret                    = mr.allocate(c_stream, size, rmm::CUDA_ALLOCATION_ALIGNMENT);
     return reinterpret_cast<jlong>(ret);
   }
   JNI_CATCH(env, 0);
@@ -950,9 +950,9 @@ Java_ai_rapids_cudf_Rmm_free(JNIEnv* env, jclass clazz, jlong ptr, jlong size, j
   JNI_TRY
   {
     cudf::jni::auto_set_device(env);
-    rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref();
-    void* cptr                        = reinterpret_cast<void*>(ptr);
-    auto c_stream                     = cuda::stream_ref(reinterpret_cast<cudaStream_t>(stream));
+    cudf::device_resource_ref mr = cudf::get_current_device_resource_ref();
+    void* cptr                   = reinterpret_cast<void*>(ptr);
+    auto c_stream                = cuda::stream_ref(reinterpret_cast<cudaStream_t>(stream));
     mr.deallocate(c_stream, cptr, size, rmm::CUDA_ALLOCATION_ALIGNMENT);
   }
   JNI_CATCH(env, );

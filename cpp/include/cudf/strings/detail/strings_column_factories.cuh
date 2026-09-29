@@ -45,7 +45,7 @@ template <typename IndexPairIterator>
 std::unique_ptr<column> make_strings_column(IndexPairIterator begin,
                                             IndexPairIterator end,
                                             cuda::stream_ref stream,
-                                            rmm::device_async_resource_ref mr)
+                                            cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   size_type strings_count = cuda::std::distance(begin, end);

@@ -55,7 +55,7 @@ std::unique_ptr<table> compute_groupby(table_view const& keys,
                                        Hash const& d_row_hash,
                                        cudf::detail::result_cache* cache,
                                        cuda::stream_ref stream,
-                                       rmm::device_async_resource_ref mr)
+                                       cudf::device_resource_ref mr)
 {
   auto const num_keys = keys.num_rows();
 
@@ -162,7 +162,7 @@ template std::unique_ptr<table> compute_groupby<row_comparator_t, row_hash_t>(
   row_hash_t const& d_row_hash,
   cudf::detail::result_cache* cache,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 
 template std::unique_ptr<table> compute_groupby<nullable_row_comparator_t, row_hash_t>(
   table_view const& keys,
@@ -172,5 +172,5 @@ template std::unique_ptr<table> compute_groupby<nullable_row_comparator_t, row_h
   row_hash_t const& d_row_hash,
   cudf::detail::result_cache* cache,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr);
+  cudf::device_resource_ref mr);
 }  // namespace cudf::groupby::detail::hash

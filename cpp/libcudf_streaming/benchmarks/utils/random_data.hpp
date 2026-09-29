@@ -50,7 +50,7 @@ rmm::device_uvector<std::int32_t> random_device_vector(std::size_t nelem,
                                                        std::int32_t min_val,
                                                        std::int32_t max_val,
                                                        cuda::stream_ref stream,
-                                                       rmm::device_async_resource_ref mr);
+                                                       cudf::device_resource_ref mr);
 
 /**
  * @brief Generates a random numeric column (std::int32_t).
@@ -71,7 +71,7 @@ std::unique_ptr<cudf::column> random_column(cudf::size_type nrows,
                                             std::int32_t min_val,
                                             std::int32_t max_val,
                                             cuda::stream_ref stream,
-                                            rmm::device_async_resource_ref mr);
+                                            cudf::device_resource_ref mr);
 
 /**
  * @brief Generates a random numeric table (std::int32_t).
@@ -94,7 +94,7 @@ cudf::table random_table(cudf::size_type ncolumns,
                          std::int32_t min_val,
                          std::int32_t max_val,
                          cuda::stream_ref stream,
-                         rmm::device_async_resource_ref mr);
+                         cudf::device_resource_ref mr);
 
 /**
  * @brief Fill a rapidsmpf buffer with random data (std::int32_t).
@@ -106,4 +106,4 @@ cudf::table random_table(cudf::size_type ncolumns,
  *
  * @throws std::invalid_argument if the memory type of `buffer` isn't supported.
  */
-void random_fill(rapidsmpf::Buffer& buffer, rmm::device_async_resource_ref mr);
+void random_fill(rapidsmpf::Buffer& buffer, cudf::device_resource_ref mr);

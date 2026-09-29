@@ -20,7 +20,6 @@
 
 #include <rmm/device_uvector.hpp>
 #include <rmm/mr/polymorphic_allocator.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cooperative_groups.h>
 #include <cub/block/block_scan.cuh>
@@ -215,7 +214,7 @@ std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
           std::unique_ptr<rmm::device_uvector<size_type>>>
 distinct_hash_join::inner_join(cudf::table_view const& left,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr) const
+                               cudf::device_resource_ref mr) const
 {
   cudf::scoped_range range{"distinct_hash_join::inner_join"};
 
@@ -311,7 +310,7 @@ distinct_hash_join::inner_join(cudf::table_view const& left,
 }
 
 std::unique_ptr<rmm::device_uvector<size_type>> distinct_hash_join::left_join(
-  cudf::table_view const& left, cuda::stream_ref stream, rmm::device_async_resource_ref mr) const
+  cudf::table_view const& left, cuda::stream_ref stream, cudf::device_resource_ref mr) const
 {
   cudf::scoped_range range{"distinct_hash_join::left_join"};
 
@@ -407,13 +406,13 @@ std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
           std::unique_ptr<rmm::device_uvector<size_type>>>
 distinct_hash_join::inner_join(cudf::table_view const& left,
                                cuda::stream_ref stream,
-                               rmm::device_async_resource_ref mr) const
+                               cudf::device_resource_ref mr) const
 {
   return _impl->inner_join(left, stream, mr);
 }
 
 std::unique_ptr<rmm::device_uvector<size_type>> distinct_hash_join::left_join(
-  cudf::table_view const& left, cuda::stream_ref stream, rmm::device_async_resource_ref mr) const
+  cudf::table_view const& left, cuda::stream_ref stream, cudf::device_resource_ref mr) const
 {
   return _impl->left_join(left, stream, mr);
 }

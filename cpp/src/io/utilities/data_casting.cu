@@ -797,7 +797,7 @@ static std::unique_ptr<column> parse_string(string_view_pair_it str_tuples,
                                             cudf::detail::device_scalar<size_type>& d_null_count,
                                             cudf::io::parse_options_view const& options,
                                             cuda::stream_ref stream,
-                                            rmm::device_async_resource_ref mr)
+                                            cudf::device_resource_ref mr)
 {
   //  CUDF_FUNC_RANGE();
 
@@ -927,7 +927,7 @@ std::unique_ptr<column> parse_data(
   size_type null_count,
   cudf::io::parse_options_view const& options,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
 

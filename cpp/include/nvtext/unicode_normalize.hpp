@@ -84,8 +84,8 @@ struct unicode_normalizer {
    */
   unicode_normalizer(cudf::table_view const& unicode_data,
                      unicode_normalization_form form,
-                     cuda::stream_ref stream           = cudf::get_default_stream(),
-                     rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+                     cuda::stream_ref stream      = cudf::get_default_stream(),
+                     cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
   ~unicode_normalizer();
 
   struct unicode_normalizer_impl;
@@ -106,8 +106,8 @@ struct unicode_normalizer {
 std::unique_ptr<unicode_normalizer> create_unicode_normalizer(
   cudf::table_view const& unicode_data,
   unicode_normalization_form form,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /**
  * @brief Normalize a strings column using Unicode TR15 normalization.
@@ -137,8 +137,8 @@ std::unique_ptr<unicode_normalizer> create_unicode_normalizer(
 std::unique_ptr<cudf::column> normalize_unicode(
   cudf::strings_column_view const& input,
   unicode_normalizer const& normalizer,
-  cuda::stream_ref stream           = cudf::get_default_stream(),
-  rmm::device_async_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::stream_ref stream      = cudf::get_default_stream(),
+  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /** @} */  // end of group
 }  // namespace CUDF_EXPORT nvtext

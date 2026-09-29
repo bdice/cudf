@@ -96,7 +96,7 @@ namespace detail {
 std::unique_ptr<table> repeat(table_view const& input_table,
                               column_view const& count,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr)
+                              cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(input_table.num_rows() == count.size(), "in and count must have equal size");
   CUDF_EXPECTS(not count.has_nulls(), "count cannot contain nulls");
@@ -127,7 +127,7 @@ std::unique_ptr<table> repeat(table_view const& input_table,
 std::unique_ptr<table> repeat(table_view const& input_table,
                               size_type count,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr)
+                              cudf::device_resource_ref mr)
 {
   if ((input_table.num_rows() == 0) || (count == 0)) { return cudf::empty_like(input_table); }
 
@@ -150,7 +150,7 @@ std::unique_ptr<table> repeat(table_view const& input_table,
 std::unique_ptr<table> repeat(table_view const& input_table,
                               column_view const& count,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr)
+                              cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::repeat(input_table, count, stream, mr);
@@ -159,7 +159,7 @@ std::unique_ptr<table> repeat(table_view const& input_table,
 std::unique_ptr<table> repeat(table_view const& input_table,
                               size_type count,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr)
+                              cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::repeat(input_table, count, stream, mr);

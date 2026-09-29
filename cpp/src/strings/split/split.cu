@@ -143,7 +143,7 @@ std::unique_ptr<table> split_fn(strings_column_view const& input,
                                 Tokenizer tokenizer,
                                 DelimiterFn delimiter_fn,
                                 cuda::stream_ref stream,
-                                rmm::device_async_resource_ref mr)
+                                cudf::device_resource_ref mr)
 {
   std::vector<std::unique_ptr<column>> results;
   if (input.size() == input.null_count()) {
@@ -188,7 +188,7 @@ std::unique_ptr<table> build_table_from_tokens(strings_column_view const& input,
                                                column_view offsets,
                                                rmm::device_uvector<string_index_pair> const& tokens,
                                                cuda::stream_ref stream,
-                                               rmm::device_async_resource_ref mr)
+                                               cudf::device_resource_ref mr)
 {
   auto const d_offsets     = cudf::detail::offsetalator_factory::make_input_iterator(offsets);
   auto const d_tokens      = tokens.data();
@@ -219,7 +219,7 @@ std::unique_ptr<table> build_table_from_tokens(strings_column_view const& input,
 // Create a table with a single strings column with all nulls
 std::unique_ptr<table> make_all_null_table(size_type size,
                                            cuda::stream_ref stream,
-                                           rmm::device_async_resource_ref mr)
+                                           cudf::device_resource_ref mr)
 {
   std::vector<std::unique_ptr<column>> results;
   auto mask = cudf::detail::create_null_mask(size, mask_state::ALL_NULL, stream, mr);
@@ -233,7 +233,7 @@ std::unique_ptr<table> split_impl(strings_column_view const& input,
                                   string_scalar const& delimiter,
                                   size_type maxsplit,
                                   cuda::stream_ref stream,
-                                  rmm::device_async_resource_ref mr)
+                                  cudf::device_resource_ref mr)
 {
   CUDF_EXPECTS(delimiter.is_valid(stream), "Parameter delimiter must be valid");
 
@@ -290,7 +290,7 @@ std::unique_ptr<table> split(strings_column_view const& input,
                              string_scalar const& delimiter,
                              size_type maxsplit,
                              cuda::stream_ref stream,
-                             rmm::device_async_resource_ref mr)
+                             cudf::device_resource_ref mr)
 {
   return split_impl<true>(input, delimiter, maxsplit, stream, mr);
 }
@@ -299,7 +299,7 @@ std::unique_ptr<table> rsplit(strings_column_view const& input,
                               string_scalar const& delimiter,
                               size_type maxsplit,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr)
+                              cudf::device_resource_ref mr)
 {
   return split_impl<false>(input, delimiter, maxsplit, stream, mr);
 }
@@ -312,7 +312,7 @@ std::unique_ptr<table> split(strings_column_view const& input,
                              string_scalar const& delimiter,
                              size_type maxsplit,
                              cuda::stream_ref stream,
-                             rmm::device_async_resource_ref mr)
+                             cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::split(input, delimiter, maxsplit, stream, mr);
@@ -322,7 +322,7 @@ std::unique_ptr<table> rsplit(strings_column_view const& input,
                               string_scalar const& delimiter,
                               size_type maxsplit,
                               cuda::stream_ref stream,
-                              rmm::device_async_resource_ref mr)
+                              cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::rsplit(input, delimiter, maxsplit, stream, mr);

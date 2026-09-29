@@ -879,7 +879,7 @@ void aggregate_result_functor::operator()<aggregation::HOST_UDF>(aggregation con
 std::pair<std::unique_ptr<table>, std::vector<aggregation_result>> groupby::sort_aggregate(
   std::span<aggregation_request const> requests,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::device_resource_ref mr)
 {
   // We're going to start by creating a cache of results so that aggs that
   // depend on other aggs will not have to be recalculated. e.g. mean depends on

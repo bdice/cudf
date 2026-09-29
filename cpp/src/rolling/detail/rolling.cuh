@@ -196,7 +196,7 @@ struct rolling_postprocessor {
   FollowingWindowIterator following_window_begin;
   int min_periods;
   cuda::stream_ref stream;
-  rmm::device_async_resource_ref mr;
+  cudf::device_resource_ref mr;
 
   // Default case: pass through the intermediate result unchanged
   template <aggregation::Kind k>
@@ -420,7 +420,7 @@ struct rolling_window_launcher {
                                      int min_periods,
                                      [[maybe_unused]] rolling_aggregation const& agg,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
     requires(corresponding_rolling_operator<InputType, op>::type::is_supported())
   {
     auto const do_rolling = [&](auto const& device_op) {
@@ -487,7 +487,7 @@ struct rolling_window_launcher {
                                      int,
                                      rolling_aggregation const&,
                                      cuda::stream_ref,
-                                     rmm::device_async_resource_ref)
+                                     cudf::device_resource_ref)
     requires(!corresponding_rolling_operator<InputType, op>::type::is_supported())
   {
     CUDF_FAIL("Invalid aggregation type/pair");
@@ -512,7 +512,7 @@ struct dispatch_rolling {
                                      size_type min_periods,
                                      rolling_aggregation const& agg,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
+                                     cudf::device_resource_ref mr)
   {
     // do any preprocessing of aggregations (eg, MIN -> ARGMIN, COLLECT_LIST -> nothing)
     auto preprocessed_aggs =
@@ -555,7 +555,7 @@ struct dispatch_rolling {
  *                               FollowingWindowIterator following_window_begin,
  *                               size_type min_periods,
  *                               rolling_aggregation const& agg,
- *                               rmm::device_async_resource_ref mr)
+ *                               cudf::device_resource_ref mr)
  *
  * @param stream CUDA stream used for device memory operations and kernel launches.
  */
@@ -567,7 +567,7 @@ std::unique_ptr<column> rolling_window(column_view const& input,
                                        size_type min_periods,
                                        rolling_aggregation const& agg,
                                        cuda::stream_ref stream,
-                                       rmm::device_async_resource_ref mr)
+                                       cudf::device_resource_ref mr)
 {
   static_assert(warp_size == cudf::detail::size_in_bits<cudf::bitmask_type>(),
                 "bitmask_type size does not match CUDA warp size");

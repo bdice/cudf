@@ -34,7 +34,7 @@ namespace detail {
  * @copydoc create_string_vector_from_column
  */
 rmm::device_uvector<string_view> create_string_vector_from_column(
-  cudf::strings_column_view const input, cuda::stream_ref stream, rmm::device_async_resource_ref mr)
+  cudf::strings_column_view const input, cuda::stream_ref stream, cudf::device_resource_ref mr)
 {
   auto d_strings = column_device_view::create(input.parent(), stream);
 
@@ -64,7 +64,7 @@ rmm::device_uvector<string_view> create_string_vector_from_column(
 std::unique_ptr<column> create_offsets_child_column(int64_t chars_bytes,
                                                     size_type count,
                                                     cuda::stream_ref stream,
-                                                    rmm::device_async_resource_ref mr)
+                                                    cudf::device_resource_ref mr)
 {
   auto const threshold = get_offset64_threshold();
   if (!is_large_strings_enabled()) {
@@ -192,9 +192,7 @@ std::pair<int64_t, int64_t> get_first_and_last_offset(cudf::strings_column_view 
 }  // namespace detail
 
 rmm::device_uvector<string_view> create_string_vector_from_column(
-  cudf::strings_column_view const strings,
-  cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  cudf::strings_column_view const strings, cuda::stream_ref stream, cudf::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::create_string_vector_from_column(strings, stream, mr);

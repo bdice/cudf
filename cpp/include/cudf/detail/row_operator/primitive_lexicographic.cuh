@@ -23,7 +23,6 @@
 #include <cudf/utilities/type_dispatcher.hpp>
 
 #include <rmm/device_uvector.hpp>
-#include <rmm/resource_ref.hpp>
 
 #include <cuda/stream>
 
@@ -177,7 +176,7 @@ class lexicographic_comparator {
   using table_device_view_owner = std::invoke_result_t<decltype(table_device_view::create),
                                                        table_view,
                                                        cuda::stream_ref,
-                                                       rmm::device_async_resource_ref>;
+                                                       cudf::device_resource_ref>;
 
   table_device_view_owner const _table;
   rmm::device_uvector<order> const _column_order;

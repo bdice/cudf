@@ -37,8 +37,8 @@ constexpr std::size_t MB = 1024 * 1024;
  */
 void run_pack(benchmark::State& state,
               std::size_t table_size_mb,
-              rmm::device_async_resource_ref table_mr,
-              rmm::device_async_resource_ref pack_mr,
+              cudf::device_resource_ref table_mr,
+              cudf::device_resource_ref pack_mr,
               cuda::stream_ref stream)
 {
   auto const table_size_bytes = table_size_mb * MB;
@@ -114,8 +114,8 @@ static void BM_Pack_pinned(benchmark::State& state)
 void run_chunked_pack(benchmark::State& state,
                       std::size_t bounce_buffer_size,
                       std::size_t table_size,
-                      rmm::device_async_resource_ref table_mr,
-                      rmm::device_async_resource_ref pack_mr,
+                      cudf::device_resource_ref table_mr,
+                      cudf::device_resource_ref pack_mr,
                       cuda::stream_ref stream)
 {
   // Calculate number of rows for a single-column table of the desired size

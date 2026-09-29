@@ -116,3 +116,47 @@ cdef extern from "cudf/types.hpp" namespace "cudf" nogil:
         NEAREST_HALF_UP
 
     cdef size_t size_of(data_type t) except +libcudf_exception_handler
+
+
+# Cython requires types used as locals or return values to be
+# default-constructible, which cuda::mr::resource_ref is not.
+cdef extern from * nogil:
+    """
+    #include <cudf/types.hpp>
+
+    #include <optional>
+
+    struct pylibcudf_device_resource_ref {
+        std::optional<cudf::device_resource_ref> ref;
+
+        pylibcudf_device_resource_ref() noexcept = default;
+
+        template <typename T>
+        pylibcudf_device_resource_ref(T const& r) noexcept
+          : ref(static_cast<cudf::device_resource_ref>(r)) {}
+
+        operator cudf::device_resource_ref() const noexcept {
+            return ref.value();
+        }
+    };
+
+    template <typename T>
+    pylibcudf_device_resource_ref pylibcudf_to_device_resource_ref(
+        T const& r) noexcept {
+        return pylibcudf_device_resource_ref(r);
+    }
+    """
+    cdef cppclass device_resource_ref "pylibcudf_device_resource_ref":
+        device_resource_ref() noexcept
+
+    device_resource_ref to_device_resource_ref \
+        "pylibcudf_to_device_resource_ref"[T](T) noexcept
+
+
+cdef extern from "<cuda/memory_resource>" namespace "cuda::mr" nogil:
+    cdef cppclass device_accessible:
+        pass
+
+    cdef cppclass any_resource[Properties]:
+        any_resource() except +
+        any_resource(device_resource_ref) except +
