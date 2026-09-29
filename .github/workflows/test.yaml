@@ -180,12 +180,14 @@ jobs:
       packages: read
       pull-requests: read
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: ./.github/workflows/java-tests.yaml
+    uses: ./.github/workflows/maven-tests.yaml
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
+      script: "ci/test_packaged_java.sh"
+      matrix_filter: 'map(.GPU = (if .ARCH == "amd64" then "rtxpro6000" else "l4" end))'
   conda-notebook-tests:
     permissions:
       actions: read
