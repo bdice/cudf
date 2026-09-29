@@ -180,7 +180,7 @@ jobs:
       packages: read
       pull-requests: read
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: ./.github/workflows/maven-tests.yaml
+    uses: ./.github/workflows/java-test.yaml
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
