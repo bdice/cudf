@@ -341,7 +341,7 @@ apply_join_semantics(cudf::table_view const& left,
 
       auto failed_match_iter = cudf::detail::make_counting_transform_iterator(
         0, [=] __device__(size_type i) -> cuda::std::tuple<size_type, size_type> {
-          return cuda::std::tuple{JoinNoMatch, right_ptr[i]};
+          return cuda::std::tuple{size_type{JoinNoMatch}, right_ptr[i]};
         });
       cudf::detail::copy_if(failed_match_iter,
                             failed_match_iter + left_indices.size(),
