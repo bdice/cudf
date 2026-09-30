@@ -316,7 +316,7 @@ void update_null_mask(cudf::detail::hostdevice_2dvector<column_desc>& chunks,
 
         auto merged_null_mask = cudf::detail::create_null_mask(
           parent_mask_len, mask_state::ALL_NULL, cuda::stream_ref(stream), mr);
-        auto merged_mask      = static_cast<bitmask_type*>(merged_null_mask.data());
+        auto merged_mask      = reinterpret_cast<bitmask_type*>(merged_null_mask.data());
         uint32_t* dst_idx_ptr = dst_idx.data();
         // Copy child valid bits from child column to valid indexes, this will merge both child
         // and parent null masks
@@ -333,9 +333,8 @@ void update_null_mask(cudf::detail::hostdevice_2dvector<column_desc>& chunks,
 
       } else {
         // Since child column doesn't have a mask, copy parent null mask
-        auto mask_size = bitmask_allocation_size_bytes(parent_mask_len);
         out_buffers[col_idx].set_null_mask(
-          rmm::device_buffer(static_cast<void*>(parent_valid_map_base), mask_size, stream, mr));
+          cudf::detail::copy_bitmask(parent_valid_map_base, 0, parent_mask_len, stream, mr));
       }
     }
   }
@@ -389,6 +388,7 @@ void decode_stream_data(int64_t num_dicts,
       auto& chunk            = chunks[stripe_idx][col_idx];
       chunk.column_data_base = out_buffers[col_idx].data();
       chunk.valid_map_base   = out_buffers[col_idx].null_mask();
+      chunk.null_count       = 0;
     });
   });
 
@@ -396,8 +396,14 @@ void decode_stream_data(int64_t num_dicts,
   rmm::device_uvector<dictionary_entry> global_dict(num_dicts, stream);
 
   chunks.host_to_device_async(stream);
-  decode_nulls_and_string_dictionaries(
-    chunks.base_device_ptr(), global_dict.data(), num_columns, num_stripes, skip_rows, stream);
+  decode_nulls_and_string_dictionaries(chunks.base_device_ptr(),
+                                       global_dict.data(),
+                                       num_columns,
+                                       num_stripes,
+                                       skip_rows,
+                                       row_groups,
+                                       level,
+                                       stream);
 
   if (level > 0) {
     // Update nullmasks for children if parent was a struct and had null mask
