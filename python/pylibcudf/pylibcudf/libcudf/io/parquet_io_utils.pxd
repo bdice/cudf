@@ -8,7 +8,7 @@ from libcpp.pair cimport pair
 from libcpp.vector cimport vector
 
 from rmm.librmm.device_buffer cimport device_buffer
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 from pylibcudf.exception_handler cimport libcudf_exception_handler
 from pylibcudf.libcudf.io.datasource cimport datasource
@@ -38,7 +38,7 @@ cdef extern from * nogil:
         cudf::host_span<cudf::io::text::byte_range_info const> byte_ranges,
         cudf::io::parquet::io_submission_policy policy,
         cudaStream_t stream,
-        cudf::device_resource_ref mr)
+        cuda::mr::device_resource_ref mr)
     {
         auto [buffers, spans, fut] =
             cudf::io::parquet::fetch_byte_ranges_to_device_async(

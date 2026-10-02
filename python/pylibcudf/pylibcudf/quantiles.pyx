@@ -15,7 +15,7 @@ from pylibcudf.libcudf.quantiles cimport (
 from pylibcudf.libcudf.table.table cimport table
 from pylibcudf.libcudf.table.table_view cimport table_view
 from pylibcudf.libcudf.types cimport null_order, order, sorted
-from pylibcudf.libcudf.types cimport to_device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 from rmm.pylibrmm.stream cimport Stream
 

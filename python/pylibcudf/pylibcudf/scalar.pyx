@@ -35,7 +35,8 @@ from pylibcudf.libcudf.scalar.scalar_factories cimport (
     make_numeric_scalar,
     make_timestamp_scalar,
 )
-from pylibcudf.libcudf.types cimport to_device_resource_ref, type_id
+from pylibcudf.libcudf.types cimport type_id
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from pylibcudf.libcudf.types cimport int128 as int128_t
 from pylibcudf.libcudf.wrappers.durations cimport (
     duration_ms,

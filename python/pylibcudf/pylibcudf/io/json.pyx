@@ -15,7 +15,7 @@ from pylibcudf.concatenate cimport concatenate
 from pylibcudf.column cimport Column
 from pylibcudf.scalar cimport Scalar
 from pylibcudf.utils cimport _get_memory_resource
-from pylibcudf.libcudf.types cimport to_device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 
 from pylibcudf.io.types cimport SinkInfo, SourceInfo, TableWithMetadata

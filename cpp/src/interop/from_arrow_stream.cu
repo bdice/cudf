@@ -14,6 +14,7 @@
 #include <cudf/table/table.hpp>
 #include <cudf/types.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 #include <nanoarrow/nanoarrow.h>
@@ -31,7 +32,7 @@ namespace {
 
 std::unique_ptr<column> make_empty_column_from_schema(ArrowSchema const* schema,
                                                       cuda::stream_ref stream,
-                                                      cudf::device_resource_ref mr)
+                                                      cuda::mr::device_resource_ref mr)
 {
   ArrowSchemaView schema_view;
   NANOARROW_THROW_NOT_OK(ArrowSchemaViewInit(&schema_view, schema, nullptr));
@@ -77,7 +78,7 @@ std::unique_ptr<column> make_empty_column_from_schema(ArrowSchema const* schema,
 
 std::unique_ptr<table> from_arrow_stream(ArrowArrayStream* input,
                                          cuda::stream_ref stream,
-                                         cudf::device_resource_ref mr)
+                                         cuda::mr::device_resource_ref mr)
 {
   CUDF_EXPECTS(input != nullptr, "input ArrowArrayStream must not be NULL", std::invalid_argument);
 
@@ -138,7 +139,7 @@ std::unique_ptr<table> from_arrow_stream(ArrowArrayStream* input,
 
 std::unique_ptr<column> from_arrow_stream_column(ArrowArrayStream* input,
                                                  cuda::stream_ref stream,
-                                                 cudf::device_resource_ref mr)
+                                                 cuda::mr::device_resource_ref mr)
 {
   CUDF_EXPECTS(input != nullptr, "input ArrowArrayStream must not be NULL", std::invalid_argument);
 
@@ -189,7 +190,7 @@ std::unique_ptr<column> from_arrow_stream_column(ArrowArrayStream* input,
 
 std::unique_ptr<table> from_arrow_stream(ArrowArrayStream* input,
                                          cuda::stream_ref stream,
-                                         cudf::device_resource_ref mr)
+                                         cuda::mr::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::from_arrow_stream(input, stream, mr);
@@ -197,7 +198,7 @@ std::unique_ptr<table> from_arrow_stream(ArrowArrayStream* input,
 
 std::unique_ptr<column> from_arrow_stream_column(ArrowArrayStream* input,
                                                  cuda::stream_ref stream,
-                                                 cudf::device_resource_ref mr)
+                                                 cuda::mr::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::from_arrow_stream_column(input, stream, mr);

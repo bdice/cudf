@@ -10,7 +10,7 @@ from pylibcudf.libcudf.fixed_point.fixed_point cimport scale_type
 from pylibcudf.libcudf.types cimport int128 as int128_t
 
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/scalar/scalar_factories.hpp" namespace "cudf" nogil:

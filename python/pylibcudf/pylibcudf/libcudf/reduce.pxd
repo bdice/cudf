@@ -12,14 +12,8 @@ from pylibcudf.libcudf.column.column cimport column
 from pylibcudf.libcudf.column.column_view cimport column_view
 from pylibcudf.libcudf.scalar.scalar cimport scalar
 from pylibcudf.libcudf.table.table_view cimport table_view
-from pylibcudf.libcudf.types cimport (
-    any_resource,
-    data_type,
-    device_accessible,
-    device_resource_ref,
-    nan_policy,
-    null_policy,
-)
+from pylibcudf.libcudf.types cimport data_type, nan_policy, null_policy
+from pylibcudf.libcudf.utilities.memory_resource cimport any_device_resource, device_resource_ref
 from cuda.bindings.cyruntime cimport cudaStream_t
 
 ctypedef const scalar constscalar
@@ -68,7 +62,7 @@ cdef extern from "cudf/reduction/approx_distinct_count.hpp" namespace "cudf" nog
             null_policy null_handling,
             nan_policy nan_handling,
             cudaStream_t stream,
-            any_resource[device_accessible] mr,
+            any_device_resource mr,
         ) except +libcudf_exception_handler
         void add(
             const table_view& input, cudaStream_t stream,

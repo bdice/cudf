@@ -13,7 +13,7 @@ from pylibcudf.libcudf.table.table cimport table
 from pylibcudf.libcudf.table.table_view cimport table_view
 
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "dlpack/dlpack.h" nogil:
@@ -136,7 +136,7 @@ cdef extern from *:
     ArrowArray* to_arrow_host_raw(
       ViewType const& obj,
       cudaStream_t stream,
-      cudf::device_resource_ref mr = cudf::get_current_device_resource_ref()) {
+      cuda::mr::device_resource_ref mr = cudf::get_current_device_resource_ref()) {
       ArrowArray *arr = new ArrowArray();
       auto device_arr = cudf::to_arrow_host(obj, stream, mr);
       ArrowArrayMove(&device_arr->array, arr);
@@ -176,7 +176,7 @@ cdef extern from *:
       ViewType const& obj,
       PyObject* owner,
       cuda::stream_ref stream       = cudf::get_default_stream(),
-      cudf::device_resource_ref mr = cudf::get_current_device_resource_ref()) {
+      cuda::mr::device_resource_ref mr = cudf::get_current_device_resource_ref()) {
       auto tmp = cudf::to_arrow_device(obj, stream, mr);
 
       // Instead of moving the whole device array, we move the underlying ArrowArray

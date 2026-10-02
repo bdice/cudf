@@ -7,7 +7,7 @@ from pylibcudf.libcudf.column.column_view cimport column_view
 from pylibcudf.libcudf.scalar.scalar cimport string_scalar
 
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/strings/convert/convert_lists.hpp" namespace \

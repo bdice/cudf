@@ -24,6 +24,7 @@
 
 #include <rmm/device_uvector.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 #include <type_traits>
@@ -176,7 +177,7 @@ class lexicographic_comparator {
   using table_device_view_owner = std::invoke_result_t<decltype(table_device_view::create),
                                                        table_view,
                                                        cuda::stream_ref,
-                                                       cudf::device_resource_ref>;
+                                                       cuda::mr::device_resource_ref>;
 
   table_device_view_owner const _table;
   rmm::device_uvector<order> const _column_order;

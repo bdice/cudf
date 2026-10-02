@@ -11,6 +11,7 @@
 #include <rmm/device_uvector.hpp>
 
 #include <cuda/buffer>
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 #include <memory>
@@ -54,7 +55,7 @@ struct preprocessed_table {
    */
   static std::shared_ptr<preprocessed_table> create(table_view const& table,
                                                     cuda::stream_ref stream,
-                                                    cudf::device_resource_ref temp_mr);
+                                                    cuda::mr::device_resource_ref temp_mr);
 
   /**
    * @brief Implicit conversion operator to a `table_device_view` of the preprocessed table.
@@ -75,7 +76,7 @@ struct preprocessed_table {
   using table_device_view_owner = std::invoke_result_t<decltype(table_device_view::create),
                                                        table_view,
                                                        cuda::stream_ref,
-                                                       cudf::device_resource_ref>;
+                                                       cuda::mr::device_resource_ref>;
 
   preprocessed_table(table_device_view_owner&& table,
                      std::vector<cuda::device_buffer<std::byte>>&& null_buffers,

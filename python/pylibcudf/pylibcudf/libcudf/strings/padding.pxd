@@ -10,7 +10,7 @@ from pylibcudf.libcudf.scalar.scalar cimport string_scalar
 from pylibcudf.libcudf.strings.side_type cimport side_type
 from pylibcudf.libcudf.types cimport size_type
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/strings/padding.hpp" namespace "cudf::strings" nogil:

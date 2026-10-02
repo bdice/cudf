@@ -45,7 +45,7 @@
  * @param pool Whether to use a pool memory resource.
  * @return Memory resource instance
  */
-cuda::mr::any_resource<cuda::mr::device_accessible> create_memory_resource(bool pool)
+cuda::mr::any_device_resource create_memory_resource(bool pool)
 {
   rmm::mr::cuda_memory_resource cuda_mr{};
   if (pool) {

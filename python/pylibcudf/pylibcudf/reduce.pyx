@@ -25,11 +25,7 @@ from pylibcudf.libcudf.reduce cimport (
 from pylibcudf.libcudf.scalar.scalar cimport scalar
 from pylibcudf.libcudf.types cimport nan_policy, null_policy, size_type
 from rmm.pylibrmm.stream cimport Stream
-from pylibcudf.libcudf.types cimport (
-    any_resource,
-    device_accessible,
-    to_device_resource_ref,
-)
+from pylibcudf.libcudf.utilities.memory_resource cimport any_device_resource, to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 
 from .aggregation cimport Aggregation
@@ -401,7 +397,7 @@ cdef class ApproxDistinctCount:
         cdef cudaStream_t _cs = _stream.view().get()
         cdef DeviceMemoryResource _mr = _get_memory_resource(mr)
         cdef table_view c_input = input.view()
-        cdef any_resource[device_accessible] c_mr = any_resource[device_accessible](
+        cdef any_device_resource c_mr = any_device_resource(
             to_device_resource_ref(_mr.get_mr())
         )
         with nogil:

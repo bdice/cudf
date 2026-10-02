@@ -9,7 +9,7 @@ from libcpp.vector cimport vector
 
 from rmm.pylibrmm.stream cimport Stream
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport to_device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 
 from pylibcudf.io.types cimport SourceInfo, SinkInfo, TableWithMetadata

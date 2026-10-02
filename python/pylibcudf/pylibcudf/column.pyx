@@ -40,7 +40,7 @@ from pylibcudf.libcudf.utilities.traits cimport is_fixed_width
 
 from rmm.pylibrmm.device_buffer cimport DeviceBuffer
 from rmm.pylibrmm.stream cimport Stream
-from pylibcudf.libcudf.types cimport to_device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 
 from ._interop_helpers cimport (

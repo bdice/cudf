@@ -6,7 +6,7 @@ from pylibcudf.libcudf.column.column cimport column
 from pylibcudf.libcudf.lists.lists_column_view cimport lists_column_view
 from pylibcudf.libcudf.types cimport null_order, order
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/lists/sorting.hpp" namespace "cudf::lists" nogil:

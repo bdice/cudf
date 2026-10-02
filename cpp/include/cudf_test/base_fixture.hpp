@@ -30,7 +30,7 @@ namespace test {
  * ```
  */
 class BaseFixture : public ::testing::Test {
-  cuda::mr::any_resource<cuda::mr::device_accessible> _mr{cudf::get_current_device_resource_ref()};
+  cuda::mr::any_device_resource _mr{cudf::get_current_device_resource_ref()};
 
  public:
   /**
@@ -38,7 +38,7 @@ class BaseFixture : public ::testing::Test {
    * all tests inheriting from this fixture
    * @return reference to memory resource
    */
-  cudf::device_resource_ref mr() { return _mr; }
+  cuda::mr::device_resource_ref mr() { return _mr; }
 };
 
 /**
@@ -83,7 +83,7 @@ struct BaseFixtureWithHarness : public BaseFixture {
  */
 template <typename T>
 class BaseFixtureWithParam : public ::testing::TestWithParam<T> {
-  cuda::mr::any_resource<cuda::mr::device_accessible> _mr{cudf::get_current_device_resource_ref()};
+  cuda::mr::any_device_resource _mr{cudf::get_current_device_resource_ref()};
 
  public:
   /**
@@ -91,7 +91,7 @@ class BaseFixtureWithParam : public ::testing::TestWithParam<T> {
    * all tests inheriting from this fixture
    * @return reference to memory resource
    */
-  [[nodiscard]] cudf::device_resource_ref mr() { return _mr; }
+  [[nodiscard]] cuda::mr::device_resource_ref mr() { return _mr; }
 };
 
 /**

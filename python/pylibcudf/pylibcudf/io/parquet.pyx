@@ -13,7 +13,7 @@ from libcpp.utility cimport move
 from libcpp.vector cimport vector
 
 from rmm.pylibrmm.stream cimport Stream
-from pylibcudf.libcudf.types cimport to_device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 
 from pylibcudf.contiguous_split cimport HostBuffer

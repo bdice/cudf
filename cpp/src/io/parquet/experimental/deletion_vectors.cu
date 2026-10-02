@@ -19,6 +19,7 @@
 
 #include <cuda/functional>
 #include <cuda/iterator>
+#include <cuda/memory_resource>
 #include <cuda/std/tuple>
 #include <cuda/stream>
 
@@ -38,7 +39,7 @@ namespace detail {
 [[nodiscard]] table_with_metadata read_parquet(parquet_reader_options const& options,
                                                deletion_vector_info const& deletion_vector_info,
                                                cuda::stream_ref stream,
-                                               cudf::device_resource_ref mr)
+                                               cuda::mr::device_resource_ref mr)
 {
   auto const& serialized_roaring_bitmaps = deletion_vector_info.serialized_roaring_bitmaps;
   auto const& deletion_vector_row_counts = deletion_vector_info.deletion_vector_row_counts;
@@ -202,7 +203,7 @@ chunked_parquet_reader::chunked_parquet_reader(std::size_t chunk_read_limit,
                                                parquet_reader_options const& options,
                                                deletion_vector_info const& deletion_vector_info,
                                                cuda::stream_ref stream,
-                                               cudf::device_resource_ref mr)
+                                               cuda::mr::device_resource_ref mr)
   : _start_row{0},
     _is_unspecified_row_group_data{deletion_vector_info.row_group_offsets.empty()},
     _are_retentions{deletion_vector_info.are_retention_vectors},
@@ -263,7 +264,7 @@ chunked_parquet_reader::chunked_parquet_reader(std::size_t chunk_read_limit,
                                                parquet_reader_options const& options,
                                                deletion_vector_info const& deletion_vector_info,
                                                cuda::stream_ref stream,
-                                               cudf::device_resource_ref mr)
+                                               cuda::mr::device_resource_ref mr)
   : chunked_parquet_reader(chunk_read_limit,
                            parquet::detail::derive_pass_read_limit(chunk_read_limit),
                            options,
@@ -337,7 +338,7 @@ table_with_metadata chunked_parquet_reader::read_chunk()
 table_with_metadata read_parquet(parquet_reader_options const& options,
                                  deletion_vector_info const& deletion_vector_info,
                                  cuda::stream_ref stream,
-                                 cudf::device_resource_ref mr)
+                                 cuda::mr::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::read_parquet(options, deletion_vector_info, stream, mr);

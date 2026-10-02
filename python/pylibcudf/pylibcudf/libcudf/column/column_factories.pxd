@@ -14,7 +14,7 @@ from pylibcudf.libcudf.types cimport (
 
 from pylibcudf.libcudf.utilities.device_buffer cimport byte, device_buffer
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/column/column_factories.hpp" namespace "cudf" nogil:

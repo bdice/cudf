@@ -17,6 +17,7 @@
 #include <cudf/types.hpp>
 #include <cudf/utilities/export.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 #include <cstdint>
@@ -117,14 +118,15 @@ struct [[nodiscard]] instance_context {
   std::vector<untyped_var_info> output_vars_;  ///< The output variables for the IR
   std::unordered_multimap<size_t, node const*> cse_nodes_;  ///< multimap of IR nodes
   cuda::stream_ref stream_;  ///< The CUDA stream for any device operations during IR generation
-  cudf::device_resource_ref
+  cuda::mr::device_resource_ref
     mr_;  ///< The device memory resource for any device memory allocation during IR generation
 
  public:
   friend struct ast_converter;
   friend struct node;
 
-  instance_context(cuda::stream_ref stream, cudf::device_resource_ref mr) : stream_(stream), mr_(mr)
+  instance_context(cuda::stream_ref stream, cuda::mr::device_resource_ref mr)
+    : stream_(stream), mr_(mr)
   {
   }
 
@@ -230,7 +232,7 @@ struct [[nodiscard]] instance_context {
    * @brief Get the device memory resource for device memory allocation during IR generation
    * @return The device memory resource for device memory allocation during IR generation
    */
-  [[nodiscard]] cudf::device_resource_ref get_mr() const { return mr_; }
+  [[nodiscard]] cuda::mr::device_resource_ref get_mr() const { return mr_; }
 };
 
 struct [[nodiscard]] code_sink {
@@ -469,7 +471,7 @@ struct [[nodiscard]] ast_converter {
  private:
   std::vector<std::unique_ptr<row_ir::node>> output_irs_;  ///< The output IR nodes
   cuda::stream_ref stream_;  ///< CUDA stream used for device memory operations and kernel launches.
-  cudf::device_resource_ref
+  cuda::mr::device_resource_ref
     mr_;  ///< Device memory resource used to allocate the returned table's device memory
   instance_context instance_;  ///< The instance context used during the IR generation
   table_view left_table_;      ///< The left input table for the expression
@@ -484,7 +486,7 @@ struct [[nodiscard]] ast_converter {
    * @param right_table Right input table referenced by expressions
    */
   ast_converter(cuda::stream_ref stream,
-                cudf::device_resource_ref mr,
+                cuda::mr::device_resource_ref mr,
                 table_view left_table,
                 table_view right_table)
     : stream_(std::move(stream)),
@@ -548,7 +550,7 @@ struct [[nodiscard]] ast_converter {
     table_view const& right_table,
     std::string_view function_name,
     cuda::stream_ref stream,
-    cudf::device_resource_ref mr);
+    cuda::mr::device_resource_ref mr);
 
   /**
    * @brief Convert an AST `filter` expression to a `cudf::filter`
@@ -567,7 +569,7 @@ struct [[nodiscard]] ast_converter {
                                table_view const& right_table,
                                std::string_view function_name,
                                cuda::stream_ref stream,
-                               cudf::device_resource_ref mr);
+                               cuda::mr::device_resource_ref mr);
 };
 
 }  // namespace row_ir

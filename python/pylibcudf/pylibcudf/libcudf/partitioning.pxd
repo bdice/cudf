@@ -12,7 +12,7 @@ from pylibcudf.libcudf.hash cimport DEFAULT_HASH_SEED
 from pylibcudf.libcudf.table.table cimport table
 from pylibcudf.libcudf.table.table_view cimport table_view
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 cdef extern from "cudf/partitioning.hpp" namespace "cudf" nogil:
     cpdef enum class hash_id(int32_t):

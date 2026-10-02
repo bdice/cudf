@@ -16,7 +16,7 @@ from pylibcudf.libcudf.types cimport (
     sorted,
 )
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/quantiles.hpp" namespace "cudf" nogil:

@@ -19,6 +19,7 @@
 #include <rmm/exec_policy.hpp>
 
 #include <cuda/iterator>
+#include <cuda/memory_resource>
 #include <cuda/std/functional>
 #include <cuda/std/iterator>
 #include <cuda/std/tuple>
@@ -59,7 +60,7 @@ void validate_hash_join_probe(table_view const& right, table_view const& left, b
 VectorPair get_trivial_left_join_indices(table_view const& left,
                                          size_type left_offset,
                                          cuda::stream_ref stream,
-                                         cudf::device_resource_ref mr)
+                                         cuda::mr::device_resource_ref mr)
 {
   auto left_indices = std::make_unique<rmm::device_uvector<size_type>>(left.num_rows(), stream, mr);
   thrust::sequence(rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
@@ -103,7 +104,7 @@ VectorPair finalize_full_join(VectorPair&& indices,
                               size_type right_table_num_rows,
                               std::optional<cudf::device_span<size_type const>> right_matches,
                               cuda::stream_ref stream,
-                              cudf::device_resource_ref mr,
+                              cuda::mr::device_resource_ref mr,
                               std::optional<size_type> unmatched_right_count)
 {
   auto [left_out, right_out] = std::move(indices);
@@ -187,7 +188,7 @@ VectorPair finalize_full_join(
   size_type left_table_num_rows,
   size_type right_table_num_rows,
   cuda::stream_ref stream,
-  cudf::device_resource_ref mr)
+  cuda::mr::device_resource_ref mr)
 {
   CUDF_EXPECTS(left_partials.size() == right_partials.size(),
                "left_partials and right_partials must have the same length",

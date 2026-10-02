@@ -33,7 +33,7 @@ from pylibcudf.libcudf.copying import \
 from pylibcudf.libcudf.copying import \
     sample_with_replacement as SampleWithReplacement  # no-cython-lint
 
-from pylibcudf.libcudf.types cimport to_device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 from rmm.pylibrmm.stream cimport Stream
 

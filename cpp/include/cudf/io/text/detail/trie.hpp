@@ -11,6 +11,7 @@
 #include <cudf/utilities/export.hpp>
 #include <cudf/utilities/span.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 #include <algorithm>
@@ -154,7 +155,7 @@ struct trie {
    * @param mr Memory resource to use for the device memory allocation
    * @return The trie.
    */
-  static trie create(std::string pattern, cuda::stream_ref stream, cudf::device_resource_ref mr)
+  static trie create(std::string pattern, cuda::stream_ref stream, cuda::mr::device_resource_ref mr)
 
   {
     return create(std::vector<std::string>{std::move(pattern)}, stream, mr);
@@ -170,7 +171,7 @@ struct trie {
    */
   static trie create(std::vector<std::string> const& patterns,
                      cuda::stream_ref stream,
-                     cudf::device_resource_ref mr)
+                     cuda::mr::device_resource_ref mr)
   {
     std::vector<char> tokens;
     std::vector<uint8_t> transitions;

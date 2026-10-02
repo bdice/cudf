@@ -9,6 +9,7 @@
 #include <cudf/types.hpp>
 #include <cudf/utilities/memory_resource.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 namespace cudf {
@@ -39,6 +40,6 @@ std::unique_ptr<column> optimized_unbounded_window(table_view const& group_keys,
                                                    column_view const& input,
                                                    rolling_aggregation const& aggr,
                                                    cuda::stream_ref stream,
-                                                   cudf::device_resource_ref mr);
+                                                   cuda::mr::device_resource_ref mr);
 }  // namespace detail
 }  // namespace cudf

@@ -29,6 +29,7 @@
 
 #include <rmm/device_uvector.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/std/limits>
 #include <cuda/std/optional>
 #include <cuda/std/tuple>
@@ -552,7 +553,7 @@ struct preprocessed_table {
   using table_device_view_owner = std::invoke_result_t<decltype(table_device_view::create),
                                                        table_view,
                                                        cuda::stream_ref,
-                                                       cudf::device_resource_ref>;
+                                                       cuda::mr::device_resource_ref>;
 
   /**
    * @brief Preprocess table for use with lexicographical comparison

@@ -13,11 +13,8 @@ from libcpp.vector cimport vector
 from pylibcudf.contiguous_split cimport PackedColumns
 from pylibcudf.libcudf.table.table cimport table as cpp_table
 from pylibcudf.libcudf.table.table_view cimport table_view
-from pylibcudf.libcudf.types cimport (
-    device_resource_ref,
-    size_type,
-    to_device_resource_ref,
-)
+from pylibcudf.libcudf.types cimport size_type
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref, to_device_resource_ref
 from pylibcudf.table cimport Table
 from rmm.librmm.device_buffer cimport device_buffer
 from rmm.pylibrmm.stream cimport Stream

@@ -24,6 +24,7 @@
 
 #include <rmm/device_uvector.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 #include <type_traits>
@@ -46,7 +47,7 @@ namespace detail {
 template <typename T>
 rmm::device_uvector<T> make_zeroed_device_uvector_async(std::size_t size,
                                                         cuda::stream_ref stream,
-                                                        cudf::device_resource_ref mr)
+                                                        cuda::mr::device_resource_ref mr)
 {
   rmm::device_uvector<T> ret(size, stream, mr);
   CUDF_CUDA_TRY(cudaMemsetAsync(ret.data(), 0, size * sizeof(T), stream.get()));
@@ -67,7 +68,7 @@ rmm::device_uvector<T> make_zeroed_device_uvector_async(std::size_t size,
 template <typename T>
 rmm::device_uvector<T> make_zeroed_device_uvector(std::size_t size,
                                                   cuda::stream_ref stream,
-                                                  cudf::device_resource_ref mr)
+                                                  cuda::mr::device_resource_ref mr)
 {
   rmm::device_uvector<T> ret(size, stream, mr);
   CUDF_CUDA_TRY(cudaMemsetAsync(ret.data(), 0, size * sizeof(T), stream.get()));
@@ -90,7 +91,7 @@ rmm::device_uvector<T> make_zeroed_device_uvector(std::size_t size,
 template <typename T>
 rmm::device_uvector<std::remove_cv_t<T>> make_device_uvector_async(host_span<T> source_data,
                                                                    cuda::stream_ref stream,
-                                                                   cudf::device_resource_ref mr)
+                                                                   cuda::mr::device_resource_ref mr)
 {
   using value_type = std::remove_cv_t<T>;
   rmm::device_uvector<value_type> ret(source_data.size(), stream, mr);
@@ -112,7 +113,7 @@ rmm::device_uvector<std::remove_cv_t<T>> make_device_uvector_async(host_span<T> 
  */
 template <typename Container>
 rmm::device_uvector<typename Container::value_type> make_device_uvector_async(
-  Container const& c, cuda::stream_ref stream, cudf::device_resource_ref mr)
+  Container const& c, cuda::stream_ref stream, cuda::mr::device_resource_ref mr)
   requires(std::is_convertible_v<Container, host_span<typename Container::value_type const>>)
 {
   return make_device_uvector_async(host_span<typename Container::value_type const>{c}, stream, mr);
@@ -133,7 +134,7 @@ rmm::device_uvector<typename Container::value_type> make_device_uvector_async(
 template <typename T, typename Allocator>
 rmm::device_uvector<T> make_device_uvector_async(std::vector<T, Allocator> const& source_data,
                                                  cuda::stream_ref stream,
-                                                 cudf::device_resource_ref mr)
+                                                 cuda::mr::device_resource_ref mr)
 {
   return make_device_uvector_async(host_span<T const>{source_data}, stream, mr);
 }
@@ -153,7 +154,7 @@ rmm::device_uvector<T> make_device_uvector_async(std::vector<T, Allocator> const
 template <typename T>
 rmm::device_uvector<std::remove_cv_t<T>> make_device_uvector_async(device_span<T> source_data,
                                                                    cuda::stream_ref stream,
-                                                                   cudf::device_resource_ref mr)
+                                                                   cuda::mr::device_resource_ref mr)
 {
   using value_type = std::remove_cv_t<T>;
   rmm::device_uvector<value_type> ret(source_data.size(), stream, mr);
@@ -176,7 +177,7 @@ rmm::device_uvector<std::remove_cv_t<T>> make_device_uvector_async(device_span<T
  */
 template <typename Container>
 rmm::device_uvector<typename Container::value_type> make_device_uvector_async(
-  Container const& c, cuda::stream_ref stream, cudf::device_resource_ref mr)
+  Container const& c, cuda::stream_ref stream, cuda::mr::device_resource_ref mr)
   requires(std::is_convertible_v<Container, device_span<typename Container::value_type const>>)
 {
   return make_device_uvector_async(
@@ -198,7 +199,7 @@ rmm::device_uvector<typename Container::value_type> make_device_uvector_async(
 template <typename T>
 rmm::device_uvector<T> make_device_uvector(host_span<T const> source_data,
                                            cuda::stream_ref stream,
-                                           cudf::device_resource_ref mr)
+                                           cuda::mr::device_resource_ref mr)
 {
   auto ret = make_device_uvector_async(source_data, stream, mr);
   cudf::detail::sync_stream(stream);
@@ -219,7 +220,7 @@ rmm::device_uvector<T> make_device_uvector(host_span<T const> source_data,
  */
 template <typename Container>
 rmm::device_uvector<typename Container::value_type> make_device_uvector(
-  Container const& c, cuda::stream_ref stream, cudf::device_resource_ref mr)
+  Container const& c, cuda::stream_ref stream, cuda::mr::device_resource_ref mr)
   requires(std::is_convertible_v<Container, host_span<typename Container::value_type const>>)
 {
   return make_device_uvector(host_span<typename Container::value_type const>{c}, stream, mr);
@@ -240,7 +241,7 @@ rmm::device_uvector<typename Container::value_type> make_device_uvector(
 template <typename T, typename Allocator>
 rmm::device_uvector<T> make_device_uvector(std::vector<T, Allocator> const& source_data,
                                            cuda::stream_ref stream,
-                                           cudf::device_resource_ref mr)
+                                           cuda::mr::device_resource_ref mr)
 {
   return make_device_uvector(host_span<T const>{source_data}, stream, mr);
 }
@@ -260,7 +261,7 @@ rmm::device_uvector<T> make_device_uvector(std::vector<T, Allocator> const& sour
 template <typename T>
 rmm::device_uvector<T> make_device_uvector(device_span<T const> source_data,
                                            cuda::stream_ref stream,
-                                           cudf::device_resource_ref mr)
+                                           cuda::mr::device_resource_ref mr)
 {
   auto ret = make_device_uvector_async(source_data, stream, mr);
   cudf::detail::sync_stream(stream);
@@ -281,7 +282,7 @@ rmm::device_uvector<T> make_device_uvector(device_span<T const> source_data,
  */
 template <typename Container>
 rmm::device_uvector<typename Container::value_type> make_device_uvector(
-  Container const& c, cuda::stream_ref stream, cudf::device_resource_ref mr)
+  Container const& c, cuda::stream_ref stream, cuda::mr::device_resource_ref mr)
   requires(std::is_convertible_v<Container, device_span<typename Container::value_type const>>)
 {
   return make_device_uvector(device_span<typename Container::value_type const>{c}, stream, mr);

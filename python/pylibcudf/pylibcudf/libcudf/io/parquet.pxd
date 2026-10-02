@@ -25,7 +25,7 @@ from pylibcudf.libcudf.io.types cimport (
 from pylibcudf.libcudf.table.table_view cimport table_view
 from pylibcudf.libcudf.types cimport data_type, size_type, type_id
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/io/parquet.hpp" namespace "cudf::io" nogil:

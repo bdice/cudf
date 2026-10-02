@@ -10,7 +10,7 @@ from pylibcudf.libcudf.types cimport bitmask_type, mask_state, size_type
 from pylibcudf.libcudf.utilities.device_buffer cimport byte, device_buffer
 
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/null_mask.hpp" namespace "cudf" nogil:
@@ -75,7 +75,7 @@ cdef extern from * namespace "pylibcudf" nogil:
     namespace pylibcudf {
     inline auto copy_bitmask_to_unique_ptr(
       cudf::column_view view, cudaStream_t stream,
-      cudf::device_resource_ref mr)
+      cuda::mr::device_resource_ref mr)
     {
       return std::make_unique<cuda::device_buffer<std::byte>>(
         cudf::copy_bitmask(view, stream, mr));
@@ -84,7 +84,7 @@ cdef extern from * namespace "pylibcudf" nogil:
     inline auto copy_bitmask_to_unique_ptr(
       cudf::bitmask_type const* mask, cudf::size_type begin_bit,
       cudf::size_type end_bit, cudaStream_t stream,
-      cudf::device_resource_ref mr)
+      cuda::mr::device_resource_ref mr)
     {
       return std::make_unique<cuda::device_buffer<std::byte>>(
         cudf::copy_bitmask(mask, begin_bit, end_bit, stream, mr));
@@ -92,7 +92,7 @@ cdef extern from * namespace "pylibcudf" nogil:
 
     inline auto create_null_mask_unique_ptr(
       cudf::size_type size, cudf::mask_state state, cudaStream_t stream,
-      cudf::device_resource_ref mr)
+      cuda::mr::device_resource_ref mr)
     {
       return std::make_unique<cuda::device_buffer<std::byte>>(
         cudf::create_null_mask(size, state, stream, mr));
@@ -100,7 +100,7 @@ cdef extern from * namespace "pylibcudf" nogil:
 
     inline auto bitmask_and_unique_ptr(
       cudf::table_view view, cudaStream_t stream,
-      cudf::device_resource_ref mr)
+      cuda::mr::device_resource_ref mr)
     {
       auto [mask, count] = cudf::bitmask_and(view, stream, mr);
       return std::pair{
@@ -109,7 +109,7 @@ cdef extern from * namespace "pylibcudf" nogil:
 
     inline auto bitmask_or_unique_ptr(
       cudf::table_view view, cudaStream_t stream,
-      cudf::device_resource_ref mr)
+      cuda::mr::device_resource_ref mr)
     {
       auto [mask, count] = cudf::bitmask_or(view, stream, mr);
       return std::pair{

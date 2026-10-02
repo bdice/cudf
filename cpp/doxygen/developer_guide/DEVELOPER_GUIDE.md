@@ -114,7 +114,7 @@ prefixed with an underscore.
 
 ```c++
 template <typename IteratorType>
-void algorithm_function(int x, cuda::stream_ref s, cudf::device_resource_ref mr)
+void algorithm_function(int x, cuda::stream_ref s, cuda::mr::device_resource_ref mr)
 {
   ...
 }
@@ -243,7 +243,7 @@ std::unique_ptr<table> sort(table_view const& input);
 ## Memory Resources
 
 libcudf allocates all device memory via RMM memory resources (MR) or CUDA MRs. Either type
-can be passed to libcudf functions via `cudf::device_resource_ref` parameters. See the
+can be passed to libcudf functions via `cuda::mr::device_resource_ref` parameters. See the
 [RMM documentation](https://github.com/rapidsai/rmm/blob/main/README.md) for details.
 
 ### Current Device Memory Resource
@@ -257,12 +257,12 @@ All memory resource parameters should be defaulted to use the return value of
 
 Memory resources are passed via resource ref parameters. A resource ref is a memory resource wrapper
 that enables consumers to specify properties of resources that they expect. These are defined
-in the `cuda::mr` namespace of libcu++, and libcudf provides aliases in `cudf/types.hpp`.
- - `cudf::device_resource_ref` accepts a memory resource that provides stream-ordered allocation
+in the `cuda::mr` namespace of libcu++ and provided by `<cuda/memory_resource>`.
+ - `cuda::mr::device_resource_ref` accepts a memory resource that provides stream-ordered allocation
     of device-accessible memory.
- - `cudf::host_resource_ref` accepts a memory resource that provides stream-ordered allocation
+ - `cuda::mr::host_resource_ref` accepts a memory resource that provides stream-ordered allocation
     of host-accessible memory.
- - `cudf::host_device_resource_ref` accepts a memory resource that provides stream-ordered
+ - `cuda::mr::host_device_resource_ref` accepts a memory resource that provides stream-ordered
     allocation of host- and device-accessible memory.
 
 See the libcu++ [docs on `resource_ref`](https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_resource/resource_ref.html)
@@ -573,17 +573,17 @@ For example:
 // cpp/include/cudf/header.hpp
 void external_function(...,
   cuda::stream_ref stream      = cudf::get_default_stream(),
-  cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
+  cuda::mr::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 // cpp/include/cudf/detail/header.hpp
 namespace detail{
-void external_function(..., cuda::stream_ref stream, cudf::device_resource_ref mr)
+void external_function(..., cuda::stream_ref stream, cuda::mr::device_resource_ref mr)
 } // namespace detail
 
 // cudf/src/implementation.cpp
 namespace detail{
 // Use the stream parameter in the detail implementation.
-void external_function(..., cuda::stream_ref stream, cudf::device_resource_ref mr){
+void external_function(..., cuda::stream_ref stream, cuda::mr::device_resource_ref mr){
   // Implementation uses the stream with async APIs.
   rmm::device_buffer buff(..., stream, mr);
   CUDF_CUDA_TRY(cudaMemcpyAsync(...,stream.value()));
@@ -592,7 +592,7 @@ void external_function(..., cuda::stream_ref stream, cudf::device_resource_ref m
 }
 } // namespace detail
 
-void external_function(..., cuda::stream_ref stream, cudf::device_resource_ref mr)
+void external_function(..., cuda::stream_ref stream, cuda::mr::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE(); // Generates an NVTX range for the lifetime of this function.
   detail::external_function(..., stream, mr);
@@ -673,7 +673,7 @@ how device memory is allocated.
 ### Output Memory
 
 Any libcudf API that allocates memory that is *returned* to a user must accept a
-`cudf::device_resource_ref` as the last parameter. Inside the API, this memory resource must
+`cuda::mr::device_resource_ref` as the last parameter. Inside the API, this memory resource must
 be used to allocate any memory for returned objects. It should therefore be passed into functions
 whose outputs will be returned. Example:
 
@@ -681,7 +681,7 @@ whose outputs will be returned. Example:
 // Returned `column` contains newly allocated memory,
 // therefore the API must accept a memory resource pointer
 std::unique_ptr<column> returns_output_memory(
-  ..., cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
+  ..., cuda::mr::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 // This API does not allocate any new *output* memory, therefore
 // a memory resource is unnecessary
@@ -702,7 +702,7 @@ obtained from `cudf::get_current_device_resource_ref()` for temporary memory all
 
 ```c++
 rmm::device_buffer some_function(
-  ..., cudf::device_resource_ref mr = cudf::get_current_device_resource_ref()) {
+  ..., cuda::mr::device_resource_ref mr = cudf::get_current_device_resource_ref()) {
     rmm::device_buffer returned_buffer(..., mr); // Returned buffer uses the passed in MR
     ...
     rmm::device_buffer temporary_buffer(...); // Temporary buffer uses default MR
@@ -718,7 +718,7 @@ use memory resources for device memory allocation with automated lifetime manage
 
 #### rmm::device_buffer
 Allocates a specified number of bytes of untyped, uninitialized device memory using a
-memory resource. If no `cudf::device_resource_ref` is explicitly provided, it uses
+memory resource. If no `cuda::mr::device_resource_ref` is explicitly provided, it uses
 `cudf::get_current_device_resource_ref()`.
 
 `rmm::device_buffer` is movable and copyable on a stream. A copy performs a deep copy of the

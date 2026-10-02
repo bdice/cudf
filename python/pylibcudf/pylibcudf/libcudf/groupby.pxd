@@ -25,7 +25,7 @@ from pylibcudf.libcudf.types cimport (
 )
 
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 # workaround for https://github.com/cython/cython/issues/3885
 ctypedef const scalar constscalar

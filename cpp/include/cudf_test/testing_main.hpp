@@ -49,7 +49,7 @@ struct pinned_pool {
   rmm::mr::pool_memory_resource pool_mr;
 
   explicit pinned_pool(std::size_t pool_size)
-    : pool_mr{cudf::device_resource_ref{pinned_mr}, pool_size}
+    : pool_mr{cuda::mr::device_resource_ref{pinned_mr}, pool_size}
   {
   }
 
@@ -121,8 +121,7 @@ inline auto make_binning()
  *        Accepted types are "pool", "cuda", "async", "arena", "binning", and "managed".
  * @return Memory resource instance
  */
-inline cuda::mr::any_resource<cuda::mr::device_accessible> create_memory_resource(
-  std::string const& allocation_mode)
+inline cuda::mr::any_device_resource create_memory_resource(std::string const& allocation_mode)
 {
   if (allocation_mode == "binning") return make_binning();
   if (allocation_mode == "cuda") return make_cuda();

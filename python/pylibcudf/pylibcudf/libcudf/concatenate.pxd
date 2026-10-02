@@ -9,7 +9,7 @@ from pylibcudf.libcudf.utilities.span cimport host_span
 
 from rmm.librmm.device_buffer cimport device_buffer
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/concatenate.hpp" namespace "cudf" nogil:

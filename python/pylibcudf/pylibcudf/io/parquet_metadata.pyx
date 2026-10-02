@@ -34,7 +34,7 @@ from pylibcudf.libcudf.utilities.span cimport host_span
 from pylibcudf.table cimport Table
 from pylibcudf.types cimport DataType
 from pylibcudf.utils cimport _get_memory_resource, _get_stream
-from pylibcudf.libcudf.types cimport to_device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 from rmm.pylibrmm.stream cimport Stream
 

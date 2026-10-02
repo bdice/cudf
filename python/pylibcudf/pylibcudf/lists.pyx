@@ -52,7 +52,7 @@ from pylibcudf.lists cimport ColumnOrScalar, ColumnOrSizeType
 from pylibcudf.libcudf.lists.combine import concatenate_null_policy as ConcatenateNullPolicy # no-cython-lint
 from pylibcudf.libcudf.lists.contains import duplicate_find_option as DuplicateFindOption # no-cython-lint
 
-from pylibcudf.libcudf.types cimport to_device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 from rmm.pylibrmm.stream cimport Stream
 

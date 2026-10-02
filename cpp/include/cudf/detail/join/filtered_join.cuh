@@ -19,6 +19,7 @@
 #include <cuco/pair.cuh>
 #include <cuco/probing_scheme.cuh>
 #include <cuco/types.cuh>
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 #include <cstddef>
@@ -135,28 +136,28 @@ class filtered_join {
                 cudf::null_equality compare_nulls,
                 double load_factor,
                 cuda::stream_ref stream,
-                cuda::mr::any_resource<cuda::mr::device_accessible> mr);
+                cuda::mr::any_device_resource mr);
 
   /**
    * @brief Returns indices of left table rows that have matching keys in the right table
    */
   std::unique_ptr<rmm::device_uvector<cudf::size_type>> semi_join(cudf::table_view const& left,
                                                                   cuda::stream_ref stream,
-                                                                  cudf::device_resource_ref mr);
+                                                                  cuda::mr::device_resource_ref mr);
 
   /**
    * @brief Returns indices of left table rows that do not have matching keys in the right table
    */
   std::unique_ptr<rmm::device_uvector<cudf::size_type>> anti_join(cudf::table_view const& left,
                                                                   cuda::stream_ref stream,
-                                                                  cudf::device_resource_ref mr);
+                                                                  cuda::mr::device_resource_ref mr);
 
  private:
   std::unique_ptr<rmm::device_uvector<cudf::size_type>> semi_anti_join(
     cudf::table_view const& left,
     join_kind kind,
     cuda::stream_ref stream,
-    cudf::device_resource_ref mr);
+    cuda::mr::device_resource_ref mr);
 
   // Queries the hash table for every left row and writes the matches to contains_map.
   template <int32_t CGSize, typename Iterator, typename Ref>

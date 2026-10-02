@@ -29,10 +29,6 @@
 
 #include <cuda/std/iterator>
 
-#ifndef __CUDACC_RTC__
-#include <cuda/memory_resource>
-#endif
-
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -82,24 +78,6 @@ using bitmask_type      = uint32_t;  ///< Bitmask type stored as 32-bit unsigned
 using valid_type        = uint8_t;   ///< Valid type in host memory
 using thread_index_type = int64_t;   ///< Thread index type in kernels
 using char_utf8         = uint32_t;  ///< UTF-8 characters are 1-4 bytes
-
-#ifndef __CUDACC_RTC__
-/**
- * @brief Stream-ordered reference to a device-accessible memory resource
- */
-using device_resource_ref = cuda::mr::resource_ref<cuda::mr::device_accessible>;
-
-/**
- * @brief Stream-ordered reference to a host-accessible memory resource
- */
-using host_resource_ref = cuda::mr::resource_ref<cuda::mr::host_accessible>;
-
-/**
- * @brief Stream-ordered reference to a host- and device-accessible memory resource
- */
-using host_device_resource_ref =
-  cuda::mr::resource_ref<cuda::mr::host_accessible, cuda::mr::device_accessible>;
-#endif
 
 /**
  * @brief Similar to `std::distance` but returns `cudf::size_type` and performs `static_cast`

@@ -6,7 +6,7 @@ from pylibcudf.libcudf.column.column cimport column, column_view
 from pylibcudf.libcudf.lists.lists_column_view cimport lists_column_view
 from pylibcudf.libcudf.types cimport size_type
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/lists/extract.hpp" namespace "cudf::lists" nogil:

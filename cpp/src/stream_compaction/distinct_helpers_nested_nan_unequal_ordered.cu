@@ -12,6 +12,7 @@
 
 #include <rmm/device_uvector.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 namespace cudf::detail {
@@ -24,6 +25,6 @@ template rmm::device_uvector<size_type> reduce_by_row_keep_first_last_none(
   size_type num_rows,
   duplicate_keep_option keep,
   cuda::stream_ref stream,
-  cudf::device_resource_ref mr);
+  cuda::mr::device_resource_ref mr);
 
 }  // namespace cudf::detail

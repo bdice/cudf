@@ -8,7 +8,7 @@ from pylibcudf.libcudf.column.column cimport column
 from pylibcudf.libcudf.table.table_view cimport table_view
 
 from rmm.pylibrmm.stream cimport Stream
-from pylibcudf.libcudf.types cimport to_device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 
 from .column cimport Column

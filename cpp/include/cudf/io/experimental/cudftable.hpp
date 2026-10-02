@@ -12,6 +12,7 @@
 #include <cudf/utilities/export.hpp>
 #include <cudf/utilities/memory_resource.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 #include <utility>
@@ -227,9 +228,10 @@ void write_cudftable(cudftable_writer_options const& options,
  * @param mr An optional memory resource to use for all device allocations
  * @return A packed_table containing the deserialized table view and its backing data
  */
-packed_table read_cudftable(cudftable_reader_options const& options,
-                            cuda::stream_ref stream      = cudf::get_default_stream(),
-                            cudf::device_resource_ref mr = cudf::get_current_device_resource_ref());
+packed_table read_cudftable(
+  cudftable_reader_options const& options,
+  cuda::stream_ref stream          = cudf::get_default_stream(),
+  cuda::mr::device_resource_ref mr = cudf::get_current_device_resource_ref());
 
 /** @} */  // end of group
 }  // namespace io::experimental

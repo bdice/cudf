@@ -17,6 +17,7 @@
 
 #include <rmm/device_uvector.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 #include <memory>
@@ -30,7 +31,7 @@ inner_join(table_view const& left_input,
            table_view const& right_input,
            null_equality compare_nulls,
            cuda::stream_ref stream,
-           cudf::device_resource_ref mr)
+           cuda::mr::device_resource_ref mr)
 {
   // match dictionary key sets so indices are comparable across tables
   auto matched = cudf::dictionary::detail::match_dictionaries_to_indices(
@@ -62,7 +63,7 @@ left_join(table_view const& left_input,
           table_view const& right_input,
           null_equality compare_nulls,
           cuda::stream_ref stream,
-          cudf::device_resource_ref mr)
+          cuda::mr::device_resource_ref mr)
 {
   // match dictionary keys so indices are comparable across tables
   auto matched = cudf::dictionary::detail::match_dictionaries_to_indices(
@@ -85,7 +86,7 @@ full_join(table_view const& left_input,
           table_view const& right_input,
           null_equality compare_nulls,
           cuda::stream_ref stream,
-          cudf::device_resource_ref mr)
+          cuda::mr::device_resource_ref mr)
 {
   // match dictionary key sets so indices are comparable across tables
   auto matched = cudf::dictionary::detail::match_dictionaries_to_indices(
@@ -110,7 +111,7 @@ inner_join(table_view const& left,
            table_view const& right,
            null_equality compare_nulls,
            cuda::stream_ref stream,
-           cudf::device_resource_ref mr)
+           cuda::mr::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::inner_join(left, right, compare_nulls, stream, mr);
@@ -122,7 +123,7 @@ left_join(table_view const& left,
           table_view const& right,
           null_equality compare_nulls,
           cuda::stream_ref stream,
-          cudf::device_resource_ref mr)
+          cuda::mr::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::left_join(left, right, compare_nulls, stream, mr);
@@ -134,7 +135,7 @@ full_join(table_view const& left,
           table_view const& right,
           null_equality compare_nulls,
           cuda::stream_ref stream,
-          cudf::device_resource_ref mr)
+          cuda::mr::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::full_join(left, right, compare_nulls, stream, mr);

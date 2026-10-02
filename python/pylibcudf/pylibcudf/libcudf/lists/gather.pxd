@@ -6,7 +6,7 @@ from pylibcudf.libcudf.column.column cimport column
 from pylibcudf.libcudf.copying cimport out_of_bounds_policy
 from pylibcudf.libcudf.lists.lists_column_view cimport lists_column_view
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 cdef extern from "cudf/lists/gather.hpp" namespace "cudf::lists" nogil:
     cdef unique_ptr[column] segmented_gather(

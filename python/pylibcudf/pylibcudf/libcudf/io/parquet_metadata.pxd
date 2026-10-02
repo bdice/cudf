@@ -14,7 +14,7 @@ from pylibcudf.libcudf.types cimport data_type, size_type
 from pylibcudf.libcudf.io.types cimport source_info
 from pylibcudf.libcudf.utilities.span cimport host_span
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 ctypedef const unique_ptr[datasource] const_unique_ptr_datasource
 ctypedef const string const_string

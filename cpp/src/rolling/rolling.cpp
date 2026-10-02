@@ -13,6 +13,7 @@
 #include <cudf/rolling.hpp>
 #include <cudf/types.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 
 namespace cudf {
@@ -26,7 +27,7 @@ std::unique_ptr<column> rolling_window(column_view const& input,
                                        size_type min_periods,
                                        rolling_aggregation const& agg,
                                        cuda::stream_ref stream,
-                                       cudf::device_resource_ref mr)
+                                       cuda::mr::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::rolling_window(
@@ -40,7 +41,7 @@ std::unique_ptr<column> rolling_window(column_view const& input,
                                        size_type min_periods,
                                        rolling_aggregation const& agg,
                                        cuda::stream_ref stream,
-                                       cudf::device_resource_ref mr)
+                                       cuda::mr::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   auto defaults =
@@ -62,7 +63,7 @@ std::unique_ptr<column> rolling_window(column_view const& input,
                                        size_type min_periods,
                                        rolling_aggregation const& agg,
                                        cuda::stream_ref stream,
-                                       cudf::device_resource_ref mr)
+                                       cuda::mr::device_resource_ref mr)
 {
   CUDF_FUNC_RANGE();
   return detail::rolling_window(

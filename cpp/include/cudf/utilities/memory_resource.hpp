@@ -32,7 +32,7 @@ namespace cudf {
  *
  * @return The current device memory resource reference.
  */
-inline cudf::device_resource_ref get_current_device_resource_ref()
+inline cuda::mr::device_resource_ref get_current_device_resource_ref()
 {
   return rmm::mr::get_current_device_resource_ref();
 }
@@ -60,7 +60,7 @@ class memory_resources {
   template <typename Resource>
   memory_resources(Resource&& output_mr)
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    requires std::constructible_from<cudf::device_resource_ref, Resource&&>
+    requires std::constructible_from<cuda::mr::device_resource_ref, Resource&&>
 #endif
     : _output_mr{std::forward<Resource>(output_mr)},
       _temporary_mr{cudf::get_current_device_resource_ref()}
@@ -80,8 +80,8 @@ class memory_resources {
   template <typename OutputResource, typename TemporaryResource>
   memory_resources(OutputResource&& output_mr, TemporaryResource&& temporary_mr)
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    requires(std::constructible_from<cudf::device_resource_ref, OutputResource &&> and
-             std::constructible_from<cudf::device_resource_ref, TemporaryResource &&>)
+    requires(std::constructible_from<cuda::mr::device_resource_ref, OutputResource &&> and
+             std::constructible_from<cuda::mr::device_resource_ref, TemporaryResource &&>)
 #endif
     : _output_mr{std::forward<OutputResource>(output_mr)},
       _temporary_mr{std::forward<TemporaryResource>(temporary_mr)}
@@ -93,21 +93,21 @@ class memory_resources {
    *
    * @return Output device memory resource reference
    */
-  [[nodiscard]] cudf::device_resource_ref get_output_mr() const noexcept { return _output_mr; }
+  [[nodiscard]] cuda::mr::device_resource_ref get_output_mr() const noexcept { return _output_mr; }
 
   /**
    * @brief Return the resource used for intermediate allocations.
    *
    * @return Temporary device memory resource reference
    */
-  [[nodiscard]] cudf::device_resource_ref get_temporary_mr() const noexcept
+  [[nodiscard]] cuda::mr::device_resource_ref get_temporary_mr() const noexcept
   {
     return _temporary_mr;
   }
 
  private:
-  cudf::device_resource_ref _output_mr;
-  cudf::device_resource_ref _temporary_mr;
+  cuda::mr::device_resource_ref _output_mr;
+  cuda::mr::device_resource_ref _temporary_mr;
 };
 
 /**
@@ -116,8 +116,7 @@ class memory_resources {
  * @param mr The new device memory resource.
  * @return An owning any_resource holding the previous resource.
  */
-inline cuda::mr::any_resource<cuda::mr::device_accessible> set_current_device_resource(
-  cuda::mr::any_resource<cuda::mr::device_accessible> mr)
+inline cuda::mr::any_device_resource set_current_device_resource(cuda::mr::any_device_resource mr)
 {
   return rmm::mr::set_current_device_resource(std::move(mr));
 }
@@ -134,10 +133,10 @@ inline cuda::mr::any_resource<cuda::mr::device_accessible> set_current_device_re
  * @return An owning any_resource holding the previous resource.
  */
 [[deprecated("Use set_current_device_resource instead.")]]  //
-inline cuda::mr::any_resource<cuda::mr::device_accessible>
-set_current_device_resource_ref(cudf::device_resource_ref mr)
+inline cuda::mr::any_device_resource
+set_current_device_resource_ref(cuda::mr::device_resource_ref mr)
 {
-  return set_current_device_resource(cuda::mr::any_resource<cuda::mr::device_accessible>{mr});
+  return set_current_device_resource(cuda::mr::any_device_resource{mr});
 }
 
 /**
@@ -145,7 +144,7 @@ set_current_device_resource_ref(cudf::device_resource_ref mr)
  *
  * @return An owning any_resource holding the previous resource.
  */
-inline cuda::mr::any_resource<cuda::mr::device_accessible> reset_current_device_resource()
+inline cuda::mr::any_device_resource reset_current_device_resource()
 {
   return rmm::mr::reset_current_device_resource();
 }
@@ -158,7 +157,7 @@ inline cuda::mr::any_resource<cuda::mr::device_accessible> reset_current_device_
  * @return An owning any_resource holding the previous resource.
  */
 [[deprecated("Use reset_current_device_resource instead.")]]  //
-inline cuda::mr::any_resource<cuda::mr::device_accessible>
+inline cuda::mr::any_device_resource
 reset_current_device_resource_ref()
 {
   return reset_current_device_resource();

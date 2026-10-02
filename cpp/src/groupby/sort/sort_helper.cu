@@ -23,6 +23,7 @@
 #include <rmm/device_uvector.hpp>
 #include <rmm/exec_policy.hpp>
 
+#include <cuda/memory_resource>
 #include <cuda/stream>
 #include <thrust/transform.h>
 
@@ -211,7 +212,7 @@ column_view sort_groupby_helper::keys_bitmask_column(cuda::stream_ref stream)
 
 sort_groupby_helper::column_ptr sort_groupby_helper::sorted_values(column_view const& values,
                                                                    cuda::stream_ref stream,
-                                                                   cudf::device_resource_ref mr)
+                                                                   cuda::mr::device_resource_ref mr)
 {
   column_ptr values_sort_order =
     cudf::detail::stable_sorted_order(table_view({unsorted_keys_labels(stream), values}),
@@ -234,9 +235,8 @@ sort_groupby_helper::column_ptr sort_groupby_helper::sorted_values(column_view c
   return std::move(sorted_values_table->release()[0]);
 }
 
-sort_groupby_helper::column_ptr sort_groupby_helper::grouped_values(column_view const& values,
-                                                                    cuda::stream_ref stream,
-                                                                    cudf::device_resource_ref mr)
+sort_groupby_helper::column_ptr sort_groupby_helper::grouped_values(
+  column_view const& values, cuda::stream_ref stream, cuda::mr::device_resource_ref mr)
 {
   auto gather_map = key_sort_order(stream);
 
@@ -251,7 +251,7 @@ sort_groupby_helper::column_ptr sort_groupby_helper::grouped_values(column_view 
 }
 
 std::unique_ptr<table> sort_groupby_helper::unique_keys(cuda::stream_ref stream,
-                                                        cudf::device_resource_ref mr)
+                                                        cuda::mr::device_resource_ref mr)
 {
   auto const num_unique_keys = num_groups(stream);
   auto gather_map            = rmm::device_uvector<size_type>(num_unique_keys, stream);
@@ -271,7 +271,7 @@ std::unique_ptr<table> sort_groupby_helper::unique_keys(cuda::stream_ref stream,
 }
 
 std::unique_ptr<table> sort_groupby_helper::sorted_keys(cuda::stream_ref stream,
-                                                        cudf::device_resource_ref mr)
+                                                        cuda::mr::device_resource_ref mr)
 {
   return cudf::detail::gather(_keys,
                               key_sort_order(stream),

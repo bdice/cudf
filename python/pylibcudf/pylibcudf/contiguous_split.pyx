@@ -30,7 +30,7 @@ from pylibcudf.libcudf.table.table_view cimport table_view
 from pylibcudf.libcudf.utilities.span cimport device_span
 
 from rmm.pylibrmm.device_buffer cimport DeviceBuffer
-from pylibcudf.libcudf.types cimport to_device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport to_device_resource_ref
 from rmm.pylibrmm.memory_resource cimport DeviceMemoryResource
 from rmm.pylibrmm.stream cimport Stream
 

@@ -8,7 +8,7 @@ from pylibcudf.libcudf.strings.regex_program cimport regex_program
 from pylibcudf.libcudf.table.table cimport table
 from pylibcudf.libcudf.types cimport size_type
 from cuda.bindings.cyruntime cimport cudaStream_t
-from pylibcudf.libcudf.types cimport device_resource_ref
+from pylibcudf.libcudf.utilities.memory_resource cimport device_resource_ref
 
 
 cdef extern from "cudf/strings/extract.hpp" namespace "cudf::strings" nogil:

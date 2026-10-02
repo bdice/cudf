@@ -221,7 +221,7 @@ inline void validate_packed_data(rapidsmpf::PackedData&& packed_data,
  */
 class DelayedMemoryResource {
  public:
-  DelayedMemoryResource(cudf::device_resource_ref upstream, std::chrono::milliseconds delay)
+  DelayedMemoryResource(cuda::mr::device_resource_ref upstream, std::chrono::milliseconds delay)
     : upstream_{upstream}, delay_{delay}
   {
   }
@@ -270,7 +270,7 @@ class DelayedMemoryResource {
     delete delay;
   }
 
-  cuda::mr::any_resource<cuda::mr::device_accessible> upstream_;
+  cuda::mr::any_device_resource upstream_;
   std::chrono::milliseconds delay_;
 };
 

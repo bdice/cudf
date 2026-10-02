@@ -22,6 +22,7 @@
 #include <cudf/types.hpp>
 
 #include <cuda/iterator>
+#include <cuda/memory_resource>
 #include <cuda/std/tuple>
 #include <cuda/stream>
 
@@ -287,7 +288,7 @@ fetch_byte_ranges_to_device_async_impl(
     byte_ranges_per_source,
   bool serialize_submissions,
   cuda::stream_ref stream,
-  cudf::device_resource_ref mr)
+  cuda::mr::device_resource_ref mr)
 {
   auto const num_sources = datasources.size();
 
@@ -480,7 +481,7 @@ fetch_bloom_filters_to_device_impl(
     bloom_filter_byte_ranges_per_source,
   bool serialize_submissions,
   cuda::stream_ref stream,
-  cudf::device_resource_ref mr)
+  cuda::mr::device_resource_ref mr)
 {
   auto const num_sources = datasources.size();
   CUDF_EXPECTS(num_sources == bloom_filter_byte_ranges_per_source.size(),
