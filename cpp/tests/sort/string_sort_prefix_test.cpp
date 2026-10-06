@@ -253,6 +253,23 @@ TEST_F(StringPrefixSort, UnalignedPrefixesAndExactWidthTies)
   }
 }
 
+TEST_F(StringPrefixSort, FourBytePrefixBoundaryAndZeroPaddedTies)
+{
+  std::vector<std::string> const strings{std::string{"abcd\0A", 6},
+                                         "abcd",
+                                         std::string{"abcd\0", 5},
+                                         "abc",
+                                         "abcdA",
+                                         std::string{"abc\0", 4},
+                                         std::string{"abcd\0\0", 6}};
+  auto const input = cudf::test::strings_column_wrapper{strings.begin(), strings.end()};
+
+  auto const result = cudf::stable_sorted_order(cudf::table_view{{input}});
+  auto const expected =
+    cudf::test::fixed_width_column_wrapper<cudf::size_type>{3, 5, 1, 2, 6, 0, 4};
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
+}
+
 TEST_F(StringPrefixSort, SlicedColumnUsesSliceRelativeIndices)
 {
   std::vector<std::string> const strings{
@@ -343,6 +360,61 @@ TEST_F(StringPrefixSort, VariableLengthStrings)
   auto const expected_descending = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
     descending_indices.begin(), descending_indices.end());
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_descending, descending->view());
+}
+
+TEST_F(StringPrefixSort, RandomizedPrefixBoundaryDifferential)
+{
+  // Strings around the 8- and 12-byte cache boundaries with embedded zeros, duplicates, and nulls.
+  constexpr cudf::size_type count = 20000;
+  std::vector<std::string> strings;
+  std::vector<bool> validity;
+  strings.reserve(count);
+  uint64_t state = 12345;
+  auto next      = [&]() {
+    state = state * 6364136223846793005ULL + 1442695040888963407ULL;
+    return static_cast<uint32_t>(state >> 33);
+  };
+  char const alphabet[] = {'\0', 'a', 'b'};
+  for (cudf::size_type index = 0; index < count; ++index) {
+    std::string value = (next() % 2) ? std::string{"abcdefgh"} : std::string{};
+    if (next() % 3 == 0) { value += std::string{"ijk\0", 4}; }
+    auto const extra = next() % 9;
+    for (uint32_t i = 0; i < extra; ++i) {
+      value.push_back(alphabet[next() % 3]);
+    }
+    strings.push_back(std::move(value));
+    validity.push_back(next() % 7 != 0);
+  }
+  auto const input =
+    cudf::test::strings_column_wrapper{strings.begin(), strings.end(), validity.begin()};
+
+  for (auto const column_order : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+    for (auto const nulls : {cudf::null_order::BEFORE, cudf::null_order::AFTER}) {
+      auto const ascending   = column_order == cudf::order::ASCENDING;
+      auto const nulls_first = (nulls == cudf::null_order::BEFORE) == ascending;
+      std::vector<cudf::size_type> expected_indices(count);
+      std::iota(expected_indices.begin(), expected_indices.end(), 0);
+      std::stable_sort(expected_indices.begin(), expected_indices.end(), [&](auto lhs, auto rhs) {
+        if (!validity[lhs] || !validity[rhs]) {
+          if (validity[lhs] == validity[rhs]) { return false; }
+          return nulls_first ? !validity[lhs] : !validity[rhs];
+        }
+        return ascending ? bytewise_less(strings[lhs], strings[rhs])
+                         : bytewise_less(strings[rhs], strings[lhs]);
+      });
+      auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+        expected_indices.begin(), expected_indices.end());
+
+      auto const stable =
+        cudf::stable_sorted_order(cudf::table_view{{input}}, {column_order}, {nulls});
+      CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, stable->view());
+
+      auto const unstable = cudf::sorted_order(cudf::table_view{{input}}, {column_order}, {nulls});
+      CUDF_TEST_EXPECT_TABLES_EQUAL(
+        cudf::gather(cudf::table_view{{input}}, cudf::column_view{expected})->view(),
+        cudf::gather(cudf::table_view{{input}}, unstable->view())->view());
+    }
+  }
 }
 
 TEST_F(StringPrefixSort, NonDefaultStreamAndCurrentMemoryResource)
