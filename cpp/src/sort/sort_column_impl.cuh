@@ -255,15 +255,12 @@ __device__ Integer load_big_endian(string_view const& str, size_type offset)
 /**
  * @brief Orders two non-null rows whose first `CachedBytes` zero-padded bytes are equal.
  */
-template <size_type CachedBytes>
-__device__ bool cached_prefix_tie_break(column_device_view const& d_column,
-                                        size_type lhs,
-                                        size_type rhs,
-                                        bool ascending,
-                                        int suffix_word_bytes = 0)
+template <size_type CachedBytes, typename Keys>
+__device__ bool cached_prefix_tie_break(
+  Keys const& d_column, size_type lhs, size_type rhs, bool ascending, int suffix_word_bytes = 0)
 {
-  auto const left_element  = d_column.element<string_view>(lhs);
-  auto const right_element = d_column.element<string_view>(rhs);
+  auto const left_element  = d_column.template element<string_view>(lhs);
+  auto const right_element = d_column.template element<string_view>(rhs);
   auto const left_size     = left_element.size_bytes();
   auto const right_size    = right_element.size_bytes();
   if (left_size <= CachedBytes or right_size <= CachedBytes) {
@@ -613,13 +610,49 @@ struct project_row<prefix_row_f> {
   __device__ size_type operator()(prefix_row_f const& key) const { return key.row(); }
 };
 
-template <int Bytes, bool has_nulls>
+// Kernel arguments hold the string storage directly, avoiding device child-view creation.
+struct radix_string_storage {
+  char const* chars;
+  void const* offsets;
+  bitmask_type const* null_mask;
+  size_type row_offset;
+  bool large_offsets;
+
+  __device__ bool is_null(size_type row) const
+  {
+    return null_mask != nullptr && !cudf::bit_is_set(null_mask, row + row_offset);
+  }
+
+  template <typename T>
+  __device__ T element(size_type row) const
+  {
+    static_assert(std::is_same_v<T, string_view>);
+    auto const i     = row + row_offset;
+    auto const begin = large_offsets ? static_cast<int64_t const*>(offsets)[i]
+                                     : static_cast<size_type const*>(offsets)[i];
+    auto const end   = large_offsets ? static_cast<int64_t const*>(offsets)[i + 1]
+                                     : static_cast<size_type const*>(offsets)[i + 1];
+    return string_view{chars == nullptr ? nullptr : chars + begin,
+                       static_cast<size_type>(end - begin)};
+  }
+};
+
+inline bool string_sort_radix_flat_view()
+{
+  static bool const enabled = [] {
+    auto const value = std::getenv("CUDF_STRING_SORT_RADIX_FLAT_VIEW");
+    return value != nullptr && std::atoi(value) != 0;
+  }();
+  return enabled;
+}
+
+template <int Bytes, bool has_nulls, typename Keys = column_device_view>
 struct radix_string_prefix_extractor {
   __device__ string_radix_prefix_key operator()(size_type row) const
   {
     bool const is_null = has_nulls && keys.is_null(row);
     if (is_null) return {0, 0, null_rank};
-    auto const str = keys.element<string_view>(row);
+    auto const str = keys.template element<string_view>(row);
     auto hi        = load_big_endian<uint64_t>(str, 0);
     uint32_t lo    = 0;
     if constexpr (Bytes == 12) lo = load_big_endian<uint32_t>(str, 8);
@@ -629,19 +662,19 @@ struct radix_string_prefix_extractor {
     }
     return {hi, lo, has_nulls ? 1u - null_rank : 0u};
   }
-  column_device_view keys;
+  Keys keys;
   bool ascending;
   uint32_t null_rank;
 };
 
-template <int Bytes>
+template <int Bytes, typename Keys = column_device_view>
 struct radix_string_suffix_comparator {
   __device__ bool operator()(size_type lhs, size_type rhs) const
   {
     if (lhs == -1 || rhs == -1) return rhs == -1 && lhs != -1;
     return cached_prefix_tie_break<Bytes>(keys, lhs, rhs, ascending, suffix_word_bytes);
   }
-  column_device_view keys;
+  Keys keys;
   bool ascending;
   int suffix_word_bytes{};
 };
@@ -882,8 +915,8 @@ struct column_sorted_order_fn {
                       project_row<key_type>{});
   }
 
-  template <int Bytes, bool has_nulls>
-  void radix_refined_order(column_device_view const& keys,
+  template <int Bytes, bool has_nulls, typename Keys>
+  void radix_refined_order(Keys const& keys,
                            mutable_column_view& indices,
                            bool ascending,
                            null_order null_precedence,
@@ -892,9 +925,9 @@ struct column_sorted_order_fn {
     auto const null_rank =
       has_nulls ? (ascending == (null_precedence == null_order::BEFORE) ? 0u : 1u) : 2u;
     auto const extractor =
-      radix_string_prefix_extractor<Bytes, has_nulls>{keys, ascending, null_rank};
+      radix_string_prefix_extractor<Bytes, has_nulls, Keys>{keys, ascending, null_rank};
     auto const comparator =
-      radix_string_suffix_comparator<Bytes>{keys, ascending, string_sort_word_bytes()};
+      radix_string_suffix_comparator<Bytes, Keys>{keys, ascending, string_sort_word_bytes()};
     constexpr bool stable = method == sort_method::STABLE;
     switch (string_sort_radix_tile()) {
       case 128:
@@ -997,6 +1030,28 @@ struct column_sorted_order_fn {
                        indices.begin<size_type>(),
                        indices.end<size_type>(),
                        size_type{0});
+      return;
+    }
+
+    auto const variant = string_sort_variant();
+    if ((variant == 7 || variant == 8) && string_sort_radix_flat_view()) {
+      auto const strings = strings_column_view{input};
+      auto const offsets = strings.offsets();
+      bool const large   = offsets.type().id() == type_id::INT64;
+      auto const data    = large ? static_cast<void const*>(offsets.data<int64_t>())
+                                 : static_cast<void const*>(offsets.data<size_type>());
+      auto const storage = radix_string_storage{
+        strings.chars_begin(stream), data, input.null_mask(), input.offset(), large};
+      auto run = [&]<bool has_nulls>() {
+        if (variant == 7)
+          radix_refined_order<8, has_nulls>(storage, indices, ascending, null_precedence, stream);
+        else
+          radix_refined_order<12, has_nulls>(storage, indices, ascending, null_precedence, stream);
+      };
+      if (input.has_nulls())
+        run.template operator()<true>();
+      else
+        run.template operator()<false>();
       return;
     }
 
