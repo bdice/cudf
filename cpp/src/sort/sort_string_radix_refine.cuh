@@ -12,6 +12,7 @@
 #include <rmm/exec_policy.hpp>
 
 #include <cooperative_groups.h>
+#include <cub/block/block_exchange.cuh>
 #include <cub/block/block_merge_sort.cuh>
 #include <cub/block/block_reduce.cuh>
 #include <cub/block/block_scan.cuh>
@@ -209,6 +210,43 @@ __device__ void radix_merge_tile(size_type const* input,
   __syncthreads();
   auto const first_b = tile_begin - pair_begin - partition_a[0];
   auto const last_b  = min(tile_begin + tile_size, length) - pair_begin - partition_a[1];
+  if constexpr (Items > 1) {
+    if (comp.contiguous_merge) {
+      // One merge-path search per thread, then emit adjacent items sequentially.
+      size_type result[Items]{};
+      auto const first_position = tile_begin + static_cast<int64_t>(threadIdx.x) * Items;
+      if (first_position < length) {
+        auto const diagonal = first_position - pair_begin;
+        int64_t lo          = max(partition_a[0], diagonal - last_b);
+        int64_t hi          = min(partition_a[1], diagonal - first_b);
+        while (lo < hi) {
+          auto const a = lo + (hi - lo) / 2;
+          auto const b = diagonal - a;
+          if (b > 0 && a < left_count && !comp(right[b - 1], left[a]))
+            lo = a + 1;
+          else
+            hi = a;
+        }
+        auto a = lo;
+        auto b = diagonal - a;
+        for (int j = 0; j < Items && first_position + j < length; ++j) {
+          if (a < left_count && (b >= right_count || !comp(right[b], left[a])))
+            result[j] = left[a++];
+          else
+            result[j] = right[b++];
+        }
+      }
+      // Preserve coalesced output despite computing contiguous runs per thread.
+      using Exchange = cub::BlockExchange<size_type, Threads, Items>;
+      __shared__ typename Exchange::TempStorage exchange;
+      Exchange(exchange).BlockedToStriped(result, result);
+      for (int j = 0; j < Items; ++j) {
+        auto const position = tile_begin + threadIdx.x + j * Threads;
+        if (position < length) output[seg.begin + position] = result[j];
+      }
+      return;
+    }
+  }
   for (int j = 0; j < Items; ++j) {
     auto const position = tile_begin + threadIdx.x + j * Threads;
     if (position >= length) continue;
