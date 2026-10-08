@@ -12,17 +12,20 @@
 
 #include <cudf/column/column_factories.hpp>
 #include <cudf/copying.hpp>
+#include <cudf/detail/utilities/cuda_memcpy.hpp>
 #include <cudf/sorting.hpp>
 #include <cudf/table/table_view.hpp>
 #include <cudf/unary.hpp>
 #include <cudf/utilities/memory_resource.hpp>
 
+#include <rmm/device_buffer.hpp>
 #include <rmm/mr/statistics_resource_adaptor.hpp>
 
 #include <cuda/stream>
 
 #include <algorithm>
 #include <cstdint>
+#include <cstdlib>
 #include <initializer_list>
 #include <numeric>
 #include <random>
@@ -90,6 +93,32 @@ bool bytewise_less(std::string const& lhs, std::string const& rhs)
       return static_cast<uint8_t>(left) < static_cast<uint8_t>(right);
     });
 }
+
+// A test arena keeps every captured temporary alive through all graph replays.
+// Allocation is host-only during capture; release happens when the backing buffer dies.
+struct graph_test_arena {
+  char* data;
+  std::size_t capacity;
+  std::size_t* used;
+  void* allocate(cuda::stream_ref, std::size_t bytes, std::size_t alignment = 256)
+  {
+    if (bytes == 0) return nullptr;
+    auto const start = (*used + alignment - 1) / alignment * alignment;
+    CUDF_EXPECTS(start <= capacity && bytes <= capacity - start, "Graph test arena exhausted");
+    *used = start + bytes;
+    return data + start;
+  }
+  void deallocate(cuda::stream_ref, void*, std::size_t, std::size_t = 256) noexcept {}
+  void* allocate_sync(std::size_t bytes, std::size_t alignment = 256)
+  {
+    return allocate(cudf::get_default_stream(), bytes, alignment);
+  }
+  void deallocate_sync(void*, std::size_t, std::size_t = 256) noexcept {}
+  bool operator==(graph_test_arena const& other) const noexcept { return data == other.data; }
+  bool operator!=(graph_test_arena const& other) const noexcept { return !(*this == other); }
+  friend void get_property(graph_test_arena const&, cuda::mr::device_accessible) noexcept {}
+};
+static_assert(cuda::mr::resource_with<graph_test_arena, cuda::mr::device_accessible>);
 
 }  // namespace
 
@@ -551,5 +580,98 @@ TEST_F(StringPrefixSort, LargeOffsetsRepresentationAndSlices)
         }
       }
     }
+  }
+}
+
+// Captured refinement must read updated device metadata on every replay.
+TEST_F(StringPrefixSort, DeviceScheduledGraphReplayChangingSegments)
+{
+  auto enabled = [](char const* name) {
+    auto const value = std::getenv(name);
+    return value != nullptr && std::string{value} == "1";
+  };
+  auto const variant         = std::getenv("CUDF_STRING_SORT_VARIANT");
+  auto const schedule        = std::getenv("CUDF_STRING_SORT_RADIX_SCHEDULE");
+  bool const device_schedule = schedule != nullptr
+                                 ? (std::string{schedule} == "1" || std::string{schedule} == "2")
+                                 : enabled("CUDF_STRING_SORT_RADIX_COOPERATIVE");
+  if (variant == nullptr || (std::string{variant} != "7" && std::string{variant} != "8") ||
+      !device_schedule || !enabled("CUDF_STRING_SORT_RADIX_FLAT_VIEW") ||
+      !enabled("CUDF_STRING_SORT_RADIX_COMPACT") || !enabled("CUDF_STRING_SORT_RADIX_RLE")) {
+    GTEST_SKIP() << "Requires device-scheduled radix refinement with direct string storage";
+  }
+  constexpr cudf::size_type count = 4097;
+  auto make_strings               = [](int mode) {
+    std::vector<std::string> strings;
+    for (cudf::size_type i = 0; i < count; ++i) {
+      auto const group = mode == 0 ? 0 : (mode == 1 ? i % 128 : (i * 37) % count);
+      auto prefix      = std::to_string(group);
+      prefix.insert(0, 8 - prefix.size(), '0');
+      auto suffix = std::to_string((i * 97) % 113);
+      suffix.insert(0, 8 - suffix.size(), '0');
+      strings.push_back(prefix + std::string(48, 'x') + suffix);
+    }
+    return strings;
+  };
+  int device{};
+  CUDF_CUDA_TRY(cudaGetDevice(&device));
+  cuda::stream stream{cuda::device_ref{device}};
+  rmm::device_buffer arena(128 * 1024 * 1024, cudf::get_default_stream());
+  std::size_t used      = 0;
+  auto resource         = graph_test_arena{static_cast<char*>(arena.data()), arena.size(), &used};
+  auto scope            = cudf::test::scoped_current_device_resource{resource};
+  auto initial          = make_strings(0);
+  auto input            = cudf::test::strings_column_wrapper{initial.begin(), initial.end()};
+  auto const input_view = cudf::column_view{input};
+  cudf::get_default_stream().sync();
+  for (auto order : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+    cudaGraph_t graph{};
+    cudaGraphExec_t executable{};
+    std::unique_ptr<cudf::column> stable;
+    std::unique_ptr<cudf::column> unstable;
+    CUDF_CUDA_TRY(cudaStreamBeginCapture(stream.get(), cudaStreamCaptureModeGlobal));
+    stable   = cudf::stable_sorted_order(cudf::table_view{{input_view}}, {order}, {}, stream);
+    unstable = cudf::sorted_order(cudf::table_view{{input_view}}, {order}, {}, stream);
+    CUDF_CUDA_TRY(cudaStreamEndCapture(stream.get(), &graph));
+    CUDF_CUDA_TRY(cudaGraphInstantiateWithFlags(&executable, graph, 0));
+    for (int mode : {0, 1, 2, 0}) {
+      auto strings = make_strings(mode);
+      std::string characters;
+      for (auto const& value : strings)
+        characters += value;
+      CUDF_CUDA_TRY(cudf::detail::memcpy_async(
+        const_cast<char*>(input_view.head<char>()), characters.data(), characters.size(), stream));
+      CUDF_CUDA_TRY(cudaGraphLaunch(executable, stream.get()));
+      stream.sync();
+      std::vector<cudf::size_type> rows(count);
+      std::iota(rows.begin(), rows.end(), 0);
+      std::stable_sort(rows.begin(), rows.end(), [&](auto lhs, auto rhs) {
+        return order == cudf::order::ASCENDING ? bytewise_less(strings[lhs], strings[rhs])
+                                               : bytewise_less(strings[rhs], strings[lhs]);
+      });
+      std::vector<cudf::size_type> actual_stable(count), actual_unstable(count);
+      CUDF_CUDA_TRY(cudf::detail::memcpy_async(actual_stable.data(),
+                                               stable->view().head<cudf::size_type>(),
+                                               sizeof(cudf::size_type) * count,
+                                               stream));
+      CUDF_CUDA_TRY(cudf::detail::memcpy_async(actual_unstable.data(),
+                                               unstable->view().head<cudf::size_type>(),
+                                               sizeof(cudf::size_type) * count,
+                                               stream));
+      stream.sync();
+      EXPECT_EQ(rows, actual_stable);
+      auto permutation = actual_unstable;
+      std::sort(permutation.begin(), permutation.end());
+      std::vector<cudf::size_type> identity(count);
+      std::iota(identity.begin(), identity.end(), 0);
+      ASSERT_EQ(identity, permutation);
+      for (cudf::size_type i = 0; i < count; ++i)
+        EXPECT_EQ(strings[rows[i]], strings[actual_unstable[i]]);
+    }
+    stable.reset();
+    unstable.reset();
+    stream.sync();
+    CUDF_CUDA_TRY(cudaGraphExecDestroy(executable));
+    CUDF_CUDA_TRY(cudaGraphDestroy(graph));
   }
 }

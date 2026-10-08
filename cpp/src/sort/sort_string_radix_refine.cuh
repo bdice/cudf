@@ -11,6 +11,7 @@
 #include <rmm/device_uvector.hpp>
 #include <rmm/exec_policy.hpp>
 
+#include <cooperative_groups.h>
 #include <cub/block/block_merge_sort.cuh>
 #include <cub/block/block_reduce.cuh>
 #include <cub/block/block_scan.cuh>
@@ -93,15 +94,15 @@ __global__ void radix_prepare_tiles(radix_segment const* segments,
 }
 
 template <int Threads, int Items, bool Stable, typename Comparator>
-__global__ void radix_segment_block_sort(size_type const* input,
-                                         size_type* output,
-                                         radix_segment const* segments,
-                                         size_type const* tile_offsets,
-                                         size_type segment_count,
-                                         Comparator comp)
+__device__ void radix_block_sort_tile(size_type const* input,
+                                      size_type* output,
+                                      radix_segment const* segments,
+                                      size_type const* tile_offsets,
+                                      size_type segment_count,
+                                      size_type tile,
+                                      Comparator comp)
 {
   constexpr int tile_size = Threads * Items;
-  auto const tile         = static_cast<size_type>(blockIdx.x);
   auto const segment      = radix_tile_segment(tile, tile_offsets, segment_count);
   auto const begin        = segments[segment].begin + (tile - tile_offsets[segment]) * tile_size;
   auto const valid        = min(tile_size, segments[segment].end - begin);
@@ -122,19 +123,31 @@ __global__ void radix_segment_block_sort(size_type const* input,
   }
 }
 
+template <int Threads, int Items, bool Stable, typename Comparator>
+__global__ void radix_segment_block_sort(size_type const* input,
+                                         size_type* output,
+                                         radix_segment const* segments,
+                                         size_type const* tile_offsets,
+                                         size_type segment_count,
+                                         Comparator comp)
+{
+  radix_block_sort_tile<Threads, Items, Stable>(
+    input, output, segments, tile_offsets, segment_count, static_cast<size_type>(blockIdx.x), comp);
+}
+
 // Each thread finds one position on the stable merge path and emits one row.
 // Left-run equality precedes right-run equality, preserving stable radix order.
 template <int Threads, int Items, typename Comparator>
-__global__ void radix_segment_merge(size_type const* input,
-                                    size_type* output,
-                                    radix_segment const* segments,
-                                    size_type const* tile_offsets,
-                                    size_type segment_count,
-                                    int64_t run_length,
-                                    Comparator comp)
+__device__ void radix_merge_tile(size_type const* input,
+                                 size_type* output,
+                                 radix_segment const* segments,
+                                 size_type const* tile_offsets,
+                                 size_type segment_count,
+                                 size_type tile,
+                                 int64_t run_length,
+                                 Comparator comp)
 {
   constexpr int tile_size = Threads * Items;
-  auto const tile         = static_cast<size_type>(blockIdx.x);
   auto const segment      = radix_tile_segment(tile, tile_offsets, segment_count);
   auto const seg          = segments[segment];
   auto const local_tile   = tile - tile_offsets[segment];
@@ -191,6 +204,25 @@ __global__ void radix_segment_merge(size_type const* input,
   }
 }
 
+template <int Threads, int Items, typename Comparator>
+__global__ void radix_segment_merge(size_type const* input,
+                                    size_type* output,
+                                    radix_segment const* segments,
+                                    size_type const* tile_offsets,
+                                    size_type segment_count,
+                                    int64_t run_length,
+                                    Comparator comp)
+{
+  radix_merge_tile<Threads, Items>(input,
+                                   output,
+                                   segments,
+                                   tile_offsets,
+                                   segment_count,
+                                   static_cast<size_type>(blockIdx.x),
+                                   run_length,
+                                   comp);
+}
+
 // A block reserves segment IDs and tile offsets together in a packed prefix sum.
 // Reservations may reorder whole segments; row order inside each segment is unchanged.
 template <int TileSize, typename Key>
@@ -243,6 +275,171 @@ __global__ void radix_finish_offsets(size_type* offsets, unsigned long long cons
   offsets[static_cast<uint32_t>(packed)] = static_cast<size_type>(packed >> 32);
 }
 
+// Schedule block sorts freely before the lighter cooperative merge kernel.
+__global__ void radix_device_copy(size_type size,
+                                  size_type const* input,
+                                  size_type* output,
+                                  unsigned long long const* metadata)
+{
+  if (static_cast<uint32_t>(metadata[0]) == 0) return;
+  auto const stride = static_cast<int64_t>(gridDim.x) * blockDim.x;
+  for (auto i = static_cast<int64_t>(blockIdx.x) * blockDim.x + threadIdx.x; i < size; i += stride)
+    output[i] = input[i];
+}
+
+template <int Threads, int Items, bool Stable, typename Comparator>
+__global__ void radix_device_block_sort(size_type const* input,
+                                        size_type* output,
+                                        radix_segment const* segments,
+                                        size_type const* offsets,
+                                        unsigned long long const* metadata,
+                                        Comparator comp)
+{
+  auto const packed = metadata[0];
+  auto const count  = static_cast<size_type>(static_cast<uint32_t>(packed));
+  auto const tiles  = static_cast<size_type>(packed >> 32);
+  for (size_type tile = blockIdx.x; tile < tiles; tile += gridDim.x) {
+    radix_block_sort_tile<Threads, Items, Stable>(
+      input, output, segments, offsets, count, tile, comp);
+    __syncthreads();
+  }
+}
+
+// Guarded launches retain the ordinary CUDA scheduler without host metadata.
+template <int Threads, int Items, typename Comparator>
+__global__ void radix_device_merge(size_type const* input,
+                                   size_type* output,
+                                   radix_segment const* segments,
+                                   size_type const* offsets,
+                                   unsigned long long const* metadata,
+                                   int64_t run,
+                                   Comparator comp)
+{
+  auto const packed = metadata[0];
+  auto const count  = static_cast<size_type>(static_cast<uint32_t>(packed));
+  if (count == 0 || run >= static_cast<int64_t>(metadata[1])) return;
+  auto const tiles = static_cast<size_type>(packed >> 32);
+  for (size_type tile = blockIdx.x; tile < tiles; tile += gridDim.x) {
+    radix_merge_tile<Threads, Items>(input, output, segments, offsets, count, tile, run, comp);
+    __syncthreads();
+  }
+}
+
+template <int TileSize>
+__global__ void radix_device_finish(size_type size,
+                                    size_type const* scratch,
+                                    size_type* output,
+                                    unsigned long long const* metadata)
+{
+  if (static_cast<uint32_t>(metadata[0]) == 0) return;
+  int levels = 0;
+  for (int64_t run = TileSize; run < static_cast<int64_t>(metadata[1]); run *= 2)
+    ++levels;
+  if (levels % 2 != 0) return;  // Odd merge counts already leave the final result in output.
+  auto const stride = static_cast<int64_t>(gridDim.x) * blockDim.x;
+  for (auto i = static_cast<int64_t>(blockIdx.x) * blockDim.x + threadIdx.x; i < size; i += stride)
+    output[i] = scratch[i];
+}
+
+template <int Threads, int Items, bool Stable, typename Comparator>
+void radix_launch_device_schedule(size_type size,
+                                  size_type* output,
+                                  size_type* scratch,
+                                  radix_segment const* segments,
+                                  size_type const* offsets,
+                                  unsigned long long const* metadata,
+                                  Comparator comp,
+                                  cuda::stream_ref stream)
+{
+  int device, multiprocessors;
+  CUDF_CUDA_TRY(cudaGetDevice(&device));
+  CUDF_CUDA_TRY(cudaDeviceGetAttribute(&multiprocessors, cudaDevAttrMultiProcessorCount, device));
+  auto const blocks = std::min(multiprocessors * 32, std::max(1, size / 2));
+  radix_device_copy<<<blocks, 256, 0, stream.get()>>>(size, output, scratch, metadata);
+  CUDF_CUDA_TRY(cudaGetLastError());
+  radix_device_block_sort<Threads, Items, Stable>
+    <<<blocks, Threads, 0, stream.get()>>>(output, scratch, segments, offsets, metadata, comp);
+  CUDF_CUDA_TRY(cudaGetLastError());
+  auto* src = scratch;
+  auto* dst = output;
+  for (int64_t run = Threads * Items; run < size; run *= 2) {
+    radix_device_merge<Threads, Items>
+      <<<blocks, Threads, 0, stream.get()>>>(src, dst, segments, offsets, metadata, run, comp);
+    CUDF_CUDA_TRY(cudaGetLastError());
+    std::swap(src, dst);
+  }
+  radix_device_finish<Threads * Items>
+    <<<blocks, 256, 0, stream.get()>>>(size, scratch, output, metadata);
+  CUDF_CUDA_TRY(cudaGetLastError());
+}
+
+// All blocks remain resident; grid barriers replace host scheduling/readbacks.
+template <int Threads, int Items, bool Stable, typename Comparator>
+__global__ void radix_cooperative_refine(size_type size,
+                                         size_type* output,
+                                         size_type* scratch,
+                                         radix_segment const* segments,
+                                         size_type const* tile_offsets,
+                                         unsigned long long const* metadata,
+                                         Comparator comp)
+{
+  auto const packed        = metadata[0];
+  auto const segment_count = static_cast<size_type>(static_cast<uint32_t>(packed));
+  if (segment_count == 0) return;
+  auto const tile_count = static_cast<size_type>(packed >> 32);
+  auto const max_length = static_cast<size_type>(metadata[1]);
+  auto const grid       = cooperative_groups::this_grid();
+  auto const rank       = static_cast<int64_t>(blockIdx.x) * Threads + threadIdx.x;
+  auto const stride     = static_cast<int64_t>(gridDim.x) * Threads;
+  auto* src             = scratch;
+  auto* dst             = output;
+  for (int64_t run = Threads * Items; run < max_length; run *= 2) {
+    for (size_type tile = blockIdx.x; tile < tile_count; tile += gridDim.x) {
+      radix_merge_tile<Threads, Items>(
+        src, dst, segments, tile_offsets, segment_count, tile, run, comp);
+      __syncthreads();
+    }
+    grid.sync();
+    auto* tmp = src;
+    src       = dst;
+    dst       = tmp;
+  }
+  if (src != output) {
+    for (auto i = rank; i < size; i += stride)
+      output[i] = src[i];
+  }
+}
+
+template <int Threads, int Items, bool Stable, typename Comparator>
+void radix_launch_cooperative(size_type size,
+                              size_type* output,
+                              size_type* scratch,
+                              radix_segment const* segments,
+                              size_type const* tile_offsets,
+                              unsigned long long const* metadata,
+                              Comparator comparator,
+                              cuda::stream_ref stream)
+{
+  int device, supported, multiprocessors, blocks_per_sm;
+  CUDF_CUDA_TRY(cudaGetDevice(&device));
+  CUDF_CUDA_TRY(cudaDeviceGetAttribute(&supported, cudaDevAttrCooperativeLaunch, device));
+  CUDF_EXPECTS(supported, "Cooperative radix refinement requires cooperative launch support");
+  CUDF_CUDA_TRY(cudaDeviceGetAttribute(&multiprocessors, cudaDevAttrMultiProcessorCount, device));
+  auto const work_blocks = std::min(multiprocessors * 16, std::max(1, size / 2));
+  radix_device_copy<<<work_blocks, 256, 0, stream.get()>>>(size, output, scratch, metadata);
+  CUDF_CUDA_TRY(cudaGetLastError());
+  radix_device_block_sort<Threads, Items, Stable><<<work_blocks, Threads, 0, stream.get()>>>(
+    output, scratch, segments, tile_offsets, metadata, comparator);
+  CUDF_CUDA_TRY(cudaGetLastError());
+  auto const kernel = radix_cooperative_refine<Threads, Items, Stable, Comparator>;
+  CUDF_CUDA_TRY(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks_per_sm, kernel, Threads, 0));
+  auto const blocks = std::min(multiprocessors * blocks_per_sm, std::max(1, size / 2));
+  CUDF_EXPECTS(blocks > 0, "No resident blocks available for cooperative refinement");
+  void* args[] = {&size, &output, &scratch, &segments, &tile_offsets, &metadata, &comparator};
+  CUDF_CUDA_TRY(
+    cudaLaunchCooperativeKernel(kernel, dim3(blocks), dim3(Threads), args, 0, stream.get()));
+}
+
 template <int Threads, int Items, bool Stable, typename Comparator>
 void radix_refine_segments(size_type size,
                            size_type* output,
@@ -283,6 +480,7 @@ void radix_prefix_refine(size_type size,
                          bool use_rle,
                          bool device_metadata,
                          bool compact_runs,
+                         int schedule,
                          cuda::stream_ref stream)
 {
   // Device metadata mode prepares all scheduling information before one host readback.
@@ -359,6 +557,28 @@ void radix_prefix_refine(size_type size,
       CUDF_CUDA_TRY(cudaGetLastError());
       radix_finish_offsets<<<1, 1, 0, stream.get()>>>(tile_offsets.data(), metadata.data());
       CUDF_CUDA_TRY(cudaGetLastError());
+      if (schedule == 2) {
+        radix_launch_device_schedule<Threads, Items, Stable>(size,
+                                                             output,
+                                                             scratch.data(),
+                                                             segments.data(),
+                                                             tile_offsets.data(),
+                                                             metadata.data(),
+                                                             comparator,
+                                                             stream);
+        return;
+      }
+      if (schedule == 1) {
+        radix_launch_cooperative<Threads, Items, Stable>(size,
+                                                         output,
+                                                         scratch.data(),
+                                                         segments.data(),
+                                                         tile_offsets.data(),
+                                                         metadata.data(),
+                                                         comparator,
+                                                         stream);
+        return;
+      }
       unsigned long long host_metadata[2];
       CUDF_CUDA_TRY(
         cudf::detail::memcpy_async(host_metadata, metadata.data(), sizeof(host_metadata), stream));
