@@ -688,6 +688,18 @@ inline int string_sort_radix_tile()
   return tile;
 }
 
+inline int string_sort_radix_schedule()
+{
+  static int const schedule = [] {
+    auto const value = std::getenv("CUDF_STRING_SORT_RADIX_SCHEDULE");
+    if (value != nullptr) return std::atoi(value);
+    auto const cooperative = std::getenv("CUDF_STRING_SORT_RADIX_COOPERATIVE");
+    return cooperative != nullptr && std::atoi(cooperative) != 0 ? 1 : 0;
+  }();
+  CUDF_EXPECTS(schedule >= 0 && schedule <= 2, "Invalid radix scheduling mode");
+  return schedule;
+}
+
 inline bool string_sort_radix_compact()
 {
   static bool const enabled = [] {
@@ -939,6 +951,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_rle(),
                                                    string_sort_radix_device_metadata(),
                                                    string_sort_radix_compact(),
+                                                   string_sort_radix_schedule(),
                                                    stream);
         break;
       case 256:
@@ -950,6 +963,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_rle(),
                                                    string_sort_radix_device_metadata(),
                                                    string_sort_radix_compact(),
+                                                   string_sort_radix_schedule(),
                                                    stream);
         break;
       case 1024:
@@ -961,6 +975,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_rle(),
                                                    string_sort_radix_device_metadata(),
                                                    string_sort_radix_compact(),
+                                                   string_sort_radix_schedule(),
                                                    stream);
         break;
       default: CUDF_FAIL("Unsupported CUDF_STRING_SORT_RADIX_TILE");
