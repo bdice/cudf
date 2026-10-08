@@ -644,6 +644,74 @@ TEST_F(StringPrefixSort, FunnelLoadAlignmentBoundariesAndSuffixMismatches)
   }
 }
 
+TEST_F(StringPrefixSort, LogarithmicBinsAndIndependentMergeParity)
+{
+  std::vector<std::string> strings;
+  int group = 0;
+  for (auto length :
+       {1,    2,    3,    4,    5,    7,    8,    9,    15,   16,   17,   31,   32,
+        33,   63,   64,   65,   127,  128,  129,  255,  256,  257,  511,  512,  513,
+        1023, 1024, 1025, 2047, 2048, 2049, 4095, 4096, 4097, 8191, 8192, 8193, 32769}) {
+    auto prefix = std::to_string(group++);
+    prefix.insert(0, 8 - prefix.size(), '0');
+    for (int i = 0; i < length; ++i) {
+      auto suffix = std::to_string((i * 97) % 113);  // Equal values exercise stability.
+      suffix.insert(0, 8 - suffix.size(), '0');
+      strings.push_back(prefix + std::string((group % 3) * 16 + 8, 'x') + suffix);
+    }
+  }
+  std::mt19937 rng{581923};
+  std::shuffle(strings.begin(), strings.end(), rng);
+  for (bool nullable : {false, true}) {
+    std::vector<bool> validity(strings.size(), true);
+    if (nullable) {
+      for (std::size_t i = 0; i < strings.size(); i += 17)
+        validity[i] = false;
+    }
+    auto const input =
+      cudf::test::strings_column_wrapper{strings.begin(), strings.end(), validity.begin()};
+    auto const size = static_cast<cudf::size_type>(strings.size());
+    for (bool sliced : {false, true}) {
+      auto const start = sliced ? 3 : 0;
+      auto const end   = sliced ? size - 5 : size;
+      auto const view =
+        sliced ? cudf::slice(input, {start, end}).front() : cudf::column_view{input};
+      for (auto order : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+        for (auto null_order : {cudf::null_order::BEFORE, cudf::null_order::AFTER}) {
+          bool const ascending = order == cudf::order::ASCENDING;
+          std::vector<cudf::size_type> rows(end - start);
+          std::iota(rows.begin(), rows.end(), 0);
+          std::stable_sort(rows.begin(), rows.end(), [&](auto lhs, auto rhs) {
+            auto const a = lhs + start, b = rhs + start;
+            if (!validity[a] || !validity[b]) {
+              if (validity[a] == validity[b]) return false;
+              bool const null_first = ascending == (null_order == cudf::null_order::BEFORE);
+              return !validity[a] == null_first;
+            }
+            return ascending ? bytewise_less(strings[a], strings[b])
+                             : bytewise_less(strings[b], strings[a]);
+          });
+          auto const expected =
+            cudf::test::fixed_width_column_wrapper<cudf::size_type>(rows.begin(), rows.end());
+          auto const stable =
+            cudf::stable_sorted_order(cudf::table_view{{view}}, {order}, {null_order});
+          CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, stable->view());
+          auto const unstable = cudf::sorted_order(cudf::table_view{{view}}, {order}, {null_order});
+          auto const expected_values = cudf::gather(cudf::table_view{{view}}, expected);
+          auto const actual_values   = cudf::gather(cudf::table_view{{view}}, unstable->view());
+          CUDF_TEST_EXPECT_TABLES_EQUAL(expected_values->view(), actual_values->view());
+          auto const [host_rows, mask] = cudf::test::to_host<cudf::size_type>(unstable->view());
+          auto permutation             = host_rows;
+          std::sort(permutation.begin(), permutation.end());
+          std::vector<cudf::size_type> identity(end - start);
+          std::iota(identity.begin(), identity.end(), 0);
+          EXPECT_EQ(identity, permutation);
+        }
+      }
+    }
+  }
+}
+
 // Captured refinement must read updated device metadata on every replay.
 TEST_F(StringPrefixSort, DeviceScheduledGraphReplayChangingSegments)
 {
@@ -665,8 +733,12 @@ TEST_F(StringPrefixSort, DeviceScheduledGraphReplayChangingSegments)
   auto make_strings               = [](int mode) {
     std::vector<std::string> strings;
     for (cudf::size_type i = 0; i < count; ++i) {
-      auto const group = mode == 0 ? 0 : (mode == 1 ? i % 128 : (i * 37) % count);
-      auto prefix      = std::to_string(group);
+      auto const group =
+        mode == 0 ? 0
+                                : (mode == 1 ? i % 128
+                                             : (mode == 3 ? (i < 2049 ? 0 : (i < 3073 ? 1 : 2 + (i - 3073) % 37))
+                                                          : (i * 37) % count));
+      auto prefix = std::to_string(group);
       prefix.insert(0, 8 - prefix.size(), '0');
       auto suffix = std::to_string((i * 97) % 113);
       suffix.insert(0, 8 - suffix.size(), '0');
@@ -695,7 +767,7 @@ TEST_F(StringPrefixSort, DeviceScheduledGraphReplayChangingSegments)
     unstable = cudf::sorted_order(cudf::table_view{{input_view}}, {order}, {}, stream);
     CUDF_CUDA_TRY(cudaStreamEndCapture(stream.get(), &graph));
     CUDF_CUDA_TRY(cudaGraphInstantiateWithFlags(&executable, graph, 0));
-    for (int mode : {0, 1, 2, 0}) {
+    for (int mode : {0, 1, 2, 3, 0}) {
       auto strings = make_strings(mode);
       std::string characters;
       for (auto const& value : strings)

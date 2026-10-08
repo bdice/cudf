@@ -781,6 +781,18 @@ inline int string_sort_radix_tile()
   return tile;
 }
 
+// LRB 0 retains the existing scheduler, 1 uses fixed tiles, 2 selects per-bin warp/block tiers.
+inline int string_sort_radix_lrb()
+{
+  static int const mode = [] {
+    auto const text = std::getenv("CUDF_STRING_SORT_RADIX_LRB");
+    int const value = text == nullptr ? 0 : std::atoi(text);
+    CUDF_EXPECTS(value >= 0 && value <= 2, "Invalid LRB refinement mode");
+    return value;
+  }();
+  return mode;
+}
+
 inline int string_sort_radix_schedule()
 {
   static int const schedule = [] {
@@ -1047,6 +1059,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_device_metadata(),
                                                    string_sort_radix_compact(),
                                                    string_sort_radix_schedule(),
+                                                   string_sort_radix_lrb(),
                                                    stream);
         break;
       case 256:
@@ -1059,6 +1072,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_device_metadata(),
                                                    string_sort_radix_compact(),
                                                    string_sort_radix_schedule(),
+                                                   string_sort_radix_lrb(),
                                                    stream);
         break;
       case 1024:
@@ -1071,6 +1085,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_device_metadata(),
                                                    string_sort_radix_compact(),
                                                    string_sort_radix_schedule(),
+                                                   string_sort_radix_lrb(),
                                                    stream);
         break;
       default: CUDF_FAIL("Unsupported CUDF_STRING_SORT_RADIX_TILE");
