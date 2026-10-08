@@ -687,7 +687,17 @@ struct radix_string_suffix_comparator {
   Keys keys;
   bool ascending;
   int suffix_word_bytes{};
+  bool contiguous_merge{};
 };
+
+inline bool string_sort_radix_merge_items()
+{
+  static bool const enabled = [] {
+    auto const value = std::getenv("CUDF_STRING_SORT_RADIX_MERGE_ITEMS");
+    return value != nullptr && std::atoi(value) != 0;
+  }();
+  return enabled;
+}
 
 inline int string_sort_radix_tile()
 {
@@ -948,8 +958,8 @@ struct column_sorted_order_fn {
       has_nulls ? (ascending == (null_precedence == null_order::BEFORE) ? 0u : 1u) : 2u;
     auto const extractor =
       radix_string_prefix_extractor<Bytes, has_nulls, Keys>{keys, ascending, null_rank};
-    auto const comparator =
-      radix_string_suffix_comparator<Bytes, Keys>{keys, ascending, string_sort_word_bytes()};
+    auto const comparator = radix_string_suffix_comparator<Bytes, Keys>{
+      keys, ascending, string_sort_word_bytes(), string_sort_radix_merge_items()};
     constexpr bool stable = method == sort_method::STABLE;
     switch (string_sort_radix_tile()) {
       case 128:
