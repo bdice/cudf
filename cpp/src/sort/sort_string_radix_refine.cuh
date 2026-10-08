@@ -76,15 +76,17 @@ template <int TileSize>
 __global__ void radix_prepare_tiles(radix_segment const* segments,
                                     size_type count,
                                     size_type* tile_counts,
-                                    size_type* max_length)
+                                    size_type* max_length,
+                                    size_type const* device_count)
 {
-  auto const i = static_cast<size_type>(blockIdx.x * blockDim.x + threadIdx.x);
-  if (i < count) {
+  auto const i            = static_cast<size_type>(blockIdx.x * blockDim.x + threadIdx.x);
+  auto const actual_count = device_count == nullptr ? count : *device_count;
+  if (i < actual_count) {
     auto const length = segments[i].end - segments[i].begin;
     tile_counts[i]    = 1 + (length - 1) / TileSize;
     atomicMax(max_length, length);
   }
-  if (i == count) tile_counts[i] = 0;
+  if (i >= actual_count && i <= count) tile_counts[i] = 0;
 }
 
 template <int Threads, int Items, bool Stable, typename Comparator>
@@ -193,9 +195,11 @@ void radix_prefix_refine(size_type size,
                          Comparator comparator,
                          uint32_t null_rank,
                          bool use_rle,
+                         bool device_metadata,
                          cuda::stream_ref stream)
 {
-  // Evaluation path: boundary selection requires three host synchronizations; RLE requires two.
+  // Device metadata mode prepares all scheduling information before one host readback.
+  device_metadata = device_metadata && use_rle;
   CUDF_EXPECTS(size < std::numeric_limits<size_type>::max(), "Radix boundary count overflow");
   auto const mr     = cudf::get_current_device_resource_ref();
   auto const policy = rmm::exec_policy_nosync(stream, mr);
@@ -226,7 +230,7 @@ void radix_prefix_refine(size_type size,
   }
   keys_in.resize(0, stream);
 
-  rmm::device_uvector<size_type> count(1, stream, mr);
+  rmm::device_uvector<size_type> count(3, stream, mr);
   rmm::device_uvector<radix_segment> segments(0, stream, mr);
   auto const* sorted_keys = keys_out.data();
   if (use_rle) {
@@ -323,36 +327,43 @@ void radix_prefix_refine(size_type size,
       CUDF_CUDA_TRY(select_segments(temp.data()));
     }
   }
-  size_type segment_count;
-  CUDF_CUDA_TRY(
-    cudf::detail::memcpy_async(&segment_count, count.data(), sizeof(size_type), stream));
-  CUDF_CUDA_TRY(cudaStreamSynchronize(stream.get()));
-  if (segment_count == 0) return;
+  size_type segment_count = 0;
+  if (!device_metadata) {
+    CUDF_CUDA_TRY(
+      cudf::detail::memcpy_async(&segment_count, count.data(), sizeof(size_type), stream));
+    CUDF_CUDA_TRY(cudaStreamSynchronize(stream.get()));
+    if (segment_count == 0) return;
+  }
 
   constexpr int tile_size = Threads * Items;
-  rmm::device_uvector<size_type> tile_counts(segment_count + 1, stream, mr);
-  rmm::device_uvector<size_type> tile_offsets(segment_count + 1, stream, mr);
-  CUDF_CUDA_TRY(cudaMemsetAsync(count.data(), 0, sizeof(size_type), stream.get()));
-  radix_prepare_tiles<tile_size><<<(segment_count + 256) / 256, 256, 0, stream.get()>>>(
-    segments.data(), segment_count, tile_counts.data(), count.data());
+  auto const capacity     = device_metadata ? size / 2 : segment_count;
+  rmm::device_uvector<size_type> tile_counts(capacity + 1, stream, mr);
+  rmm::device_uvector<size_type> tile_offsets(capacity + 1, stream, mr);
+  CUDF_CUDA_TRY(cudaMemsetAsync(count.data() + 2, 0, sizeof(size_type), stream.get()));
+  radix_prepare_tiles<tile_size>
+    <<<(capacity + 256) / 256, 256, 0, stream.get()>>>(segments.data(),
+                                                       capacity,
+                                                       tile_counts.data(),
+                                                       count.data() + 2,
+                                                       device_metadata ? count.data() : nullptr);
   CUDF_CUDA_TRY(cudaGetLastError());
   bytes = 0;
   CUDF_CUDA_TRY(cub::DeviceScan::ExclusiveSum(
-    nullptr, bytes, tile_counts.data(), tile_offsets.data(), segment_count + 1, stream.get()));
+    nullptr, bytes, tile_counts.data(), tile_offsets.data(), capacity + 1, stream.get()));
   {
     rmm::device_buffer temp(bytes, stream, mr);
-    CUDF_CUDA_TRY(cub::DeviceScan::ExclusiveSum(temp.data(),
-                                                bytes,
-                                                tile_counts.data(),
-                                                tile_offsets.data(),
-                                                segment_count + 1,
-                                                stream.get()));
+    CUDF_CUDA_TRY(cub::DeviceScan::ExclusiveSum(
+      temp.data(), bytes, tile_counts.data(), tile_offsets.data(), capacity + 1, stream.get()));
   }
-  size_type tile_count, max_length;
   CUDF_CUDA_TRY(cudf::detail::memcpy_async(
-    &tile_count, tile_offsets.data() + segment_count, sizeof(size_type), stream));
-  CUDF_CUDA_TRY(cudf::detail::memcpy_async(&max_length, count.data(), sizeof(size_type), stream));
+    count.data() + 1, tile_offsets.data() + capacity, sizeof(size_type), stream));
+  size_type metadata[3];
+  CUDF_CUDA_TRY(cudf::detail::memcpy_async(metadata, count.data(), sizeof(metadata), stream));
   CUDF_CUDA_TRY(cudaStreamSynchronize(stream.get()));
+  segment_count         = metadata[0];
+  auto const tile_count = metadata[1];
+  auto const max_length = metadata[2];
+  if (segment_count == 0) return;
   CUDF_CUDA_TRY(
     cudf::detail::memcpy_async(scratch.data(), output, sizeof(size_type) * size, stream));
   radix_segment_block_sort<Threads, Items, Stable><<<tile_count, Threads, 0, stream.get()>>>(
