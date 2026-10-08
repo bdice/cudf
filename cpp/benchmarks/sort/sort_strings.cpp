@@ -326,6 +326,12 @@ static void bench_sorted_order_strings_segments(nvbench::state& state)
     cudf::size_type length = 1;
     if (profile == "pairs")
       length = 2;
+    else if (profile == "tiny4")
+      length = 4;
+    else if (profile == "tiny8")
+      length = 8;
+    else if (profile == "tiny16")
+      length = 16;
     else if (profile == "tiny32")
       length = 32;
     else if (profile == "block256")
@@ -389,6 +395,9 @@ NVBENCH_BENCH(bench_sorted_order_strings_segments)
   .add_string_axis("segment_profile",
                    {"singletons",
                     "pairs",
+                    "tiny4",
+                    "tiny8",
+                    "tiny16",
                     "tiny32",
                     "block256",
                     "logarithmic",

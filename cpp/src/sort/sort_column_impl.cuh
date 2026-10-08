@@ -782,6 +782,18 @@ inline int string_sort_radix_tile()
 }
 
 // LRB 0 retains the existing scheduler, 1 uses fixed tiles, 2 selects per-bin warp/block tiers.
+// Warp refinement: original bitonic, shared-comparison bitonic, CUB, or hybrid.
+inline int string_sort_radix_warp_sort()
+{
+  static int const mode = [] {
+    auto const text = std::getenv("CUDF_STRING_SORT_RADIX_WARP_SORT");
+    int const value = text == nullptr ? 3 : std::atoi(text);
+    CUDF_EXPECTS(value >= 0 && value <= 3, "Invalid radix warp sort mode");
+    return value;
+  }();
+  return mode;
+}
+
 inline int string_sort_radix_lrb()
 {
   static int const mode = [] {
@@ -1060,6 +1072,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_compact(),
                                                    string_sort_radix_schedule(),
                                                    string_sort_radix_lrb(),
+                                                   string_sort_radix_warp_sort(),
                                                    stream);
         break;
       case 256:
@@ -1073,6 +1086,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_compact(),
                                                    string_sort_radix_schedule(),
                                                    string_sort_radix_lrb(),
+                                                   string_sort_radix_warp_sort(),
                                                    stream);
         break;
       case 1024:
@@ -1086,6 +1100,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_compact(),
                                                    string_sort_radix_schedule(),
                                                    string_sort_radix_lrb(),
+                                                   string_sort_radix_warp_sort(),
                                                    stream);
         break;
       default: CUDF_FAIL("Unsupported CUDF_STRING_SORT_RADIX_TILE");
