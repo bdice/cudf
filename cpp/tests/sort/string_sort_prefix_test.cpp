@@ -24,6 +24,7 @@
 #include <cstdint>
 #include <initializer_list>
 #include <numeric>
+#include <random>
 #include <string>
 #include <utility>
 #include <vector>
@@ -440,4 +441,61 @@ TEST_F(StringPrefixSort, NonDefaultStreamAndCurrentMemoryResource)
   EXPECT_GT(output_mr.get_bytes_counter().total, 0);
   EXPECT_GT(temporary_mr.get_bytes_counter().total, 0);
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
+}
+
+// Mixed segment sizes straddle all refinement tile boundaries and require multiple merge levels.
+TEST_F(StringPrefixSort, MixedPrefixSegmentsAndLongSuffixes)
+{
+  std::vector<std::string> strings;
+  std::vector<bool> validity;
+  std::vector<int> lengths{1, 2, 127, 128, 255, 256, 257, 1023, 1024, 1025, 4097, 8193};
+  for (int group = 0; group < static_cast<int>(lengths.size()); ++group) {
+    for (int i = 0; i < lengths[group]; ++i) {
+      auto str     = std::string(64, static_cast<char>('a' + group));
+      auto const n = std::vector<int>{0, 1, 7, 8, 9, 15, 16, 17, 33}[i % 9];
+      for (int j = 0; j < n; ++j)
+        str.push_back(static_cast<char>((i * 13 + j * 7) % 127));
+      strings.push_back(str);
+      validity.push_back(i % 17 != 0);
+    }
+  }
+  std::vector<cudf::size_type> permutation(strings.size());
+  std::iota(permutation.begin(), permutation.end(), 0);
+  std::mt19937 generator(93017);
+  std::shuffle(permutation.begin(), permutation.end(), generator);
+  std::vector<std::string> shuffled;
+  std::vector<bool> valid;
+  for (auto row : permutation) {
+    shuffled.push_back(strings[row]);
+    valid.push_back(validity[row]);
+  }
+  for (bool nullable : {false, true}) {
+    auto validity_now = nullable ? valid : std::vector<bool>(valid.size(), true);
+    auto input =
+      cudf::test::strings_column_wrapper{shuffled.begin(), shuffled.end(), validity_now.begin()};
+    for (auto order : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+      for (auto null_order : {cudf::null_order::BEFORE, cudf::null_order::AFTER}) {
+        auto expected_rows = permutation;
+        std::iota(expected_rows.begin(), expected_rows.end(), 0);
+        bool const ascending = order == cudf::order::ASCENDING;
+        std::stable_sort(expected_rows.begin(), expected_rows.end(), [&](auto lhs, auto rhs) {
+          if (!validity_now[lhs] || !validity_now[rhs]) {
+            if (validity_now[lhs] == validity_now[rhs]) return false;
+            bool const null_first = ascending == (null_order == cudf::null_order::BEFORE);
+            return !validity_now[lhs] == null_first;
+          }
+          return ascending ? bytewise_less(shuffled[lhs], shuffled[rhs])
+                           : bytewise_less(shuffled[rhs], shuffled[lhs]);
+        });
+        auto expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+          expected_rows.begin(), expected_rows.end());
+        auto actual = cudf::stable_sorted_order(cudf::table_view{{input}}, {order}, {null_order});
+        CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, actual->view());
+        auto unstable       = cudf::sorted_order(cudf::table_view{{input}}, {order}, {null_order});
+        auto expected_table = cudf::gather(cudf::table_view{{input}}, expected);
+        auto actual_table   = cudf::gather(cudf::table_view{{input}}, unstable->view());
+        CUDF_TEST_EXPECT_TABLES_EQUAL(expected_table->view(), actual_table->view());
+      }
+    }
+  }
 }

@@ -458,3 +458,64 @@ Worth trying next:
 - An unpadded 12-byte key: three `uint32_t` holding an 8-byte prefix and a
   row/null word, with 4-byte alignment. It would keep 8 cached bytes at 12 B/key.
   Padded to 16 B, this is just C.
+
+## H100 results and 12-byte variant (2026-10-07)
+
+Measured on GPU 0 of `viking-prod-206`, an H100 80GB HBM3 with 132 SMs, in the existing CUDA 13.3 cuDF devcontainer. Branch `string-sort-prefix-variants`, base `be51629c4fb29c84e8426d2e35c944421bc51914`. The user's `build-all -j0 -DBUILD_BENCHMARKS=ON` completed before the experimental changes were built and measured. The earlier RTX/WSL results above remain historical; H100 results differ.
+
+### Variant E: eight prefix bytes in a 12-byte key
+
+E is `{uint32_t hi, lo, row_and_null;}` with size 12 and alignment 4, checked by static assertions. The first two words hold big-endian, zero-padded prefix bytes 0–7. The low 31 bits of the last word hold the row index; bit 31 records nullness. Comparison handles null precedence first, compares the prefix halves, then resolves ties from byte 8. Output projection masks off the null bit. Embedded NULs, short strings, duplicate prefixes, nulls, stable/unstable sorting and both directions pass the prefix correctness tests.
+
+`CUDF_STRING_SORT_VARIANT=6` selects E. `CUDF_STRING_SORT_IPT` supports default 0 and 1/2/3/4/5/6/8/11 for carried layouts, plus 16 for the 8-byte D key. The gathered-index P path now supports 1/2/3/4/5/6/8/11/16/17, keeping its existing helper at default 0. All custom policies use 256 threads and warp-transpose loads/stores. CUB defaults are P=17, A/B/C=4, D=8, E=5. IPT 16 is rejected for 12/16-byte carried keys because it exceeds the 48 KiB block limit and otherwise triggers a 64-thread/one-item fallback.
+
+### Protocol and confirmed results
+
+Screened 58 layout/tuning configurations in two randomized rounds using the earlier 20-sample protocol. 10 finalists were confirmed in four randomized rounds with at least 30 requested samples, a 1% relative-noise target, 0.05 s minimum GPU time, and a 10 s per-measurement timeout. Reported times are medians of round means; lower time ratios are better. Stable and descending main/targeted checks use one round each. The unstable/ascending 36-case targeted matrix was also screened across all 58 configurations in two randomized rounds; leading expanded-suite configurations were then confirmed in four rounds on both matrices. End-to-end sort, multi-column controls, and true constant nonempty strings were measured separately.
+
+| Layout | IPT | Fixed 40 time reduction / P | Original 20 reduction / P | Pooled 76 reduction / P | Peak auxiliary MiB |
+|---|---:|---:|---:|---:|---:|
+| C | 1 | 30.13% | 43.91% | 22.90% | 576.5 |
+| E | 1 | 28.97% | 41.64% | 21.68% | 448.5 |
+| D | 1 | 28.89% | 41.34% | 15.50% | 320.5 |
+| A | 1 | 27.88% | 43.88% | 21.62% | 576.5 |
+| P | 2 | 27.52% | 47.49% | 15.15% | 256.1 |
+| B | 1 | 27.26% | 43.95% | 35.04% | 576.5 |
+| E | 0 | 22.53% | 33.37% | 17.54% | 448.1 |
+| B | 2 | 21.76% | 41.01% | 26.69% | 576.3 |
+| B | 3 | 19.92% | 37.14% | 27.29% | 576.2 |
+| P | 0 | 0.00% | 0.00% | 0.00% | 256.0 |
+
+**Decision:** C IPT 1 is fastest on the fixed 40-case suite and wins all four rounds; on its 34 nontrivial cases it reduces time by 34.60%. E IPT 1 is about 1.67% slower than C in the fixed-suite aggregate but uses 448.5 rather than 576.5 MiB at 16M rows (22% less auxiliary memory). D IPT 1 is effectively tied with E and uses less memory still, but caches only four bytes and loses on the targeted shared-prefix matrix. P IPT 2 is best for the original random-string cases and uses the original storage layout.
+
+**B IPT 1 is the winner if all 76 main plus targeted cases receive equal weight (35.04% lower time than default P).** Its 12 cached bytes help strings diverging at bytes 8–11; it uses roughly 64.5% less time than A IPT 1 on those targets. C IPT 1 uses 27.3% less time than A IPT 1 on the four 50%-null cases and is flat versus A on the original cases. There is no universal winner: C/E regress about 15% on the small shared-prefix-64 case versus default P; P IPT 2 regresses about 47% on the 2M-row shared-prefix-64 case. Keep the suite definitions explicit instead of pooling controls or silently reweighting distributions.
+
+### Tuning and measurement limits
+
+The H100 prefers small tiles in these matrices. Nsight Systems on 32768 rows / width 32 shows default P using eight initial blocks, 40 registers/thread, 17424 shared bytes/block and three merge passes; P IPT 2 uses 64 blocks, 32 registers/thread, 2064 shared bytes and six passes. C/E IPT 1 use 128 blocks, 32 registers/thread, 4112/3088 shared bytes and seven passes. This supports the parallelism-versus-pass-count explanation; it does not directly prove achieved occupancy or DRAM bandwidth. Nsight Compute counters are unavailable under the driver policy (`ERR_NVGPUCTRPERM`). Profile timings include tracing/initialization overhead and are excluded from rankings.
+
+Both cardinality-1/width-32 cases produce empty strings here and take the early exit, along with four all-null cases. Peak memory equal to output int32 indices identifies these six early exits; retain them in the fixed 40 but exclude them from the active 34. The targeted matrix has two further cardinality-1/width-32 early exits; its width-128 cardinality-1 cases are nonempty. A separate fixed nonempty 32-byte string test confirms real all-equal ties: B IPT 1 is fastest at 2M rows, and E IPT 1 beats C there. E default is faster than E IPT 1 at 262144 rows.
+
+The tiny 32768-row/width-8 case remains mildly noisy for some layouts even after stricter reruns. Most retry medians are below 1%, but C remains around 1.02%; preserve the noise and cross-round spread rather than selecting a favorable run. Clocks were observed rather than locked; GPU 0 was reserved and selected explicitly, while another GPU later became active on the same node. The reservation thread also notes concurrent large CPU benchmarks, so close comparisons should be repeated on a quiet node.
+
+### Validation and artifacts
+
+All seven default layouts passed the full SORT_TEST suite: 1628 passed and five existing skips per run. Final B/C/E IPT 1 and P IPT 2 configurations also passed the full suite. All 58 configurations passed the 12 prefix-focused tests. The final build and clang-format/diff checks passed. Changes remain uncommitted evaluation controls, with default P unchanged.
+
+See [the detailed H100 report](work/string-prefix-h100/report.md), [main-case timings](work/string-prefix-h100/timings.csv), [all matrix timings](work/string-prefix-h100/all-timings.csv), and [profile metadata](work/string-prefix-h100/profile-summary.csv). The work directory also contains raw NVBench JSON, logs, GPU telemetry, Nsight traces, reproducer scripts, and the source patch. The report includes commands for E IPT 1 and direction/stability controls.
+
+## October 7 follow-up: radix refinement, word suffixes and F
+
+Implemented R8/R12: stable radix-prefix sorting, boundary discovery or NonTrivialRuns RLE, scanned per-segment tile counts, block sorts and merge-path refinement only inside nonnull prefix-tie segments larger than one. Tested tiles 128/256/1024. Added bounded four/eight-byte suffix comparisons and F: exactly sixteen bytes with twelve prefix bytes plus packed null bit/31-bit row ID.
+
+Four randomized native confirmation rounds, fourteen finalists, five warmups and seven samples per case, no batch. Across the 68 active original cases, F/IPT1/word4 is fastest: 44.84% lower time than P/default and 10.29% lower than B/IPT1/byte. R12/tile128/word4/RLE is 42.47% lower than P; R8 is 42.25% lower. RLE improves their matched boundary variants by about 3.0% and 2.8%. Two additional nonempty-constant controls retain F as aggregate winner.
+
+Radix wins individual workloads: medium random strings R8/128 1.563 ms vs F 2.077; 16M random strings R12/1024 10.610 vs F 13.600; long shared prefix R12/128 23.533 vs F 27.768. Prefix-width-8 ties and true constants regress. Word4 reduces F's long-prefix case by 35.4% but increases prefix11 time about 9.7%. Packed nullness reduces the 50%-null case by 28.8% versus B with matched word4, while its aggregate gain is only about 1.4%.
+
+R8/R12 currently allocate 16-byte prefix keys, with peak logged allocation about 966.1 MiB at 16M rows, versus F 576.5 MiB; figures include output. The radix path synchronizes host metadata and cannot yet support CUDA graph capture. Default P remains selected; controls are experimental.
+
+Select R8/R12 with CUDF_STRING_SORT_VARIANT=7/8, CUDF_STRING_SORT_RADIX_TILE=128/256/1024, CUDF_STRING_SORT_RADIX_RLE=0/1, CUDF_STRING_SORT_WORD_BYTES=0/4/8. Select F with VARIANT=9 and IPT=1. All selector names use CUDF_STRING_SORT_ prefix.
+
+All fourteen finalists passed full SORT_TEST: 1629 passed and five existing skips each. Five Compute Sanitizer configurations passed thirteen prefix tests with zero errors. Twenty-two Nsight traces show long-prefix refinement merging still dominates (81-82% GPU busy time); hardware counters remain permission-blocked. Further directions: specialize narrower radix keys, short-run warp refinement, eliminate host readbacks, optimize giant-run merging, and first-byte rejection before word loads.
+
+See [the follow-up report](work/string-prefix-radix/radix-refinement-report.md), [confirmation cases](work/string-prefix-radix/confirmation-cases.csv), [pool summaries](work/string-prefix-radix/confirmation-summary.csv), and [Nsight phases](work/string-prefix-radix/profiles/phase-summary.csv).

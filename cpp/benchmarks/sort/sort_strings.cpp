@@ -16,12 +16,52 @@
 
 #include <nvbench/nvbench.cuh>
 
+#include <cstdlib>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace {
 
 constexpr unsigned seed = 1;
+
+// Evaluation-only controls; preserve the existing benchmark names and input matrix.
+bool benchmark_stable()
+{
+  static bool const value = [] {
+    auto const setting = std::getenv("CUDF_STRING_SORT_BENCH_STABLE");
+    return setting != nullptr && std::atoi(setting) != 0;
+  }();
+  return value;
+}
+
+std::vector<cudf::order> benchmark_order(cudf::size_type num_columns)
+{
+  static auto const direction = [] {
+    auto const setting = std::getenv("CUDF_STRING_SORT_BENCH_DESCENDING");
+    return setting != nullptr && std::atoi(setting) != 0 ? cudf::order::DESCENDING
+                                                         : cudf::order::ASCENDING;
+  }();
+  return std::vector<cudf::order>(num_columns, direction);
+}
+
+void run_order(cudf::table_view const& input)
+{
+  if (benchmark_stable()) {
+    cudf::stable_sorted_order(input, benchmark_order(input.num_columns()));
+  } else {
+    cudf::sorted_order(input, benchmark_order(input.num_columns()));
+  }
+}
+
+void run_sort(cudf::table_view const& input)
+{
+  if (benchmark_stable()) {
+    cudf::stable_sort(input, benchmark_order(input.num_columns()));
+  } else {
+    cudf::sort(input, benchmark_order(input.num_columns()));
+  }
+}
 
 void run_sorted_order_benchmark(nvbench::state& state, std::unique_ptr<cudf::column> const& input)
 {
@@ -31,9 +71,8 @@ void run_sorted_order_benchmark(nvbench::state& state, std::unique_ptr<cudf::col
 
   auto const mem_stats_logger = cudf::memory_stats_logger();
 
-  state.exec(nvbench::exec_tag::sync, [&](nvbench::launch& launch) {
-    cudf::sorted_order(cudf::table_view{{input->view()}});
-  });
+  state.exec(nvbench::exec_tag::sync,
+             [&](nvbench::launch& launch) { run_order(cudf::table_view{{input->view()}}); });
 
   state.add_buffer_size(
     mem_stats_logger.peak_memory_usage(), "peak_memory_usage", "peak_memory_usage");
@@ -130,7 +169,7 @@ static void bench_sort_strings(nvbench::state& state)
 
   auto const mem_stats_logger = cudf::memory_stats_logger();
 
-  state.exec(nvbench::exec_tag::sync, [&](nvbench::launch& launch) { cudf::sort(table->view()); });
+  state.exec(nvbench::exec_tag::sync, [&](nvbench::launch& launch) { run_sort(table->view()); });
 
   state.add_buffer_size(
     mem_stats_logger.peak_memory_usage(), "peak_memory_usage", "peak_memory_usage");
@@ -163,8 +202,7 @@ static void bench_sorted_order_strings(nvbench::state& state)
 
   auto const mem_stats_logger = cudf::memory_stats_logger();
 
-  state.exec(nvbench::exec_tag::sync,
-             [&](nvbench::launch& launch) { cudf::sorted_order(table->view()); });
+  state.exec(nvbench::exec_tag::sync, [&](nvbench::launch& launch) { run_order(table->view()); });
 
   state.add_buffer_size(
     mem_stats_logger.peak_memory_usage(), "peak_memory_usage", "peak_memory_usage");
@@ -197,8 +235,7 @@ static void bench_sorted_order_strings_multi(nvbench::state& state)
 
   auto const mem_stats_logger = cudf::memory_stats_logger();
 
-  state.exec(nvbench::exec_tag::sync,
-             [&](nvbench::launch& launch) { cudf::sorted_order(table->view()); });
+  state.exec(nvbench::exec_tag::sync, [&](nvbench::launch& launch) { run_order(table->view()); });
 
   state.add_buffer_size(
     mem_stats_logger.peak_memory_usage(), "peak_memory_usage", "peak_memory_usage");
