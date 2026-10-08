@@ -794,6 +794,17 @@ inline int string_sort_radix_warp_sort()
   return mode;
 }
 
+inline int string_sort_radix_lrb_grid_warps()
+{
+  static int const warps = [] {
+    auto const text = std::getenv("CUDF_STRING_SORT_RADIX_LRB_GRID_WARPS");
+    int const value = text == nullptr ? 64 : std::atoi(text);
+    CUDF_EXPECTS(value == 32 || value == 64 || value == 128, "Invalid LRB grid warp budget");
+    return value;
+  }();
+  return warps;
+}
+
 inline int string_sort_radix_lrb()
 {
   static int const mode = [] {
@@ -1073,6 +1084,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_schedule(),
                                                    string_sort_radix_lrb(),
                                                    string_sort_radix_warp_sort(),
+                                                   string_sort_radix_lrb_grid_warps(),
                                                    stream);
         break;
       case 256:
@@ -1087,6 +1099,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_schedule(),
                                                    string_sort_radix_lrb(),
                                                    string_sort_radix_warp_sort(),
+                                                   string_sort_radix_lrb_grid_warps(),
                                                    stream);
         break;
       case 1024:
@@ -1101,6 +1114,7 @@ struct column_sorted_order_fn {
                                                    string_sort_radix_schedule(),
                                                    string_sort_radix_lrb(),
                                                    string_sort_radix_warp_sort(),
+                                                   string_sort_radix_lrb_grid_warps(),
                                                    stream);
         break;
       default: CUDF_FAIL("Unsupported CUDF_STRING_SORT_RADIX_TILE");

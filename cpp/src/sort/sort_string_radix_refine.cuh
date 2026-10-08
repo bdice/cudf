@@ -556,7 +556,7 @@ __host__ __device__ inline int radix_lrb_tile(int bin, int mode, int fixed_tile)
   if (bin <= 5) return 1 << bin;
   if (bin <= 7) return 128;
   if (bin == 8) return 256;
-  return 1024;
+  return fixed_tile;
 }
 
 __device__ inline unsigned int radix_lrb_peer_sum(unsigned int mask, unsigned int value)
@@ -911,7 +911,7 @@ __global__ void radix_lrb_finish(size_type const* scratch,
   auto const end       = metadata->tile_base[32];
   for (auto task = begin + blockIdx.x; task < end; task += gridDim.x) {
     auto const bin    = radix_lrb_find_bin(task, metadata, first_bin, 32);
-    auto const levels = max(0, bin - (mode == 2 ? 10 : fixed_log));
+    auto const levels = mode == 2 && bin < 9 ? 0 : max(0, bin - fixed_log);
     if ((levels & 1) != 0) continue;  // Its completed result is already in output.
     auto const base          = metadata->segment_base[bin];
     auto const count         = static_cast<uint32_t>(metadata->counts[bin]);
@@ -940,6 +940,7 @@ void radix_lrb_refine(size_type size,
                       int mode,
                       int schedule,
                       int warp_sort,
+                      int grid_warps,
                       Comparator comp,
                       cuda::stream_ref stream)
 {
@@ -980,20 +981,22 @@ void radix_lrb_refine(size_type size,
   int device, multiprocessors;
   CUDF_CUDA_TRY(cudaGetDevice(&device));
   CUDF_CUDA_TRY(cudaDeviceGetAttribute(&multiprocessors, cudaDevAttrMultiProcessorCount, device));
-  auto const max_blocks = std::max(1, std::min(multiprocessors * 8, capacity));
-  auto tiles            = [&](int first, int last) {
+  auto tiles = [&](int first, int last) {
     uint64_t total = 0;
     for (int bin = first; bin < last; ++bin)
       total += counts[bin] >> 32;
     return total;
   };
-  auto blocks = [&](uint64_t tasks) {
+  auto blocks = [&](uint64_t tasks, int threads = 256) {
+    // Equal warp budgets avoid underfilling the SM with 128-thread workers.
+    auto const max_blocks =
+      std::max(1, std::min(multiprocessors * grid_warps / (threads / 32), capacity));
     return native ? static_cast<int>(std::min<uint64_t>(tasks, max_blocks)) : max_blocks;
   };
   if (native && tiles(1, 32) == 0) return;
   if (mode == 1) {
     radix_lrb_block_sort<Threads, Items, Stable>
-      <<<blocks(tiles(1, 32)), Threads, 0, stream.get()>>>(
+      <<<blocks(tiles(1, 32), Threads), Threads, 0, stream.get()>>>(
         output, scratch, segments.data(), offsets.data(), metadata.data(), 1, 32, comp);
     CUDF_CUDA_TRY(cudaGetLastError());
   } else {
@@ -1017,7 +1020,7 @@ void radix_lrb_refine(size_type size,
       CUDF_CUDA_TRY(cudaGetLastError());
     }
     if (!native || tiles(6, 8) != 0) {
-      radix_lrb_block_sort<128, 1, Stable><<<blocks(tiles(6, 8)), 128, 0, stream.get()>>>(
+      radix_lrb_block_sort<128, 1, Stable><<<blocks(tiles(6, 8), 128), 128, 0, stream.get()>>>(
         output, scratch, segments.data(), offsets.data(), metadata.data(), 6, 8, comp);
       CUDF_CUDA_TRY(cudaGetLastError());
     }
@@ -1027,25 +1030,23 @@ void radix_lrb_refine(size_type size,
       CUDF_CUDA_TRY(cudaGetLastError());
     }
     if (!native || tiles(9, 32) != 0) {
-      radix_lrb_block_sort<256, 4, Stable><<<blocks(tiles(9, 32)), 256, 0, stream.get()>>>(
-        output, scratch, segments.data(), offsets.data(), metadata.data(), 9, 32, comp);
+      radix_lrb_block_sort<Threads, Items, Stable>
+        <<<blocks(tiles(9, 32), Threads), Threads, 0, stream.get()>>>(
+          output, scratch, segments.data(), offsets.data(), metadata.data(), 9, 32, comp);
       CUDF_CUDA_TRY(cudaGetLastError());
     }
   }
-  auto* src            = scratch;
-  auto* dst            = output;
-  auto const merge_log = mode == 2 ? 10 : fixed_log;
-  for (int bin = merge_log + 1; bin < 32 && (int64_t{1} << (bin - 1)) < size; ++bin) {
-    auto const active_tiles = tiles(bin, 32);
+  auto* src = scratch;
+  auto* dst = output;
+  for (int run_log = fixed_log; run_log < 31 && (int64_t{1} << run_log) < size; ++run_log) {
+    // Medium adaptive runs are already complete in their 128/256-row tile.
+    // Giant runs can require several stages before the active bin advances.
+    auto const first_bin    = std::max(mode == 2 ? 9 : 1, run_log + 1);
+    auto const active_tiles = tiles(first_bin, 32);
     if (native && active_tiles == 0) break;
-    auto const run = int64_t{1} << (bin - 1);
-    if (mode == 1) {
-      radix_lrb_merge<Threads, Items><<<blocks(active_tiles), Threads, 0, stream.get()>>>(
-        src, dst, segments.data(), offsets.data(), metadata.data(), bin, run, comp);
-    } else {
-      radix_lrb_merge<256, 4><<<blocks(active_tiles), 256, 0, stream.get()>>>(
-        src, dst, segments.data(), offsets.data(), metadata.data(), bin, run, comp);
-    }
+    auto const run = int64_t{1} << run_log;
+    radix_lrb_merge<Threads, Items><<<blocks(active_tiles, Threads), Threads, 0, stream.get()>>>(
+      src, dst, segments.data(), offsets.data(), metadata.data(), first_bin, run, comp);
     CUDF_CUDA_TRY(cudaGetLastError());
     std::swap(src, dst);
   }
@@ -1069,6 +1070,7 @@ void radix_prefix_refine(size_type size,
                          int schedule,
                          int lrb_mode,
                          int warp_sort,
+                         int grid_warps,
                          cuda::stream_ref stream)
 {
   CUDF_EXPECTS(lrb_mode == 0 || use_rle, "LRB requires radix RLE");
@@ -1155,6 +1157,7 @@ void radix_prefix_refine(size_type size,
                                                lrb_mode,
                                                schedule,
                                                warp_sort,
+                                               grid_warps,
                                                comparator,
                                                stream);
       return;

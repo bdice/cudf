@@ -627,3 +627,42 @@ warp selectors pass the full sort suite (1632 passes, six expected skips each).
 Six guarded graph memchecks and four synchronization/race checks pass with no
 errors or hazards; native prefix and generic-view/word4 coverage also pass.
 Raw data and reproducible scripts are in `work/string-prefix-warp`.
+
+### Giant tile and persistent grid follow-up (2026-10-08)
+
+Adaptive giant bins now honor RADIX_TILE=128/256/1024. Medium tiers retain
+128/256-row local sorts. Merge run depth advances independently from the active
+bin floor, preserving early repeated giant stages and completed-run parity.
+CUDF_STRING_SORT_RADIX_LRB_GRID_WARPS=32/64/128 sets the requested warp budget
+per SM (default 64); each worker converts that budget using its thread count.
+This is a launch cap, not measured achieved occupancy.
+
+Eighteen configurations and 126 states in three randomized rounds (five warmups,
+seven samples, 6804 means) select R8/hybrid/tile1024/grid32 for combined104.
+It saves 6.17% versus saved previous LRB, d0c686, 1.77% versus the compiled phase-A
+hybrid, ea0eae, and 9.41% versus plain R8/tile128. Combined116 saves 7.20% versus
+previous LRB and 13.49% versus plain128. Active68 favors grid128 only 0.04% over
+grid32, within noise; structured36/48 favors tile128/grid128. No universal
+dispatch or global LRB-default change is inferred from these test-state weights.
+
+At 2M rows and 64 shared suffix bytes, grid32 changes logarithmic 13.421->8.387 ms
+(plain128 still 7.336 ms), one-segment 16.206->13.688 ms, hot90 15.490->13.273 ms,
+and block256 4.303->3.233 ms versus previous LRB. Tiny32 is 3.381->1.662 ms;
+phase-A hybrid was 1.640 ms. The three combined104 round ratios to previous LRB
+span 0.9364-0.9426. Peak workspace remains 578.9 MiB for R8.
+
+All seven architectures build. Twenty validation logs include six full suites
+(R8/R12 x three tiles, 1632 passes and six skips each), six guarded graph
+memchecks, generic word4/views, fixed-bin smoke tests, alternate-grid graph
+replay, and synchronization/race checks with zero errors or hazards. Twenty-five
+Nsight traces compare selected native/guarded, compiled controls and plain128;
+trace durations are excluded from ranking. Sources and data are in
+work/string-prefix-warp-retune.
+
+A read-only subagent review of PR #24498, head a257d75a7b5a4bb5b4ee392861d8d466e950d297,
+recommends retaining LRB/hierarchical merging and testing a capped giant-only
+exact common-prefix proof before selective additional radix passes. Cached
+string metadata and one three-way stable suffix comparison are separate
+hypotheses. The PR all-sibling finish may receive giant unresolved runs; no
+matched PR performance comparison was run. Exact duplicate completion must
+bypass sort, merge and scratch finalization.
