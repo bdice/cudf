@@ -12,6 +12,7 @@
 #include <rmm/exec_policy.hpp>
 
 #include <cooperative_groups.h>
+#include <cooperative_groups/scan.h>
 #include <cub/block/block_exchange.cuh>
 #include <cub/block/block_merge_sort.cuh>
 #include <cub/block/block_reduce.cuh>
@@ -534,6 +535,430 @@ void radix_refine_segments(size_type size,
   }
 }
 
+// LRB reorders whole prefix-tie descriptors, never the rows inside those descriptors.
+// Bin b contains 2^(b-1) < length <= 2^b; all such segments share a merge depth.
+struct radix_lrb_metadata {
+  unsigned long long counts[32];  // low32: segments, high32: initial tiles
+  unsigned long long cursors[32];
+  size_type segment_base[33];
+  uint64_t tile_base[33];
+};
+
+__device__ inline int radix_lrb_bin(size_type length)
+{
+  return 32 - __clz(static_cast<unsigned int>(length - 1));
+}
+
+__host__ __device__ inline int radix_lrb_tile(int bin, int mode, int fixed_tile)
+{
+  if (mode == 1) return fixed_tile;
+  if (bin <= 5) return 1 << bin;
+  if (bin <= 7) return 128;
+  if (bin == 8) return 256;
+  return 1024;
+}
+
+__device__ inline unsigned int radix_lrb_peer_sum(unsigned int mask, unsigned int value)
+{
+#if __CUDA_ARCH__ >= 800
+  return __reduce_add_sync(mask, value);
+#else
+  unsigned int sum = 0;
+  for (auto peers = mask; peers != 0; peers &= peers - 1) {
+    sum += __shfl_sync(mask, value, __ffs(peers) - 1);
+  }
+  return sum;
+#endif
+}
+
+template <int FixedTile, typename Key>
+__global__ void radix_lrb_histogram(size_type const* starts,
+                                    size_type const* lengths,
+                                    size_type const* run_count,
+                                    Key const* keys,
+                                    uint32_t null_rank,
+                                    int mode,
+                                    radix_lrb_metadata* metadata)
+{
+  __shared__ unsigned long long counts[32];
+  if (threadIdx.x < 32) counts[threadIdx.x] = 0;
+  __syncthreads();
+  auto const lane = threadIdx.x & 31;
+  for (int64_t base = static_cast<int64_t>(blockIdx.x) * blockDim.x; base < *run_count;
+       base += static_cast<int64_t>(gridDim.x) * blockDim.x) {
+    auto const i      = base + threadIdx.x;
+    auto const length = i < *run_count ? lengths[i] : 0;
+    bool const valid  = length > 1 && !radix_key_is_null(keys[starts[i]], null_rank);
+    auto const bin    = valid ? radix_lrb_bin(length) : 0;
+    auto const tiles  = valid ? 1 + (length - 1) / radix_lrb_tile(bin, mode, FixedTile) : 0;
+    auto const peers  = __match_any_sync(0xffffffffu, bin);
+    if (valid) {
+      auto const tile_sum = radix_lrb_peer_sum(peers, tiles);
+      if (lane == static_cast<unsigned int>(__ffs(peers) - 1)) {
+        atomicAdd(counts + bin, (static_cast<unsigned long long>(tile_sum) << 32) | __popc(peers));
+      }
+    }
+  }
+  __syncthreads();
+  if (threadIdx.x < 32 && counts[threadIdx.x] != 0) {
+    atomicAdd(metadata->counts + threadIdx.x, counts[threadIdx.x]);
+  }
+}
+
+__global__ void radix_lrb_prefix(radix_lrb_metadata* metadata, size_type* offsets)
+{
+  auto const warp =
+    cooperative_groups::tiled_partition<32>(cooperative_groups::this_thread_block());
+  auto const bin    = threadIdx.x;
+  auto const packed = metadata->counts[bin];
+  // Counts fit uint32: at most n/2 segments and at most n initial tiles, with n < INT32_MAX.
+  auto const inclusive        = cooperative_groups::inclusive_scan(warp, packed);
+  auto const exclusive        = inclusive - packed;
+  auto const count            = static_cast<uint32_t>(packed);
+  auto const tiles            = static_cast<uint32_t>(packed >> 32);
+  auto const segment_base     = static_cast<uint32_t>(exclusive);
+  metadata->segment_base[bin] = segment_base;
+  metadata->tile_base[bin]    = exclusive >> 32;
+  // Each bin needs its own end sentinel, even when the next bin is empty.
+  offsets[segment_base + bin + count] = tiles;
+  if (bin == 31) {
+    metadata->segment_base[32] = static_cast<uint32_t>(inclusive);
+    metadata->tile_base[32]    = inclusive >> 32;
+  }
+}
+
+template <int FixedTile, typename Key>
+__global__ void radix_lrb_scatter(size_type const* starts,
+                                  size_type const* lengths,
+                                  size_type const* run_count,
+                                  Key const* keys,
+                                  uint32_t null_rank,
+                                  int mode,
+                                  radix_segment* segments,
+                                  size_type* offsets,
+                                  radix_lrb_metadata* metadata)
+{
+  __shared__ unsigned long long counts[32];
+  __shared__ unsigned long long reservations[32];
+  for (int64_t base = static_cast<int64_t>(blockIdx.x) * blockDim.x; base < *run_count;
+       base += static_cast<int64_t>(gridDim.x) * blockDim.x) {
+    if (threadIdx.x < 32) counts[threadIdx.x] = 0;
+    __syncthreads();
+    auto const i             = base + threadIdx.x;
+    auto const begin         = i < *run_count ? starts[i] : 0;
+    auto const length        = i < *run_count ? lengths[i] : 0;
+    bool const valid         = length > 1 && !radix_key_is_null(keys[begin], null_rank);
+    auto const bin           = valid ? radix_lrb_bin(length) : 0;
+    unsigned long long local = 0;
+    if (valid) {
+      auto const tiles = 1 + (length - 1) / radix_lrb_tile(bin, mode, FixedTile);
+      local = atomicAdd(counts + bin, (static_cast<unsigned long long>(tiles) << 32) | 1ULL);
+    }
+    __syncthreads();
+    if (threadIdx.x < 32 && counts[threadIdx.x] != 0) {
+      reservations[threadIdx.x] = atomicAdd(metadata->cursors + threadIdx.x, counts[threadIdx.x]);
+    }
+    __syncthreads();
+    if (valid) {
+      auto const location    = reservations[bin] + local;
+      auto const segment     = metadata->segment_base[bin] + static_cast<uint32_t>(location);
+      segments[segment]      = {begin, begin + length};
+      offsets[segment + bin] = static_cast<size_type>(location >> 32);
+    }
+    __syncthreads();
+  }
+}
+
+__device__ inline int radix_lrb_find_bin(uint64_t tile,
+                                         radix_lrb_metadata const* metadata,
+                                         int first,
+                                         int last)
+{
+  while (first < last) {
+    auto const mid = first + (last - first) / 2;
+    if (metadata->tile_base[mid + 1] <= tile)
+      first = mid + 1;
+    else
+      last = mid;
+  }
+  return first;
+}
+
+template <int Threads, int Items, bool Stable, typename Comparator>
+__global__ void radix_lrb_block_sort(size_type const* input,
+                                     size_type* scratch,
+                                     radix_segment const* segments,
+                                     size_type const* offsets,
+                                     radix_lrb_metadata const* metadata,
+                                     int first_bin,
+                                     int last_bin,
+                                     Comparator comp)
+{
+  auto const begin = metadata->tile_base[first_bin];
+  auto const end   = metadata->tile_base[last_bin];
+  for (auto task = begin + blockIdx.x; task < end; task += gridDim.x) {
+    auto const bin          = radix_lrb_find_bin(task, metadata, first_bin, last_bin);
+    auto const segment_base = metadata->segment_base[bin];
+    auto const count        = static_cast<uint32_t>(metadata->counts[bin]);
+    radix_block_sort_tile<Threads, Items, Stable>(
+      input,
+      scratch,
+      segments + segment_base,
+      offsets + segment_base + bin,
+      count,
+      static_cast<size_type>(task - metadata->tile_base[bin]),
+      comp);
+    __syncthreads();
+  }
+}
+
+template <int Threads, int Items, typename Comparator>
+__global__ void radix_lrb_merge(size_type const* input,
+                                size_type* output,
+                                radix_segment const* segments,
+                                size_type const* offsets,
+                                radix_lrb_metadata const* metadata,
+                                int first_bin,
+                                int64_t run,
+                                Comparator comp)
+{
+  auto const begin = metadata->tile_base[first_bin];
+  auto const end   = metadata->tile_base[32];
+  for (auto task = begin + blockIdx.x; task < end; task += gridDim.x) {
+    auto const bin          = radix_lrb_find_bin(task, metadata, first_bin, 32);
+    auto const segment_base = metadata->segment_base[bin];
+    auto const count        = static_cast<uint32_t>(metadata->counts[bin]);
+    radix_merge_tile<Threads, Items>(input,
+                                     output,
+                                     segments + segment_base,
+                                     offsets + segment_base + bin,
+                                     count,
+                                     static_cast<size_type>(task - metadata->tile_base[bin]),
+                                     run,
+                                     comp);
+    __syncthreads();
+  }
+}
+
+template <bool Stable, typename Comparator>
+__device__ bool radix_lrb_precedes(size_type lhs, size_type rhs, Comparator comp)
+{
+  if (lhs == -1 || rhs == -1) return rhs == -1 && lhs != -1;
+  if constexpr (Stable) {
+    if (comp(lhs, rhs)) return true;
+    if (comp(rhs, lhs)) return false;
+    return lhs < rhs;  // Original row order, including descending string order.
+  } else {
+    return comp(lhs, rhs);
+  }
+}
+
+template <int Group, bool Stable, typename Comparator>
+__device__ void radix_lrb_warp_sort_group(
+  size_type* output, radix_segment const* segments, size_type segment, bool active, Comparator comp)
+{
+  auto const lane  = threadIdx.x & (Group - 1);
+  auto const seg   = active ? segments[segment] : radix_segment{0, 0};
+  bool const valid = active && lane < seg.end - seg.begin;
+  size_type row    = valid ? output[seg.begin + lane] : -1;
+  for (int width = 2; width <= Group; width *= 2) {
+    for (int distance = width / 2; distance > 0; distance /= 2) {
+      auto const other      = __shfl_xor_sync(0xffffffffu, row, distance);
+      bool const low_side   = (lane & distance) == 0;
+      bool const forward    = (lane & width) == 0;
+      bool const take_other = low_side == forward ? radix_lrb_precedes<Stable>(other, row, comp)
+                                                  : radix_lrb_precedes<Stable>(row, other, comp);
+      if (take_other) row = other;
+    }
+  }
+  if (valid) output[seg.begin + lane] = row;
+}
+
+template <bool Stable, typename Comparator>
+__global__ void radix_lrb_warp_sort(size_type* output,
+                                    radix_segment const* segments,
+                                    radix_lrb_metadata const* metadata,
+                                    Comparator comp)
+{
+  auto const warp =
+    cooperative_groups::tiled_partition<32>(cooperative_groups::this_thread_block());
+  auto const lane   = warp.thread_rank();
+  auto const count  = lane >= 1 && lane <= 5 ? static_cast<uint32_t>(metadata->counts[lane]) : 0u;
+  auto const groups = lane >= 1 && lane <= 5 ? 32 >> lane : 1;
+  auto const tasks  = static_cast<uint64_t>(count + groups - 1) / groups;
+  auto const inclusive = cooperative_groups::inclusive_scan(warp, tasks);
+  auto const exclusive = inclusive - tasks;
+  auto const total     = warp.shfl(inclusive, 31);
+  auto const first     = metadata->segment_base[lane];
+  auto const warp_id   = static_cast<uint64_t>(blockIdx.x) * (blockDim.x / 32) + threadIdx.x / 32;
+  auto const stride    = static_cast<uint64_t>(gridDim.x) * (blockDim.x / 32);
+  for (auto task = warp_id; task < total; task += stride) {
+    auto const bin     = __ffs(warp.ballot(task < inclusive)) - 1;
+    auto const local   = task - warp.shfl(exclusive, bin);
+    auto const group   = 1 << bin;
+    auto const segment = warp.shfl(first, bin) + local * (32 / group) + lane / group;
+    auto const end     = warp.shfl(first + count, bin);
+    bool const active  = segment < end;
+    switch (bin) {
+      case 1: radix_lrb_warp_sort_group<2, Stable>(output, segments, segment, active, comp); break;
+      case 2: radix_lrb_warp_sort_group<4, Stable>(output, segments, segment, active, comp); break;
+      case 3: radix_lrb_warp_sort_group<8, Stable>(output, segments, segment, active, comp); break;
+      case 4: radix_lrb_warp_sort_group<16, Stable>(output, segments, segment, active, comp); break;
+      case 5: radix_lrb_warp_sort_group<32, Stable>(output, segments, segment, active, comp); break;
+    }
+  }
+}
+
+template <int FixedTile>
+__global__ void radix_lrb_finish(size_type const* scratch,
+                                 size_type* output,
+                                 radix_segment const* segments,
+                                 size_type const* offsets,
+                                 radix_lrb_metadata const* metadata,
+                                 int mode,
+                                 int fixed_log)
+{
+  auto const first_bin = mode == 2 ? 6 : 1;
+  auto const begin     = metadata->tile_base[first_bin];
+  auto const end       = metadata->tile_base[32];
+  for (auto task = begin + blockIdx.x; task < end; task += gridDim.x) {
+    auto const bin    = radix_lrb_find_bin(task, metadata, first_bin, 32);
+    auto const levels = max(0, bin - (mode == 2 ? 10 : fixed_log));
+    if ((levels & 1) != 0) continue;  // Its completed result is already in output.
+    auto const base          = metadata->segment_base[bin];
+    auto const count         = static_cast<uint32_t>(metadata->counts[bin]);
+    auto const* tile_offsets = offsets + base + bin;
+    auto const tile          = static_cast<size_type>(task - metadata->tile_base[bin]);
+    auto const segment       = radix_tile_segment(tile, tile_offsets, count);
+    auto const seg           = segments[base + segment];
+    auto const tile_size     = radix_lrb_tile(bin, mode, FixedTile);
+    auto const start =
+      static_cast<int64_t>(seg.begin) + (tile - tile_offsets[segment]) * int64_t{tile_size};
+    auto const stop = min(start + tile_size, static_cast<int64_t>(seg.end));
+    for (auto i = start + threadIdx.x; i < stop; i += blockDim.x)
+      output[i] = scratch[i];
+  }
+}
+
+template <int Threads, int Items, bool Stable, typename Key, typename Comparator>
+void radix_lrb_refine(size_type size,
+                      size_type* output,
+                      size_type* scratch,
+                      size_type const* starts,
+                      size_type const* lengths,
+                      size_type const* run_count,
+                      Key const* sorted_keys,
+                      uint32_t null_rank,
+                      int mode,
+                      int schedule,
+                      Comparator comp,
+                      cuda::stream_ref stream)
+{
+  CUDF_EXPECTS(schedule == 0 || schedule == 2, "LRB supports native or guarded device scheduling");
+  constexpr int fixed_tile = Threads * Items;
+  int fixed_log            = 0;
+  for (int tile = fixed_tile; tile > 1; tile /= 2)
+    ++fixed_log;
+  auto const mr       = cudf::get_current_device_resource_ref();
+  auto const capacity = size / 2;
+  rmm::device_uvector<radix_segment> segments(capacity, stream, mr);
+  rmm::device_uvector<size_type> offsets(capacity + 32, stream, mr);
+  rmm::device_uvector<radix_lrb_metadata> metadata(1, stream, mr);
+  CUDF_CUDA_TRY(cudaMemsetAsync(metadata.data(), 0, sizeof(radix_lrb_metadata), stream.get()));
+  auto const build_blocks = std::max(1, std::min(256, (capacity + 255) / 256));
+  radix_lrb_histogram<fixed_tile><<<build_blocks, 256, 0, stream.get()>>>(
+    starts, lengths, run_count, sorted_keys, null_rank, mode, metadata.data());
+  CUDF_CUDA_TRY(cudaGetLastError());
+  radix_lrb_prefix<<<1, 32, 0, stream.get()>>>(metadata.data(), offsets.data());
+  CUDF_CUDA_TRY(cudaGetLastError());
+  radix_lrb_scatter<fixed_tile><<<build_blocks, 256, 0, stream.get()>>>(starts,
+                                                                        lengths,
+                                                                        run_count,
+                                                                        sorted_keys,
+                                                                        null_rank,
+                                                                        mode,
+                                                                        segments.data(),
+                                                                        offsets.data(),
+                                                                        metadata.data());
+  CUDF_CUDA_TRY(cudaGetLastError());
+  unsigned long long counts[32]{};
+  bool const native = schedule == 0;
+  if (native) {
+    CUDF_CUDA_TRY(
+      cudf::detail::memcpy_async(counts, metadata.data()->counts, sizeof(counts), stream));
+    CUDF_CUDA_TRY(cudaStreamSynchronize(stream.get()));
+  }
+  int device, multiprocessors;
+  CUDF_CUDA_TRY(cudaGetDevice(&device));
+  CUDF_CUDA_TRY(cudaDeviceGetAttribute(&multiprocessors, cudaDevAttrMultiProcessorCount, device));
+  auto const max_blocks = std::max(1, std::min(multiprocessors * 8, capacity));
+  auto tiles            = [&](int first, int last) {
+    uint64_t total = 0;
+    for (int bin = first; bin < last; ++bin)
+      total += counts[bin] >> 32;
+    return total;
+  };
+  auto blocks = [&](uint64_t tasks) {
+    return native ? static_cast<int>(std::min<uint64_t>(tasks, max_blocks)) : max_blocks;
+  };
+  if (native && tiles(1, 32) == 0) return;
+  if (mode == 1) {
+    radix_lrb_block_sort<Threads, Items, Stable>
+      <<<blocks(tiles(1, 32)), Threads, 0, stream.get()>>>(
+        output, scratch, segments.data(), offsets.data(), metadata.data(), 1, 32, comp);
+    CUDF_CUDA_TRY(cudaGetLastError());
+  } else {
+    uint64_t warp_tasks = 0;
+    for (int bin = 1; bin <= 5; ++bin) {
+      auto const groups = 32 >> bin;
+      warp_tasks += (static_cast<uint32_t>(counts[bin]) + groups - 1) / groups;
+    }
+    if (!native || warp_tasks != 0) {
+      radix_lrb_warp_sort<Stable><<<blocks((warp_tasks + 7) / 8), 256, 0, stream.get()>>>(
+        output, segments.data(), metadata.data(), comp);
+      CUDF_CUDA_TRY(cudaGetLastError());
+    }
+    if (!native || tiles(6, 8) != 0) {
+      radix_lrb_block_sort<128, 1, Stable><<<blocks(tiles(6, 8)), 128, 0, stream.get()>>>(
+        output, scratch, segments.data(), offsets.data(), metadata.data(), 6, 8, comp);
+      CUDF_CUDA_TRY(cudaGetLastError());
+    }
+    if (!native || tiles(8, 9) != 0) {
+      radix_lrb_block_sort<256, 1, Stable><<<blocks(tiles(8, 9)), 256, 0, stream.get()>>>(
+        output, scratch, segments.data(), offsets.data(), metadata.data(), 8, 9, comp);
+      CUDF_CUDA_TRY(cudaGetLastError());
+    }
+    if (!native || tiles(9, 32) != 0) {
+      radix_lrb_block_sort<256, 4, Stable><<<blocks(tiles(9, 32)), 256, 0, stream.get()>>>(
+        output, scratch, segments.data(), offsets.data(), metadata.data(), 9, 32, comp);
+      CUDF_CUDA_TRY(cudaGetLastError());
+    }
+  }
+  auto* src            = scratch;
+  auto* dst            = output;
+  auto const merge_log = mode == 2 ? 10 : fixed_log;
+  for (int bin = merge_log + 1; bin < 32 && (int64_t{1} << (bin - 1)) < size; ++bin) {
+    auto const active_tiles = tiles(bin, 32);
+    if (native && active_tiles == 0) break;
+    auto const run = int64_t{1} << (bin - 1);
+    if (mode == 1) {
+      radix_lrb_merge<Threads, Items><<<blocks(active_tiles), Threads, 0, stream.get()>>>(
+        src, dst, segments.data(), offsets.data(), metadata.data(), bin, run, comp);
+    } else {
+      radix_lrb_merge<256, 4><<<blocks(active_tiles), 256, 0, stream.get()>>>(
+        src, dst, segments.data(), offsets.data(), metadata.data(), bin, run, comp);
+    }
+    CUDF_CUDA_TRY(cudaGetLastError());
+    std::swap(src, dst);
+  }
+  auto const finish_tiles = tiles(mode == 2 ? 6 : 1, 32);
+  if (!native || finish_tiles != 0) {
+    radix_lrb_finish<fixed_tile><<<blocks(finish_tiles), 256, 0, stream.get()>>>(
+      scratch, output, segments.data(), offsets.data(), metadata.data(), mode, fixed_log);
+    CUDF_CUDA_TRY(cudaGetLastError());
+  }
+}
+
 template <int Bytes, int Threads, int Items, bool Stable, typename Extractor, typename Comparator>
 void radix_prefix_refine(size_type size,
                          size_type* output,
@@ -544,8 +969,10 @@ void radix_prefix_refine(size_type size,
                          bool device_metadata,
                          bool compact_runs,
                          int schedule,
+                         int lrb_mode,
                          cuda::stream_ref stream)
 {
+  CUDF_EXPECTS(lrb_mode == 0 || use_rle, "LRB requires radix RLE");
   // Device metadata mode prepares all scheduling information before one host readback.
   device_metadata = device_metadata && use_rle;
   CUDF_EXPECTS(size < std::numeric_limits<size_type>::max(), "Radix boundary count overflow");
@@ -616,6 +1043,21 @@ void radix_prefix_refine(size_type size,
     {
       rmm::device_buffer temp(bytes, stream, mr);
       CUDF_CUDA_TRY(encode(temp.data()));
+    }
+    if (lrb_mode != 0) {
+      radix_lrb_refine<Threads, Items, Stable>(size,
+                                               output,
+                                               scratch.data(),
+                                               offsets.data(),
+                                               lengths.data(),
+                                               run_count.data(),
+                                               sorted_keys,
+                                               null_rank,
+                                               lrb_mode,
+                                               schedule,
+                                               comparator,
+                                               stream);
+      return;
     }
     segments.resize(max_runs, stream);
     if (compact_runs) {

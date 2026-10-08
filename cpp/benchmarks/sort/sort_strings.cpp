@@ -6,6 +6,9 @@
 #include <benchmarks/common/generate_input.hpp>
 #include <benchmarks/common/memory_stats.hpp>
 
+#include <cudf_test/column_utilities.hpp>
+#include <cudf_test/column_wrapper.hpp>
+
 #include <cudf/sorting.hpp>
 #include <cudf/strings/combine.hpp>
 #include <cudf/strings/strings_column_view.hpp>
@@ -16,8 +19,11 @@
 
 #include <nvbench/nvbench.cuh>
 
+#include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -306,3 +312,87 @@ NVBENCH_BENCH(bench_sorted_order_strings_nulls)
   .add_int64_axis("num_rows", {262144, 2097152})
   .add_string_axis("profile", {"fixed_8", "variable_128"})
   .add_int64_axis("null_percent", {0, 50, 100});
+
+// Controlled prefix-tie segment distributions: IDs are distinct in both R8 and R12.
+static void bench_sorted_order_strings_segments(nvbench::state& state)
+{
+  auto const n       = static_cast<cudf::size_type>(state.get_int64("num_rows"));
+  auto const profile = state.get_string("segment_profile");
+  auto const shared  = static_cast<std::size_t>(state.get_int64("shared_suffix"));
+  std::vector<std::string> strings;
+  strings.reserve(n);
+  cudf::size_type group = 0;
+  while (static_cast<cudf::size_type>(strings.size()) < n) {
+    cudf::size_type length = 1;
+    if (profile == "pairs")
+      length = 2;
+    else if (profile == "tiny32")
+      length = 32;
+    else if (profile == "block256")
+      length = 256;
+    else if (profile == "logarithmic")
+      length = 1 << (1 + group % 13);
+    else if (profile == "tiny_plus_giant")
+      length = group == 0 ? n / 10 : 32;
+    else if (profile == "hot90")
+      length = group == 0 ? n / 10 * 9 : 32;
+    else if (profile == "few_giants")
+      length = group < 8 ? n / 64 : 32;
+    else if (profile == "one_segment")
+      length = n;
+    else
+      CUDF_EXPECTS(profile == "singletons", "Unknown segment distribution");
+    length      = std::min(length, n - static_cast<cudf::size_type>(strings.size()));
+    auto prefix = std::to_string(group++);
+    prefix.insert(0, 8 - prefix.size(), '0');
+    prefix += std::string(4 + shared, 'x');
+    for (cudf::size_type i = 0; i < length; ++i) {
+      auto const row = static_cast<uint64_t>(strings.size());
+      auto value     = row * 0x9e3779b97f4a7c15ULL;
+      value ^= value >> 31;
+      auto suffix = std::to_string(value % 100000000);
+      suffix.insert(0, 8 - suffix.size(), '0');
+      strings.push_back(prefix + suffix);
+    }
+  }
+  std::mt19937 rng{731923};
+  std::shuffle(strings.begin(), strings.end(), rng);
+  auto const input  = cudf::test::strings_column_wrapper{strings.begin(), strings.end()}.release();
+  auto const orders = benchmark_order(1);
+  auto result       = benchmark_stable()
+                        ? cudf::stable_sorted_order(cudf::table_view{{input->view()}}, orders)
+                        : cudf::sorted_order(cudf::table_view{{input->view()}}, orders);
+  auto const [rows, mask] = cudf::test::to_host<cudf::size_type>(result->view());
+  std::vector<bool> seen(n, false);
+  for (cudf::size_type i = 0; i < n; ++i) {
+    auto const row = rows[i];
+    CUDF_EXPECTS(row >= 0 && row < n && !seen[row],
+                 "Segment benchmark returned an invalid permutation");
+    seen[row] = true;
+    if (i == 0) continue;
+    auto const previous = rows[i - 1];
+    CUDF_EXPECTS(orders[0] == cudf::order::ASCENDING ? strings[previous] <= strings[row]
+                                                     : strings[previous] >= strings[row],
+                 "Segment benchmark returned unordered strings");
+    if (benchmark_stable() && strings[previous] == strings[row]) {
+      CUDF_EXPECTS(previous < row, "Segment benchmark returned unstable equal values");
+    }
+  }
+  result.reset();
+  run_sorted_order_benchmark(state, input);
+}
+
+NVBENCH_BENCH(bench_sorted_order_strings_segments)
+  .set_name("sorted_order_strings_segments")
+  .add_int64_axis("num_rows", {32768, 2097152})
+  .add_int64_axis("shared_suffix", {0, 64})
+  .add_string_axis("segment_profile",
+                   {"singletons",
+                    "pairs",
+                    "tiny32",
+                    "block256",
+                    "logarithmic",
+                    "tiny_plus_giant",
+                    "hot90",
+                    "few_giants",
+                    "one_segment"});
