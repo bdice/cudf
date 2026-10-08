@@ -12,10 +12,13 @@
 #include <rmm/exec_policy.hpp>
 
 #include <cub/block/block_merge_sort.cuh>
+#include <cub/block/block_reduce.cuh>
+#include <cub/block/block_scan.cuh>
 #include <cub/device/device_radix_sort.cuh>
 #include <cub/device/device_run_length_encode.cuh>
 #include <cub/device/device_scan.cuh>
 #include <cub/device/device_select.cuh>
+#include <cuda/functional>
 #include <cuda/iterator>
 #include <cuda/std/tuple>
 #include <thrust/sequence.h>
@@ -188,6 +191,89 @@ __global__ void radix_segment_merge(size_type const* input,
   }
 }
 
+// A block reserves segment IDs and tile offsets together in a packed prefix sum.
+// Reservations may reorder whole segments; row order inside each segment is unchanged.
+template <int TileSize, typename Key>
+__global__ void radix_compact_runs(size_type const* starts,
+                                   size_type const* lengths,
+                                   size_type const* run_count,
+                                   Key const* sorted_keys,
+                                   uint32_t null_rank,
+                                   radix_segment* segments,
+                                   size_type* tile_offsets,
+                                   unsigned long long* metadata)
+{
+  using Scan   = cub::BlockScan<unsigned long long, 256>;
+  using Reduce = cub::BlockReduce<size_type, 256>;
+  __shared__ union {
+    typename Scan::TempStorage scan;
+    typename Reduce::TempStorage reduce;
+  } temp;
+  __shared__ unsigned long long reservation;
+  auto const count = *run_count;
+  for (size_type base = blockIdx.x * 256; base < count; base += gridDim.x * 256) {
+    auto const i      = base + threadIdx.x;
+    auto const begin  = i < count ? starts[i] : 0;
+    auto const length = i < count ? lengths[i] : 0;
+    bool const valid  = length > 1 && sorted_keys[begin].null_rank != null_rank;
+    auto const tiles  = valid ? 1 + (length - 1) / TileSize : 0;
+    auto const packed = (static_cast<unsigned long long>(tiles) << 32) | (valid ? 1ULL : 0ULL);
+    unsigned long long prefix, total;
+    Scan(temp.scan).ExclusiveSum(packed, prefix, total);
+    __syncthreads();
+    auto const max_length = Reduce(temp.reduce).Reduce(valid ? length : 0, cuda::maximum<>{});
+    if (threadIdx.x == 0) {
+      reservation = total != 0 ? atomicAdd(metadata, total) : 0;
+      atomicMax(reinterpret_cast<size_type*>(metadata + 1), max_length);
+    }
+    __syncthreads();
+    if (valid) {
+      auto const location   = reservation + prefix;
+      auto const segment    = static_cast<uint32_t>(location);
+      segments[segment]     = {begin, begin + length};
+      tile_offsets[segment] = static_cast<size_type>(location >> 32);
+    }
+    __syncthreads();
+  }
+}
+
+__global__ void radix_finish_offsets(size_type* offsets, unsigned long long const* metadata)
+{
+  auto const packed                      = *metadata;
+  offsets[static_cast<uint32_t>(packed)] = static_cast<size_type>(packed >> 32);
+}
+
+template <int Threads, int Items, bool Stable, typename Comparator>
+void radix_refine_segments(size_type size,
+                           size_type* output,
+                           size_type* scratch,
+                           radix_segment const* segments,
+                           size_type const* tile_offsets,
+                           size_type segment_count,
+                           size_type tile_count,
+                           size_type max_length,
+                           Comparator comparator,
+                           cuda::stream_ref stream)
+{
+  if (segment_count == 0) return;
+  constexpr int tile_size = Threads * Items;
+  CUDF_CUDA_TRY(cudf::detail::memcpy_async(scratch, output, sizeof(size_type) * size, stream));
+  radix_segment_block_sort<Threads, Items, Stable><<<tile_count, Threads, 0, stream.get()>>>(
+    output, scratch, segments, tile_offsets, segment_count, comparator);
+  CUDF_CUDA_TRY(cudaGetLastError());
+  auto* src = scratch;
+  auto* dst = output;
+  for (int64_t run = tile_size; run < max_length; run *= 2) {
+    radix_segment_merge<Threads, Items><<<tile_count, Threads, 0, stream.get()>>>(
+      src, dst, segments, tile_offsets, segment_count, run, comparator);
+    CUDF_CUDA_TRY(cudaGetLastError());
+    std::swap(src, dst);
+  }
+  if (src != output) {
+    CUDF_CUDA_TRY(cudf::detail::memcpy_async(output, src, sizeof(size_type) * size, stream));
+  }
+}
+
 template <int Bytes, int Threads, int Items, bool Stable, typename Extractor, typename Comparator>
 void radix_prefix_refine(size_type size,
                          size_type* output,
@@ -196,6 +282,7 @@ void radix_prefix_refine(size_type size,
                          uint32_t null_rank,
                          bool use_rle,
                          bool device_metadata,
+                         bool compact_runs,
                          cuda::stream_ref stream)
 {
   // Device metadata mode prepares all scheduling information before one host readback.
@@ -255,6 +342,42 @@ void radix_prefix_refine(size_type size,
       CUDF_CUDA_TRY(encode(temp.data()));
     }
     segments.resize(max_runs, stream);
+    if (compact_runs) {
+      rmm::device_uvector<size_type> tile_offsets(max_runs + 1, stream, mr);
+      rmm::device_uvector<unsigned long long> metadata(2, stream, mr);
+      CUDF_CUDA_TRY(cudaMemsetAsync(
+        metadata.data(), 0, metadata.size() * sizeof(unsigned long long), stream.get()));
+      radix_compact_runs<Threads * Items>
+        <<<std::min(256, (max_runs + 255) / 256), 256, 0, stream.get()>>>(offsets.data(),
+                                                                          lengths.data(),
+                                                                          run_count.data(),
+                                                                          sorted_keys,
+                                                                          null_rank,
+                                                                          segments.data(),
+                                                                          tile_offsets.data(),
+                                                                          metadata.data());
+      CUDF_CUDA_TRY(cudaGetLastError());
+      radix_finish_offsets<<<1, 1, 0, stream.get()>>>(tile_offsets.data(), metadata.data());
+      CUDF_CUDA_TRY(cudaGetLastError());
+      unsigned long long host_metadata[2];
+      CUDF_CUDA_TRY(
+        cudf::detail::memcpy_async(host_metadata, metadata.data(), sizeof(host_metadata), stream));
+      CUDF_CUDA_TRY(cudaStreamSynchronize(stream.get()));
+      auto const segment_count = static_cast<size_type>(static_cast<uint32_t>(host_metadata[0]));
+      auto const tile_count    = static_cast<size_type>(host_metadata[0] >> 32);
+      auto const max_length    = static_cast<size_type>(host_metadata[1]);
+      radix_refine_segments<Threads, Items, Stable>(size,
+                                                    output,
+                                                    scratch.data(),
+                                                    segments.data(),
+                                                    tile_offsets.data(),
+                                                    segment_count,
+                                                    tile_count,
+                                                    max_length,
+                                                    comparator,
+                                                    stream);
+      return;
+    }
     auto const* starts = offsets.data();
     auto const* sizes  = lengths.data();
     auto const* runs   = run_count.data();
@@ -364,21 +487,15 @@ void radix_prefix_refine(size_type size,
   auto const tile_count = metadata[1];
   auto const max_length = metadata[2];
   if (segment_count == 0) return;
-  CUDF_CUDA_TRY(
-    cudf::detail::memcpy_async(scratch.data(), output, sizeof(size_type) * size, stream));
-  radix_segment_block_sort<Threads, Items, Stable><<<tile_count, Threads, 0, stream.get()>>>(
-    output, scratch.data(), segments.data(), tile_offsets.data(), segment_count, comparator);
-  CUDF_CUDA_TRY(cudaGetLastError());
-  auto* src = scratch.data();
-  auto* dst = output;
-  for (int64_t run = tile_size; run < max_length; run *= 2) {
-    radix_segment_merge<Threads, Items><<<tile_count, Threads, 0, stream.get()>>>(
-      src, dst, segments.data(), tile_offsets.data(), segment_count, run, comparator);
-    CUDF_CUDA_TRY(cudaGetLastError());
-    std::swap(src, dst);
-  }
-  if (src != output) {
-    CUDF_CUDA_TRY(cudf::detail::memcpy_async(output, src, sizeof(size_type) * size, stream));
-  }
+  radix_refine_segments<Threads, Items, Stable>(size,
+                                                output,
+                                                scratch.data(),
+                                                segments.data(),
+                                                tile_offsets.data(),
+                                                segment_count,
+                                                tile_count,
+                                                max_length,
+                                                comparator,
+                                                stream);
 }
 }  // namespace cudf::detail
