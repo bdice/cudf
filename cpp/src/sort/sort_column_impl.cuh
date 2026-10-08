@@ -7,6 +7,7 @@
 
 #include "sort.hpp"
 #include "sort_radix.hpp"
+#include "sort_string_loads.cuh"
 #include "sort_string_radix_refine.cuh"
 
 #include <cudf/column/column_device_view.cuh>
@@ -40,19 +41,76 @@
 namespace cudf {
 namespace detail {
 
-// Evaluation control: 0 = existing byte comparator; 4/8 = bounded word comparisons.
+// Evaluation controls: funnel prefix/suffix loads default on; set either flag to 0 for comparison.
+inline bool string_sort_funnel_prefix()
+{
+  static bool const enabled = [] {
+    auto const text = std::getenv("CUDF_STRING_SORT_FUNNEL_PREFIX");
+    return text == nullptr || std::atoi(text) != 0;
+  }();
+  return enabled;
+}
+
+// Width 0 selects byte comparisons; positive 4/8 uses memcpy, negative -4/-8 uses funnel loads.
+// The environment variable remains an unsigned width; encode the loader only in kernel arguments.
 inline int string_sort_word_bytes()
 {
   static int const value = [] {
     auto const text = std::getenv("CUDF_STRING_SORT_WORD_BYTES");
     int const bytes = text ? std::atoi(text) : 0;
     CUDF_EXPECTS(bytes == 0 || bytes == 4 || bytes == 8, "Unsupported suffix word width");
-    return bytes;
+    auto const funnel = std::getenv("CUDF_STRING_SORT_FUNNEL_SUFFIX");
+    return funnel == nullptr || std::atoi(funnel) != 0 ? -bytes : bytes;
   }();
   return value;
 }
 
+struct string_character_bounds {
+  std::uintptr_t begin;
+  std::uintptr_t end;
+};
+
+template <typename Keys>
+__device__ string_character_bounds string_sort_character_bounds(Keys const& keys)
+{
+  if constexpr (std::is_same_v<Keys, column_device_view>) {
+    auto const offsets = keys.child(0);
+    auto const i       = keys.offset() + keys.size();
+    auto const end     = offsets.type().id() == type_id::INT64
+                           ? offsets.template head<int64_t>()[i]
+                           : static_cast<int64_t>(offsets.template head<size_type>()[i]);
+    auto const begin   = reinterpret_cast<std::uintptr_t>(keys.template head<char>());
+    return {begin, begin + end};
+  } else {
+    return keys.character_bounds();
+  }
+}
+
+template <typename Integer, typename Keys>
+__device__ Integer
+load_column_prefix(Keys const& keys, string_view str, size_type offset, bool funnel)
+{
+  if (!funnel) return load_big_endian<Integer>(str, offset, false);
+  auto const bounds = string_sort_character_bounds(keys);
+  return load_big_endian_pool<Integer>(str, offset, bounds.begin, bounds.end);
+}
+
 template <int Bytes>
+__device__ int string_word_difference(std::conditional_t<Bytes == 8, uint64_t, uint32_t> left,
+                                      std::conditional_t<Bytes == 8, uint64_t, uint32_t> right)
+{
+  auto const difference = left ^ right;
+  if (difference == 0) return 0;
+  int first_bit;
+  if constexpr (Bytes == 8)
+    first_bit = __ffsll(static_cast<long long>(difference));
+  else
+    first_bit = __ffs(static_cast<int>(difference));
+  auto const shift = (first_bit - 1) & ~7;
+  return static_cast<int>((left >> shift) & 255) - static_cast<int>((right >> shift) & 255);
+}
+
+template <int Bytes, bool Funnel = false, int CachedBytes = 0>
 __device__ int compare_string_suffix_words(string_view lhs, string_view rhs)
 {
   static_assert(cuda::std::endian::native == cuda::std::endian::little);
@@ -60,38 +118,45 @@ __device__ int compare_string_suffix_words(string_view lhs, string_view rhs)
   auto const n    = min(lhs.size_bytes(), rhs.size_bytes());
   if (lhs.data() == rhs.data() && lhs.size_bytes() == rhs.size_bytes()) return 0;
   size_type i = 0;
-  for (; n - i >= Bytes; i += Bytes) {
-    // memcpy permits unaligned addresses and reads only bytes inside both strings.
-    word_type left, right;
-    memcpy(&left, lhs.data() + i, Bytes);
-    memcpy(&right, rhs.data() + i, Bytes);
-    auto const difference = left ^ right;
-    if (difference != 0) {
-      int first_bit;
-      if constexpr (Bytes == 8)
-        first_bit = __ffsll(static_cast<long long>(difference));
-      else
-        first_bit = __ffs(static_cast<int>(difference));
-      auto const shift = (first_bit - 1) & ~7;
-      return static_cast<int>((left >> shift) & 255) - static_cast<int>((right >> shift) & 255);
+  if constexpr (Funnel) {
+    if (n >= Bytes) {
+      string_funnel_suffix_reader<Bytes, CachedBytes> left{lhs}, right{rhs};
+      for (; n - i >= Bytes; i += Bytes) {
+        auto const difference = string_word_difference<Bytes>(left.next_full(), right.next_full());
+        if (difference != 0) return difference;
+      }
+    }
+  } else {
+    for (; n - i >= Bytes; i += Bytes) {
+      // memcpy permits unaligned addresses and reads only bytes inside both strings.
+      word_type left, right;
+      memcpy(&left, lhs.data() + i, Bytes);
+      memcpy(&right, rhs.data() + i, Bytes);
+      auto const difference = string_word_difference<Bytes>(left, right);
+      if (difference != 0) return difference;
     }
   }
   for (; i < n; ++i) {
     auto const left  = static_cast<uint8_t>(lhs.data()[i]);
     auto const right = static_cast<uint8_t>(rhs.data()[i]);
-    if (left != right) return static_cast<int>(left) - static_cast<int>(right);
+    if (left != right) return static_cast<int>(left) - static_cast<int>((right));
   }
   return (lhs.size_bytes() > rhs.size_bytes()) - (lhs.size_bytes() < rhs.size_bytes());
 }
 
+template <int CachedBytes>
 __device__ inline bool string_suffix_less(string_view lhs,
                                           string_view rhs,
                                           bool ascending,
                                           int word_bytes)
 {
   if (word_bytes == 0) return ascending ? lhs < rhs : rhs < lhs;
-  auto const result = word_bytes == 8 ? compare_string_suffix_words<8>(lhs, rhs)
-                                      : compare_string_suffix_words<4>(lhs, rhs);
+  auto const result =
+    word_bytes < 0
+      ? (word_bytes == -8 ? compare_string_suffix_words<8, true, CachedBytes>(lhs, rhs)
+                          : compare_string_suffix_words<4, true, CachedBytes>(lhs, rhs))
+      : (word_bytes == 8 ? compare_string_suffix_words<8>(lhs, rhs)
+                         : compare_string_suffix_words<4>(lhs, rhs));
   return ascending ? result < 0 : result > 0;
 }
 
@@ -114,17 +179,11 @@ struct string_prefix_extractor {
     }
 
     auto const string = d_column.element<string_view>(row);
-    PrefixKey prefix  = 0;
-    for (size_type byte = 0; byte < prefix_bytes; ++byte) {
-      prefix <<= bits_per_byte;
-      if (byte < string.size_bytes()) {
-        prefix |= static_cast<PrefixKey>(static_cast<uint8_t>(string.data()[byte]));
-      }
-    }
-    return prefix;
+    return load_column_prefix<PrefixKey>(d_column, string, 0, prefix_funnel);
   }
 
   column_device_view const d_column;
+  bool prefix_funnel;
 };
 
 /**
@@ -179,7 +238,8 @@ struct string_prefix_comparator {
       string_view{left_element.data() + prefix_bytes, left_element.size_bytes() - prefix_bytes};
     auto const right_suffix =
       string_view{right_element.data() + prefix_bytes, right_element.size_bytes() - prefix_bytes};
-    return string_suffix_less(left_suffix, right_suffix, ascending, suffix_word_bytes);
+    return string_suffix_less<prefix_bytes>(
+      left_suffix, right_suffix, ascending, suffix_word_bytes);
   }
 
   column_device_view const d_column;
@@ -235,24 +295,6 @@ struct prefix_row_merge_sort_policy {
 };
 
 /**
- * @brief Loads `sizeof(Integer)` bytes of `str` starting at `offset` as a zero-padded big-endian
- * integer, using the same byte loop as `string_prefix_extractor`.
- */
-template <typename Integer>
-__device__ Integer load_big_endian(string_view const& str, size_type offset)
-{
-  constexpr auto width = static_cast<size_type>(sizeof(Integer));
-  Integer value        = 0;
-  for (size_type byte = 0; byte < width; ++byte) {
-    value <<= std::numeric_limits<uint8_t>::digits;
-    if (offset + byte < str.size_bytes()) {
-      value |= static_cast<Integer>(static_cast<uint8_t>(str.data()[offset + byte]));
-    }
-  }
-  return value;
-}
-
-/**
  * @brief Orders two non-null rows whose first `CachedBytes` zero-padded bytes are equal.
  */
 template <size_type CachedBytes, typename Keys>
@@ -269,7 +311,7 @@ __device__ bool cached_prefix_tie_break(
   auto const left_suffix = string_view{left_element.data() + CachedBytes, left_size - CachedBytes};
   auto const right_suffix =
     string_view{right_element.data() + CachedBytes, right_size - CachedBytes};
-  return string_suffix_less(left_suffix, right_suffix, ascending, suffix_word_bytes);
+  return string_suffix_less<CachedBytes>(left_suffix, right_suffix, ascending, suffix_word_bytes);
 }
 
 __device__ inline bool null_less(bool lhs_null, bool rhs_null, bool ascending, null_order order)
@@ -296,7 +338,10 @@ struct prefix_row_a_ops {
     if constexpr (has_nulls) {
       if (d_column.is_null(row)) { return {0, row, 0}; }
     }
-    return {load_big_endian<uint64_t>(d_column.element<string_view>(row), 0), row, 0};
+    return {
+      load_column_prefix<uint64_t>(d_column, d_column.element<string_view>(row), 0, prefix_funnel),
+      row,
+      0};
   }
 
   __device__ bool operator()(key_type const& lhs, key_type const& rhs) const
@@ -319,6 +364,7 @@ struct prefix_row_a_ops {
   bool ascending;
   null_order null_precedence{};
   int suffix_word_bytes{};
+  bool prefix_funnel;
 };
 
 // Variant B
@@ -340,7 +386,9 @@ struct prefix_row_b_ops {
       if (d_column.is_null(row)) { return {0, 0, row}; }
     }
     auto const str = d_column.element<string_view>(row);
-    return {load_big_endian<uint64_t>(str, 0), load_big_endian<uint32_t>(str, 8), row};
+    return {load_column_prefix<uint64_t>(d_column, str, 0, prefix_funnel),
+            load_column_prefix<uint32_t>(d_column, str, 8, prefix_funnel),
+            row};
   }
 
   __device__ bool operator()(key_type const& lhs, key_type const& rhs) const
@@ -362,6 +410,7 @@ struct prefix_row_b_ops {
   bool ascending;
   null_order null_precedence{};
   int suffix_word_bytes{};
+  bool prefix_funnel;
 };
 
 // Variant C
@@ -382,7 +431,10 @@ struct prefix_row_c_ops {
     if constexpr (has_nulls) {
       if (d_column.is_null(row)) { return {0, row, 1}; }
     }
-    return {load_big_endian<uint64_t>(d_column.element<string_view>(row), 0), row, 0};
+    return {
+      load_column_prefix<uint64_t>(d_column, d_column.element<string_view>(row), 0, prefix_funnel),
+      row,
+      0};
   }
 
   __device__ bool operator()(key_type const& lhs, key_type const& rhs) const
@@ -403,6 +455,7 @@ struct prefix_row_c_ops {
   bool ascending;
   null_order null_precedence{};
   int suffix_word_bytes{};
+  bool prefix_funnel;
 };
 
 template <typename Key>
@@ -442,7 +495,8 @@ struct packed_prefix_row_ops {
     if constexpr (has_nulls) {
       if (d_column.is_null(row)) { return {key_type::null_bit | row_bits}; }
     }
-    auto const prefix = load_big_endian<uint32_t>(d_column.element<string_view>(row), 0);
+    auto const prefix =
+      load_column_prefix<uint32_t>(d_column, d_column.element<string_view>(row), 0, prefix_funnel);
     return {(static_cast<uint64_t>(prefix) << 32) | row_bits};
   }
 
@@ -468,6 +522,7 @@ struct packed_prefix_row_ops {
   bool ascending;
   null_order null_precedence{};
   int suffix_word_bytes{};
+  bool prefix_funnel;
 };
 
 template <>
@@ -503,7 +558,9 @@ struct prefix_row_e_ops {
       if (d_column.is_null(row)) { return {0, 0, key_type::null_bit | row_bits}; }
     }
     auto const str = d_column.element<string_view>(row);
-    return {load_big_endian<uint32_t>(str, 0), load_big_endian<uint32_t>(str, 4), row_bits};
+    return {load_column_prefix<uint32_t>(d_column, str, 0, prefix_funnel),
+            load_column_prefix<uint32_t>(d_column, str, 4, prefix_funnel),
+            row_bits};
   }
 
   __device__ bool operator()(key_type const& lhs, key_type const& rhs) const
@@ -525,6 +582,7 @@ struct prefix_row_e_ops {
   bool ascending;
   null_order null_precedence{};
   int suffix_word_bytes{};
+  bool prefix_funnel;
 };
 
 template <>
@@ -586,7 +644,9 @@ struct prefix_row_f_ops {
       if (d_column.is_null(row)) return {0, 0, key_type::null_bit | bits};
     }
     auto const str = d_column.element<string_view>(row);
-    return {load_big_endian<uint64_t>(str, 0), load_big_endian<uint32_t>(str, 8), bits};
+    return {load_column_prefix<uint64_t>(d_column, str, 0, prefix_funnel),
+            load_column_prefix<uint32_t>(d_column, str, 8, prefix_funnel),
+            bits};
   }
   __device__ bool operator()(key_type const& lhs, key_type const& rhs) const
   {
@@ -603,6 +663,7 @@ struct prefix_row_f_ops {
   bool ascending;
   null_order null_precedence{};
   int suffix_word_bytes{};
+  bool prefix_funnel;
 };
 
 template <>
@@ -617,6 +678,17 @@ struct radix_string_storage {
   bitmask_type const* null_mask;
   size_type row_offset;
   bool large_offsets;
+  size_type rows;
+
+  __device__ string_character_bounds character_bounds() const
+  {
+    auto const i     = row_offset + rows;
+    auto const size  = large_offsets
+                         ? static_cast<int64_t const*>(offsets)[i]
+                         : static_cast<int64_t>(static_cast<size_type const*>(offsets)[i]);
+    auto const begin = reinterpret_cast<std::uintptr_t>(chars);
+    return {begin, begin + size};
+  }
 
   __device__ bool is_null(size_type row) const
   {
@@ -658,9 +730,9 @@ struct radix_string_prefix_extractor {
       if (keys.is_null(row)) return string_radix_prefix_key{0, 0, null_rank};
     }
     auto const str = keys.template element<string_view>(row);
-    auto hi        = load_big_endian<uint64_t>(str, 0);
+    auto hi        = load_column_prefix<uint64_t>(keys, str, 0, prefix_funnel);
     uint32_t lo    = 0;
-    if constexpr (Bytes == 12) lo = load_big_endian<uint32_t>(str, 8);
+    if constexpr (Bytes == 12) lo = load_column_prefix<uint32_t>(keys, str, 8, prefix_funnel);
     if (!ascending) {
       hi = ~hi;
       if constexpr (Bytes == 12) lo = ~lo;
@@ -675,6 +747,7 @@ struct radix_string_prefix_extractor {
   Keys keys;
   bool ascending;
   uint32_t null_rank;
+  bool prefix_funnel;
 };
 
 template <int Bytes, typename Keys = column_device_view>
@@ -801,11 +874,12 @@ struct column_sorted_order_fn {
     auto prefixes =
       rmm::device_uvector<PrefixKey>(input.size(), stream, cudf::get_current_device_resource_ref());
     auto rows = cuda::counting_iterator<cudf::size_type>{0};
-    thrust::transform(rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
-                      rows,
-                      rows + input.size(),
-                      prefixes.begin(),
-                      string_prefix_extractor<PrefixKey, has_nulls>{keys});
+    thrust::transform(
+      rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
+      rows,
+      rows + input.size(),
+      prefixes.begin(),
+      string_prefix_extractor<PrefixKey, has_nulls>{keys, string_sort_funnel_prefix()});
 
     auto comp = string_prefix_comparator<PrefixKey, has_nulls>{
       keys, prefixes.data(), ascending, null_precedence, string_sort_word_bytes()};
@@ -885,9 +959,10 @@ struct column_sorted_order_fn {
                                     null_order null_precedence,
                                     cuda::stream_ref stream)
   {
-    using ops_type  = Ops<has_nulls>;
-    using key_type  = typename ops_type::key_type;
-    auto const ops  = ops_type{keys, ascending, null_precedence, string_sort_word_bytes()};
+    using ops_type = Ops<has_nulls>;
+    using key_type = typename ops_type::key_type;
+    auto const ops = ops_type{
+      keys, ascending, null_precedence, string_sort_word_bytes(), string_sort_funnel_prefix()};
     auto const size = indices.size();
     auto const mr   = cudf::get_current_device_resource_ref();
     auto sort_keys  = rmm::device_uvector<key_type>(size, stream, mr);
@@ -956,8 +1031,8 @@ struct column_sorted_order_fn {
   {
     auto const null_rank =
       has_nulls ? (ascending == (null_precedence == null_order::BEFORE) ? 0u : 1u) : 2u;
-    auto const extractor =
-      radix_string_prefix_extractor<Bytes, has_nulls, Keys>{keys, ascending, null_rank};
+    auto const extractor = radix_string_prefix_extractor<Bytes, has_nulls, Keys>{
+      keys, ascending, null_rank, string_sort_funnel_prefix()};
     auto const comparator = radix_string_suffix_comparator<Bytes, Keys>{
       keys, ascending, string_sort_word_bytes(), string_sort_radix_merge_items()};
     constexpr bool stable = method == sort_method::STABLE;
@@ -1076,7 +1151,7 @@ struct column_sorted_order_fn {
       auto const data    = large ? static_cast<void const*>(offsets.data<int64_t>())
                                  : static_cast<void const*>(offsets.data<size_type>());
       auto const storage = radix_string_storage{
-        strings.chars_begin(stream), data, input.null_mask(), input.offset(), large};
+        strings.chars_begin(stream), data, input.null_mask(), input.offset(), large, input.size()};
       auto run = [&]<bool has_nulls>() {
         if (variant == 7)
           radix_refined_order<8, has_nulls>(storage, indices, ascending, null_precedence, stream);

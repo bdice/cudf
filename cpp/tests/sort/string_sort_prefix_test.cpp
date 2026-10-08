@@ -583,6 +583,67 @@ TEST_F(StringPrefixSort, LargeOffsetsRepresentationAndSlices)
   }
 }
 
+TEST_F(StringPrefixSort, FunnelLoadAlignmentBoundariesAndSuffixMismatches)
+{
+  std::vector<std::string> values;
+  std::size_t chars   = 0;
+  auto append_aligned = [&](std::string value, std::size_t alignment) {
+    auto const padding = (alignment + 4 - chars % 4) % 4;
+    if (padding != 0) {
+      values.emplace_back(padding, 'p');
+      chars += padding;
+    }
+    chars += value.size();
+    values.push_back(std::move(value));
+  };
+  for (std::size_t alignment = 0; alignment < 4; ++alignment) {
+    for (std::size_t length = 0; length <= 65; ++length) {
+      std::string value(length, 'a');
+      for (std::size_t byte = 12; byte < length; ++byte) {
+        value[byte] = static_cast<char>((byte * 17 + length * 7) % 128);
+      }
+      if (length > 3) value[3] = '\0';
+      if (length > 8) value[8] = '\0';
+      append_aligned(value, alignment);
+      append_aligned(value, (alignment + 1) % 4);  // Equal values with different alignments.
+    }
+    for (std::size_t mismatch = 12; mismatch < 44; ++mismatch) {
+      std::string value(44, 'q');
+      append_aligned(value, alignment);
+      value[mismatch] = '\0';
+      append_aligned(value, alignment);
+      value[mismatch] = static_cast<char>(0xff);
+      append_aligned(value, alignment);
+    }
+  }
+  auto const input = cudf::test::strings_column_wrapper{values.begin(), values.end()};
+  auto const views = cudf::slice(input,
+                                 {0,
+                                  static_cast<cudf::size_type>(values.size()),
+                                  1,
+                                  static_cast<cudf::size_type>(values.size() - 1)});
+  for (std::size_t slice = 0; slice < views.size(); ++slice) {
+    auto const begin = slice == 0 ? 0 : 1;
+    for (auto direction : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+      std::vector<cudf::size_type> rows(views[slice].size());
+      std::iota(rows.begin(), rows.end(), 0);
+      std::stable_sort(rows.begin(), rows.end(), [&](auto lhs, auto rhs) {
+        return direction == cudf::order::ASCENDING
+                 ? bytewise_less(values[begin + lhs], values[begin + rhs])
+                 : bytewise_less(values[begin + rhs], values[begin + lhs]);
+      });
+      auto const expected =
+        cudf::test::fixed_width_column_wrapper<cudf::size_type>(rows.begin(), rows.end());
+      auto const order = cudf::stable_sorted_order(cudf::table_view{{views[slice]}}, {direction});
+      CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, order->view());
+      auto const unstable = cudf::sorted_order(cudf::table_view{{views[slice]}}, {direction});
+      auto const expected_values = cudf::gather(cudf::table_view{{views[slice]}}, expected);
+      auto const actual_values   = cudf::gather(cudf::table_view{{views[slice]}}, unstable->view());
+      CUDF_TEST_EXPECT_TABLES_EQUAL(expected_values->view(), actual_values->view());
+    }
+  }
+}
+
 // Captured refinement must read updated device metadata on every replay.
 TEST_F(StringPrefixSort, DeviceScheduledGraphReplayChangingSegments)
 {
