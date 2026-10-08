@@ -14,6 +14,7 @@
 #include <cudf/copying.hpp>
 #include <cudf/sorting.hpp>
 #include <cudf/table/table_view.hpp>
+#include <cudf/unary.hpp>
 #include <cudf/utilities/memory_resource.hpp>
 
 #include <rmm/mr/statistics_resource_adaptor.hpp>
@@ -495,6 +496,59 @@ TEST_F(StringPrefixSort, MixedPrefixSegmentsAndLongSuffixes)
         auto expected_table = cudf::gather(cudf::table_view{{input}}, expected);
         auto actual_table   = cudf::gather(cudf::table_view{{input}}, unstable->view());
         CUDF_TEST_EXPECT_TABLES_EQUAL(expected_table->view(), actual_table->view());
+      }
+    }
+  }
+}
+
+TEST_F(StringPrefixSort, LargeOffsetsRepresentationAndSlices)
+{
+  auto const strings = edge_case_strings();
+  for (bool nullable : {false, true}) {
+    auto validity = edge_case_validity();
+    if (!nullable) std::fill(validity.begin(), validity.end(), true);
+    auto source =
+      cudf::test::strings_column_wrapper{strings.begin(), strings.end(), validity.begin()}
+        .release();
+    auto const size       = source->size();
+    auto const null_count = source->null_count();
+    auto offsets  = cudf::cast(source->view().child(0), cudf::data_type{cudf::type_id::INT64});
+    auto contents = source->release();
+    contents.children[0] = std::move(offsets);
+    auto input           = std::make_unique<cudf::column>(cudf::data_type{cudf::type_id::STRING},
+                                                size,
+                                                std::move(*contents.data),
+                                                std::move(*contents.null_mask),
+                                                null_count,
+                                                std::move(contents.children));
+    for (bool sliced : {false, true}) {
+      auto const start = sliced ? 1 : 0;
+      auto const end   = sliced ? size - 1 : size;
+      auto view        = sliced ? cudf::slice(input->view(), {start, end}).front() : input->view();
+      for (auto order : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+        for (auto null_order : {cudf::null_order::BEFORE, cudf::null_order::AFTER}) {
+          bool const ascending = order == cudf::order::ASCENDING;
+          std::vector<cudf::size_type> expected_rows(end - start);
+          std::iota(expected_rows.begin(), expected_rows.end(), 0);
+          std::stable_sort(expected_rows.begin(), expected_rows.end(), [&](auto lhs, auto rhs) {
+            auto const a = lhs + start, b = rhs + start;
+            if (!validity[a] || !validity[b]) {
+              if (validity[a] == validity[b]) return false;
+              bool const null_first = ascending == (null_order == cudf::null_order::BEFORE);
+              return !validity[a] == null_first;
+            }
+            return ascending ? bytewise_less(strings[a], strings[b])
+                             : bytewise_less(strings[b], strings[a]);
+          });
+          auto expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+            expected_rows.begin(), expected_rows.end());
+          auto actual = cudf::stable_sorted_order(cudf::table_view{{view}}, {order}, {null_order});
+          CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, actual->view());
+          auto unstable       = cudf::sorted_order(cudf::table_view{{view}}, {order}, {null_order});
+          auto expected_table = cudf::gather(cudf::table_view{{view}}, expected);
+          auto actual_table   = cudf::gather(cudf::table_view{{view}}, unstable->view());
+          CUDF_TEST_EXPECT_TABLES_EQUAL(expected_table->view(), actual_table->view());
+        }
       }
     }
   }
