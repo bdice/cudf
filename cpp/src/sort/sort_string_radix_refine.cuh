@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <limits>
+#include <type_traits>
 
 namespace cudf::detail {
 
@@ -43,11 +44,35 @@ struct string_radix_prefix_key {
   }
 };
 
+// Nonnullable prefixes carry no null rank or padding through radix sorting.
+struct string_radix_prefix12 {
+  uint32_t hi;
+  uint32_t mid;
+  uint32_t lo;
+  __host__ __device__ bool operator==(string_radix_prefix12 const& rhs) const
+  {
+    return hi == rhs.hi && mid == rhs.mid && lo == rhs.lo;
+  }
+};
+static_assert(sizeof(string_radix_prefix12) == 12);
+
+template <typename Key>
+__device__ bool radix_key_is_null(Key const& key, uint32_t null_rank)
+{
+  if constexpr (std::is_same_v<Key, string_radix_prefix_key>)
+    return key.null_rank == null_rank;
+  else
+    return false;
+}
+
 template <int Bytes>
 struct string_radix_decomposer {
-  __host__ __device__ auto operator()(string_radix_prefix_key& key) const
+  template <typename Key>
+  __host__ __device__ auto operator()(Key& key) const
   {
-    if constexpr (Bytes <= 8) {
+    if constexpr (std::is_same_v<Key, string_radix_prefix12>) {
+      return cuda::std::tuple<uint32_t&, uint32_t&, uint32_t&>{key.hi, key.mid, key.lo};
+    } else if constexpr (Bytes <= 8) {
       return cuda::std::tuple<uint32_t&, uint64_t&>{key.null_rank, key.hi};
     } else {
       return cuda::std::tuple<uint32_t&, uint64_t&, uint32_t&>{key.null_rank, key.hi, key.lo};
@@ -247,7 +272,7 @@ __global__ void radix_compact_runs(size_type const* starts,
     auto const i      = base + threadIdx.x;
     auto const begin  = i < count ? starts[i] : 0;
     auto const length = i < count ? lengths[i] : 0;
-    bool const valid  = length > 1 && sorted_keys[begin].null_rank != null_rank;
+    bool const valid  = length > 1 && !radix_key_is_null(sorted_keys[begin], null_rank);
     auto const tiles  = valid ? 1 + (length - 1) / TileSize : 0;
     auto const packed = (static_cast<unsigned long long>(tiles) << 32) | (valid ? 1ULL : 0ULL);
     unsigned long long prefix, total;
@@ -489,24 +514,39 @@ void radix_prefix_refine(size_type size,
   auto const mr     = cudf::get_current_device_resource_ref();
   auto const policy = rmm::exec_policy_nosync(stream, mr);
   auto rows         = cuda::counting_iterator<size_type>{0};
-  rmm::device_uvector<string_radix_prefix_key> keys_in(size, stream, mr);
-  rmm::device_uvector<string_radix_prefix_key> keys_out(size, stream, mr);
+  using key_type    = decltype(extractor(size_type{0}));
+  rmm::device_uvector<key_type> keys_in(size, stream, mr);
+  rmm::device_uvector<key_type> keys_out(size, stream, mr);
   rmm::device_uvector<size_type> scratch(size, stream, mr);
   thrust::transform(policy, rows, rows + size, keys_in.begin(), extractor);
   thrust::sequence(policy, scratch.begin(), scratch.end(), size_type{0});
   std::size_t bytes = 0;
   auto radix_sort   = [&](void* storage) {
-    return cub::DeviceRadixSort::SortPairs(storage,
-                                           bytes,
-                                           keys_in.data(),
-                                           keys_out.data(),
-                                           scratch.data(),
-                                           output,
-                                           size,
-                                           string_radix_decomposer<Bytes>{},
-                                           0,
-                                           Bytes <= 8 ? 65 : 97,
-                                           stream.get());
+    if constexpr (std::is_same_v<key_type, uint64_t>) {
+      return cub::DeviceRadixSort::SortPairs(storage,
+                                             bytes,
+                                             keys_in.data(),
+                                             keys_out.data(),
+                                             scratch.data(),
+                                             output,
+                                             size,
+                                             0,
+                                             64,
+                                             stream.get());
+    } else {
+      return cub::DeviceRadixSort::SortPairs(
+        storage,
+        bytes,
+        keys_in.data(),
+        keys_out.data(),
+        scratch.data(),
+        output,
+        size,
+        string_radix_decomposer<Bytes>{},
+        0,
+        std::is_same_v<key_type, string_radix_prefix12> ? 96 : (Bytes <= 8 ? 65 : 97),
+        stream.get());
+    }
   };
   CUDF_CUDA_TRY(radix_sort(nullptr));
   {
@@ -607,7 +647,7 @@ void radix_prefix_refine(size_type size,
     };
     auto segment_input = cuda::make_transform_iterator(rows, make_segment);
     auto non_null      = [sorted_keys, null_rank] __device__(radix_segment seg) -> bool {
-      return seg.end > seg.begin && sorted_keys[seg.begin].null_rank != null_rank;
+      return seg.end > seg.begin && !radix_key_is_null(sorted_keys[seg.begin], null_rank);
     };
     auto filter = [&](void* storage) {
       return cub::DeviceSelect::If(storage,
@@ -651,7 +691,8 @@ void radix_prefix_refine(size_type size,
     };
     auto segment_input    = cuda::make_transform_iterator(rows, make_segment);
     auto needs_refinement = [sorted_keys, null_rank] __device__(radix_segment segment) -> bool {
-      return segment.end - segment.begin > 1 && sorted_keys[segment.begin].null_rank != null_rank;
+      return segment.end - segment.begin > 1 &&
+             !radix_key_is_null(sorted_keys[segment.begin], null_rank);
     };
     auto select_segments = [&](void* storage) {
       return cub::DeviceSelect::If(storage,

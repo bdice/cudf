@@ -648,10 +648,15 @@ inline bool string_sort_radix_flat_view()
 
 template <int Bytes, bool has_nulls, typename Keys = column_device_view>
 struct radix_string_prefix_extractor {
-  __device__ string_radix_prefix_key operator()(size_type row) const
+  using key_type =
+    std::conditional_t<has_nulls,
+                       string_radix_prefix_key,
+                       std::conditional_t<Bytes == 8, uint64_t, string_radix_prefix12>>;
+  __device__ key_type operator()(size_type row) const
   {
-    bool const is_null = has_nulls && keys.is_null(row);
-    if (is_null) return {0, 0, null_rank};
+    if constexpr (has_nulls) {
+      if (keys.is_null(row)) return string_radix_prefix_key{0, 0, null_rank};
+    }
     auto const str = keys.template element<string_view>(row);
     auto hi        = load_big_endian<uint64_t>(str, 0);
     uint32_t lo    = 0;
@@ -660,7 +665,12 @@ struct radix_string_prefix_extractor {
       hi = ~hi;
       if constexpr (Bytes == 12) lo = ~lo;
     }
-    return {hi, lo, has_nulls ? 1u - null_rank : 0u};
+    if constexpr (!has_nulls && Bytes == 8)
+      return hi;
+    else if constexpr (!has_nulls && Bytes == 12)
+      return string_radix_prefix12{static_cast<uint32_t>(hi >> 32), static_cast<uint32_t>(hi), lo};
+    else
+      return string_radix_prefix_key{hi, lo, 1u - null_rank};
   }
   Keys keys;
   bool ascending;
