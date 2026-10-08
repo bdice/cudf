@@ -603,3 +603,27 @@ Adaptive R8 wins combined104: time/P=0.42415, 6.94% less time than original R8/1
 All seven configured architectures compile. Twelve native prefix configurations and two generic-view/word4 configurations pass. Eight full LRB configurations pass 1632 tests each with six expected skips. Four guarded R8/R12 x fixed/adaptive prefix suites pass graph replay and memcheck with zero errors. A current-header standalone probe passes sixteen direction/mode/schedule/merge combinations with mixed bin parities and untouched null runs, also with zero memcheck errors. New tests cover boundaries through 32769, slices/null orders, stable CPU row IDs and unstable values/permutations.
 
 Source and measured data: work/string-prefix-lrb/lrb-report.md, confirmation/{raw,timings,summary,comparisons}.csv and profiles/{calls,phases,phase-summary,kernels}.csv. Trace durations are excluded from rankings. Suggested follow-ups use exact bin counts to choose a refinement policy, specialize/cache giant-bin metadata, tune warp-sort thresholds and try selective wider radix refinement. No automatic dispatcher is added.
+
+### Warp refinement follow-up (2026-10-08)
+
+Adaptive LRB now has `CUDF_STRING_SORT_RADIX_WARP_SORT`: 0 original bitonic,
+1 one comparison per bitonic pair with a shuffled swap flag, 2 CUB warp merge
+sorting, and 3 a hybrid (default within adaptive LRB): shared comparisons for
+2/4/8 lanes and CUB for 16/32 lanes. Each physical warp owns its scratch union;
+a warp barrier protects reuse when the next task changes bins. Stable ties keep
+original row order in either requested direction. LRB itself remains opt-in.
+
+On H100, 11 configurations and 126 states in three randomized rounds (five
+warmups, seven samples, 4158 measured means) select R8/hybrid. On the previous
+combined104 pool it saves 4.28% versus the compiled previous adaptive R8 and
+7.67% versus plain R8/tile128. All-CUB is within 0.43%. The new combined116 pool
+adds tiny4/8/16 cases and saves 5.61% versus previous adaptive R8. At 2M rows and
+64 shared suffix bytes, tiny32 improves 3.370 to 1.644 ms and tiny-plus-giant
+4.702 to 3.204 ms. Giant-dominated cases remain largely unchanged; logarithmic
+runs still favor plain tile128, motivating a separate large-tile/grid sweep.
+
+All seven configured architectures build. R8/R12 with each of the three new
+warp selectors pass the full sort suite (1632 passes, six expected skips each).
+Six guarded graph memchecks and four synchronization/race checks pass with no
+errors or hazards; native prefix and generic-view/word4 coverage also pass.
+Raw data and reproducible scripts are in `work/string-prefix-warp`.

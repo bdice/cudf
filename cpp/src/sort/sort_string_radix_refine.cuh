@@ -21,6 +21,7 @@
 #include <cub/device/device_run_length_encode.cuh>
 #include <cub/device/device_scan.cuh>
 #include <cub/device/device_select.cuh>
+#include <cub/warp/warp_merge_sort.cuh>
 #include <cuda/functional>
 #include <cuda/iterator>
 #include <cuda/std/tuple>
@@ -774,12 +775,82 @@ __device__ void radix_lrb_warp_sort_group(
   if (valid) output[seg.begin + lane] = row;
 }
 
+// Each physical warp owns its entire union. Sharing one union across a block
+// would alias storage when neighboring warps process different size bins.
+union radix_lrb_warp_storage {
+  cub::WarpMergeSort<size_type, 1, 2>::TempStorage group2[16];
+  cub::WarpMergeSort<size_type, 1, 4>::TempStorage group4[8];
+  cub::WarpMergeSort<size_type, 1, 8>::TempStorage group8[4];
+  cub::WarpMergeSort<size_type, 1, 16>::TempStorage group16[2];
+  cub::WarpMergeSort<size_type, 1, 32>::TempStorage group32[1];
+};
+
 template <bool Stable, typename Comparator>
+struct radix_lrb_warp_compare {
+  Comparator comp;
+  __device__ bool operator()(size_type lhs, size_type rhs) const
+  {
+    return radix_lrb_precedes<Stable>(lhs, rhs, comp);
+  }
+};
+
+template <int Algorithm, int Group, bool Stable, typename Comparator>
+__device__ void radix_lrb_warp_sort_group_tuned(size_type* output,
+                                                radix_segment const* segments,
+                                                size_type segment,
+                                                bool active,
+                                                Comparator comp,
+                                                radix_lrb_warp_storage& storage)
+{
+  if constexpr (Algorithm == 0) {
+    radix_lrb_warp_sort_group<Group, Stable>(output, segments, segment, active, comp);
+    return;
+  }
+  auto const lane  = threadIdx.x & (Group - 1);
+  auto const seg   = active ? segments[segment] : radix_segment{0, 0};
+  bool const valid = active && lane < seg.end - seg.begin;
+  size_type row    = valid ? output[seg.begin + lane] : -1;
+  // Algorithm 1 shares each bitonic comparison; 2 uses CUB merge sorting;
+  // 3 uses shared comparisons through eight lanes and CUB above that.
+  if constexpr (Algorithm == 1 || (Algorithm == 3 && Group <= 8)) {
+    for (int width = 2; width <= Group; width *= 2) {
+      for (int distance = width / 2; distance > 0; distance /= 2) {
+        auto const other        = __shfl_xor_sync(0xffffffffu, row, distance);
+        bool const low          = (lane & distance) == 0;
+        bool const forward      = (lane & width) == 0;
+        int const swap          = low ? (forward ? radix_lrb_precedes<Stable>(other, row, comp)
+                                                 : radix_lrb_precedes<Stable>(row, other, comp))
+                                      : 0;
+        auto const partner_swap = __shfl_xor_sync(0xffffffffu, swap, distance);
+        if (low ? swap : partner_swap) row = other;
+      }
+    }
+  } else if constexpr (Algorithm != 0) {
+    auto const group = (threadIdx.x & 31) / Group;
+    size_type keys[1]{row};
+    radix_lrb_warp_compare<Stable, Comparator> less{comp};
+    if constexpr (Group == 2)
+      cub::WarpMergeSort<size_type, 1, Group>(storage.group2[group]).StableSort(keys, less);
+    if constexpr (Group == 4)
+      cub::WarpMergeSort<size_type, 1, Group>(storage.group4[group]).StableSort(keys, less);
+    if constexpr (Group == 8)
+      cub::WarpMergeSort<size_type, 1, Group>(storage.group8[group]).StableSort(keys, less);
+    if constexpr (Group == 16)
+      cub::WarpMergeSort<size_type, 1, Group>(storage.group16[group]).StableSort(keys, less);
+    if constexpr (Group == 32)
+      cub::WarpMergeSort<size_type, 1, Group>(storage.group32[group]).StableSort(keys, less);
+    row = keys[0];
+  }
+  if (valid) output[seg.begin + lane] = row;
+}
+
+template <int Algorithm, bool Stable, typename Comparator>
 __global__ void radix_lrb_warp_sort(size_type* output,
                                     radix_segment const* segments,
                                     radix_lrb_metadata const* metadata,
                                     Comparator comp)
 {
+  __shared__ radix_lrb_warp_storage storage[8];
   auto const warp =
     cooperative_groups::tiled_partition<32>(cooperative_groups::this_thread_block());
   auto const lane   = warp.thread_rank();
@@ -800,12 +871,29 @@ __global__ void radix_lrb_warp_sort(size_type* output,
     auto const end     = warp.shfl(first + count, bin);
     bool const active  = segment < end;
     switch (bin) {
-      case 1: radix_lrb_warp_sort_group<2, Stable>(output, segments, segment, active, comp); break;
-      case 2: radix_lrb_warp_sort_group<4, Stable>(output, segments, segment, active, comp); break;
-      case 3: radix_lrb_warp_sort_group<8, Stable>(output, segments, segment, active, comp); break;
-      case 4: radix_lrb_warp_sort_group<16, Stable>(output, segments, segment, active, comp); break;
-      case 5: radix_lrb_warp_sort_group<32, Stable>(output, segments, segment, active, comp); break;
+      case 1:
+        radix_lrb_warp_sort_group_tuned<Algorithm, 2, Stable>(
+          output, segments, segment, active, comp, storage[threadIdx.x / 32]);
+        break;
+      case 2:
+        radix_lrb_warp_sort_group_tuned<Algorithm, 4, Stable>(
+          output, segments, segment, active, comp, storage[threadIdx.x / 32]);
+        break;
+      case 3:
+        radix_lrb_warp_sort_group_tuned<Algorithm, 8, Stable>(
+          output, segments, segment, active, comp, storage[threadIdx.x / 32]);
+        break;
+      case 4:
+        radix_lrb_warp_sort_group_tuned<Algorithm, 16, Stable>(
+          output, segments, segment, active, comp, storage[threadIdx.x / 32]);
+        break;
+      case 5:
+        radix_lrb_warp_sort_group_tuned<Algorithm, 32, Stable>(
+          output, segments, segment, active, comp, storage[threadIdx.x / 32]);
+        break;
     }
+    // The next task can use a different union member for this physical warp.
+    __syncwarp();
   }
 }
 
@@ -851,6 +939,7 @@ void radix_lrb_refine(size_type size,
                       uint32_t null_rank,
                       int mode,
                       int schedule,
+                      int warp_sort,
                       Comparator comp,
                       cuda::stream_ref stream)
 {
@@ -914,8 +1003,17 @@ void radix_lrb_refine(size_type size,
       warp_tasks += (static_cast<uint32_t>(counts[bin]) + groups - 1) / groups;
     }
     if (!native || warp_tasks != 0) {
-      radix_lrb_warp_sort<Stable><<<blocks((warp_tasks + 7) / 8), 256, 0, stream.get()>>>(
-        output, segments.data(), metadata.data(), comp);
+      auto launch = [&]<int Algorithm>() {
+        radix_lrb_warp_sort<Algorithm, Stable>
+          <<<blocks((warp_tasks + 7) / 8), 256, 0, stream.get()>>>(
+            output, segments.data(), metadata.data(), comp);
+      };
+      switch (warp_sort) {
+        case 0: launch.template operator()<0>(); break;
+        case 1: launch.template operator()<1>(); break;
+        case 2: launch.template operator()<2>(); break;
+        case 3: launch.template operator()<3>(); break;
+      }
       CUDF_CUDA_TRY(cudaGetLastError());
     }
     if (!native || tiles(6, 8) != 0) {
@@ -970,6 +1068,7 @@ void radix_prefix_refine(size_type size,
                          bool compact_runs,
                          int schedule,
                          int lrb_mode,
+                         int warp_sort,
                          cuda::stream_ref stream)
 {
   CUDF_EXPECTS(lrb_mode == 0 || use_rle, "LRB requires radix RLE");
@@ -1055,6 +1154,7 @@ void radix_prefix_refine(size_type size,
                                                null_rank,
                                                lrb_mode,
                                                schedule,
+                                               warp_sort,
                                                comparator,
                                                stream);
       return;
