@@ -655,6 +655,15 @@ inline int string_sort_radix_tile()
   return tile;
 }
 
+inline bool string_sort_radix_device_metadata()
+{
+  static bool const enabled = [] {
+    auto const value = std::getenv("CUDF_STRING_SORT_RADIX_DEVICE_META");
+    return value != nullptr && std::atoi(value) != 0;
+  }();
+  return enabled;
+}
+
 inline bool string_sort_radix_rle()
 {
   static bool const enabled = [] {
@@ -886,6 +895,7 @@ struct column_sorted_order_fn {
                                                    comparator,
                                                    null_rank,
                                                    string_sort_radix_rle(),
+                                                   string_sort_radix_device_metadata(),
                                                    stream);
         break;
       case 256:
@@ -895,6 +905,7 @@ struct column_sorted_order_fn {
                                                    comparator,
                                                    null_rank,
                                                    string_sort_radix_rle(),
+                                                   string_sort_radix_device_metadata(),
                                                    stream);
         break;
       case 1024:
@@ -904,6 +915,7 @@ struct column_sorted_order_fn {
                                                    comparator,
                                                    null_rank,
                                                    string_sort_radix_rle(),
+                                                   string_sort_radix_device_metadata(),
                                                    stream);
         break;
       default: CUDF_FAIL("Unsupported CUDF_STRING_SORT_RADIX_TILE");
