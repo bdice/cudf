@@ -14,7 +14,7 @@ namespace cudf::detail {
 /**
  * @brief Experimental single-column string sorting implementations.
  */
-enum class string_sort_algorithm { PREFIX, SEGMENTED, SEGMENTED_RLE };
+enum class string_sort_algorithm { PREFIX, SEGMENTED, SEGMENTED_RLE, RADIX_LRB };
 
 struct segmented_string_sort_config {
   int lexic_precision{1};
@@ -64,6 +64,7 @@ struct segmented_string_sort_config {
   auto const setting = std::string_view{value};
   if (setting == "1") { return string_sort_algorithm::SEGMENTED; }
   if (setting == "2") { return string_sort_algorithm::SEGMENTED_RLE; }
+  if (setting == "3") { return string_sort_algorithm::RADIX_LRB; }
   return string_sort_algorithm::PREFIX;
 }
 
@@ -87,6 +88,19 @@ struct segmented_string_sort_config {
                                        std::getenv("LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN"),
                                        std::getenv("LIBCUDF_SEGMENTED_STRING_SORT_TRACE"));
   return config;
+}
+
+// Native metadata scheduling (0) is fastest; guarded device scheduling (2) supports graph capture.
+[[nodiscard]] inline int parse_radix_lrb_schedule(char const* value)
+{
+  return value != nullptr && std::string_view{value} == "2" ? 2 : 0;
+}
+
+[[nodiscard]] inline int configured_radix_lrb_schedule()
+{
+  static auto const schedule =
+    parse_radix_lrb_schedule(std::getenv("LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE"));
+  return schedule;
 }
 
 }  // namespace cudf::detail

@@ -8,7 +8,7 @@ API. Multi-column sorting is outside this experiment.
 
 | Environment variable | Supported values | Default |
 |---|---|---|
-| `LIBCUDF_STRING_SORT_ALGORITHM` | `0`: prefix merge; `1`: segmented; `2`: segmented with terminal exact-duplicate elimination | `0` |
+| `LIBCUDF_STRING_SORT_ALGORITHM` | `0`: prefix merge; `1`: segmented; `2`: segmented with terminal exact-duplicate elimination; `3`: tuned R8 LRB refinement | `0` |
 | `LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION` | Maximum number of eight-byte radix passes, `1..255` | `1` |
 | `LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN` | Minimum tied-run length eligible for another radix pass, `2..1048576` | `512` |
 | `LIBCUDF_SEGMENTED_STRING_SORT_TRACE` | `0`: off; `1`: configuration and per-pass/finish statistics on stderr | `0` |
@@ -25,6 +25,48 @@ finishing. Proven-prefix skipping is always enabled. Keys are eight bytes and co
 chunks are 512 items; chunk size and extraction launch parameters are compile-time
 constants. Older six-byte, percentage-depth, adaptive-RLE, and compact-finish/radix
 environment controls are no longer supported and have no effect.
+
+## Radix LRB comparison path
+
+Selector `3` preserves the measured R8 configuration from `string-sort-prefix-variants`:
+8-byte prefix keys with separate 32-bit row IDs, bounded funnel extraction and 8-byte suffix
+comparisons, exact run-length encoding, logarithmic binning, hybrid warp refinement (groups
+2/4/8 use shared bitonic comparisons, 16/32 use CUB WarpMergeSort), tiered block refinement,
+1024-row giant tiles, hierarchical merges, and a launch cap of 32 warps per SM. The measured
+kernel implementation is retained in `sort_string_radix_refine.cuh`; its wrapper and comparison
+helpers are isolated in `string_sort_lrb.cuh`. The PR's selectors `0`, `1`, and `2` retain their
+original algorithms and tuning defaults. Prefix merge remains the default.
+
+`LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE=0` uses native metadata scheduling (default).
+Set it to `2` for guarded device scheduling and CUDA graph capture/replay. Other values use `0`.
+PR segmented precision/cutoff/trace settings affect only selectors `1` and `2`. The historical
+`CUDF_STRING_SORT_VARIANT` and radix tuning variables no longer select algorithms; the old
+branch is preserved as `backup/string-sort-prefix-variants-before-pr24498-20261008`.
+
+The shared benchmark helpers support `CUDF_STRING_SORT_BENCH_STABLE=1` and
+`CUDF_STRING_SORT_BENCH_DESCENDING=1` for every selector. Defaults are unstable ascending.
+`sorted_order_strings_segments` adds deterministic shuffled prefix-tie runs spanning singleton,
+subgroup, block, logarithmic, skewed, and giant cases, with 0/64 additional shared suffix bytes.
+It checks the output permutation and ordering before timed runs, and equal-row order when stable.
+Keep permutation generation (`sorted_order`) separate from end-to-end string gathering (`sort`).
+
+```bash
+# Same binary, inputs, and stable/direction controls; fresh process per configuration.
+LIBCUDF_STRING_SORT_ALGORITHM=1 LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION=32 \
+  cpp/build/conda/cuda-13.3/latest/benchmarks/SORT_NVBENCH -d 0 \
+  -b sorted_order_strings_segments -a num_rows=262144 -a shared_suffix=64 \
+  -a segment_profile=logarithmic --min-samples 20 --target-samples 20 \
+  --stopping-criterion sample-count --no-batch
+LIBCUDF_STRING_SORT_ALGORITHM=3 \
+  cpp/build/conda/cuda-13.3/latest/benchmarks/SORT_NVBENCH -d 0 \
+  -b sorted_order_strings_segments -a num_rows=262144 -a shared_suffix=64 \
+  -a segment_profile=logarithmic --min-samples 20 --target-samples 20 \
+  --stopping-criterion sample-count --no-batch
+```
+
+Use an external timeout when testing PR precision `1` on giant unresolved runs. Its comparison
+finish can be expensive. Report timed-out cases separately; do not substitute a timeout for a
+completed timing or silently omit it from a full-suite ranking.
 
 ## Bounded comparison
 

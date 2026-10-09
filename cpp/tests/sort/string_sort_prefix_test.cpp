@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include "../../src/sort/string_sort_config.hpp"
+
 #include <cudf_test/base_fixture.hpp>
 #include <cudf_test/column_utilities.hpp>
 #include <cudf_test/column_wrapper.hpp>
@@ -13,22 +15,23 @@
 #include <cudf/column/column_factories.hpp>
 #include <cudf/copying.hpp>
 #include <cudf/detail/utilities/cuda_memcpy.hpp>
+#include <cudf/null_mask.hpp>
 #include <cudf/sorting.hpp>
 #include <cudf/table/table_view.hpp>
-#include <cudf/unary.hpp>
+#include <cudf/utilities/error.hpp>
 #include <cudf/utilities/memory_resource.hpp>
 
 #include <rmm/device_buffer.hpp>
 #include <rmm/mr/statistics_resource_adaptor.hpp>
 
 #include <cuda/stream>
+#include <cuda_runtime_api.h>
 
 #include <algorithm>
 #include <cstdint>
-#include <cstdlib>
 #include <initializer_list>
+#include <limits>
 #include <numeric>
-#include <random>
 #include <string>
 #include <utility>
 #include <vector>
@@ -94,37 +97,11 @@ bool bytewise_less(std::string const& lhs, std::string const& rhs)
     });
 }
 
-// A test arena keeps every captured temporary alive through all graph replays.
-// Allocation is host-only during capture; release happens when the backing buffer dies.
-struct graph_test_arena {
-  char* data;
-  std::size_t capacity;
-  std::size_t* used;
-  void* allocate(cuda::stream_ref, std::size_t bytes, std::size_t alignment = 256)
-  {
-    if (bytes == 0) return nullptr;
-    auto const start = (*used + alignment - 1) / alignment * alignment;
-    CUDF_EXPECTS(start <= capacity && bytes <= capacity - start, "Graph test arena exhausted");
-    *used = start + bytes;
-    return data + start;
-  }
-  void deallocate(cuda::stream_ref, void*, std::size_t, std::size_t = 256) noexcept {}
-  void* allocate_sync(std::size_t bytes, std::size_t alignment = 256)
-  {
-    return allocate(cudf::get_default_stream(), bytes, alignment);
-  }
-  void deallocate_sync(void*, std::size_t, std::size_t = 256) noexcept {}
-  bool operator==(graph_test_arena const& other) const noexcept { return data == other.data; }
-  bool operator!=(graph_test_arena const& other) const noexcept { return !(*this == other); }
-  friend void get_property(graph_test_arena const&, cuda::mr::device_accessible) noexcept {}
-};
-static_assert(cuda::mr::resource_with<graph_test_arena, cuda::mr::device_accessible>);
-
 }  // namespace
 
-struct StringPrefixSort : public cudf::test::BaseFixture {};
+struct StringSort : public cudf::test::BaseFixture {};
 
-TEST_F(StringPrefixSort, EmptySingletonAndAllNull)
+TEST_F(StringSort, EmptySingletonAndAllNull)
 {
   auto const empty       = cudf::make_empty_column(cudf::type_id::STRING);
   auto const empty_order = cudf::stable_sorted_order(cudf::table_view{{empty->view()}});
@@ -152,7 +129,7 @@ TEST_F(StringPrefixSort, EmptySingletonAndAllNull)
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_all_empty, all_empty_order->view());
 }
 
-TEST_F(StringPrefixSort, HalfNullBothOrders)
+TEST_F(StringSort, HalfNullBothOrders)
 {
   auto const input = cudf::test::strings_column_wrapper{
     {"z", "ignored", "a", "ignored", "m", "ignored"}, {1, 0, 1, 0, 1, 0}};
@@ -170,7 +147,7 @@ TEST_F(StringPrefixSort, HalfNullBothOrders)
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_descending, descending->view());
 }
 
-TEST_F(StringPrefixSort, UnstableAscendingEdgeCases)
+TEST_F(StringSort, UnstableAscendingEdgeCases)
 {
   auto const input_strings = edge_case_strings();
   auto const validity      = edge_case_validity();
@@ -218,7 +195,7 @@ TEST_F(StringPrefixSort, UnstableAscendingEdgeCases)
   CUDF_TEST_EXPECT_TABLES_EQUAL(cudf::table_view{{expected}}, actual->view());
 }
 
-TEST_F(StringPrefixSort, StableDuplicatesAndDescendingNulls)
+TEST_F(StringSort, StableDuplicatesAndDescendingNulls)
 {
   auto const input_strings = edge_case_strings();
   auto const validity      = edge_case_validity();
@@ -238,7 +215,7 @@ TEST_F(StringPrefixSort, StableDuplicatesAndDescendingNulls)
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_descending, descending->view());
 }
 
-TEST_F(StringPrefixSort, PrefixBoundaryAndZeroPaddedTies)
+TEST_F(StringSort, PrefixBoundaryAndZeroPaddedTies)
 {
   std::vector<std::string> const strings{std::string{"abcdefgh\0A", 10},
                                          "abcdefgh",
@@ -255,7 +232,7 @@ TEST_F(StringPrefixSort, PrefixBoundaryAndZeroPaddedTies)
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
 }
 
-TEST_F(StringPrefixSort, UnalignedPrefixesAndExactWidthTies)
+TEST_F(StringSort, UnalignedPrefixesAndExactWidthTies)
 {
   std::vector<std::string> strings;
   for (int length = 0; length <= 17; ++length) {
@@ -284,24 +261,7 @@ TEST_F(StringPrefixSort, UnalignedPrefixesAndExactWidthTies)
   }
 }
 
-TEST_F(StringPrefixSort, FourBytePrefixBoundaryAndZeroPaddedTies)
-{
-  std::vector<std::string> const strings{std::string{"abcd\0A", 6},
-                                         "abcd",
-                                         std::string{"abcd\0", 5},
-                                         "abc",
-                                         "abcdA",
-                                         std::string{"abc\0", 4},
-                                         std::string{"abcd\0\0", 6}};
-  auto const input = cudf::test::strings_column_wrapper{strings.begin(), strings.end()};
-
-  auto const result = cudf::stable_sorted_order(cudf::table_view{{input}});
-  auto const expected =
-    cudf::test::fixed_width_column_wrapper<cudf::size_type>{3, 5, 1, 2, 6, 0, 4};
-  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
-}
-
-TEST_F(StringPrefixSort, SlicedColumnUsesSliceRelativeIndices)
+TEST_F(StringSort, SlicedColumnUsesSliceRelativeIndices)
 {
   std::vector<std::string> const strings{
     "outside-left", "prefixZZ", "", "prefixAA", "pre", "prefixAA", "outside-right"};
@@ -316,7 +276,7 @@ TEST_F(StringPrefixSort, SlicedColumnUsesSliceRelativeIndices)
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
 }
 
-TEST_F(StringPrefixSort, StableMultiBlockInput)
+TEST_F(StringSort, StableMultiBlockInput)
 {
   constexpr cudf::size_type count = 4097;
   std::vector<std::string> const utf8_components{"A",
@@ -355,7 +315,7 @@ TEST_F(StringPrefixSort, StableMultiBlockInput)
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, actual->view());
 }
 
-TEST_F(StringPrefixSort, VariableLengthStrings)
+TEST_F(StringSort, VariableLengthStrings)
 {
   constexpr cudf::size_type count = 513;
   std::vector<std::string> strings;
@@ -393,62 +353,7 @@ TEST_F(StringPrefixSort, VariableLengthStrings)
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_descending, descending->view());
 }
 
-TEST_F(StringPrefixSort, RandomizedPrefixBoundaryDifferential)
-{
-  // Strings around the 8- and 12-byte cache boundaries with embedded zeros, duplicates, and nulls.
-  constexpr cudf::size_type count = 20000;
-  std::vector<std::string> strings;
-  std::vector<bool> validity;
-  strings.reserve(count);
-  uint64_t state = 12345;
-  auto next      = [&]() {
-    state = state * 6364136223846793005ULL + 1442695040888963407ULL;
-    return static_cast<uint32_t>(state >> 33);
-  };
-  char const alphabet[] = {'\0', 'a', 'b'};
-  for (cudf::size_type index = 0; index < count; ++index) {
-    std::string value = (next() % 2) ? std::string{"abcdefgh"} : std::string{};
-    if (next() % 3 == 0) { value += std::string{"ijk\0", 4}; }
-    auto const extra = next() % 9;
-    for (uint32_t i = 0; i < extra; ++i) {
-      value.push_back(alphabet[next() % 3]);
-    }
-    strings.push_back(std::move(value));
-    validity.push_back(next() % 7 != 0);
-  }
-  auto const input =
-    cudf::test::strings_column_wrapper{strings.begin(), strings.end(), validity.begin()};
-
-  for (auto const column_order : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
-    for (auto const nulls : {cudf::null_order::BEFORE, cudf::null_order::AFTER}) {
-      auto const ascending   = column_order == cudf::order::ASCENDING;
-      auto const nulls_first = (nulls == cudf::null_order::BEFORE) == ascending;
-      std::vector<cudf::size_type> expected_indices(count);
-      std::iota(expected_indices.begin(), expected_indices.end(), 0);
-      std::stable_sort(expected_indices.begin(), expected_indices.end(), [&](auto lhs, auto rhs) {
-        if (!validity[lhs] || !validity[rhs]) {
-          if (validity[lhs] == validity[rhs]) { return false; }
-          return nulls_first ? !validity[lhs] : !validity[rhs];
-        }
-        return ascending ? bytewise_less(strings[lhs], strings[rhs])
-                         : bytewise_less(strings[rhs], strings[lhs]);
-      });
-      auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
-        expected_indices.begin(), expected_indices.end());
-
-      auto const stable =
-        cudf::stable_sorted_order(cudf::table_view{{input}}, {column_order}, {nulls});
-      CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, stable->view());
-
-      auto const unstable = cudf::sorted_order(cudf::table_view{{input}}, {column_order}, {nulls});
-      CUDF_TEST_EXPECT_TABLES_EQUAL(
-        cudf::gather(cudf::table_view{{input}}, cudf::column_view{expected})->view(),
-        cudf::gather(cudf::table_view{{input}}, unstable->view())->view());
-    }
-  }
-}
-
-TEST_F(StringPrefixSort, NonDefaultStreamAndCurrentMemoryResource)
+TEST_F(StringSort, NonDefaultStreamAndCurrentMemoryResource)
 {
   auto const input = cudf::test::strings_column_wrapper{
     "abcdefghZ", "abcdefghA", "short", "abcdefghA", "long-common-prefix"};
@@ -473,338 +378,502 @@ TEST_F(StringPrefixSort, NonDefaultStreamAndCurrentMemoryResource)
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
 }
 
-// Mixed segment sizes straddle all refinement tile boundaries and require multiple merge levels.
-TEST_F(StringPrefixSort, MixedPrefixSegmentsAndLongSuffixes)
+TEST_F(StringSort, AlgorithmSelectorParsing)
+{
+  using cudf::detail::parse_string_sort_algorithm;
+  using cudf::detail::string_sort_algorithm;
+
+  EXPECT_EQ(parse_string_sort_algorithm(nullptr), string_sort_algorithm::PREFIX);
+  EXPECT_EQ(parse_string_sort_algorithm(""), string_sort_algorithm::PREFIX);
+  EXPECT_EQ(parse_string_sort_algorithm("0"), string_sort_algorithm::PREFIX);
+  EXPECT_EQ(parse_string_sort_algorithm("1"), string_sort_algorithm::SEGMENTED);
+  EXPECT_EQ(parse_string_sort_algorithm("2"), string_sort_algorithm::SEGMENTED_RLE);
+  EXPECT_EQ(parse_string_sort_algorithm("3"), string_sort_algorithm::RADIX_LRB);
+  EXPECT_EQ(parse_string_sort_algorithm("4"), string_sort_algorithm::PREFIX);
+  EXPECT_EQ(parse_string_sort_algorithm("-1"), string_sort_algorithm::PREFIX);
+  EXPECT_EQ(parse_string_sort_algorithm("invalid"), string_sort_algorithm::PREFIX);
+}
+
+TEST_F(StringSort, RadixLrbScheduleSelectorParsing)
+{
+  using cudf::detail::parse_radix_lrb_schedule;
+  EXPECT_EQ(parse_radix_lrb_schedule(nullptr), 0);
+  EXPECT_EQ(parse_radix_lrb_schedule("0"), 0);
+  EXPECT_EQ(parse_radix_lrb_schedule("2"), 2);
+  EXPECT_EQ(parse_radix_lrb_schedule("1"), 0);
+  EXPECT_EQ(parse_radix_lrb_schedule("invalid"), 0);
+}
+
+TEST_F(StringSort, SegmentedTuningSelectorParsing)
+{
+  using cudf::detail::parse_segmented_string_sort_config;
+  using cudf::detail::string_sort_algorithm;
+
+  auto const defaults =
+    parse_segmented_string_sort_config(string_sort_algorithm::SEGMENTED, nullptr, nullptr, nullptr);
+  EXPECT_EQ(defaults.lexic_precision, 1);
+  EXPECT_EQ(defaults.radix_run_min, 512);
+  EXPECT_FALSE(defaults.eliminate_exact_duplicates);
+
+  auto const tuned =
+    parse_segmented_string_sort_config(string_sort_algorithm::SEGMENTED, "8", "128", "1");
+  EXPECT_EQ(tuned.lexic_precision, 8);
+  EXPECT_EQ(tuned.radix_run_min, 128);
+  EXPECT_FALSE(tuned.eliminate_exact_duplicates);
+  EXPECT_TRUE(tuned.trace);
+
+  auto const compatibility =
+    parse_segmented_string_sort_config(string_sort_algorithm::SEGMENTED_RLE, "0", "1048577", "2");
+  EXPECT_EQ(compatibility.lexic_precision, 1);
+  EXPECT_EQ(compatibility.radix_run_min, 512);
+  EXPECT_TRUE(compatibility.eliminate_exact_duplicates);
+  EXPECT_FALSE(compatibility.trace);
+}
+
+TEST_F(StringSort, IterativeSegmentedRefinementAndArbitraryBytes)
+{
+  // Forty values exceed the comparison threshold. Their common prefix survives all four radix
+  // passes, forcing the comparison finish for modes 1 and 2.
+  std::vector<std::string> strings;
+  strings.reserve(40);
+  for (int i = 0; i < 40; ++i) {
+    auto value = std::string(28, 'p');
+    value.push_back('\0');
+    value.push_back(static_cast<char>(39 - i));
+    strings.push_back(std::move(value));
+  }
+  auto const input = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+
+  std::vector<cudf::size_type> expected_data;
+  expected_data.reserve(strings.size());
+  for (cudf::size_type i = 40; i > 0; --i) {
+    expected_data.push_back(i - 1);
+  }
+  auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    expected_data.begin(), expected_data.end());
+  auto const result = cudf::sorted_order(cudf::table_view{{input}});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
+}
+
+TEST_F(StringSort, KnownPrefixRunsFinalizeAfterDifferentPasses)
 {
   std::vector<std::string> strings;
-  std::vector<bool> validity;
-  std::vector<int> lengths{1, 2, 127, 128, 255, 256, 257, 1023, 1024, 1025, 4097, 8193};
-  for (int group = 0; group < static_cast<int>(lengths.size()); ++group) {
-    for (int i = 0; i < lengths[group]; ++i) {
-      auto str     = std::string(64, static_cast<char>('a' + group));
-      auto const n = std::vector<int>{0, 1, 7, 8, 9, 15, 16, 17, 33}[i % 9];
-      for (int j = 0; j < n; ++j)
-        str.push_back(static_cast<char>((i * 13 + j * 7) % 127));
-      strings.push_back(str);
-      validity.push_back(i % 17 != 0);
+
+  // This run is small enough to finalize after its first six-byte key. Its first unknown byte
+  // determines the order, so skipping beyond the recorded prefix would fail the comparison.
+  for (int suffix = 3; suffix >= 0; --suffix) {
+    strings.push_back(std::string{"Aaaaa"} + static_cast<char>('a' + suffix));
+  }
+
+  // Each remaining family survives until the requested pass, then splits into pairs. The pair
+  // shares every radix byte processed so far and differs immediately afterward. Together these
+  // exercise known-prefix offsets of 12, 18, and 24 bytes.
+  for (int final_pass = 2; final_pass <= 4; ++final_pass) {
+    auto const family = static_cast<char>('A' + final_pass);
+    for (int subgroup = 16; subgroup >= 0; --subgroup) {
+      auto prefix = std::string(static_cast<std::size_t>((final_pass - 1) * 6), family);
+      prefix.append(5, static_cast<char>('k' + final_pass));
+      prefix.push_back(static_cast<char>('a' + subgroup));
+      strings.push_back(prefix + 'y');
+      strings.push_back(prefix + 'x');
     }
   }
-  std::vector<cudf::size_type> permutation(strings.size());
-  std::iota(permutation.begin(), permutation.end(), 0);
-  std::mt19937 generator(93017);
-  std::shuffle(permutation.begin(), permutation.end(), generator);
-  std::vector<std::string> shuffled;
-  std::vector<bool> valid;
-  for (auto row : permutation) {
-    shuffled.push_back(strings[row]);
-    valid.push_back(validity[row]);
-  }
-  for (bool nullable : {false, true}) {
-    auto validity_now = nullable ? valid : std::vector<bool>(valid.size(), true);
-    auto input =
-      cudf::test::strings_column_wrapper{shuffled.begin(), shuffled.end(), validity_now.begin()};
-    for (auto order : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
-      for (auto null_order : {cudf::null_order::BEFORE, cudf::null_order::AFTER}) {
-        auto expected_rows = permutation;
-        std::iota(expected_rows.begin(), expected_rows.end(), 0);
-        bool const ascending = order == cudf::order::ASCENDING;
-        std::stable_sort(expected_rows.begin(), expected_rows.end(), [&](auto lhs, auto rhs) {
-          if (!validity_now[lhs] || !validity_now[rhs]) {
-            if (validity_now[lhs] == validity_now[rhs]) return false;
-            bool const null_first = ascending == (null_order == cudf::null_order::BEFORE);
-            return !validity_now[lhs] == null_first;
-          }
-          return ascending ? bytewise_less(shuffled[lhs], shuffled[rhs])
-                           : bytewise_less(shuffled[rhs], shuffled[lhs]);
-        });
-        auto expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
-          expected_rows.begin(), expected_rows.end());
-        auto actual = cudf::stable_sorted_order(cudf::table_view{{input}}, {order}, {null_order});
-        CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, actual->view());
-        auto unstable       = cudf::sorted_order(cudf::table_view{{input}}, {order}, {null_order});
-        auto expected_table = cudf::gather(cudf::table_view{{input}}, expected);
-        auto actual_table   = cudf::gather(cudf::table_view{{input}}, unstable->view());
-        CUDF_TEST_EXPECT_TABLES_EQUAL(expected_table->view(), actual_table->view());
-      }
-    }
-  }
+
+  auto expected_indices = std::vector<cudf::size_type>(strings.size());
+  std::iota(expected_indices.begin(), expected_indices.end(), cudf::size_type{0});
+  std::stable_sort(expected_indices.begin(), expected_indices.end(), [&](auto lhs, auto rhs) {
+    return bytewise_less(strings[lhs], strings[rhs]);
+  });
+
+  auto const input    = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+  auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    expected_indices.begin(), expected_indices.end());
+  auto const result = cudf::stable_sorted_order(cudf::table_view{{input}});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
 }
 
-TEST_F(StringPrefixSort, LargeOffsetsRepresentationAndSlices)
+TEST_F(StringSort, RadixBoundariesAndZeroPaddedCollisions)
 {
-  auto const strings = edge_case_strings();
-  for (bool nullable : {false, true}) {
-    auto validity = edge_case_validity();
-    if (!nullable) std::fill(validity.begin(), validity.end(), true);
-    auto source =
-      cudf::test::strings_column_wrapper{strings.begin(), strings.end(), validity.begin()}
-        .release();
-    auto const size       = source->size();
-    auto const null_count = source->null_count();
-    auto offsets  = cudf::cast(source->view().child(0), cudf::data_type{cudf::type_id::INT64});
-    auto contents = source->release();
-    contents.children[0] = std::move(offsets);
-    auto input           = std::make_unique<cudf::column>(cudf::data_type{cudf::type_id::STRING},
-                                                size,
-                                                std::move(*contents.data),
-                                                std::move(*contents.null_mask),
-                                                null_count,
-                                                std::move(contents.children));
-    for (bool sliced : {false, true}) {
-      auto const start = sliced ? 1 : 0;
-      auto const end   = sliced ? size - 1 : size;
-      auto view        = sliced ? cudf::slice(input->view(), {start, end}).front() : input->view();
-      for (auto order : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
-        for (auto null_order : {cudf::null_order::BEFORE, cudf::null_order::AFTER}) {
-          bool const ascending = order == cudf::order::ASCENDING;
-          std::vector<cudf::size_type> expected_rows(end - start);
-          std::iota(expected_rows.begin(), expected_rows.end(), 0);
-          std::stable_sort(expected_rows.begin(), expected_rows.end(), [&](auto lhs, auto rhs) {
-            auto const a = lhs + start, b = rhs + start;
-            if (!validity[a] || !validity[b]) {
-              if (validity[a] == validity[b]) return false;
-              bool const null_first = ascending == (null_order == cudf::null_order::BEFORE);
-              return !validity[a] == null_first;
-            }
-            return ascending ? bytewise_less(strings[a], strings[b])
-                             : bytewise_less(strings[b], strings[a]);
-          });
-          auto expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
-            expected_rows.begin(), expected_rows.end());
-          auto actual = cudf::stable_sorted_order(cudf::table_view{{view}}, {order}, {null_order});
-          CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, actual->view());
-          auto unstable       = cudf::sorted_order(cudf::table_view{{view}}, {order}, {null_order});
-          auto expected_table = cudf::gather(cudf::table_view{{view}}, expected);
-          auto actual_table   = cudf::gather(cudf::table_view{{view}}, unstable->view());
-          CUDF_TEST_EXPECT_TABLES_EQUAL(expected_table->view(), actual_table->view());
-        }
-      }
+  std::vector<std::string> strings;
+  for (auto const length : {7, 8, 9, 15, 16, 17, 31, 32, 33}) {
+    for (int suffix = 3; suffix >= 0; --suffix) {
+      auto value   = std::string(static_cast<std::size_t>(length), 'a');
+      value.back() = static_cast<char>('a' + suffix);
+      strings.push_back(std::move(value));
     }
   }
+  strings.emplace_back("aaaaaaaa");
+  strings.emplace_back(std::string{"aaaaaaaa\0", 9});
+  strings.emplace_back(std::string{"aaaaaaaa\0x", 10});
+  strings.emplace_back("aaaaaaaa");
+
+  auto expected_indices = std::vector<cudf::size_type>(strings.size());
+  std::iota(expected_indices.begin(), expected_indices.end(), cudf::size_type{0});
+  std::stable_sort(expected_indices.begin(), expected_indices.end(), [&](auto lhs, auto rhs) {
+    return bytewise_less(strings[lhs], strings[rhs]);
+  });
+  auto const input    = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+  auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    expected_indices.begin(), expected_indices.end());
+  auto const ascending = cudf::stable_sorted_order(cudf::table_view{{input}});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, ascending->view());
+
+  std::stable_sort(expected_indices.begin(), expected_indices.end(), [&](auto lhs, auto rhs) {
+    return bytewise_less(strings[rhs], strings[lhs]);
+  });
+  auto const expected_descending = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    expected_indices.begin(), expected_indices.end());
+  auto const descending =
+    cudf::stable_sorted_order(cudf::table_view{{input}}, {cudf::order::DESCENDING});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_descending, descending->view());
 }
 
-TEST_F(StringPrefixSort, FunnelLoadAlignmentBoundariesAndSuffixMismatches)
+TEST_F(StringSort, LaterPassZeroPaddedCollision)
 {
-  std::vector<std::string> values;
-  std::size_t chars   = 0;
-  auto append_aligned = [&](std::string value, std::size_t alignment) {
-    auto const padding = (alignment + 4 - chars % 4) % 4;
-    if (padding != 0) {
-      values.emplace_back(padding, 'p');
-      chars += padding;
-    }
-    chars += value.size();
-    values.push_back(std::move(value));
-  };
-  for (std::size_t alignment = 0; alignment < 4; ++alignment) {
-    for (std::size_t length = 0; length <= 65; ++length) {
-      std::string value(length, 'a');
-      for (std::size_t byte = 12; byte < length; ++byte) {
-        value[byte] = static_cast<char>((byte * 17 + length * 7) % 128);
-      }
-      if (length > 3) value[3] = '\0';
-      if (length > 8) value[8] = '\0';
-      append_aligned(value, alignment);
-      append_aligned(value, (alignment + 1) % 4);  // Equal values with different alignments.
-    }
-    for (std::size_t mismatch = 12; mismatch < 44; ++mismatch) {
-      std::string value(44, 'q');
-      append_aligned(value, alignment);
-      value[mismatch] = '\0';
-      append_aligned(value, alignment);
-      value[mismatch] = static_cast<char>(0xff);
-      append_aligned(value, alignment);
-    }
+  constexpr cudf::size_type copies = 513;
+  auto const short_value           = std::string{"qqqqqqqqa"};
+  auto const long_value            = short_value + std::string(7, '\0');
+  std::vector<std::string> strings;
+  strings.reserve(2 * copies);
+  for (auto i = 0; i < copies; ++i) {
+    // Keeping the longer value first ensures stable equal radix keys cannot accidentally put the
+    // shorter value in lexical order before comparison finishing.
+    strings.push_back(long_value);
+    strings.push_back(short_value);
   }
-  auto const input = cudf::test::strings_column_wrapper{values.begin(), values.end()};
-  auto const views = cudf::slice(input,
-                                 {0,
-                                  static_cast<cudf::size_type>(values.size()),
-                                  1,
-                                  static_cast<cudf::size_type>(values.size() - 1)});
-  for (std::size_t slice = 0; slice < views.size(); ++slice) {
-    auto const begin = slice == 0 ? 0 : 1;
-    for (auto direction : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
-      std::vector<cudf::size_type> rows(views[slice].size());
-      std::iota(rows.begin(), rows.end(), 0);
-      std::stable_sort(rows.begin(), rows.end(), [&](auto lhs, auto rhs) {
+  auto const input = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+
+  std::vector<cudf::size_type> ascending_data;
+  ascending_data.reserve(strings.size());
+  for (cudf::size_type row = 1; row < static_cast<cudf::size_type>(strings.size()); row += 2) {
+    ascending_data.push_back(row);
+  }
+  for (cudf::size_type row = 0; row < static_cast<cudf::size_type>(strings.size()); row += 2) {
+    ascending_data.push_back(row);
+  }
+  auto const expected_ascending = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    ascending_data.begin(), ascending_data.end());
+  auto const ascending = cudf::stable_sorted_order(cudf::table_view{{input}});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_ascending, ascending->view());
+
+  auto descending_data = ascending_data;
+  std::rotate(descending_data.begin(), descending_data.begin() + copies, descending_data.end());
+  auto const expected_descending = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    descending_data.begin(), descending_data.end());
+  auto const descending =
+    cudf::stable_sorted_order(cudf::table_view{{input}}, {cudf::order::DESCENDING});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_descending, descending->view());
+}
+
+TEST_F(StringSort, NullableSlicedLaterPassCollision)
+{
+  constexpr cudf::size_type copies = 513;
+  auto const short_value           = std::string{"qqqqqqqqa"};
+  auto const long_value            = short_value + std::string(7, '\0');
+  std::vector<std::string> strings{"excluded-before"};
+  std::vector<bool> validity{true};
+  for (cudf::size_type row = 0; row < copies; ++row) {
+    // Interspersed nulls make dense radix positions differ from the byte-count sidecar's row IDs.
+    strings.insert(strings.end(), {long_value, short_value, "ignored-null"});
+    validity.insert(validity.end(), {true, true, false});
+  }
+  strings.emplace_back("excluded-after");
+  validity.push_back(true);
+  auto const input =
+    cudf::test::strings_column_wrapper(strings.begin(), strings.end(), validity.begin());
+  auto const slice = cudf::slice(input, {1, 1 + 3 * copies}).front();
+  for (auto direction : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+    for (auto nulls : {cudf::null_order::BEFORE, cudf::null_order::AFTER}) {
+      auto const nulls_first =
+        (direction == cudf::order::ASCENDING) == (nulls == cudf::null_order::BEFORE);
+      std::vector<cudf::size_type> expected_rows(slice.size());
+      std::iota(expected_rows.begin(), expected_rows.end(), cudf::size_type{0});
+      std::stable_sort(expected_rows.begin(), expected_rows.end(), [&](auto lhs, auto rhs) {
+        auto const left_valid  = validity[lhs + 1];
+        auto const right_valid = validity[rhs + 1];
+        if (left_valid != right_valid) { return nulls_first ? !left_valid : left_valid; }
+        if (!left_valid) { return false; }
         return direction == cudf::order::ASCENDING
-                 ? bytewise_less(values[begin + lhs], values[begin + rhs])
-                 : bytewise_less(values[begin + rhs], values[begin + lhs]);
+                 ? bytewise_less(strings[lhs + 1], strings[rhs + 1])
+                 : bytewise_less(strings[rhs + 1], strings[lhs + 1]);
       });
-      auto const expected =
-        cudf::test::fixed_width_column_wrapper<cudf::size_type>(rows.begin(), rows.end());
-      auto const order = cudf::stable_sorted_order(cudf::table_view{{views[slice]}}, {direction});
-      CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, order->view());
-      auto const unstable = cudf::sorted_order(cudf::table_view{{views[slice]}}, {direction});
-      auto const expected_values = cudf::gather(cudf::table_view{{views[slice]}}, expected);
-      auto const actual_values   = cudf::gather(cudf::table_view{{views[slice]}}, unstable->view());
+      auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+        expected_rows.begin(), expected_rows.end());
+      auto const stable =
+        cudf::stable_sorted_order(cudf::table_view{{slice}}, {direction}, {nulls});
+      CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, stable->view());
+      auto const unstable = cudf::sorted_order(cudf::table_view{{slice}}, {direction}, {nulls});
+      auto const expected_values = cudf::gather(cudf::table_view{{slice}}, expected);
+      auto const actual_values   = cudf::gather(cudf::table_view{{slice}}, unstable->view());
       CUDF_TEST_EXPECT_TABLES_EQUAL(expected_values->view(), actual_values->view());
     }
   }
 }
 
-TEST_F(StringPrefixSort, LogarithmicBinsAndIndependentMergeParity)
+TEST_F(StringSort, LongExactDuplicateRun)
+{
+  constexpr cudf::size_type num_duplicates = 1025;
+  std::vector<std::string> strings;
+  strings.reserve(num_duplicates + 2);
+  strings.emplace_back("z");
+  for (cudf::size_type i = 0; i < num_duplicates; ++i) {
+    strings.emplace_back(256, 'm');
+  }
+  strings.emplace_back("a");
+  auto const input = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+
+  std::vector<cudf::size_type> ascending_data;
+  ascending_data.reserve(strings.size());
+  ascending_data.push_back(num_duplicates + 1);
+  for (cudf::size_type i = 0; i < num_duplicates; ++i) {
+    ascending_data.push_back(i + 1);
+  }
+  ascending_data.push_back(0);
+  auto const expected_ascending = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    ascending_data.begin(), ascending_data.end());
+  auto const ascending = cudf::stable_sorted_order(cudf::table_view{{input}});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_ascending, ascending->view());
+
+  auto descending_data = ascending_data;
+  std::reverse(descending_data.begin(), descending_data.end());
+  // Reverse the value groups while preserving the duplicate run's input order.
+  std::reverse(descending_data.begin() + 1, descending_data.end() - 1);
+  auto const expected_descending = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    descending_data.begin(), descending_data.end());
+  auto const descending =
+    cudf::stable_sorted_order(cudf::table_view{{input}}, {cudf::order::DESCENDING});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected_descending, descending->view());
+}
+
+TEST_F(StringSort, SegmentedFinishThreshold32And33)
 {
   std::vector<std::string> strings;
-  int group = 0;
-  for (auto length :
-       {1,    2,    3,    4,    5,    7,    8,    9,    15,   16,   17,   31,   32,
-        33,   63,   64,   65,   127,  128,  129,  255,  256,  257,  511,  512,  513,
-        1023, 1024, 1025, 2047, 2048, 2049, 4095, 4096, 4097, 8191, 8192, 8193, 32769}) {
-    auto prefix = std::to_string(group++);
-    prefix.insert(0, 8 - prefix.size(), '0');
-    for (int i = 0; i < length; ++i) {
-      auto suffix = std::to_string((i * 97) % 113);  // Equal values exercise stability.
-      suffix.insert(0, 8 - suffix.size(), '0');
-      strings.push_back(prefix + std::string((group % 3) * 16 + 8, 'x') + suffix);
+  strings.reserve(65);
+  for (int i = 0; i < 32; ++i) {
+    auto value = std::string{"aaaaaaaa"};
+    value.push_back(static_cast<char>(31 - i));
+    strings.push_back(std::move(value));
+  }
+  for (int i = 0; i < 33; ++i) {
+    auto value = std::string{"bbbbbbbb"};
+    value.push_back(static_cast<char>(32 - i));
+    strings.push_back(std::move(value));
+  }
+  auto const input = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+
+  std::vector<cudf::size_type> expected_data;
+  expected_data.reserve(strings.size());
+  for (cudf::size_type i = 32; i > 0; --i) {
+    expected_data.push_back(i - 1);
+  }
+  for (cudf::size_type i = 65; i > 32; --i) {
+    expected_data.push_back(i - 1);
+  }
+  auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    expected_data.begin(), expected_data.end());
+  auto const result = cudf::stable_sorted_order(cudf::table_view{{input}});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
+}
+
+TEST_F(StringSort, SegmentedRadixRunCutoffBoundaries)
+{
+  std::vector<std::string> strings;
+  for (auto const run_size : {511, 512, 513}) {
+    auto const run_prefix = std::string(8, static_cast<char>('a' + run_size - 511));
+    for (auto suffix = run_size; suffix > 0; --suffix) {
+      auto value = run_prefix;
+      value.push_back(static_cast<char>((suffix >> 8) & 0xff));
+      value.push_back(static_cast<char>(suffix & 0xff));
+      strings.push_back(std::move(value));
     }
   }
-  std::mt19937 rng{581923};
-  std::shuffle(strings.begin(), strings.end(), rng);
-  for (bool nullable : {false, true}) {
-    std::vector<bool> validity(strings.size(), true);
-    if (nullable) {
-      for (std::size_t i = 0; i < strings.size(); i += 17)
-        validity[i] = false;
+
+  auto expected_indices = std::vector<cudf::size_type>(strings.size());
+  std::iota(expected_indices.begin(), expected_indices.end(), cudf::size_type{0});
+  std::stable_sort(expected_indices.begin(), expected_indices.end(), [&](auto lhs, auto rhs) {
+    return bytewise_less(strings[lhs], strings[rhs]);
+  });
+  auto const input    = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+  auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    expected_indices.begin(), expected_indices.end());
+  auto const result = cudf::stable_sorted_order(cudf::table_view{{input}});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
+}
+
+TEST_F(StringSort, MultipleLargeEqualPrefixSegments)
+{
+  std::vector<std::string> strings;
+  strings.reserve(70);
+  for (int i = 0; i < 35; ++i) {
+    auto a = std::string{"a-common-prefix-that-exceeds-24-bytes-"};
+    a.push_back(static_cast<char>(34 - i));
+    strings.push_back(std::move(a));
+    auto b = std::string{"b-common-prefix-that-exceeds-24-bytes-"};
+    b.push_back(static_cast<char>(34 - i));
+    strings.push_back(std::move(b));
+  }
+  auto const input = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+
+  std::vector<cudf::size_type> expected_data;
+  expected_data.reserve(strings.size());
+  for (cudf::size_type i = 35; i > 0; --i) {
+    expected_data.push_back(2 * (i - 1));
+  }
+  for (cudf::size_type i = 35; i > 0; --i) {
+    expected_data.push_back(2 * (i - 1) + 1);
+  }
+  auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    expected_data.begin(), expected_data.end());
+  auto const result = cudf::sorted_order(cudf::table_view{{input}});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
+}
+
+TEST_F(StringSort, StableParallelMergeAcrossBlockBoundaries)
+{
+  constexpr cudf::size_type num_rows = 777;
+  std::vector<std::string> strings;
+  strings.reserve(num_rows);
+  for (cudf::size_type i = 0; i < num_rows; ++i) {
+    auto value        = std::string(30, 'q');
+    auto const suffix = (num_rows - 1 - i) / 2;
+    value.push_back(static_cast<char>((suffix >> 8) & 0xff));
+    value.push_back(static_cast<char>(suffix & 0xff));
+    strings.push_back(std::move(value));
+  }
+  auto const input = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+
+  std::vector<cudf::size_type> expected_data;
+  expected_data.reserve(num_rows);
+  for (cudf::size_type suffix = 0; suffix < 388; ++suffix) {
+    expected_data.push_back(775 - 2 * suffix);
+    expected_data.push_back(776 - 2 * suffix);
+  }
+  expected_data.push_back(0);
+  auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+    expected_data.begin(), expected_data.end());
+  auto const result = cudf::stable_sorted_order(cudf::table_view{{input}});
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
+}
+
+TEST_F(StringSort, ExactRadixTerminationAndChunkBoundaries)
+{
+  std::vector<std::string> strings;
+  for (auto const length : {7, 8, 9, 15, 16, 17, 31, 32, 33, 63, 64, 65}) {
+    auto const value = std::string(length, static_cast<char>('a' + length % 20));
+    for (int row = 0; row < 513; ++row) {
+      strings.push_back(value);
     }
-    auto const input =
-      cudf::test::strings_column_wrapper{strings.begin(), strings.end(), validity.begin()};
-    auto const size = static_cast<cudf::size_type>(strings.size());
-    for (bool sliced : {false, true}) {
-      auto const start = sliced ? 3 : 0;
-      auto const end   = sliced ? size - 5 : size;
-      auto const view =
-        sliced ? cudf::slice(input, {start, end}).front() : cudf::column_view{input};
-      for (auto order : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
-        for (auto null_order : {cudf::null_order::BEFORE, cudf::null_order::AFTER}) {
-          bool const ascending = order == cudf::order::ASCENDING;
-          std::vector<cudf::size_type> rows(end - start);
-          std::iota(rows.begin(), rows.end(), 0);
-          std::stable_sort(rows.begin(), rows.end(), [&](auto lhs, auto rhs) {
-            auto const a = lhs + start, b = rhs + start;
-            if (!validity[a] || !validity[b]) {
-              if (validity[a] == validity[b]) return false;
-              bool const null_first = ascending == (null_order == cudf::null_order::BEFORE);
-              return !validity[a] == null_first;
-            }
-            return ascending ? bytewise_less(strings[a], strings[b])
-                             : bytewise_less(strings[b], strings[a]);
-          });
-          auto const expected =
-            cudf::test::fixed_width_column_wrapper<cudf::size_type>(rows.begin(), rows.end());
-          auto const stable =
-            cudf::stable_sorted_order(cudf::table_view{{view}}, {order}, {null_order});
-          CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, stable->view());
-          auto const unstable = cudf::sorted_order(cudf::table_view{{view}}, {order}, {null_order});
-          auto const expected_values = cudf::gather(cudf::table_view{{view}}, expected);
-          auto const actual_values   = cudf::gather(cudf::table_view{{view}}, unstable->view());
-          CUDF_TEST_EXPECT_TABLES_EQUAL(expected_values->view(), actual_values->view());
-          auto const [host_rows, mask] = cudf::test::to_host<cudf::size_type>(unstable->view());
-          auto permutation             = host_rows;
-          std::sort(permutation.begin(), permutation.end());
-          std::vector<cudf::size_type> identity(end - start);
-          std::iota(identity.begin(), identity.end(), 0);
-          EXPECT_EQ(identity, permutation);
-        }
-      }
-    }
+    strings.push_back(value + std::string(8, '\0'));
+    strings.push_back(value + "z");
+  }
+  std::reverse(strings.begin(), strings.end());
+  auto const input = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+  for (auto const direction : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+    std::vector<cudf::size_type> expected_rows(strings.size());
+    std::iota(expected_rows.begin(), expected_rows.end(), cudf::size_type{0});
+    std::stable_sort(expected_rows.begin(), expected_rows.end(), [&](auto lhs, auto rhs) {
+      return direction == cudf::order::ASCENDING ? bytewise_less(strings[lhs], strings[rhs])
+                                                 : bytewise_less(strings[rhs], strings[lhs]);
+    });
+    auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+      expected_rows.begin(), expected_rows.end());
+    auto const stable = cudf::stable_sorted_order(cudf::table_view{{input}}, {direction});
+    CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, stable->view());
+    auto const unstable        = cudf::sorted_order(cudf::table_view{{input}}, {direction});
+    auto const gathered        = cudf::gather(cudf::table_view{{input}}, unstable->view());
+    auto const stable_gathered = cudf::gather(cudf::table_view{{input}}, stable->view());
+    CUDF_TEST_EXPECT_TABLES_EQUAL(stable_gathered->view(), gathered->view());
   }
 }
 
-// Captured refinement must read updated device metadata on every replay.
-TEST_F(StringPrefixSort, DeviceScheduledGraphReplayChangingSegments)
+TEST_F(StringSort, ExplicitLargeOffsetsAndSlice)
 {
-  auto enabled = [](char const* name) {
-    auto const value = std::getenv(name);
-    return value != nullptr && std::string{value} == "1";
-  };
-  auto const variant         = std::getenv("CUDF_STRING_SORT_VARIANT");
-  auto const schedule        = std::getenv("CUDF_STRING_SORT_RADIX_SCHEDULE");
-  bool const device_schedule = schedule != nullptr
-                                 ? (std::string{schedule} == "1" || std::string{schedule} == "2")
-                                 : enabled("CUDF_STRING_SORT_RADIX_COOPERATIVE");
-  if (variant == nullptr || (std::string{variant} != "7" && std::string{variant} != "8") ||
-      !device_schedule || !enabled("CUDF_STRING_SORT_RADIX_FLAT_VIEW") ||
-      !enabled("CUDF_STRING_SORT_RADIX_COMPACT") || !enabled("CUDF_STRING_SORT_RADIX_RLE")) {
-    GTEST_SKIP() << "Requires device-scheduled radix refinement with direct string storage";
+  auto strings = edge_case_strings();
+  strings.insert(strings.end(), 513, std::string(40, 'q'));
+  std::vector<std::int64_t> offsets{0};
+  std::vector<char> chars;
+  for (auto const& value : strings) {
+    chars.insert(chars.end(), value.begin(), value.end());
+    offsets.push_back(static_cast<std::int64_t>(chars.size()));
   }
-  constexpr cudf::size_type count = 4097;
-  auto make_strings               = [](int mode) {
-    std::vector<std::string> strings;
-    for (cudf::size_type i = 0; i < count; ++i) {
-      auto const group =
-        mode == 0 ? 0
-                                : (mode == 1 ? i % 128
-                                             : (mode == 3 ? (i < 2049 ? 0 : (i < 3073 ? 1 : 2 + (i - 3073) % 37))
-                                                          : (i * 37) % count));
-      auto prefix = std::to_string(group);
-      prefix.insert(0, 8 - prefix.size(), '0');
-      auto suffix = std::to_string((i * 97) % 113);
-      suffix.insert(0, 8 - suffix.size(), '0');
-      strings.push_back(prefix + std::string(48, 'x') + suffix);
+  auto offsets_column =
+    cudf::test::fixed_width_column_wrapper<std::int64_t>(offsets.begin(), offsets.end()).release();
+  auto const stream = cudf::get_default_stream();
+  auto input =
+    cudf::make_strings_column(static_cast<cudf::size_type>(strings.size()),
+                              std::move(offsets_column),
+                              rmm::device_buffer(chars.data(), chars.size(), stream),
+                              0,
+                              cudf::create_null_mask(0, cudf::mask_state::UNALLOCATED, stream));
+  ASSERT_EQ(input->view().child(0).type().id(), cudf::type_id::INT64);
+  auto const slice =
+    cudf::slice(input->view(), {1, static_cast<cudf::size_type>(strings.size() - 1)})[0];
+  for (auto const direction : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+    std::vector<cudf::size_type> expected_rows(slice.size());
+    std::iota(expected_rows.begin(), expected_rows.end(), cudf::size_type{0});
+    std::stable_sort(expected_rows.begin(), expected_rows.end(), [&](auto lhs, auto rhs) {
+      return direction == cudf::order::ASCENDING
+               ? bytewise_less(strings[lhs + 1], strings[rhs + 1])
+               : bytewise_less(strings[rhs + 1], strings[lhs + 1]);
+    });
+    auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+      expected_rows.begin(), expected_rows.end());
+    auto const result = cudf::stable_sorted_order(cudf::table_view{{slice}}, {direction});
+    CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
+  }
+}
+
+TEST_F(StringSort, SliceOffsetsBeyondInt32)
+{
+  auto const first_length = static_cast<std::int64_t>(std::numeric_limits<cudf::size_type>::max());
+  auto const slice_begin  = first_length + 18;
+  constexpr cudf::size_type rows = 513;
+  constexpr std::int64_t width   = 10;
+  auto values                    = std::string(1, '\0');
+  std::vector<std::int64_t> host_offsets{0, first_length, slice_begin};
+  for (cudf::size_type row = 0; row < rows; ++row) {
+    auto const suffix = rows - row - 1;
+    values += "abcdefgh";
+    values += static_cast<char>(suffix >> 8);
+    values += static_cast<char>(suffix & 0xff);
+    host_offsets.push_back(slice_begin + (row + 1) * width);
+  }
+  auto const chars_size = static_cast<std::size_t>(slice_begin) + values.size() - 1;
+  std::size_t free_bytes{}, total_bytes{};
+  CUDF_CUDA_TRY(cudaMemGetInfo(&free_bytes, &total_bytes));
+  if (free_bytes < chars_size + (std::size_t{512} << 20)) {
+    GTEST_SKIP() << "Requires enough device memory to exercise offsets beyond INT32_MAX";
+  }
+
+  // The two excluded rows make the slice's actual byte addresses exceed INT32_MAX.
+  // An INT64 offsets column containing only small numbers cannot expose narrowing mistakes.
+  // More than 512 equal eight-byte prefixes also force subsequent radix extraction when allowed.
+  auto offsets =
+    cudf::test::fixed_width_column_wrapper<std::int64_t>(host_offsets.begin(), host_offsets.end());
+  auto const stream = cudf::get_default_stream();
+  auto chars        = rmm::device_buffer(chars_size, stream);
+  // Include the alignment byte before the slice so the aligned extractor never reads
+  // uninitialized padding, even though it must not use that byte in a prefix key.
+  CUDF_CUDA_TRY(cudf::detail::memcpy_async(
+    static_cast<char*>(chars.data()) + slice_begin - 1, values.data(), values.size(), stream));
+  auto const input =
+    cudf::make_strings_column(rows + 2,
+                              offsets.release(),
+                              std::move(chars),
+                              0,
+                              cudf::create_null_mask(0, cudf::mask_state::UNALLOCATED, stream));
+  auto const slice = cudf::slice(input->view(), {2, rows + 2})[0];
+  for (auto const direction : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+    std::vector<cudf::size_type> expected_rows(rows);
+    std::iota(expected_rows.begin(), expected_rows.end(), 0);
+    if (direction == cudf::order::ASCENDING) {
+      std::reverse(expected_rows.begin(), expected_rows.end());
     }
-    return strings;
-  };
-  int device{};
-  CUDF_CUDA_TRY(cudaGetDevice(&device));
-  cuda::stream stream{cuda::device_ref{device}};
-  rmm::device_buffer arena(128 * 1024 * 1024, cudf::get_default_stream());
-  std::size_t used      = 0;
-  auto resource         = graph_test_arena{static_cast<char*>(arena.data()), arena.size(), &used};
-  auto scope            = cudf::test::scoped_current_device_resource{resource};
-  auto initial          = make_strings(0);
-  auto input            = cudf::test::strings_column_wrapper{initial.begin(), initial.end()};
-  auto const input_view = cudf::column_view{input};
-  cudf::get_default_stream().sync();
-  for (auto order : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
-    cudaGraph_t graph{};
-    cudaGraphExec_t executable{};
-    std::unique_ptr<cudf::column> stable;
-    std::unique_ptr<cudf::column> unstable;
-    CUDF_CUDA_TRY(cudaStreamBeginCapture(stream.get(), cudaStreamCaptureModeGlobal));
-    stable   = cudf::stable_sorted_order(cudf::table_view{{input_view}}, {order}, {}, stream);
-    unstable = cudf::sorted_order(cudf::table_view{{input_view}}, {order}, {}, stream);
-    CUDF_CUDA_TRY(cudaStreamEndCapture(stream.get(), &graph));
-    CUDF_CUDA_TRY(cudaGraphInstantiateWithFlags(&executable, graph, 0));
-    for (int mode : {0, 1, 2, 3, 0}) {
-      auto strings = make_strings(mode);
-      std::string characters;
-      for (auto const& value : strings)
-        characters += value;
-      CUDF_CUDA_TRY(cudf::detail::memcpy_async(
-        const_cast<char*>(input_view.head<char>()), characters.data(), characters.size(), stream));
-      CUDF_CUDA_TRY(cudaGraphLaunch(executable, stream.get()));
-      stream.sync();
-      std::vector<cudf::size_type> rows(count);
-      std::iota(rows.begin(), rows.end(), 0);
-      std::stable_sort(rows.begin(), rows.end(), [&](auto lhs, auto rhs) {
-        return order == cudf::order::ASCENDING ? bytewise_less(strings[lhs], strings[rhs])
-                                               : bytewise_less(strings[rhs], strings[lhs]);
-      });
-      std::vector<cudf::size_type> actual_stable(count), actual_unstable(count);
-      CUDF_CUDA_TRY(cudf::detail::memcpy_async(actual_stable.data(),
-                                               stable->view().head<cudf::size_type>(),
-                                               sizeof(cudf::size_type) * count,
-                                               stream));
-      CUDF_CUDA_TRY(cudf::detail::memcpy_async(actual_unstable.data(),
-                                               unstable->view().head<cudf::size_type>(),
-                                               sizeof(cudf::size_type) * count,
-                                               stream));
-      stream.sync();
-      EXPECT_EQ(rows, actual_stable);
-      auto permutation = actual_unstable;
-      std::sort(permutation.begin(), permutation.end());
-      std::vector<cudf::size_type> identity(count);
-      std::iota(identity.begin(), identity.end(), 0);
-      ASSERT_EQ(identity, permutation);
-      for (cudf::size_type i = 0; i < count; ++i)
-        EXPECT_EQ(strings[rows[i]], strings[actual_unstable[i]]);
-    }
-    stable.reset();
-    unstable.reset();
-    stream.sync();
-    CUDF_CUDA_TRY(cudaGraphExecDestroy(executable));
-    CUDF_CUDA_TRY(cudaGraphDestroy(graph));
+    auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+      expected_rows.begin(), expected_rows.end());
+    auto const stable = cudf::stable_sorted_order(cudf::table_view{{slice}}, {direction});
+    CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, stable->view());
+    auto const unstable = cudf::sorted_order(cudf::table_view{{slice}}, {direction});
+    CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, unstable->view());
   }
 }

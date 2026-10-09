@@ -1,3 +1,10 @@
+> Current branch status: rebased onto PR #24498 (`a257d75`). Runtime selection now uses
+> `LIBCUDF_STRING_SORT_ALGORITHM`: PR prefix merge `0`, PR segmented `1`, PR segmented with
+> terminal exact-duplicate elimination `2`, and the best measured R8 LRB recipe `3`.
+> The key-layout experiments below are historical; their original source and controls remain
+> available in `backup/string-sort-prefix-variants-before-pr24498-20261008`.
+> See `cpp/benchmarks/sort/README.md` for the current comparison commands and graph schedule.
+
 # Carrying the cached prefix with the row index in string sorts
 
 Context: https://github.com/NVIDIA/cudf/pull/24267 (cached 8-byte prefixes for
