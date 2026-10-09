@@ -1,0 +1,44 @@
+[
+  {
+    "name": "schedule0-memcheck",
+    "schedule": 0,
+    "tool": "memcheck",
+    "elapsed_s": 1.5168914794921875,
+    "errors": 0
+  },
+  {
+    "name": "schedule0-synccheck",
+    "schedule": 0,
+    "tool": "synccheck",
+    "elapsed_s": 1.3163931369781494,
+    "errors": 0
+  },
+  {
+    "name": "schedule0-racecheck",
+    "schedule": 0,
+    "tool": "racecheck",
+    "elapsed_s": 12.633440494537354,
+    "errors": 0
+  },
+  {
+    "name": "schedule2-memcheck",
+    "schedule": 2,
+    "tool": "memcheck",
+    "elapsed_s": 6.474565505981445,
+    "errors": 0
+  },
+  {
+    "name": "schedule2-synccheck",
+    "schedule": 2,
+    "tool": "synccheck",
+    "elapsed_s": 2.7686898708343506,
+    "errors": 0
+  },
+  {
+    "name": "schedule2-racecheck",
+    "schedule": 2,
+    "tool": "racecheck",
+    "elapsed_s": 101.96377611160278,
+    "errors": 0
+  }
+]

@@ -1,0 +1,4 @@
+config,group,state,stable,descending,rounds,ratio,ratio_ci_low,ratio_ci_high,accepted,axes
+optimized,main,Device=0 num_rows=2097152 profile=cardinality_1_width_32,False,False,5,1.0034083202060613,0.9718002996410688,1.0413124430532292,True,"{""num_rows"": ""2097152"", ""profile"": ""cardinality_1_width_32""}"
+optimized,pr-workload,Device=0 min_width=0 max_width=256 num_rows=32768 workload=variable,False,False,5,1.008067405166224,0.9910275883557755,1.0232577381648016,True,"{""max_width"": ""256"", ""min_width"": ""0"", ""num_rows"": ""32768"", ""workload"": ""variable""}"
+optimized,target,Device=0 num_rows=262144 max_width=32 cardinality=64,False,False,5,0.9831789606386069,0.9786727045459193,0.993224609391048,True,"{""cardinality"": ""64"", ""max_width"": ""32"", ""num_rows"": ""262144""}"

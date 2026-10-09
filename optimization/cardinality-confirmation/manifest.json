@@ -1,0 +1,174 @@
+{
+  "configs": [
+    {
+      "name": "baseline",
+      "baseline": true
+    },
+    {
+      "name": "experiment-3",
+      "experiment": 3
+    },
+    {
+      "name": "experiment-15",
+      "experiment": 15
+    },
+    {
+      "name": "experiment-31",
+      "experiment": 31
+    }
+  ],
+  "axes": [
+    "-b",
+    "sorted_order_strings_cardinality",
+    "-a",
+    "num_rows=262144",
+    "-a",
+    "max_width=32",
+    "-a",
+    "cardinality=64"
+  ],
+  "jobs": [
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      4,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      }
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      }
+    ],
+    [
+      0,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      }
+    ],
+    [
+      3,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      }
+    ],
+    [
+      3,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      }
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      }
+    ],
+    [
+      4,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      }
+    ],
+    [
+      2,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      }
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      }
+    ],
+    [
+      1,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      }
+    ],
+    [
+      3,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      }
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      }
+    ],
+    [
+      4,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      }
+    ],
+    [
+      4,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      }
+    ],
+    [
+      3,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      }
+    ]
+  ],
+  "samples": 50,
+  "warmups": 5
+}

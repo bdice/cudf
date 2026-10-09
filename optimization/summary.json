@@ -1,0 +1,240 @@
+{
+  "pools": {
+    "original-active": 68,
+    "segments": 48,
+    "pr-new": 90,
+    "combined": 206,
+    "end-to-end": 16,
+    "all-primary": 232,
+    "stable-warps": 40
+  },
+  "lost_wins": [],
+  "lost_published_wins": [],
+  "summary": [
+    {
+      "config": "baseline",
+      "pool": "original-active",
+      "states": 68,
+      "time_over_optimized": 1.1667583358700382,
+      "optimized_faster_over_2": 20,
+      "other_faster_over_2": 0,
+      "within_2": 48
+    },
+    {
+      "config": "baseline",
+      "pool": "segments",
+      "states": 48,
+      "time_over_optimized": 1.1442681025639028,
+      "optimized_faster_over_2": 10,
+      "other_faster_over_2": 0,
+      "within_2": 38
+    },
+    {
+      "config": "baseline",
+      "pool": "pr-new",
+      "states": 90,
+      "time_over_optimized": 1.2769226282086588,
+      "optimized_faster_over_2": 35,
+      "other_faster_over_2": 1,
+      "within_2": 54
+    },
+    {
+      "config": "baseline",
+      "pool": "combined",
+      "states": 206,
+      "time_over_optimized": 1.2081763568951391,
+      "optimized_faster_over_2": 65,
+      "other_faster_over_2": 1,
+      "within_2": 140
+    },
+    {
+      "config": "baseline",
+      "pool": "end-to-end",
+      "states": 16,
+      "time_over_optimized": 1.4491838399583479,
+      "optimized_faster_over_2": 6,
+      "other_faster_over_2": 0,
+      "within_2": 10
+    },
+    {
+      "config": "baseline",
+      "pool": "all-primary",
+      "states": 232,
+      "time_over_optimized": 1.2292021153022978,
+      "optimized_faster_over_2": 74,
+      "other_faster_over_2": 2,
+      "within_2": 156
+    },
+    {
+      "config": "baseline",
+      "pool": "stable-warps",
+      "states": 40,
+      "time_over_optimized": 1.1596426512043516,
+      "optimized_faster_over_2": 35,
+      "other_faster_over_2": 0,
+      "within_2": 5
+    },
+    {
+      "config": "prefix",
+      "pool": "original-active",
+      "states": 68,
+      "time_over_optimized": 2.6353033047531493,
+      "optimized_faster_over_2": 68,
+      "other_faster_over_2": 0,
+      "within_2": 0
+    },
+    {
+      "config": "prefix",
+      "pool": "segments",
+      "states": 48,
+      "time_over_optimized": 3.6374363674146197,
+      "optimized_faster_over_2": 46,
+      "other_faster_over_2": 2,
+      "within_2": 0
+    },
+    {
+      "config": "prefix",
+      "pool": "pr-new",
+      "states": 90,
+      "time_over_optimized": 3.1120994470552126,
+      "optimized_faster_over_2": 82,
+      "other_faster_over_2": 7,
+      "within_2": 1
+    },
+    {
+      "config": "prefix",
+      "pool": "combined",
+      "states": 206,
+      "time_over_optimized": 3.0549031059965235,
+      "optimized_faster_over_2": 196,
+      "other_faster_over_2": 9,
+      "within_2": 1
+    },
+    {
+      "config": "prefix",
+      "pool": "end-to-end",
+      "states": 16,
+      "time_over_optimized": 3.5439377563108105,
+      "optimized_faster_over_2": 16,
+      "other_faster_over_2": 0,
+      "within_2": 0
+    },
+    {
+      "config": "prefix",
+      "pool": "all-primary",
+      "states": 232,
+      "time_over_optimized": 3.002432820622966,
+      "optimized_faster_over_2": 215,
+      "other_faster_over_2": 9,
+      "within_2": 8
+    },
+    {
+      "config": "pr1-p32-c512",
+      "pool": "original-active",
+      "states": 68,
+      "time_over_optimized": 2.132585113998849,
+      "optimized_faster_over_2": 56,
+      "other_faster_over_2": 12,
+      "within_2": 0
+    },
+    {
+      "config": "pr1-p32-c512",
+      "pool": "segments",
+      "states": 48,
+      "time_over_optimized": 4.465136025565347,
+      "optimized_faster_over_2": 48,
+      "other_faster_over_2": 0,
+      "within_2": 0
+    },
+    {
+      "config": "pr1-p32-c512",
+      "pool": "pr-new",
+      "states": 90,
+      "time_over_optimized": 3.098162640020317,
+      "optimized_faster_over_2": 80,
+      "other_faster_over_2": 10,
+      "within_2": 0
+    },
+    {
+      "config": "pr1-p32-c512",
+      "pool": "combined",
+      "states": 206,
+      "time_over_optimized": 2.982283470862679,
+      "optimized_faster_over_2": 184,
+      "other_faster_over_2": 22,
+      "within_2": 0
+    },
+    {
+      "config": "pr1-p32-c512",
+      "pool": "end-to-end",
+      "states": 16,
+      "time_over_optimized": 3.2092095211611973,
+      "optimized_faster_over_2": 16,
+      "other_faster_over_2": 0,
+      "within_2": 0
+    },
+    {
+      "config": "pr1-p32-c512",
+      "pool": "all-primary",
+      "states": 232,
+      "time_over_optimized": 2.9602476051313746,
+      "optimized_faster_over_2": 202,
+      "other_faster_over_2": 23,
+      "within_2": 7
+    },
+    {
+      "config": "pr2-p32-c4096",
+      "pool": "original-active",
+      "states": 68,
+      "time_over_optimized": 1.9701261150430853,
+      "optimized_faster_over_2": 49,
+      "other_faster_over_2": 19,
+      "within_2": 0
+    },
+    {
+      "config": "pr2-p32-c4096",
+      "pool": "segments",
+      "states": 48,
+      "time_over_optimized": 4.542335403719279,
+      "optimized_faster_over_2": 48,
+      "other_faster_over_2": 0,
+      "within_2": 0
+    },
+    {
+      "config": "pr2-p32-c4096",
+      "pool": "pr-new",
+      "states": 90,
+      "time_over_optimized": 2.629644972058673,
+      "optimized_faster_over_2": 69,
+      "other_faster_over_2": 20,
+      "within_2": 1
+    },
+    {
+      "config": "pr2-p32-c4096",
+      "pool": "combined",
+      "states": 206,
+      "time_over_optimized": 2.715277700640742,
+      "optimized_faster_over_2": 166,
+      "other_faster_over_2": 39,
+      "within_2": 1
+    },
+    {
+      "config": "pr2-p32-c4096",
+      "pool": "end-to-end",
+      "states": 16,
+      "time_over_optimized": 2.680265496676995,
+      "optimized_faster_over_2": 12,
+      "other_faster_over_2": 3,
+      "within_2": 1
+    },
+    {
+      "config": "pr2-p32-c4096",
+      "pool": "all-primary",
+      "states": 232,
+      "time_over_optimized": 2.691699250191881,
+      "optimized_faster_over_2": 183,
+      "other_faster_over_2": 43,
+      "within_2": 6
+    }
+  ]
+}

@@ -1,0 +1,3730 @@
+[==========] Running 1664 tests from 124 test suites.
+[----------] Global test environment set-up.
+[----------] 36 tests from Rank/0, where TypeParam = signed char
+[ RUN      ] Rank/0.first_asc_keep
+[       OK ] Rank/0.first_asc_keep (65 ms)
+[ RUN      ] Rank/0.first_asc_top
+[       OK ] Rank/0.first_asc_top (0 ms)
+[ RUN      ] Rank/0.first_asc_bottom
+[       OK ] Rank/0.first_asc_bottom (0 ms)
+[ RUN      ] Rank/0.first_desc_keep
+[       OK ] Rank/0.first_desc_keep (0 ms)
+[ RUN      ] Rank/0.first_desc_top
+[       OK ] Rank/0.first_desc_top (0 ms)
+[ RUN      ] Rank/0.first_desc_bottom
+[       OK ] Rank/0.first_desc_bottom (0 ms)
+[ RUN      ] Rank/0.dense_asc_keep
+[       OK ] Rank/0.dense_asc_keep (1 ms)
+[ RUN      ] Rank/0.dense_asc_top
+[       OK ] Rank/0.dense_asc_top (0 ms)
+[ RUN      ] Rank/0.dense_asc_bottom
+[       OK ] Rank/0.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/0.dense_desc_keep
+[       OK ] Rank/0.dense_desc_keep (0 ms)
+[ RUN      ] Rank/0.dense_desc_top
+[       OK ] Rank/0.dense_desc_top (0 ms)
+[ RUN      ] Rank/0.dense_desc_bottom
+[       OK ] Rank/0.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/0.min_asc_keep
+[       OK ] Rank/0.min_asc_keep (1 ms)
+[ RUN      ] Rank/0.min_asc_top
+[       OK ] Rank/0.min_asc_top (0 ms)
+[ RUN      ] Rank/0.min_asc_bottom
+[       OK ] Rank/0.min_asc_bottom (0 ms)
+[ RUN      ] Rank/0.min_desc_keep
+[       OK ] Rank/0.min_desc_keep (0 ms)
+[ RUN      ] Rank/0.min_desc_top
+[       OK ] Rank/0.min_desc_top (0 ms)
+[ RUN      ] Rank/0.min_desc_bottom
+[       OK ] Rank/0.min_desc_bottom (0 ms)
+[ RUN      ] Rank/0.max_asc_keep
+[       OK ] Rank/0.max_asc_keep (1 ms)
+[ RUN      ] Rank/0.max_asc_top
+[       OK ] Rank/0.max_asc_top (0 ms)
+[ RUN      ] Rank/0.max_asc_bottom
+[       OK ] Rank/0.max_asc_bottom (0 ms)
+[ RUN      ] Rank/0.max_desc_keep
+[       OK ] Rank/0.max_desc_keep (0 ms)
+[ RUN      ] Rank/0.max_desc_top
+[       OK ] Rank/0.max_desc_top (0 ms)
+[ RUN      ] Rank/0.max_desc_bottom
+[       OK ] Rank/0.max_desc_bottom (0 ms)
+[ RUN      ] Rank/0.average_asc_keep
+[       OK ] Rank/0.average_asc_keep (1 ms)
+[ RUN      ] Rank/0.average_asc_top
+[       OK ] Rank/0.average_asc_top (0 ms)
+[ RUN      ] Rank/0.average_asc_bottom
+[       OK ] Rank/0.average_asc_bottom (0 ms)
+[ RUN      ] Rank/0.average_desc_keep
+[       OK ] Rank/0.average_desc_keep (0 ms)
+[ RUN      ] Rank/0.average_desc_top
+[       OK ] Rank/0.average_desc_top (0 ms)
+[ RUN      ] Rank/0.average_desc_bottom
+[       OK ] Rank/0.average_desc_bottom (0 ms)
+[ RUN      ] Rank/0.dense_asc_keep_pct
+[       OK ] Rank/0.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/0.dense_asc_top_pct
+[       OK ] Rank/0.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/0.dense_asc_bottom_pct
+[       OK ] Rank/0.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/0.min_desc_keep_pct
+[       OK ] Rank/0.min_desc_keep_pct (1 ms)
+[ RUN      ] Rank/0.min_desc_top_pct
+[       OK ] Rank/0.min_desc_top_pct (0 ms)
+[ RUN      ] Rank/0.min_desc_bottom_pct
+[       OK ] Rank/0.min_desc_bottom_pct (0 ms)
+[----------] 36 tests from Rank/0 (96 ms total)
+
+[----------] 36 tests from Rank/1, where TypeParam = short
+[ RUN      ] Rank/1.first_asc_keep
+[       OK ] Rank/1.first_asc_keep (0 ms)
+[ RUN      ] Rank/1.first_asc_top
+[       OK ] Rank/1.first_asc_top (0 ms)
+[ RUN      ] Rank/1.first_asc_bottom
+[       OK ] Rank/1.first_asc_bottom (0 ms)
+[ RUN      ] Rank/1.first_desc_keep
+[       OK ] Rank/1.first_desc_keep (0 ms)
+[ RUN      ] Rank/1.first_desc_top
+[       OK ] Rank/1.first_desc_top (0 ms)
+[ RUN      ] Rank/1.first_desc_bottom
+[       OK ] Rank/1.first_desc_bottom (0 ms)
+[ RUN      ] Rank/1.dense_asc_keep
+[       OK ] Rank/1.dense_asc_keep (0 ms)
+[ RUN      ] Rank/1.dense_asc_top
+[       OK ] Rank/1.dense_asc_top (0 ms)
+[ RUN      ] Rank/1.dense_asc_bottom
+[       OK ] Rank/1.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/1.dense_desc_keep
+[       OK ] Rank/1.dense_desc_keep (0 ms)
+[ RUN      ] Rank/1.dense_desc_top
+[       OK ] Rank/1.dense_desc_top (0 ms)
+[ RUN      ] Rank/1.dense_desc_bottom
+[       OK ] Rank/1.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/1.min_asc_keep
+[       OK ] Rank/1.min_asc_keep (0 ms)
+[ RUN      ] Rank/1.min_asc_top
+[       OK ] Rank/1.min_asc_top (0 ms)
+[ RUN      ] Rank/1.min_asc_bottom
+[       OK ] Rank/1.min_asc_bottom (0 ms)
+[ RUN      ] Rank/1.min_desc_keep
+[       OK ] Rank/1.min_desc_keep (0 ms)
+[ RUN      ] Rank/1.min_desc_top
+[       OK ] Rank/1.min_desc_top (0 ms)
+[ RUN      ] Rank/1.min_desc_bottom
+[       OK ] Rank/1.min_desc_bottom (0 ms)
+[ RUN      ] Rank/1.max_asc_keep
+[       OK ] Rank/1.max_asc_keep (0 ms)
+[ RUN      ] Rank/1.max_asc_top
+[       OK ] Rank/1.max_asc_top (0 ms)
+[ RUN      ] Rank/1.max_asc_bottom
+[       OK ] Rank/1.max_asc_bottom (0 ms)
+[ RUN      ] Rank/1.max_desc_keep
+[       OK ] Rank/1.max_desc_keep (0 ms)
+[ RUN      ] Rank/1.max_desc_top
+[       OK ] Rank/1.max_desc_top (0 ms)
+[ RUN      ] Rank/1.max_desc_bottom
+[       OK ] Rank/1.max_desc_bottom (0 ms)
+[ RUN      ] Rank/1.average_asc_keep
+[       OK ] Rank/1.average_asc_keep (0 ms)
+[ RUN      ] Rank/1.average_asc_top
+[       OK ] Rank/1.average_asc_top (0 ms)
+[ RUN      ] Rank/1.average_asc_bottom
+[       OK ] Rank/1.average_asc_bottom (0 ms)
+[ RUN      ] Rank/1.average_desc_keep
+[       OK ] Rank/1.average_desc_keep (0 ms)
+[ RUN      ] Rank/1.average_desc_top
+[       OK ] Rank/1.average_desc_top (0 ms)
+[ RUN      ] Rank/1.average_desc_bottom
+[       OK ] Rank/1.average_desc_bottom (0 ms)
+[ RUN      ] Rank/1.dense_asc_keep_pct
+[       OK ] Rank/1.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/1.dense_asc_top_pct
+[       OK ] Rank/1.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/1.dense_asc_bottom_pct
+[       OK ] Rank/1.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/1.min_desc_keep_pct
+[       OK ] Rank/1.min_desc_keep_pct (0 ms)
+[ RUN      ] Rank/1.min_desc_top_pct
+[       OK ] Rank/1.min_desc_top_pct (0 ms)
+[ RUN      ] Rank/1.min_desc_bottom_pct
+[       OK ] Rank/1.min_desc_bottom_pct (0 ms)
+[----------] 36 tests from Rank/1 (31 ms total)
+
+[----------] 36 tests from Rank/2, where TypeParam = int
+[ RUN      ] Rank/2.first_asc_keep
+[       OK ] Rank/2.first_asc_keep (0 ms)
+[ RUN      ] Rank/2.first_asc_top
+[       OK ] Rank/2.first_asc_top (0 ms)
+[ RUN      ] Rank/2.first_asc_bottom
+[       OK ] Rank/2.first_asc_bottom (0 ms)
+[ RUN      ] Rank/2.first_desc_keep
+[       OK ] Rank/2.first_desc_keep (0 ms)
+[ RUN      ] Rank/2.first_desc_top
+[       OK ] Rank/2.first_desc_top (0 ms)
+[ RUN      ] Rank/2.first_desc_bottom
+[       OK ] Rank/2.first_desc_bottom (0 ms)
+[ RUN      ] Rank/2.dense_asc_keep
+[       OK ] Rank/2.dense_asc_keep (0 ms)
+[ RUN      ] Rank/2.dense_asc_top
+[       OK ] Rank/2.dense_asc_top (0 ms)
+[ RUN      ] Rank/2.dense_asc_bottom
+[       OK ] Rank/2.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/2.dense_desc_keep
+[       OK ] Rank/2.dense_desc_keep (0 ms)
+[ RUN      ] Rank/2.dense_desc_top
+[       OK ] Rank/2.dense_desc_top (0 ms)
+[ RUN      ] Rank/2.dense_desc_bottom
+[       OK ] Rank/2.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/2.min_asc_keep
+[       OK ] Rank/2.min_asc_keep (0 ms)
+[ RUN      ] Rank/2.min_asc_top
+[       OK ] Rank/2.min_asc_top (0 ms)
+[ RUN      ] Rank/2.min_asc_bottom
+[       OK ] Rank/2.min_asc_bottom (0 ms)
+[ RUN      ] Rank/2.min_desc_keep
+[       OK ] Rank/2.min_desc_keep (0 ms)
+[ RUN      ] Rank/2.min_desc_top
+[       OK ] Rank/2.min_desc_top (0 ms)
+[ RUN      ] Rank/2.min_desc_bottom
+[       OK ] Rank/2.min_desc_bottom (0 ms)
+[ RUN      ] Rank/2.max_asc_keep
+[       OK ] Rank/2.max_asc_keep (0 ms)
+[ RUN      ] Rank/2.max_asc_top
+[       OK ] Rank/2.max_asc_top (0 ms)
+[ RUN      ] Rank/2.max_asc_bottom
+[       OK ] Rank/2.max_asc_bottom (0 ms)
+[ RUN      ] Rank/2.max_desc_keep
+[       OK ] Rank/2.max_desc_keep (0 ms)
+[ RUN      ] Rank/2.max_desc_top
+[       OK ] Rank/2.max_desc_top (0 ms)
+[ RUN      ] Rank/2.max_desc_bottom
+[       OK ] Rank/2.max_desc_bottom (1 ms)
+[ RUN      ] Rank/2.average_asc_keep
+[       OK ] Rank/2.average_asc_keep (0 ms)
+[ RUN      ] Rank/2.average_asc_top
+[       OK ] Rank/2.average_asc_top (0 ms)
+[ RUN      ] Rank/2.average_asc_bottom
+[       OK ] Rank/2.average_asc_bottom (0 ms)
+[ RUN      ] Rank/2.average_desc_keep
+[       OK ] Rank/2.average_desc_keep (0 ms)
+[ RUN      ] Rank/2.average_desc_top
+[       OK ] Rank/2.average_desc_top (0 ms)
+[ RUN      ] Rank/2.average_desc_bottom
+[       OK ] Rank/2.average_desc_bottom (0 ms)
+[ RUN      ] Rank/2.dense_asc_keep_pct
+[       OK ] Rank/2.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/2.dense_asc_top_pct
+[       OK ] Rank/2.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/2.dense_asc_bottom_pct
+[       OK ] Rank/2.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/2.min_desc_keep_pct
+[       OK ] Rank/2.min_desc_keep_pct (0 ms)
+[ RUN      ] Rank/2.min_desc_top_pct
+[       OK ] Rank/2.min_desc_top_pct (0 ms)
+[ RUN      ] Rank/2.min_desc_bottom_pct
+[       OK ] Rank/2.min_desc_bottom_pct (0 ms)
+[----------] 36 tests from Rank/2 (31 ms total)
+
+[----------] 36 tests from Rank/3, where TypeParam = long
+[ RUN      ] Rank/3.first_asc_keep
+[       OK ] Rank/3.first_asc_keep (0 ms)
+[ RUN      ] Rank/3.first_asc_top
+[       OK ] Rank/3.first_asc_top (0 ms)
+[ RUN      ] Rank/3.first_asc_bottom
+[       OK ] Rank/3.first_asc_bottom (0 ms)
+[ RUN      ] Rank/3.first_desc_keep
+[       OK ] Rank/3.first_desc_keep (0 ms)
+[ RUN      ] Rank/3.first_desc_top
+[       OK ] Rank/3.first_desc_top (0 ms)
+[ RUN      ] Rank/3.first_desc_bottom
+[       OK ] Rank/3.first_desc_bottom (0 ms)
+[ RUN      ] Rank/3.dense_asc_keep
+[       OK ] Rank/3.dense_asc_keep (0 ms)
+[ RUN      ] Rank/3.dense_asc_top
+[       OK ] Rank/3.dense_asc_top (0 ms)
+[ RUN      ] Rank/3.dense_asc_bottom
+[       OK ] Rank/3.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/3.dense_desc_keep
+[       OK ] Rank/3.dense_desc_keep (0 ms)
+[ RUN      ] Rank/3.dense_desc_top
+[       OK ] Rank/3.dense_desc_top (0 ms)
+[ RUN      ] Rank/3.dense_desc_bottom
+[       OK ] Rank/3.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/3.min_asc_keep
+[       OK ] Rank/3.min_asc_keep (0 ms)
+[ RUN      ] Rank/3.min_asc_top
+[       OK ] Rank/3.min_asc_top (0 ms)
+[ RUN      ] Rank/3.min_asc_bottom
+[       OK ] Rank/3.min_asc_bottom (0 ms)
+[ RUN      ] Rank/3.min_desc_keep
+[       OK ] Rank/3.min_desc_keep (0 ms)
+[ RUN      ] Rank/3.min_desc_top
+[       OK ] Rank/3.min_desc_top (0 ms)
+[ RUN      ] Rank/3.min_desc_bottom
+[       OK ] Rank/3.min_desc_bottom (0 ms)
+[ RUN      ] Rank/3.max_asc_keep
+[       OK ] Rank/3.max_asc_keep (0 ms)
+[ RUN      ] Rank/3.max_asc_top
+[       OK ] Rank/3.max_asc_top (0 ms)
+[ RUN      ] Rank/3.max_asc_bottom
+[       OK ] Rank/3.max_asc_bottom (0 ms)
+[ RUN      ] Rank/3.max_desc_keep
+[       OK ] Rank/3.max_desc_keep (0 ms)
+[ RUN      ] Rank/3.max_desc_top
+[       OK ] Rank/3.max_desc_top (0 ms)
+[ RUN      ] Rank/3.max_desc_bottom
+[       OK ] Rank/3.max_desc_bottom (0 ms)
+[ RUN      ] Rank/3.average_asc_keep
+[       OK ] Rank/3.average_asc_keep (0 ms)
+[ RUN      ] Rank/3.average_asc_top
+[       OK ] Rank/3.average_asc_top (0 ms)
+[ RUN      ] Rank/3.average_asc_bottom
+[       OK ] Rank/3.average_asc_bottom (0 ms)
+[ RUN      ] Rank/3.average_desc_keep
+[       OK ] Rank/3.average_desc_keep (1 ms)
+[ RUN      ] Rank/3.average_desc_top
+[       OK ] Rank/3.average_desc_top (0 ms)
+[ RUN      ] Rank/3.average_desc_bottom
+[       OK ] Rank/3.average_desc_bottom (0 ms)
+[ RUN      ] Rank/3.dense_asc_keep_pct
+[       OK ] Rank/3.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/3.dense_asc_top_pct
+[       OK ] Rank/3.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/3.dense_asc_bottom_pct
+[       OK ] Rank/3.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/3.min_desc_keep_pct
+[       OK ] Rank/3.min_desc_keep_pct (1 ms)
+[ RUN      ] Rank/3.min_desc_top_pct
+[       OK ] Rank/3.min_desc_top_pct (0 ms)
+[ RUN      ] Rank/3.min_desc_bottom_pct
+[       OK ] Rank/3.min_desc_bottom_pct (0 ms)
+[----------] 36 tests from Rank/3 (31 ms total)
+
+[----------] 36 tests from Rank/4, where TypeParam = unsigned char
+[ RUN      ] Rank/4.first_asc_keep
+[       OK ] Rank/4.first_asc_keep (0 ms)
+[ RUN      ] Rank/4.first_asc_top
+[       OK ] Rank/4.first_asc_top (0 ms)
+[ RUN      ] Rank/4.first_asc_bottom
+[       OK ] Rank/4.first_asc_bottom (0 ms)
+[ RUN      ] Rank/4.first_desc_keep
+[       OK ] Rank/4.first_desc_keep (0 ms)
+[ RUN      ] Rank/4.first_desc_top
+[       OK ] Rank/4.first_desc_top (0 ms)
+[ RUN      ] Rank/4.first_desc_bottom
+[       OK ] Rank/4.first_desc_bottom (0 ms)
+[ RUN      ] Rank/4.dense_asc_keep
+[       OK ] Rank/4.dense_asc_keep (0 ms)
+[ RUN      ] Rank/4.dense_asc_top
+[       OK ] Rank/4.dense_asc_top (0 ms)
+[ RUN      ] Rank/4.dense_asc_bottom
+[       OK ] Rank/4.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/4.dense_desc_keep
+[       OK ] Rank/4.dense_desc_keep (0 ms)
+[ RUN      ] Rank/4.dense_desc_top
+[       OK ] Rank/4.dense_desc_top (0 ms)
+[ RUN      ] Rank/4.dense_desc_bottom
+[       OK ] Rank/4.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/4.min_asc_keep
+[       OK ] Rank/4.min_asc_keep (0 ms)
+[ RUN      ] Rank/4.min_asc_top
+[       OK ] Rank/4.min_asc_top (0 ms)
+[ RUN      ] Rank/4.min_asc_bottom
+[       OK ] Rank/4.min_asc_bottom (0 ms)
+[ RUN      ] Rank/4.min_desc_keep
+[       OK ] Rank/4.min_desc_keep (0 ms)
+[ RUN      ] Rank/4.min_desc_top
+[       OK ] Rank/4.min_desc_top (0 ms)
+[ RUN      ] Rank/4.min_desc_bottom
+[       OK ] Rank/4.min_desc_bottom (0 ms)
+[ RUN      ] Rank/4.max_asc_keep
+[       OK ] Rank/4.max_asc_keep (0 ms)
+[ RUN      ] Rank/4.max_asc_top
+[       OK ] Rank/4.max_asc_top (0 ms)
+[ RUN      ] Rank/4.max_asc_bottom
+[       OK ] Rank/4.max_asc_bottom (0 ms)
+[ RUN      ] Rank/4.max_desc_keep
+[       OK ] Rank/4.max_desc_keep (0 ms)
+[ RUN      ] Rank/4.max_desc_top
+[       OK ] Rank/4.max_desc_top (0 ms)
+[ RUN      ] Rank/4.max_desc_bottom
+[       OK ] Rank/4.max_desc_bottom (0 ms)
+[ RUN      ] Rank/4.average_asc_keep
+[       OK ] Rank/4.average_asc_keep (0 ms)
+[ RUN      ] Rank/4.average_asc_top
+[       OK ] Rank/4.average_asc_top (0 ms)
+[ RUN      ] Rank/4.average_asc_bottom
+[       OK ] Rank/4.average_asc_bottom (0 ms)
+[ RUN      ] Rank/4.average_desc_keep
+[       OK ] Rank/4.average_desc_keep (0 ms)
+[ RUN      ] Rank/4.average_desc_top
+[       OK ] Rank/4.average_desc_top (0 ms)
+[ RUN      ] Rank/4.average_desc_bottom
+[       OK ] Rank/4.average_desc_bottom (0 ms)
+[ RUN      ] Rank/4.dense_asc_keep_pct
+[       OK ] Rank/4.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/4.dense_asc_top_pct
+[       OK ] Rank/4.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/4.dense_asc_bottom_pct
+[       OK ] Rank/4.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/4.min_desc_keep_pct
+[       OK ] Rank/4.min_desc_keep_pct (0 ms)
+[ RUN      ] Rank/4.min_desc_top_pct
+[       OK ] Rank/4.min_desc_top_pct (0 ms)
+[ RUN      ] Rank/4.min_desc_bottom_pct
+[       OK ] Rank/4.min_desc_bottom_pct (0 ms)
+[----------] 36 tests from Rank/4 (30 ms total)
+
+[----------] 36 tests from Rank/5, where TypeParam = unsigned short
+[ RUN      ] Rank/5.first_asc_keep
+[       OK ] Rank/5.first_asc_keep (0 ms)
+[ RUN      ] Rank/5.first_asc_top
+[       OK ] Rank/5.first_asc_top (0 ms)
+[ RUN      ] Rank/5.first_asc_bottom
+[       OK ] Rank/5.first_asc_bottom (0 ms)
+[ RUN      ] Rank/5.first_desc_keep
+[       OK ] Rank/5.first_desc_keep (0 ms)
+[ RUN      ] Rank/5.first_desc_top
+[       OK ] Rank/5.first_desc_top (0 ms)
+[ RUN      ] Rank/5.first_desc_bottom
+[       OK ] Rank/5.first_desc_bottom (0 ms)
+[ RUN      ] Rank/5.dense_asc_keep
+[       OK ] Rank/5.dense_asc_keep (0 ms)
+[ RUN      ] Rank/5.dense_asc_top
+[       OK ] Rank/5.dense_asc_top (0 ms)
+[ RUN      ] Rank/5.dense_asc_bottom
+[       OK ] Rank/5.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/5.dense_desc_keep
+[       OK ] Rank/5.dense_desc_keep (0 ms)
+[ RUN      ] Rank/5.dense_desc_top
+[       OK ] Rank/5.dense_desc_top (0 ms)
+[ RUN      ] Rank/5.dense_desc_bottom
+[       OK ] Rank/5.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/5.min_asc_keep
+[       OK ] Rank/5.min_asc_keep (0 ms)
+[ RUN      ] Rank/5.min_asc_top
+[       OK ] Rank/5.min_asc_top (0 ms)
+[ RUN      ] Rank/5.min_asc_bottom
+[       OK ] Rank/5.min_asc_bottom (0 ms)
+[ RUN      ] Rank/5.min_desc_keep
+[       OK ] Rank/5.min_desc_keep (0 ms)
+[ RUN      ] Rank/5.min_desc_top
+[       OK ] Rank/5.min_desc_top (0 ms)
+[ RUN      ] Rank/5.min_desc_bottom
+[       OK ] Rank/5.min_desc_bottom (0 ms)
+[ RUN      ] Rank/5.max_asc_keep
+[       OK ] Rank/5.max_asc_keep (0 ms)
+[ RUN      ] Rank/5.max_asc_top
+[       OK ] Rank/5.max_asc_top (0 ms)
+[ RUN      ] Rank/5.max_asc_bottom
+[       OK ] Rank/5.max_asc_bottom (0 ms)
+[ RUN      ] Rank/5.max_desc_keep
+[       OK ] Rank/5.max_desc_keep (0 ms)
+[ RUN      ] Rank/5.max_desc_top
+[       OK ] Rank/5.max_desc_top (0 ms)
+[ RUN      ] Rank/5.max_desc_bottom
+[       OK ] Rank/5.max_desc_bottom (0 ms)
+[ RUN      ] Rank/5.average_asc_keep
+[       OK ] Rank/5.average_asc_keep (0 ms)
+[ RUN      ] Rank/5.average_asc_top
+[       OK ] Rank/5.average_asc_top (0 ms)
+[ RUN      ] Rank/5.average_asc_bottom
+[       OK ] Rank/5.average_asc_bottom (0 ms)
+[ RUN      ] Rank/5.average_desc_keep
+[       OK ] Rank/5.average_desc_keep (0 ms)
+[ RUN      ] Rank/5.average_desc_top
+[       OK ] Rank/5.average_desc_top (0 ms)
+[ RUN      ] Rank/5.average_desc_bottom
+[       OK ] Rank/5.average_desc_bottom (0 ms)
+[ RUN      ] Rank/5.dense_asc_keep_pct
+[       OK ] Rank/5.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/5.dense_asc_top_pct
+[       OK ] Rank/5.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/5.dense_asc_bottom_pct
+[       OK ] Rank/5.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/5.min_desc_keep_pct
+[       OK ] Rank/5.min_desc_keep_pct (0 ms)
+[ RUN      ] Rank/5.min_desc_top_pct
+[       OK ] Rank/5.min_desc_top_pct (0 ms)
+[ RUN      ] Rank/5.min_desc_bottom_pct
+[       OK ] Rank/5.min_desc_bottom_pct (0 ms)
+[----------] 36 tests from Rank/5 (31 ms total)
+
+[----------] 36 tests from Rank/6, where TypeParam = unsigned int
+[ RUN      ] Rank/6.first_asc_keep
+[       OK ] Rank/6.first_asc_keep (0 ms)
+[ RUN      ] Rank/6.first_asc_top
+[       OK ] Rank/6.first_asc_top (0 ms)
+[ RUN      ] Rank/6.first_asc_bottom
+[       OK ] Rank/6.first_asc_bottom (0 ms)
+[ RUN      ] Rank/6.first_desc_keep
+[       OK ] Rank/6.first_desc_keep (0 ms)
+[ RUN      ] Rank/6.first_desc_top
+[       OK ] Rank/6.first_desc_top (0 ms)
+[ RUN      ] Rank/6.first_desc_bottom
+[       OK ] Rank/6.first_desc_bottom (0 ms)
+[ RUN      ] Rank/6.dense_asc_keep
+[       OK ] Rank/6.dense_asc_keep (0 ms)
+[ RUN      ] Rank/6.dense_asc_top
+[       OK ] Rank/6.dense_asc_top (0 ms)
+[ RUN      ] Rank/6.dense_asc_bottom
+[       OK ] Rank/6.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/6.dense_desc_keep
+[       OK ] Rank/6.dense_desc_keep (0 ms)
+[ RUN      ] Rank/6.dense_desc_top
+[       OK ] Rank/6.dense_desc_top (0 ms)
+[ RUN      ] Rank/6.dense_desc_bottom
+[       OK ] Rank/6.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/6.min_asc_keep
+[       OK ] Rank/6.min_asc_keep (0 ms)
+[ RUN      ] Rank/6.min_asc_top
+[       OK ] Rank/6.min_asc_top (0 ms)
+[ RUN      ] Rank/6.min_asc_bottom
+[       OK ] Rank/6.min_asc_bottom (0 ms)
+[ RUN      ] Rank/6.min_desc_keep
+[       OK ] Rank/6.min_desc_keep (0 ms)
+[ RUN      ] Rank/6.min_desc_top
+[       OK ] Rank/6.min_desc_top (0 ms)
+[ RUN      ] Rank/6.min_desc_bottom
+[       OK ] Rank/6.min_desc_bottom (0 ms)
+[ RUN      ] Rank/6.max_asc_keep
+[       OK ] Rank/6.max_asc_keep (0 ms)
+[ RUN      ] Rank/6.max_asc_top
+[       OK ] Rank/6.max_asc_top (0 ms)
+[ RUN      ] Rank/6.max_asc_bottom
+[       OK ] Rank/6.max_asc_bottom (0 ms)
+[ RUN      ] Rank/6.max_desc_keep
+[       OK ] Rank/6.max_desc_keep (0 ms)
+[ RUN      ] Rank/6.max_desc_top
+[       OK ] Rank/6.max_desc_top (0 ms)
+[ RUN      ] Rank/6.max_desc_bottom
+[       OK ] Rank/6.max_desc_bottom (0 ms)
+[ RUN      ] Rank/6.average_asc_keep
+[       OK ] Rank/6.average_asc_keep (0 ms)
+[ RUN      ] Rank/6.average_asc_top
+[       OK ] Rank/6.average_asc_top (0 ms)
+[ RUN      ] Rank/6.average_asc_bottom
+[       OK ] Rank/6.average_asc_bottom (0 ms)
+[ RUN      ] Rank/6.average_desc_keep
+[       OK ] Rank/6.average_desc_keep (0 ms)
+[ RUN      ] Rank/6.average_desc_top
+[       OK ] Rank/6.average_desc_top (0 ms)
+[ RUN      ] Rank/6.average_desc_bottom
+[       OK ] Rank/6.average_desc_bottom (0 ms)
+[ RUN      ] Rank/6.dense_asc_keep_pct
+[       OK ] Rank/6.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/6.dense_asc_top_pct
+[       OK ] Rank/6.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/6.dense_asc_bottom_pct
+[       OK ] Rank/6.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/6.min_desc_keep_pct
+[       OK ] Rank/6.min_desc_keep_pct (1 ms)
+[ RUN      ] Rank/6.min_desc_top_pct
+[       OK ] Rank/6.min_desc_top_pct (0 ms)
+[ RUN      ] Rank/6.min_desc_bottom_pct
+[       OK ] Rank/6.min_desc_bottom_pct (0 ms)
+[----------] 36 tests from Rank/6 (31 ms total)
+
+[----------] 36 tests from Rank/7, where TypeParam = unsigned long
+[ RUN      ] Rank/7.first_asc_keep
+[       OK ] Rank/7.first_asc_keep (0 ms)
+[ RUN      ] Rank/7.first_asc_top
+[       OK ] Rank/7.first_asc_top (0 ms)
+[ RUN      ] Rank/7.first_asc_bottom
+[       OK ] Rank/7.first_asc_bottom (0 ms)
+[ RUN      ] Rank/7.first_desc_keep
+[       OK ] Rank/7.first_desc_keep (0 ms)
+[ RUN      ] Rank/7.first_desc_top
+[       OK ] Rank/7.first_desc_top (0 ms)
+[ RUN      ] Rank/7.first_desc_bottom
+[       OK ] Rank/7.first_desc_bottom (0 ms)
+[ RUN      ] Rank/7.dense_asc_keep
+[       OK ] Rank/7.dense_asc_keep (0 ms)
+[ RUN      ] Rank/7.dense_asc_top
+[       OK ] Rank/7.dense_asc_top (0 ms)
+[ RUN      ] Rank/7.dense_asc_bottom
+[       OK ] Rank/7.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/7.dense_desc_keep
+[       OK ] Rank/7.dense_desc_keep (0 ms)
+[ RUN      ] Rank/7.dense_desc_top
+[       OK ] Rank/7.dense_desc_top (0 ms)
+[ RUN      ] Rank/7.dense_desc_bottom
+[       OK ] Rank/7.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/7.min_asc_keep
+[       OK ] Rank/7.min_asc_keep (0 ms)
+[ RUN      ] Rank/7.min_asc_top
+[       OK ] Rank/7.min_asc_top (0 ms)
+[ RUN      ] Rank/7.min_asc_bottom
+[       OK ] Rank/7.min_asc_bottom (0 ms)
+[ RUN      ] Rank/7.min_desc_keep
+[       OK ] Rank/7.min_desc_keep (0 ms)
+[ RUN      ] Rank/7.min_desc_top
+[       OK ] Rank/7.min_desc_top (0 ms)
+[ RUN      ] Rank/7.min_desc_bottom
+[       OK ] Rank/7.min_desc_bottom (0 ms)
+[ RUN      ] Rank/7.max_asc_keep
+[       OK ] Rank/7.max_asc_keep (0 ms)
+[ RUN      ] Rank/7.max_asc_top
+[       OK ] Rank/7.max_asc_top (0 ms)
+[ RUN      ] Rank/7.max_asc_bottom
+[       OK ] Rank/7.max_asc_bottom (0 ms)
+[ RUN      ] Rank/7.max_desc_keep
+[       OK ] Rank/7.max_desc_keep (0 ms)
+[ RUN      ] Rank/7.max_desc_top
+[       OK ] Rank/7.max_desc_top (0 ms)
+[ RUN      ] Rank/7.max_desc_bottom
+[       OK ] Rank/7.max_desc_bottom (0 ms)
+[ RUN      ] Rank/7.average_asc_keep
+[       OK ] Rank/7.average_asc_keep (0 ms)
+[ RUN      ] Rank/7.average_asc_top
+[       OK ] Rank/7.average_asc_top (0 ms)
+[ RUN      ] Rank/7.average_asc_bottom
+[       OK ] Rank/7.average_asc_bottom (0 ms)
+[ RUN      ] Rank/7.average_desc_keep
+[       OK ] Rank/7.average_desc_keep (0 ms)
+[ RUN      ] Rank/7.average_desc_top
+[       OK ] Rank/7.average_desc_top (0 ms)
+[ RUN      ] Rank/7.average_desc_bottom
+[       OK ] Rank/7.average_desc_bottom (0 ms)
+[ RUN      ] Rank/7.dense_asc_keep_pct
+[       OK ] Rank/7.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/7.dense_asc_top_pct
+[       OK ] Rank/7.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/7.dense_asc_bottom_pct
+[       OK ] Rank/7.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/7.min_desc_keep_pct
+[       OK ] Rank/7.min_desc_keep_pct (0 ms)
+[ RUN      ] Rank/7.min_desc_top_pct
+[       OK ] Rank/7.min_desc_top_pct (0 ms)
+[ RUN      ] Rank/7.min_desc_bottom_pct
+[       OK ] Rank/7.min_desc_bottom_pct (0 ms)
+[----------] 36 tests from Rank/7 (31 ms total)
+
+[----------] 36 tests from Rank/8, where TypeParam = bool
+[ RUN      ] Rank/8.first_asc_keep
+[       OK ] Rank/8.first_asc_keep (0 ms)
+[ RUN      ] Rank/8.first_asc_top
+[       OK ] Rank/8.first_asc_top (0 ms)
+[ RUN      ] Rank/8.first_asc_bottom
+[       OK ] Rank/8.first_asc_bottom (0 ms)
+[ RUN      ] Rank/8.first_desc_keep
+[       OK ] Rank/8.first_desc_keep (0 ms)
+[ RUN      ] Rank/8.first_desc_top
+[       OK ] Rank/8.first_desc_top (0 ms)
+[ RUN      ] Rank/8.first_desc_bottom
+[       OK ] Rank/8.first_desc_bottom (0 ms)
+[ RUN      ] Rank/8.dense_asc_keep
+[       OK ] Rank/8.dense_asc_keep (0 ms)
+[ RUN      ] Rank/8.dense_asc_top
+[       OK ] Rank/8.dense_asc_top (0 ms)
+[ RUN      ] Rank/8.dense_asc_bottom
+[       OK ] Rank/8.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/8.dense_desc_keep
+[       OK ] Rank/8.dense_desc_keep (0 ms)
+[ RUN      ] Rank/8.dense_desc_top
+[       OK ] Rank/8.dense_desc_top (0 ms)
+[ RUN      ] Rank/8.dense_desc_bottom
+[       OK ] Rank/8.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/8.min_asc_keep
+[       OK ] Rank/8.min_asc_keep (0 ms)
+[ RUN      ] Rank/8.min_asc_top
+[       OK ] Rank/8.min_asc_top (0 ms)
+[ RUN      ] Rank/8.min_asc_bottom
+[       OK ] Rank/8.min_asc_bottom (0 ms)
+[ RUN      ] Rank/8.min_desc_keep
+[       OK ] Rank/8.min_desc_keep (0 ms)
+[ RUN      ] Rank/8.min_desc_top
+[       OK ] Rank/8.min_desc_top (0 ms)
+[ RUN      ] Rank/8.min_desc_bottom
+[       OK ] Rank/8.min_desc_bottom (0 ms)
+[ RUN      ] Rank/8.max_asc_keep
+[       OK ] Rank/8.max_asc_keep (0 ms)
+[ RUN      ] Rank/8.max_asc_top
+[       OK ] Rank/8.max_asc_top (0 ms)
+[ RUN      ] Rank/8.max_asc_bottom
+[       OK ] Rank/8.max_asc_bottom (0 ms)
+[ RUN      ] Rank/8.max_desc_keep
+[       OK ] Rank/8.max_desc_keep (0 ms)
+[ RUN      ] Rank/8.max_desc_top
+[       OK ] Rank/8.max_desc_top (0 ms)
+[ RUN      ] Rank/8.max_desc_bottom
+[       OK ] Rank/8.max_desc_bottom (0 ms)
+[ RUN      ] Rank/8.average_asc_keep
+[       OK ] Rank/8.average_asc_keep (0 ms)
+[ RUN      ] Rank/8.average_asc_top
+[       OK ] Rank/8.average_asc_top (0 ms)
+[ RUN      ] Rank/8.average_asc_bottom
+[       OK ] Rank/8.average_asc_bottom (0 ms)
+[ RUN      ] Rank/8.average_desc_keep
+[       OK ] Rank/8.average_desc_keep (0 ms)
+[ RUN      ] Rank/8.average_desc_top
+[       OK ] Rank/8.average_desc_top (0 ms)
+[ RUN      ] Rank/8.average_desc_bottom
+[       OK ] Rank/8.average_desc_bottom (0 ms)
+[ RUN      ] Rank/8.dense_asc_keep_pct
+[       OK ] Rank/8.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/8.dense_asc_top_pct
+[       OK ] Rank/8.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/8.dense_asc_bottom_pct
+[       OK ] Rank/8.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/8.min_desc_keep_pct
+[       OK ] Rank/8.min_desc_keep_pct (0 ms)
+[ RUN      ] Rank/8.min_desc_top_pct
+[       OK ] Rank/8.min_desc_top_pct (0 ms)
+[ RUN      ] Rank/8.min_desc_bottom_pct
+[       OK ] Rank/8.min_desc_bottom_pct (0 ms)
+[----------] 36 tests from Rank/8 (2 ms total)
+
+[----------] 36 tests from Rank/9, where TypeParam = float
+[ RUN      ] Rank/9.first_asc_keep
+[       OK ] Rank/9.first_asc_keep (0 ms)
+[ RUN      ] Rank/9.first_asc_top
+[       OK ] Rank/9.first_asc_top (0 ms)
+[ RUN      ] Rank/9.first_asc_bottom
+[       OK ] Rank/9.first_asc_bottom (0 ms)
+[ RUN      ] Rank/9.first_desc_keep
+[       OK ] Rank/9.first_desc_keep (0 ms)
+[ RUN      ] Rank/9.first_desc_top
+[       OK ] Rank/9.first_desc_top (0 ms)
+[ RUN      ] Rank/9.first_desc_bottom
+[       OK ] Rank/9.first_desc_bottom (0 ms)
+[ RUN      ] Rank/9.dense_asc_keep
+[       OK ] Rank/9.dense_asc_keep (0 ms)
+[ RUN      ] Rank/9.dense_asc_top
+[       OK ] Rank/9.dense_asc_top (0 ms)
+[ RUN      ] Rank/9.dense_asc_bottom
+[       OK ] Rank/9.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/9.dense_desc_keep
+[       OK ] Rank/9.dense_desc_keep (0 ms)
+[ RUN      ] Rank/9.dense_desc_top
+[       OK ] Rank/9.dense_desc_top (0 ms)
+[ RUN      ] Rank/9.dense_desc_bottom
+[       OK ] Rank/9.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/9.min_asc_keep
+[       OK ] Rank/9.min_asc_keep (1 ms)
+[ RUN      ] Rank/9.min_asc_top
+[       OK ] Rank/9.min_asc_top (1 ms)
+[ RUN      ] Rank/9.min_asc_bottom
+[       OK ] Rank/9.min_asc_bottom (1 ms)
+[ RUN      ] Rank/9.min_desc_keep
+[       OK ] Rank/9.min_desc_keep (1 ms)
+[ RUN      ] Rank/9.min_desc_top
+[       OK ] Rank/9.min_desc_top (1 ms)
+[ RUN      ] Rank/9.min_desc_bottom
+[       OK ] Rank/9.min_desc_bottom (1 ms)
+[ RUN      ] Rank/9.max_asc_keep
+[       OK ] Rank/9.max_asc_keep (1 ms)
+[ RUN      ] Rank/9.max_asc_top
+[       OK ] Rank/9.max_asc_top (1 ms)
+[ RUN      ] Rank/9.max_asc_bottom
+[       OK ] Rank/9.max_asc_bottom (1 ms)
+[ RUN      ] Rank/9.max_desc_keep
+[       OK ] Rank/9.max_desc_keep (1 ms)
+[ RUN      ] Rank/9.max_desc_top
+[       OK ] Rank/9.max_desc_top (1 ms)
+[ RUN      ] Rank/9.max_desc_bottom
+[       OK ] Rank/9.max_desc_bottom (1 ms)
+[ RUN      ] Rank/9.average_asc_keep
+[       OK ] Rank/9.average_asc_keep (1 ms)
+[ RUN      ] Rank/9.average_asc_top
+[       OK ] Rank/9.average_asc_top (1 ms)
+[ RUN      ] Rank/9.average_asc_bottom
+[       OK ] Rank/9.average_asc_bottom (1 ms)
+[ RUN      ] Rank/9.average_desc_keep
+[       OK ] Rank/9.average_desc_keep (1 ms)
+[ RUN      ] Rank/9.average_desc_top
+[       OK ] Rank/9.average_desc_top (1 ms)
+[ RUN      ] Rank/9.average_desc_bottom
+[       OK ] Rank/9.average_desc_bottom (1 ms)
+[ RUN      ] Rank/9.dense_asc_keep_pct
+[       OK ] Rank/9.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/9.dense_asc_top_pct
+[       OK ] Rank/9.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/9.dense_asc_bottom_pct
+[       OK ] Rank/9.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/9.min_desc_keep_pct
+[       OK ] Rank/9.min_desc_keep_pct (1 ms)
+[ RUN      ] Rank/9.min_desc_top_pct
+[       OK ] Rank/9.min_desc_top_pct (1 ms)
+[ RUN      ] Rank/9.min_desc_bottom_pct
+[       OK ] Rank/9.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from Rank/9 (35 ms total)
+
+[----------] 36 tests from Rank/10, where TypeParam = double
+[ RUN      ] Rank/10.first_asc_keep
+[       OK ] Rank/10.first_asc_keep (0 ms)
+[ RUN      ] Rank/10.first_asc_top
+[       OK ] Rank/10.first_asc_top (0 ms)
+[ RUN      ] Rank/10.first_asc_bottom
+[       OK ] Rank/10.first_asc_bottom (0 ms)
+[ RUN      ] Rank/10.first_desc_keep
+[       OK ] Rank/10.first_desc_keep (0 ms)
+[ RUN      ] Rank/10.first_desc_top
+[       OK ] Rank/10.first_desc_top (0 ms)
+[ RUN      ] Rank/10.first_desc_bottom
+[       OK ] Rank/10.first_desc_bottom (0 ms)
+[ RUN      ] Rank/10.dense_asc_keep
+[       OK ] Rank/10.dense_asc_keep (0 ms)
+[ RUN      ] Rank/10.dense_asc_top
+[       OK ] Rank/10.dense_asc_top (0 ms)
+[ RUN      ] Rank/10.dense_asc_bottom
+[       OK ] Rank/10.dense_asc_bottom (0 ms)
+[ RUN      ] Rank/10.dense_desc_keep
+[       OK ] Rank/10.dense_desc_keep (0 ms)
+[ RUN      ] Rank/10.dense_desc_top
+[       OK ] Rank/10.dense_desc_top (1 ms)
+[ RUN      ] Rank/10.dense_desc_bottom
+[       OK ] Rank/10.dense_desc_bottom (0 ms)
+[ RUN      ] Rank/10.min_asc_keep
+[       OK ] Rank/10.min_asc_keep (1 ms)
+[ RUN      ] Rank/10.min_asc_top
+[       OK ] Rank/10.min_asc_top (1 ms)
+[ RUN      ] Rank/10.min_asc_bottom
+[       OK ] Rank/10.min_asc_bottom (1 ms)
+[ RUN      ] Rank/10.min_desc_keep
+[       OK ] Rank/10.min_desc_keep (1 ms)
+[ RUN      ] Rank/10.min_desc_top
+[       OK ] Rank/10.min_desc_top (1 ms)
+[ RUN      ] Rank/10.min_desc_bottom
+[       OK ] Rank/10.min_desc_bottom (1 ms)
+[ RUN      ] Rank/10.max_asc_keep
+[       OK ] Rank/10.max_asc_keep (1 ms)
+[ RUN      ] Rank/10.max_asc_top
+[       OK ] Rank/10.max_asc_top (1 ms)
+[ RUN      ] Rank/10.max_asc_bottom
+[       OK ] Rank/10.max_asc_bottom (1 ms)
+[ RUN      ] Rank/10.max_desc_keep
+[       OK ] Rank/10.max_desc_keep (1 ms)
+[ RUN      ] Rank/10.max_desc_top
+[       OK ] Rank/10.max_desc_top (1 ms)
+[ RUN      ] Rank/10.max_desc_bottom
+[       OK ] Rank/10.max_desc_bottom (1 ms)
+[ RUN      ] Rank/10.average_asc_keep
+[       OK ] Rank/10.average_asc_keep (1 ms)
+[ RUN      ] Rank/10.average_asc_top
+[       OK ] Rank/10.average_asc_top (1 ms)
+[ RUN      ] Rank/10.average_asc_bottom
+[       OK ] Rank/10.average_asc_bottom (1 ms)
+[ RUN      ] Rank/10.average_desc_keep
+[       OK ] Rank/10.average_desc_keep (1 ms)
+[ RUN      ] Rank/10.average_desc_top
+[       OK ] Rank/10.average_desc_top (1 ms)
+[ RUN      ] Rank/10.average_desc_bottom
+[       OK ] Rank/10.average_desc_bottom (1 ms)
+[ RUN      ] Rank/10.dense_asc_keep_pct
+[       OK ] Rank/10.dense_asc_keep_pct (0 ms)
+[ RUN      ] Rank/10.dense_asc_top_pct
+[       OK ] Rank/10.dense_asc_top_pct (0 ms)
+[ RUN      ] Rank/10.dense_asc_bottom_pct
+[       OK ] Rank/10.dense_asc_bottom_pct (0 ms)
+[ RUN      ] Rank/10.min_desc_keep_pct
+[       OK ] Rank/10.min_desc_keep_pct (1 ms)
+[ RUN      ] Rank/10.min_desc_top_pct
+[       OK ] Rank/10.min_desc_top_pct (1 ms)
+[ RUN      ] Rank/10.min_desc_bottom_pct
+[       OK ] Rank/10.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from Rank/10 (37 ms total)
+
+[----------] 1 test from RankLarge
+[ RUN      ] RankLarge.average_large
+[       OK ] RankLarge.average_large (0 ms)
+[----------] 1 test from RankLarge (0 ms total)
+
+[----------] 36 tests from RankListAndStruct/0, where TypeParam = signed char
+[ RUN      ] RankListAndStruct/0.first_asc_keep
+[       OK ] RankListAndStruct/0.first_asc_keep (9 ms)
+[ RUN      ] RankListAndStruct/0.first_asc_top
+[       OK ] RankListAndStruct/0.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/0.first_asc_bottom
+[       OK ] RankListAndStruct/0.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/0.first_desc_keep
+[       OK ] RankListAndStruct/0.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/0.first_desc_top
+[       OK ] RankListAndStruct/0.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/0.first_desc_bottom
+[       OK ] RankListAndStruct/0.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/0.dense_asc_keep
+[       OK ] RankListAndStruct/0.dense_asc_keep (4 ms)
+[ RUN      ] RankListAndStruct/0.dense_asc_top
+[       OK ] RankListAndStruct/0.dense_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/0.dense_asc_bottom
+[       OK ] RankListAndStruct/0.dense_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/0.dense_desc_keep
+[       OK ] RankListAndStruct/0.dense_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/0.dense_desc_top
+[       OK ] RankListAndStruct/0.dense_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/0.dense_desc_bottom
+[       OK ] RankListAndStruct/0.dense_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/0.min_asc_keep
+[       OK ] RankListAndStruct/0.min_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/0.min_asc_top
+[       OK ] RankListAndStruct/0.min_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/0.min_asc_bottom
+[       OK ] RankListAndStruct/0.min_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/0.min_desc_keep
+[       OK ] RankListAndStruct/0.min_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/0.min_desc_top
+[       OK ] RankListAndStruct/0.min_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/0.min_desc_bottom
+[       OK ] RankListAndStruct/0.min_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/0.max_asc_keep
+[       OK ] RankListAndStruct/0.max_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/0.max_asc_top
+[       OK ] RankListAndStruct/0.max_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/0.max_asc_bottom
+[       OK ] RankListAndStruct/0.max_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/0.max_desc_keep
+[       OK ] RankListAndStruct/0.max_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/0.max_desc_top
+[       OK ] RankListAndStruct/0.max_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/0.max_desc_bottom
+[       OK ] RankListAndStruct/0.max_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/0.average_asc_keep
+[       OK ] RankListAndStruct/0.average_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/0.average_asc_top
+[       OK ] RankListAndStruct/0.average_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/0.average_asc_bottom
+[       OK ] RankListAndStruct/0.average_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/0.average_desc_keep
+[       OK ] RankListAndStruct/0.average_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/0.average_desc_top
+[       OK ] RankListAndStruct/0.average_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/0.average_desc_bottom
+[       OK ] RankListAndStruct/0.average_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/0.dense_asc_keep_pct
+[       OK ] RankListAndStruct/0.dense_asc_keep_pct (0 ms)
+[ RUN      ] RankListAndStruct/0.dense_asc_top_pct
+[       OK ] RankListAndStruct/0.dense_asc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/0.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/0.dense_asc_bottom_pct (0 ms)
+[ RUN      ] RankListAndStruct/0.min_desc_keep_pct
+[       OK ] RankListAndStruct/0.min_desc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/0.min_desc_top_pct
+[       OK ] RankListAndStruct/0.min_desc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/0.min_desc_bottom_pct
+[       OK ] RankListAndStruct/0.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from RankListAndStruct/0 (48 ms total)
+
+[----------] 36 tests from RankListAndStruct/1, where TypeParam = short
+[ RUN      ] RankListAndStruct/1.first_asc_keep
+[       OK ] RankListAndStruct/1.first_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/1.first_asc_top
+[       OK ] RankListAndStruct/1.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/1.first_asc_bottom
+[       OK ] RankListAndStruct/1.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/1.first_desc_keep
+[       OK ] RankListAndStruct/1.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/1.first_desc_top
+[       OK ] RankListAndStruct/1.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/1.first_desc_bottom
+[       OK ] RankListAndStruct/1.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/1.dense_asc_keep
+[       OK ] RankListAndStruct/1.dense_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/1.dense_asc_top
+[       OK ] RankListAndStruct/1.dense_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/1.dense_asc_bottom
+[       OK ] RankListAndStruct/1.dense_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/1.dense_desc_keep
+[       OK ] RankListAndStruct/1.dense_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/1.dense_desc_top
+[       OK ] RankListAndStruct/1.dense_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/1.dense_desc_bottom
+[       OK ] RankListAndStruct/1.dense_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/1.min_asc_keep
+[       OK ] RankListAndStruct/1.min_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/1.min_asc_top
+[       OK ] RankListAndStruct/1.min_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/1.min_asc_bottom
+[       OK ] RankListAndStruct/1.min_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/1.min_desc_keep
+[       OK ] RankListAndStruct/1.min_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/1.min_desc_top
+[       OK ] RankListAndStruct/1.min_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/1.min_desc_bottom
+[       OK ] RankListAndStruct/1.min_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/1.max_asc_keep
+[       OK ] RankListAndStruct/1.max_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/1.max_asc_top
+[       OK ] RankListAndStruct/1.max_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/1.max_asc_bottom
+[       OK ] RankListAndStruct/1.max_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/1.max_desc_keep
+[       OK ] RankListAndStruct/1.max_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/1.max_desc_top
+[       OK ] RankListAndStruct/1.max_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/1.max_desc_bottom
+[       OK ] RankListAndStruct/1.max_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/1.average_asc_keep
+[       OK ] RankListAndStruct/1.average_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/1.average_asc_top
+[       OK ] RankListAndStruct/1.average_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/1.average_asc_bottom
+[       OK ] RankListAndStruct/1.average_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/1.average_desc_keep
+[       OK ] RankListAndStruct/1.average_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/1.average_desc_top
+[       OK ] RankListAndStruct/1.average_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/1.average_desc_bottom
+[       OK ] RankListAndStruct/1.average_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/1.dense_asc_keep_pct
+[       OK ] RankListAndStruct/1.dense_asc_keep_pct (0 ms)
+[ RUN      ] RankListAndStruct/1.dense_asc_top_pct
+[       OK ] RankListAndStruct/1.dense_asc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/1.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/1.dense_asc_bottom_pct (0 ms)
+[ RUN      ] RankListAndStruct/1.min_desc_keep_pct
+[       OK ] RankListAndStruct/1.min_desc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/1.min_desc_top_pct
+[       OK ] RankListAndStruct/1.min_desc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/1.min_desc_bottom_pct
+[       OK ] RankListAndStruct/1.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from RankListAndStruct/1 (36 ms total)
+
+[----------] 36 tests from RankListAndStruct/2, where TypeParam = int
+[ RUN      ] RankListAndStruct/2.first_asc_keep
+[       OK ] RankListAndStruct/2.first_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/2.first_asc_top
+[       OK ] RankListAndStruct/2.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/2.first_asc_bottom
+[       OK ] RankListAndStruct/2.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/2.first_desc_keep
+[       OK ] RankListAndStruct/2.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/2.first_desc_top
+[       OK ] RankListAndStruct/2.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/2.first_desc_bottom
+[       OK ] RankListAndStruct/2.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/2.dense_asc_keep
+[       OK ] RankListAndStruct/2.dense_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/2.dense_asc_top
+[       OK ] RankListAndStruct/2.dense_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/2.dense_asc_bottom
+[       OK ] RankListAndStruct/2.dense_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/2.dense_desc_keep
+[       OK ] RankListAndStruct/2.dense_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/2.dense_desc_top
+[       OK ] RankListAndStruct/2.dense_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/2.dense_desc_bottom
+[       OK ] RankListAndStruct/2.dense_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/2.min_asc_keep
+[       OK ] RankListAndStruct/2.min_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/2.min_asc_top
+[       OK ] RankListAndStruct/2.min_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/2.min_asc_bottom
+[       OK ] RankListAndStruct/2.min_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/2.min_desc_keep
+[       OK ] RankListAndStruct/2.min_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/2.min_desc_top
+[       OK ] RankListAndStruct/2.min_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/2.min_desc_bottom
+[       OK ] RankListAndStruct/2.min_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/2.max_asc_keep
+[       OK ] RankListAndStruct/2.max_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/2.max_asc_top
+[       OK ] RankListAndStruct/2.max_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/2.max_asc_bottom
+[       OK ] RankListAndStruct/2.max_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/2.max_desc_keep
+[       OK ] RankListAndStruct/2.max_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/2.max_desc_top
+[       OK ] RankListAndStruct/2.max_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/2.max_desc_bottom
+[       OK ] RankListAndStruct/2.max_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/2.average_asc_keep
+[       OK ] RankListAndStruct/2.average_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/2.average_asc_top
+[       OK ] RankListAndStruct/2.average_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/2.average_asc_bottom
+[       OK ] RankListAndStruct/2.average_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/2.average_desc_keep
+[       OK ] RankListAndStruct/2.average_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/2.average_desc_top
+[       OK ] RankListAndStruct/2.average_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/2.average_desc_bottom
+[       OK ] RankListAndStruct/2.average_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/2.dense_asc_keep_pct
+[       OK ] RankListAndStruct/2.dense_asc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/2.dense_asc_top_pct
+[       OK ] RankListAndStruct/2.dense_asc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/2.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/2.dense_asc_bottom_pct (0 ms)
+[ RUN      ] RankListAndStruct/2.min_desc_keep_pct
+[       OK ] RankListAndStruct/2.min_desc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/2.min_desc_top_pct
+[       OK ] RankListAndStruct/2.min_desc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/2.min_desc_bottom_pct
+[       OK ] RankListAndStruct/2.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from RankListAndStruct/2 (36 ms total)
+
+[----------] 36 tests from RankListAndStruct/3, where TypeParam = long
+[ RUN      ] RankListAndStruct/3.first_asc_keep
+[       OK ] RankListAndStruct/3.first_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/3.first_asc_top
+[       OK ] RankListAndStruct/3.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/3.first_asc_bottom
+[       OK ] RankListAndStruct/3.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/3.first_desc_keep
+[       OK ] RankListAndStruct/3.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/3.first_desc_top
+[       OK ] RankListAndStruct/3.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/3.first_desc_bottom
+[       OK ] RankListAndStruct/3.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/3.dense_asc_keep
+[       OK ] RankListAndStruct/3.dense_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/3.dense_asc_top
+[       OK ] RankListAndStruct/3.dense_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/3.dense_asc_bottom
+[       OK ] RankListAndStruct/3.dense_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/3.dense_desc_keep
+[       OK ] RankListAndStruct/3.dense_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/3.dense_desc_top
+[       OK ] RankListAndStruct/3.dense_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/3.dense_desc_bottom
+[       OK ] RankListAndStruct/3.dense_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/3.min_asc_keep
+[       OK ] RankListAndStruct/3.min_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/3.min_asc_top
+[       OK ] RankListAndStruct/3.min_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/3.min_asc_bottom
+[       OK ] RankListAndStruct/3.min_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/3.min_desc_keep
+[       OK ] RankListAndStruct/3.min_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/3.min_desc_top
+[       OK ] RankListAndStruct/3.min_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/3.min_desc_bottom
+[       OK ] RankListAndStruct/3.min_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/3.max_asc_keep
+[       OK ] RankListAndStruct/3.max_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/3.max_asc_top
+[       OK ] RankListAndStruct/3.max_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/3.max_asc_bottom
+[       OK ] RankListAndStruct/3.max_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/3.max_desc_keep
+[       OK ] RankListAndStruct/3.max_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/3.max_desc_top
+[       OK ] RankListAndStruct/3.max_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/3.max_desc_bottom
+[       OK ] RankListAndStruct/3.max_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/3.average_asc_keep
+[       OK ] RankListAndStruct/3.average_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/3.average_asc_top
+[       OK ] RankListAndStruct/3.average_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/3.average_asc_bottom
+[       OK ] RankListAndStruct/3.average_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/3.average_desc_keep
+[       OK ] RankListAndStruct/3.average_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/3.average_desc_top
+[       OK ] RankListAndStruct/3.average_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/3.average_desc_bottom
+[       OK ] RankListAndStruct/3.average_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/3.dense_asc_keep_pct
+[       OK ] RankListAndStruct/3.dense_asc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/3.dense_asc_top_pct
+[       OK ] RankListAndStruct/3.dense_asc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/3.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/3.dense_asc_bottom_pct (0 ms)
+[ RUN      ] RankListAndStruct/3.min_desc_keep_pct
+[       OK ] RankListAndStruct/3.min_desc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/3.min_desc_top_pct
+[       OK ] RankListAndStruct/3.min_desc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/3.min_desc_bottom_pct
+[       OK ] RankListAndStruct/3.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from RankListAndStruct/3 (36 ms total)
+
+[----------] 36 tests from RankListAndStruct/4, where TypeParam = unsigned char
+[ RUN      ] RankListAndStruct/4.first_asc_keep
+[       OK ] RankListAndStruct/4.first_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/4.first_asc_top
+[       OK ] RankListAndStruct/4.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/4.first_asc_bottom
+[       OK ] RankListAndStruct/4.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/4.first_desc_keep
+[       OK ] RankListAndStruct/4.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/4.first_desc_top
+[       OK ] RankListAndStruct/4.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/4.first_desc_bottom
+[       OK ] RankListAndStruct/4.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/4.dense_asc_keep
+[       OK ] RankListAndStruct/4.dense_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/4.dense_asc_top
+[       OK ] RankListAndStruct/4.dense_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/4.dense_asc_bottom
+[       OK ] RankListAndStruct/4.dense_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/4.dense_desc_keep
+[       OK ] RankListAndStruct/4.dense_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/4.dense_desc_top
+[       OK ] RankListAndStruct/4.dense_desc_top (3 ms)
+[ RUN      ] RankListAndStruct/4.dense_desc_bottom
+[       OK ] RankListAndStruct/4.dense_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/4.min_asc_keep
+[       OK ] RankListAndStruct/4.min_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/4.min_asc_top
+[       OK ] RankListAndStruct/4.min_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/4.min_asc_bottom
+[       OK ] RankListAndStruct/4.min_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/4.min_desc_keep
+[       OK ] RankListAndStruct/4.min_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/4.min_desc_top
+[       OK ] RankListAndStruct/4.min_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/4.min_desc_bottom
+[       OK ] RankListAndStruct/4.min_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/4.max_asc_keep
+[       OK ] RankListAndStruct/4.max_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/4.max_asc_top
+[       OK ] RankListAndStruct/4.max_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/4.max_asc_bottom
+[       OK ] RankListAndStruct/4.max_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/4.max_desc_keep
+[       OK ] RankListAndStruct/4.max_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/4.max_desc_top
+[       OK ] RankListAndStruct/4.max_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/4.max_desc_bottom
+[       OK ] RankListAndStruct/4.max_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/4.average_asc_keep
+[       OK ] RankListAndStruct/4.average_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/4.average_asc_top
+[       OK ] RankListAndStruct/4.average_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/4.average_asc_bottom
+[       OK ] RankListAndStruct/4.average_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/4.average_desc_keep
+[       OK ] RankListAndStruct/4.average_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/4.average_desc_top
+[       OK ] RankListAndStruct/4.average_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/4.average_desc_bottom
+[       OK ] RankListAndStruct/4.average_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/4.dense_asc_keep_pct
+[       OK ] RankListAndStruct/4.dense_asc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/4.dense_asc_top_pct
+[       OK ] RankListAndStruct/4.dense_asc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/4.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/4.dense_asc_bottom_pct (0 ms)
+[ RUN      ] RankListAndStruct/4.min_desc_keep_pct
+[       OK ] RankListAndStruct/4.min_desc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/4.min_desc_top_pct
+[       OK ] RankListAndStruct/4.min_desc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/4.min_desc_bottom_pct
+[       OK ] RankListAndStruct/4.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from RankListAndStruct/4 (38 ms total)
+
+[----------] 36 tests from RankListAndStruct/5, where TypeParam = unsigned short
+[ RUN      ] RankListAndStruct/5.first_asc_keep
+[       OK ] RankListAndStruct/5.first_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/5.first_asc_top
+[       OK ] RankListAndStruct/5.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/5.first_asc_bottom
+[       OK ] RankListAndStruct/5.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/5.first_desc_keep
+[       OK ] RankListAndStruct/5.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/5.first_desc_top
+[       OK ] RankListAndStruct/5.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/5.first_desc_bottom
+[       OK ] RankListAndStruct/5.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/5.dense_asc_keep
+[       OK ] RankListAndStruct/5.dense_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/5.dense_asc_top
+[       OK ] RankListAndStruct/5.dense_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/5.dense_asc_bottom
+[       OK ] RankListAndStruct/5.dense_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/5.dense_desc_keep
+[       OK ] RankListAndStruct/5.dense_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/5.dense_desc_top
+[       OK ] RankListAndStruct/5.dense_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/5.dense_desc_bottom
+[       OK ] RankListAndStruct/5.dense_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/5.min_asc_keep
+[       OK ] RankListAndStruct/5.min_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/5.min_asc_top
+[       OK ] RankListAndStruct/5.min_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/5.min_asc_bottom
+[       OK ] RankListAndStruct/5.min_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/5.min_desc_keep
+[       OK ] RankListAndStruct/5.min_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/5.min_desc_top
+[       OK ] RankListAndStruct/5.min_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/5.min_desc_bottom
+[       OK ] RankListAndStruct/5.min_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/5.max_asc_keep
+[       OK ] RankListAndStruct/5.max_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/5.max_asc_top
+[       OK ] RankListAndStruct/5.max_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/5.max_asc_bottom
+[       OK ] RankListAndStruct/5.max_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/5.max_desc_keep
+[       OK ] RankListAndStruct/5.max_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/5.max_desc_top
+[       OK ] RankListAndStruct/5.max_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/5.max_desc_bottom
+[       OK ] RankListAndStruct/5.max_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/5.average_asc_keep
+[       OK ] RankListAndStruct/5.average_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/5.average_asc_top
+[       OK ] RankListAndStruct/5.average_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/5.average_asc_bottom
+[       OK ] RankListAndStruct/5.average_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/5.average_desc_keep
+[       OK ] RankListAndStruct/5.average_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/5.average_desc_top
+[       OK ] RankListAndStruct/5.average_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/5.average_desc_bottom
+[       OK ] RankListAndStruct/5.average_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/5.dense_asc_keep_pct
+[       OK ] RankListAndStruct/5.dense_asc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/5.dense_asc_top_pct
+[       OK ] RankListAndStruct/5.dense_asc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/5.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/5.dense_asc_bottom_pct (0 ms)
+[ RUN      ] RankListAndStruct/5.min_desc_keep_pct
+[       OK ] RankListAndStruct/5.min_desc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/5.min_desc_top_pct
+[       OK ] RankListAndStruct/5.min_desc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/5.min_desc_bottom_pct
+[       OK ] RankListAndStruct/5.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from RankListAndStruct/5 (36 ms total)
+
+[----------] 36 tests from RankListAndStruct/6, where TypeParam = unsigned int
+[ RUN      ] RankListAndStruct/6.first_asc_keep
+[       OK ] RankListAndStruct/6.first_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/6.first_asc_top
+[       OK ] RankListAndStruct/6.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/6.first_asc_bottom
+[       OK ] RankListAndStruct/6.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/6.first_desc_keep
+[       OK ] RankListAndStruct/6.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/6.first_desc_top
+[       OK ] RankListAndStruct/6.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/6.first_desc_bottom
+[       OK ] RankListAndStruct/6.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/6.dense_asc_keep
+[       OK ] RankListAndStruct/6.dense_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/6.dense_asc_top
+[       OK ] RankListAndStruct/6.dense_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/6.dense_asc_bottom
+[       OK ] RankListAndStruct/6.dense_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/6.dense_desc_keep
+[       OK ] RankListAndStruct/6.dense_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/6.dense_desc_top
+[       OK ] RankListAndStruct/6.dense_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/6.dense_desc_bottom
+[       OK ] RankListAndStruct/6.dense_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/6.min_asc_keep
+[       OK ] RankListAndStruct/6.min_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/6.min_asc_top
+[       OK ] RankListAndStruct/6.min_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/6.min_asc_bottom
+[       OK ] RankListAndStruct/6.min_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/6.min_desc_keep
+[       OK ] RankListAndStruct/6.min_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/6.min_desc_top
+[       OK ] RankListAndStruct/6.min_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/6.min_desc_bottom
+[       OK ] RankListAndStruct/6.min_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/6.max_asc_keep
+[       OK ] RankListAndStruct/6.max_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/6.max_asc_top
+[       OK ] RankListAndStruct/6.max_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/6.max_asc_bottom
+[       OK ] RankListAndStruct/6.max_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/6.max_desc_keep
+[       OK ] RankListAndStruct/6.max_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/6.max_desc_top
+[       OK ] RankListAndStruct/6.max_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/6.max_desc_bottom
+[       OK ] RankListAndStruct/6.max_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/6.average_asc_keep
+[       OK ] RankListAndStruct/6.average_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/6.average_asc_top
+[       OK ] RankListAndStruct/6.average_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/6.average_asc_bottom
+[       OK ] RankListAndStruct/6.average_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/6.average_desc_keep
+[       OK ] RankListAndStruct/6.average_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/6.average_desc_top
+[       OK ] RankListAndStruct/6.average_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/6.average_desc_bottom
+[       OK ] RankListAndStruct/6.average_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/6.dense_asc_keep_pct
+[       OK ] RankListAndStruct/6.dense_asc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/6.dense_asc_top_pct
+[       OK ] RankListAndStruct/6.dense_asc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/6.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/6.dense_asc_bottom_pct (1 ms)
+[ RUN      ] RankListAndStruct/6.min_desc_keep_pct
+[       OK ] RankListAndStruct/6.min_desc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/6.min_desc_top_pct
+[       OK ] RankListAndStruct/6.min_desc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/6.min_desc_bottom_pct
+[       OK ] RankListAndStruct/6.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from RankListAndStruct/6 (36 ms total)
+
+[----------] 36 tests from RankListAndStruct/7, where TypeParam = unsigned long
+[ RUN      ] RankListAndStruct/7.first_asc_keep
+[       OK ] RankListAndStruct/7.first_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/7.first_asc_top
+[       OK ] RankListAndStruct/7.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/7.first_asc_bottom
+[       OK ] RankListAndStruct/7.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/7.first_desc_keep
+[       OK ] RankListAndStruct/7.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/7.first_desc_top
+[       OK ] RankListAndStruct/7.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/7.first_desc_bottom
+[       OK ] RankListAndStruct/7.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/7.dense_asc_keep
+[       OK ] RankListAndStruct/7.dense_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/7.dense_asc_top
+[       OK ] RankListAndStruct/7.dense_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/7.dense_asc_bottom
+[       OK ] RankListAndStruct/7.dense_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/7.dense_desc_keep
+[       OK ] RankListAndStruct/7.dense_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/7.dense_desc_top
+[       OK ] RankListAndStruct/7.dense_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/7.dense_desc_bottom
+[       OK ] RankListAndStruct/7.dense_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/7.min_asc_keep
+[       OK ] RankListAndStruct/7.min_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/7.min_asc_top
+[       OK ] RankListAndStruct/7.min_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/7.min_asc_bottom
+[       OK ] RankListAndStruct/7.min_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/7.min_desc_keep
+[       OK ] RankListAndStruct/7.min_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/7.min_desc_top
+[       OK ] RankListAndStruct/7.min_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/7.min_desc_bottom
+[       OK ] RankListAndStruct/7.min_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/7.max_asc_keep
+[       OK ] RankListAndStruct/7.max_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/7.max_asc_top
+[       OK ] RankListAndStruct/7.max_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/7.max_asc_bottom
+[       OK ] RankListAndStruct/7.max_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/7.max_desc_keep
+[       OK ] RankListAndStruct/7.max_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/7.max_desc_top
+[       OK ] RankListAndStruct/7.max_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/7.max_desc_bottom
+[       OK ] RankListAndStruct/7.max_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/7.average_asc_keep
+[       OK ] RankListAndStruct/7.average_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/7.average_asc_top
+[       OK ] RankListAndStruct/7.average_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/7.average_asc_bottom
+[       OK ] RankListAndStruct/7.average_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/7.average_desc_keep
+[       OK ] RankListAndStruct/7.average_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/7.average_desc_top
+[       OK ] RankListAndStruct/7.average_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/7.average_desc_bottom
+[       OK ] RankListAndStruct/7.average_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/7.dense_asc_keep_pct
+[       OK ] RankListAndStruct/7.dense_asc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/7.dense_asc_top_pct
+[       OK ] RankListAndStruct/7.dense_asc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/7.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/7.dense_asc_bottom_pct (0 ms)
+[ RUN      ] RankListAndStruct/7.min_desc_keep_pct
+[       OK ] RankListAndStruct/7.min_desc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/7.min_desc_top_pct
+[       OK ] RankListAndStruct/7.min_desc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/7.min_desc_bottom_pct
+[       OK ] RankListAndStruct/7.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from RankListAndStruct/7 (36 ms total)
+
+[----------] 36 tests from RankListAndStruct/8, where TypeParam = bool
+[ RUN      ] RankListAndStruct/8.first_asc_keep
+[       OK ] RankListAndStruct/8.first_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/8.first_asc_top
+[       OK ] RankListAndStruct/8.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/8.first_asc_bottom
+[       OK ] RankListAndStruct/8.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/8.first_desc_keep
+[       OK ] RankListAndStruct/8.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/8.first_desc_top
+[       OK ] RankListAndStruct/8.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/8.first_desc_bottom
+[       OK ] RankListAndStruct/8.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/8.dense_asc_keep
+[       OK ] RankListAndStruct/8.dense_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/8.dense_asc_top
+[       OK ] RankListAndStruct/8.dense_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/8.dense_asc_bottom
+[       OK ] RankListAndStruct/8.dense_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/8.dense_desc_keep
+[       OK ] RankListAndStruct/8.dense_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/8.dense_desc_top
+[       OK ] RankListAndStruct/8.dense_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/8.dense_desc_bottom
+[       OK ] RankListAndStruct/8.dense_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/8.min_asc_keep
+[       OK ] RankListAndStruct/8.min_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/8.min_asc_top
+[       OK ] RankListAndStruct/8.min_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/8.min_asc_bottom
+[       OK ] RankListAndStruct/8.min_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/8.min_desc_keep
+[       OK ] RankListAndStruct/8.min_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/8.min_desc_top
+[       OK ] RankListAndStruct/8.min_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/8.min_desc_bottom
+[       OK ] RankListAndStruct/8.min_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/8.max_asc_keep
+[       OK ] RankListAndStruct/8.max_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/8.max_asc_top
+[       OK ] RankListAndStruct/8.max_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/8.max_asc_bottom
+[       OK ] RankListAndStruct/8.max_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/8.max_desc_keep
+[       OK ] RankListAndStruct/8.max_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/8.max_desc_top
+[       OK ] RankListAndStruct/8.max_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/8.max_desc_bottom
+[       OK ] RankListAndStruct/8.max_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/8.average_asc_keep
+[       OK ] RankListAndStruct/8.average_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/8.average_asc_top
+[       OK ] RankListAndStruct/8.average_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/8.average_asc_bottom
+[       OK ] RankListAndStruct/8.average_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/8.average_desc_keep
+[       OK ] RankListAndStruct/8.average_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/8.average_desc_top
+[       OK ] RankListAndStruct/8.average_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/8.average_desc_bottom
+[       OK ] RankListAndStruct/8.average_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/8.dense_asc_keep_pct
+[       OK ] RankListAndStruct/8.dense_asc_keep_pct (0 ms)
+[ RUN      ] RankListAndStruct/8.dense_asc_top_pct
+[       OK ] RankListAndStruct/8.dense_asc_top_pct (0 ms)
+[ RUN      ] RankListAndStruct/8.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/8.dense_asc_bottom_pct (0 ms)
+[ RUN      ] RankListAndStruct/8.min_desc_keep_pct
+[       OK ] RankListAndStruct/8.min_desc_keep_pct (0 ms)
+[ RUN      ] RankListAndStruct/8.min_desc_top_pct
+[       OK ] RankListAndStruct/8.min_desc_top_pct (0 ms)
+[ RUN      ] RankListAndStruct/8.min_desc_bottom_pct
+[       OK ] RankListAndStruct/8.min_desc_bottom_pct (0 ms)
+[----------] 36 tests from RankListAndStruct/8 (0 ms total)
+
+[----------] 36 tests from RankListAndStruct/9, where TypeParam = float
+[ RUN      ] RankListAndStruct/9.first_asc_keep
+[       OK ] RankListAndStruct/9.first_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/9.first_asc_top
+[       OK ] RankListAndStruct/9.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/9.first_asc_bottom
+[       OK ] RankListAndStruct/9.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/9.first_desc_keep
+[       OK ] RankListAndStruct/9.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/9.first_desc_top
+[       OK ] RankListAndStruct/9.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/9.first_desc_bottom
+[       OK ] RankListAndStruct/9.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/9.dense_asc_keep
+[       OK ] RankListAndStruct/9.dense_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/9.dense_asc_top
+[       OK ] RankListAndStruct/9.dense_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/9.dense_asc_bottom
+[       OK ] RankListAndStruct/9.dense_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/9.dense_desc_keep
+[       OK ] RankListAndStruct/9.dense_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/9.dense_desc_top
+[       OK ] RankListAndStruct/9.dense_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/9.dense_desc_bottom
+[       OK ] RankListAndStruct/9.dense_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/9.min_asc_keep
+[       OK ] RankListAndStruct/9.min_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/9.min_asc_top
+[       OK ] RankListAndStruct/9.min_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/9.min_asc_bottom
+[       OK ] RankListAndStruct/9.min_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/9.min_desc_keep
+[       OK ] RankListAndStruct/9.min_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/9.min_desc_top
+[       OK ] RankListAndStruct/9.min_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/9.min_desc_bottom
+[       OK ] RankListAndStruct/9.min_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/9.max_asc_keep
+[       OK ] RankListAndStruct/9.max_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/9.max_asc_top
+[       OK ] RankListAndStruct/9.max_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/9.max_asc_bottom
+[       OK ] RankListAndStruct/9.max_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/9.max_desc_keep
+[       OK ] RankListAndStruct/9.max_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/9.max_desc_top
+[       OK ] RankListAndStruct/9.max_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/9.max_desc_bottom
+[       OK ] RankListAndStruct/9.max_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/9.average_asc_keep
+[       OK ] RankListAndStruct/9.average_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/9.average_asc_top
+[       OK ] RankListAndStruct/9.average_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/9.average_asc_bottom
+[       OK ] RankListAndStruct/9.average_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/9.average_desc_keep
+[       OK ] RankListAndStruct/9.average_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/9.average_desc_top
+[       OK ] RankListAndStruct/9.average_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/9.average_desc_bottom
+[       OK ] RankListAndStruct/9.average_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/9.dense_asc_keep_pct
+[       OK ] RankListAndStruct/9.dense_asc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/9.dense_asc_top_pct
+[       OK ] RankListAndStruct/9.dense_asc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/9.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/9.dense_asc_bottom_pct (0 ms)
+[ RUN      ] RankListAndStruct/9.min_desc_keep_pct
+[       OK ] RankListAndStruct/9.min_desc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/9.min_desc_top_pct
+[       OK ] RankListAndStruct/9.min_desc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/9.min_desc_bottom_pct
+[       OK ] RankListAndStruct/9.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from RankListAndStruct/9 (36 ms total)
+
+[----------] 36 tests from RankListAndStruct/10, where TypeParam = double
+[ RUN      ] RankListAndStruct/10.first_asc_keep
+[       OK ] RankListAndStruct/10.first_asc_keep (0 ms)
+[ RUN      ] RankListAndStruct/10.first_asc_top
+[       OK ] RankListAndStruct/10.first_asc_top (0 ms)
+[ RUN      ] RankListAndStruct/10.first_asc_bottom
+[       OK ] RankListAndStruct/10.first_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/10.first_desc_keep
+[       OK ] RankListAndStruct/10.first_desc_keep (0 ms)
+[ RUN      ] RankListAndStruct/10.first_desc_top
+[       OK ] RankListAndStruct/10.first_desc_top (0 ms)
+[ RUN      ] RankListAndStruct/10.first_desc_bottom
+[       OK ] RankListAndStruct/10.first_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/10.dense_asc_keep
+[       OK ] RankListAndStruct/10.dense_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/10.dense_asc_top
+[       OK ] RankListAndStruct/10.dense_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/10.dense_asc_bottom
+[       OK ] RankListAndStruct/10.dense_asc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/10.dense_desc_keep
+[       OK ] RankListAndStruct/10.dense_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/10.dense_desc_top
+[       OK ] RankListAndStruct/10.dense_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/10.dense_desc_bottom
+[       OK ] RankListAndStruct/10.dense_desc_bottom (0 ms)
+[ RUN      ] RankListAndStruct/10.min_asc_keep
+[       OK ] RankListAndStruct/10.min_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/10.min_asc_top
+[       OK ] RankListAndStruct/10.min_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/10.min_asc_bottom
+[       OK ] RankListAndStruct/10.min_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/10.min_desc_keep
+[       OK ] RankListAndStruct/10.min_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/10.min_desc_top
+[       OK ] RankListAndStruct/10.min_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/10.min_desc_bottom
+[       OK ] RankListAndStruct/10.min_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/10.max_asc_keep
+[       OK ] RankListAndStruct/10.max_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/10.max_asc_top
+[       OK ] RankListAndStruct/10.max_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/10.max_asc_bottom
+[       OK ] RankListAndStruct/10.max_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/10.max_desc_keep
+[       OK ] RankListAndStruct/10.max_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/10.max_desc_top
+[       OK ] RankListAndStruct/10.max_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/10.max_desc_bottom
+[       OK ] RankListAndStruct/10.max_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/10.average_asc_keep
+[       OK ] RankListAndStruct/10.average_asc_keep (1 ms)
+[ RUN      ] RankListAndStruct/10.average_asc_top
+[       OK ] RankListAndStruct/10.average_asc_top (1 ms)
+[ RUN      ] RankListAndStruct/10.average_asc_bottom
+[       OK ] RankListAndStruct/10.average_asc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/10.average_desc_keep
+[       OK ] RankListAndStruct/10.average_desc_keep (1 ms)
+[ RUN      ] RankListAndStruct/10.average_desc_top
+[       OK ] RankListAndStruct/10.average_desc_top (1 ms)
+[ RUN      ] RankListAndStruct/10.average_desc_bottom
+[       OK ] RankListAndStruct/10.average_desc_bottom (1 ms)
+[ RUN      ] RankListAndStruct/10.dense_asc_keep_pct
+[       OK ] RankListAndStruct/10.dense_asc_keep_pct (0 ms)
+[ RUN      ] RankListAndStruct/10.dense_asc_top_pct
+[       OK ] RankListAndStruct/10.dense_asc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/10.dense_asc_bottom_pct
+[       OK ] RankListAndStruct/10.dense_asc_bottom_pct (0 ms)
+[ RUN      ] RankListAndStruct/10.min_desc_keep_pct
+[       OK ] RankListAndStruct/10.min_desc_keep_pct (1 ms)
+[ RUN      ] RankListAndStruct/10.min_desc_top_pct
+[       OK ] RankListAndStruct/10.min_desc_top_pct (1 ms)
+[ RUN      ] RankListAndStruct/10.min_desc_bottom_pct
+[       OK ] RankListAndStruct/10.min_desc_bottom_pct (1 ms)
+[----------] 36 tests from RankListAndStruct/10 (36 ms total)
+
+[----------] 7 tests from SegmentedSortInt
+[ RUN      ] SegmentedSortInt.Empty
+[       OK ] SegmentedSortInt.Empty (17 ms)
+[ RUN      ] SegmentedSortInt.Single
+[       OK ] SegmentedSortInt.Single (0 ms)
+[ RUN      ] SegmentedSortInt.NonZeroSegmentsStart
+[       OK ] SegmentedSortInt.NonZeroSegmentsStart (0 ms)
+[ RUN      ] SegmentedSortInt.Sliced
+[       OK ] SegmentedSortInt.Sliced (0 ms)
+[ RUN      ] SegmentedSortInt.ErrorsMismatchArgSizes
+[       OK ] SegmentedSortInt.ErrorsMismatchArgSizes (0 ms)
+[ RUN      ] SegmentedSortInt.Bool
+[       OK ] SegmentedSortInt.Bool (0 ms)
+[ RUN      ] SegmentedSortInt.UnbalancedOffsets
+[       OK ] SegmentedSortInt.UnbalancedOffsets (7 ms)
+[----------] 7 tests from SegmentedSortInt (28 ms total)
+
+[----------] 4 tests from SegmentedSort/0, where TypeParam = signed char
+[ RUN      ] SegmentedSort/0.NoNull
+[       OK ] SegmentedSort/0.NoNull (1 ms)
+[ RUN      ] SegmentedSort/0.Null
+[       OK ] SegmentedSort/0.Null (1 ms)
+[ RUN      ] SegmentedSort/0.StableNoNulls
+[       OK ] SegmentedSort/0.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/0.StableWithNulls
+[       OK ] SegmentedSort/0.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/0 (3 ms total)
+
+[----------] 4 tests from SegmentedSort/1, where TypeParam = short
+[ RUN      ] SegmentedSort/1.NoNull
+[       OK ] SegmentedSort/1.NoNull (0 ms)
+[ RUN      ] SegmentedSort/1.Null
+[       OK ] SegmentedSort/1.Null (1 ms)
+[ RUN      ] SegmentedSort/1.StableNoNulls
+[       OK ] SegmentedSort/1.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/1.StableWithNulls
+[       OK ] SegmentedSort/1.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/1 (3 ms total)
+
+[----------] 4 tests from SegmentedSort/2, where TypeParam = int
+[ RUN      ] SegmentedSort/2.NoNull
+[       OK ] SegmentedSort/2.NoNull (0 ms)
+[ RUN      ] SegmentedSort/2.Null
+[       OK ] SegmentedSort/2.Null (1 ms)
+[ RUN      ] SegmentedSort/2.StableNoNulls
+[       OK ] SegmentedSort/2.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/2.StableWithNulls
+[       OK ] SegmentedSort/2.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/2 (2 ms total)
+
+[----------] 4 tests from SegmentedSort/3, where TypeParam = long
+[ RUN      ] SegmentedSort/3.NoNull
+[       OK ] SegmentedSort/3.NoNull (0 ms)
+[ RUN      ] SegmentedSort/3.Null
+[       OK ] SegmentedSort/3.Null (1 ms)
+[ RUN      ] SegmentedSort/3.StableNoNulls
+[       OK ] SegmentedSort/3.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/3.StableWithNulls
+[       OK ] SegmentedSort/3.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/3 (2 ms total)
+
+[----------] 4 tests from SegmentedSort/4, where TypeParam = unsigned char
+[ RUN      ] SegmentedSort/4.NoNull
+[       OK ] SegmentedSort/4.NoNull (0 ms)
+[ RUN      ] SegmentedSort/4.Null
+[       OK ] SegmentedSort/4.Null (1 ms)
+[ RUN      ] SegmentedSort/4.StableNoNulls
+[       OK ] SegmentedSort/4.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/4.StableWithNulls
+[       OK ] SegmentedSort/4.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/4 (3 ms total)
+
+[----------] 4 tests from SegmentedSort/5, where TypeParam = unsigned short
+[ RUN      ] SegmentedSort/5.NoNull
+[       OK ] SegmentedSort/5.NoNull (0 ms)
+[ RUN      ] SegmentedSort/5.Null
+[       OK ] SegmentedSort/5.Null (1 ms)
+[ RUN      ] SegmentedSort/5.StableNoNulls
+[       OK ] SegmentedSort/5.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/5.StableWithNulls
+[       OK ] SegmentedSort/5.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/5 (3 ms total)
+
+[----------] 4 tests from SegmentedSort/6, where TypeParam = unsigned int
+[ RUN      ] SegmentedSort/6.NoNull
+[       OK ] SegmentedSort/6.NoNull (1 ms)
+[ RUN      ] SegmentedSort/6.Null
+[       OK ] SegmentedSort/6.Null (1 ms)
+[ RUN      ] SegmentedSort/6.StableNoNulls
+[       OK ] SegmentedSort/6.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/6.StableWithNulls
+[       OK ] SegmentedSort/6.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/6 (3 ms total)
+
+[----------] 4 tests from SegmentedSort/7, where TypeParam = unsigned long
+[ RUN      ] SegmentedSort/7.NoNull
+[       OK ] SegmentedSort/7.NoNull (0 ms)
+[ RUN      ] SegmentedSort/7.Null
+[       OK ] SegmentedSort/7.Null (1 ms)
+[ RUN      ] SegmentedSort/7.StableNoNulls
+[       OK ] SegmentedSort/7.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/7.StableWithNulls
+[       OK ] SegmentedSort/7.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/7 (3 ms total)
+
+[----------] 4 tests from SegmentedSort/8, where TypeParam = bool
+[ RUN      ] SegmentedSort/8.NoNull
+[       OK ] SegmentedSort/8.NoNull (0 ms)
+[ RUN      ] SegmentedSort/8.Null
+[       OK ] SegmentedSort/8.Null (0 ms)
+[ RUN      ] SegmentedSort/8.StableNoNulls
+[       OK ] SegmentedSort/8.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/8.StableWithNulls
+[       OK ] SegmentedSort/8.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/8 (1 ms total)
+
+[----------] 4 tests from SegmentedSort/9, where TypeParam = float
+[ RUN      ] SegmentedSort/9.NoNull
+[       OK ] SegmentedSort/9.NoNull (0 ms)
+[ RUN      ] SegmentedSort/9.Null
+[       OK ] SegmentedSort/9.Null (1 ms)
+[ RUN      ] SegmentedSort/9.StableNoNulls
+[       OK ] SegmentedSort/9.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/9.StableWithNulls
+[       OK ] SegmentedSort/9.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/9 (2 ms total)
+
+[----------] 4 tests from SegmentedSort/10, where TypeParam = double
+[ RUN      ] SegmentedSort/10.NoNull
+[       OK ] SegmentedSort/10.NoNull (0 ms)
+[ RUN      ] SegmentedSort/10.Null
+[       OK ] SegmentedSort/10.Null (1 ms)
+[ RUN      ] SegmentedSort/10.StableNoNulls
+[       OK ] SegmentedSort/10.StableNoNulls (0 ms)
+[ RUN      ] SegmentedSort/10.StableWithNulls
+[       OK ] SegmentedSort/10.StableWithNulls (0 ms)
+[----------] 4 tests from SegmentedSort/10 (2 ms total)
+
+[----------] 9 tests from NestedStructTest
+[ RUN      ] NestedStructTest.SimpleStructsOfListsNoNulls
+[       OK ] NestedStructTest.SimpleStructsOfListsNoNulls (1 ms)
+[ RUN      ] NestedStructTest.SimpleStructsOfListsWithNulls
+[       OK ] NestedStructTest.SimpleStructsOfListsWithNulls (1 ms)
+[ RUN      ] NestedStructTest.StructsHaveListsNoNulls
+[       OK ] NestedStructTest.StructsHaveListsNoNulls (1 ms)
+[ RUN      ] NestedStructTest.StructsHaveListsWithNulls
+[       OK ] NestedStructTest.StructsHaveListsWithNulls (1 ms)
+[ RUN      ] NestedStructTest.SlicedStructsHaveListsNoNulls
+[       OK ] NestedStructTest.SlicedStructsHaveListsNoNulls (1 ms)
+[ RUN      ] NestedStructTest.SlicedStructsHaveListsWithNulls
+[       OK ] NestedStructTest.SlicedStructsHaveListsWithNulls (1 ms)
+[ RUN      ] NestedStructTest.StructsOfStructsHaveListsNoNulls
+[       OK ] NestedStructTest.StructsOfStructsHaveListsNoNulls (1 ms)
+[ RUN      ] NestedStructTest.StructsOfStructsHaveListsWithNulls
+[       OK ] NestedStructTest.StructsOfStructsHaveListsWithNulls (2 ms)
+[ RUN      ] NestedStructTest.SimpleStructsOfListsOfStructsNoNulls
+[       OK ] NestedStructTest.SimpleStructsOfListsOfStructsNoNulls (2 ms)
+[----------] 9 tests from NestedStructTest (13 ms total)
+
+[----------] 6 tests from NestedListTest
+[ RUN      ] NestedListTest.SimpleListsOfStructsNoNulls
+[       OK ] NestedListTest.SimpleListsOfStructsNoNulls (1 ms)
+[ RUN      ] NestedListTest.SlicedListsOfStructsNoNulls
+[       OK ] NestedListTest.SlicedListsOfStructsNoNulls (2 ms)
+[ RUN      ] NestedListTest.ListsOfEqualStructsNoNulls
+[       OK ] NestedListTest.ListsOfEqualStructsNoNulls (1 ms)
+[ RUN      ] NestedListTest.SimpleListsOfStructsWithNulls
+[       OK ] NestedListTest.SimpleListsOfStructsWithNulls (3 ms)
+[ RUN      ] NestedListTest.ListsOfListsOfStructsNoNulls
+[       OK ] NestedListTest.ListsOfListsOfStructsNoNulls (1 ms)
+[ RUN      ] NestedListTest.MultipleListsColumnsWithNulls
+[       OK ] NestedListTest.MultipleListsColumnsWithNulls (0 ms)
+[----------] 6 tests from NestedListTest (10 ms total)
+
+[----------] 1 test from SortNumeric/0, where TypeParam = signed char
+[ RUN      ] SortNumeric/0.MixedColumnsWithExtrema
+[       OK ] SortNumeric/0.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/0 (0 ms total)
+
+[----------] 1 test from SortNumeric/1, where TypeParam = short
+[ RUN      ] SortNumeric/1.MixedColumnsWithExtrema
+[       OK ] SortNumeric/1.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/1 (0 ms total)
+
+[----------] 1 test from SortNumeric/2, where TypeParam = int
+[ RUN      ] SortNumeric/2.MixedColumnsWithExtrema
+[       OK ] SortNumeric/2.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/2 (0 ms total)
+
+[----------] 1 test from SortNumeric/3, where TypeParam = long
+[ RUN      ] SortNumeric/3.MixedColumnsWithExtrema
+[       OK ] SortNumeric/3.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/3 (0 ms total)
+
+[----------] 1 test from SortNumeric/4, where TypeParam = unsigned char
+[ RUN      ] SortNumeric/4.MixedColumnsWithExtrema
+[       OK ] SortNumeric/4.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/4 (0 ms total)
+
+[----------] 1 test from SortNumeric/5, where TypeParam = unsigned short
+[ RUN      ] SortNumeric/5.MixedColumnsWithExtrema
+[       OK ] SortNumeric/5.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/5 (0 ms total)
+
+[----------] 1 test from SortNumeric/6, where TypeParam = unsigned int
+[ RUN      ] SortNumeric/6.MixedColumnsWithExtrema
+[       OK ] SortNumeric/6.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/6 (0 ms total)
+
+[----------] 1 test from SortNumeric/7, where TypeParam = unsigned long
+[ RUN      ] SortNumeric/7.MixedColumnsWithExtrema
+[       OK ] SortNumeric/7.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/7 (0 ms total)
+
+[----------] 1 test from SortNumeric/8, where TypeParam = bool
+[ RUN      ] SortNumeric/8.MixedColumnsWithExtrema
+[       OK ] SortNumeric/8.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/8 (0 ms total)
+
+[----------] 1 test from SortNumeric/9, where TypeParam = float
+[ RUN      ] SortNumeric/9.MixedColumnsWithExtrema
+[       OK ] SortNumeric/9.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/9 (0 ms total)
+
+[----------] 1 test from SortNumeric/10, where TypeParam = double
+[ RUN      ] SortNumeric/10.MixedColumnsWithExtrema
+[       OK ] SortNumeric/10.MixedColumnsWithExtrema (0 ms)
+[----------] 1 test from SortNumeric/10 (0 ms total)
+
+[----------] 20 tests from Sort/0, where TypeParam = signed char
+[ RUN      ] Sort/0.WithNullMax
+[       OK ] Sort/0.WithNullMax (2 ms)
+[ RUN      ] Sort/0.WithNullMin
+[       OK ] Sort/0.WithNullMin (1 ms)
+[ RUN      ] Sort/0.WithMixedNullOrder
+[       OK ] Sort/0.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/0.WithAllValid
+[       OK ] Sort/0.WithAllValid (1 ms)
+[ RUN      ] Sort/0.WithStructColumn
+[       OK ] Sort/0.WithStructColumn (3 ms)
+[ RUN      ] Sort/0.WithNestedStructColumn
+[       OK ] Sort/0.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/0.WithNullableStructColumn
+[       OK ] Sort/0.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/0.WithSingleStructColumn
+[       OK ] Sort/0.WithSingleStructColumn (2 ms)
+[ RUN      ] Sort/0.WithSlicedStructColumn
+[       OK ] Sort/0.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/0.SlicedColumns
+[       OK ] Sort/0.SlicedColumns (3 ms)
+[ RUN      ] Sort/0.WithStructColumnCombinations
+[       OK ] Sort/0.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/0.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/0.WithStructColumnCombinationsWithoutNulls (6 ms)
+[ RUN      ] Sort/0.MismatchInColumnOrderSize
+[       OK ] Sort/0.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/0.MismatchInNullPrecedenceSize
+[       OK ] Sort/0.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/0.ZeroSizedColumns
+[       OK ] Sort/0.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/0.WithListColumn
+[       OK ] Sort/0.WithListColumn (1 ms)
+[ RUN      ] Sort/0.WithNullableListColumn
+[       OK ] Sort/0.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/0.MoreLists
+[       OK ] Sort/0.MoreLists (4 ms)
+[ RUN      ] Sort/0.WithSlicedListColumn
+[       OK ] Sort/0.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/0.WithEmptyListColumn
+[       OK ] Sort/0.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/0 (55 ms total)
+
+[----------] 20 tests from Sort/1, where TypeParam = short
+[ RUN      ] Sort/1.WithNullMax
+[       OK ] Sort/1.WithNullMax (1 ms)
+[ RUN      ] Sort/1.WithNullMin
+[       OK ] Sort/1.WithNullMin (1 ms)
+[ RUN      ] Sort/1.WithMixedNullOrder
+[       OK ] Sort/1.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/1.WithAllValid
+[       OK ] Sort/1.WithAllValid (1 ms)
+[ RUN      ] Sort/1.WithStructColumn
+[       OK ] Sort/1.WithStructColumn (3 ms)
+[ RUN      ] Sort/1.WithNestedStructColumn
+[       OK ] Sort/1.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/1.WithNullableStructColumn
+[       OK ] Sort/1.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/1.WithSingleStructColumn
+[       OK ] Sort/1.WithSingleStructColumn (2 ms)
+[ RUN      ] Sort/1.WithSlicedStructColumn
+[       OK ] Sort/1.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/1.SlicedColumns
+[       OK ] Sort/1.SlicedColumns (3 ms)
+[ RUN      ] Sort/1.WithStructColumnCombinations
+[       OK ] Sort/1.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/1.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/1.WithStructColumnCombinationsWithoutNulls (6 ms)
+[ RUN      ] Sort/1.MismatchInColumnOrderSize
+[       OK ] Sort/1.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/1.MismatchInNullPrecedenceSize
+[       OK ] Sort/1.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/1.ZeroSizedColumns
+[       OK ] Sort/1.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/1.WithListColumn
+[       OK ] Sort/1.WithListColumn (0 ms)
+[ RUN      ] Sort/1.WithNullableListColumn
+[       OK ] Sort/1.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/1.MoreLists
+[       OK ] Sort/1.MoreLists (4 ms)
+[ RUN      ] Sort/1.WithSlicedListColumn
+[       OK ] Sort/1.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/1.WithEmptyListColumn
+[       OK ] Sort/1.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/1 (54 ms total)
+
+[----------] 20 tests from Sort/2, where TypeParam = int
+[ RUN      ] Sort/2.WithNullMax
+[       OK ] Sort/2.WithNullMax (1 ms)
+[ RUN      ] Sort/2.WithNullMin
+[       OK ] Sort/2.WithNullMin (1 ms)
+[ RUN      ] Sort/2.WithMixedNullOrder
+[       OK ] Sort/2.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/2.WithAllValid
+[       OK ] Sort/2.WithAllValid (1 ms)
+[ RUN      ] Sort/2.WithStructColumn
+[       OK ] Sort/2.WithStructColumn (3 ms)
+[ RUN      ] Sort/2.WithNestedStructColumn
+[       OK ] Sort/2.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/2.WithNullableStructColumn
+[       OK ] Sort/2.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/2.WithSingleStructColumn
+[       OK ] Sort/2.WithSingleStructColumn (2 ms)
+[ RUN      ] Sort/2.WithSlicedStructColumn
+[       OK ] Sort/2.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/2.SlicedColumns
+[       OK ] Sort/2.SlicedColumns (3 ms)
+[ RUN      ] Sort/2.WithStructColumnCombinations
+[       OK ] Sort/2.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/2.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/2.WithStructColumnCombinationsWithoutNulls (6 ms)
+[ RUN      ] Sort/2.MismatchInColumnOrderSize
+[       OK ] Sort/2.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/2.MismatchInNullPrecedenceSize
+[       OK ] Sort/2.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/2.ZeroSizedColumns
+[       OK ] Sort/2.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/2.WithListColumn
+[       OK ] Sort/2.WithListColumn (1 ms)
+[ RUN      ] Sort/2.WithNullableListColumn
+[       OK ] Sort/2.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/2.MoreLists
+[       OK ] Sort/2.MoreLists (4 ms)
+[ RUN      ] Sort/2.WithSlicedListColumn
+[       OK ] Sort/2.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/2.WithEmptyListColumn
+[       OK ] Sort/2.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/2 (55 ms total)
+
+[----------] 20 tests from Sort/3, where TypeParam = long
+[ RUN      ] Sort/3.WithNullMax
+[       OK ] Sort/3.WithNullMax (1 ms)
+[ RUN      ] Sort/3.WithNullMin
+[       OK ] Sort/3.WithNullMin (1 ms)
+[ RUN      ] Sort/3.WithMixedNullOrder
+[       OK ] Sort/3.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/3.WithAllValid
+[       OK ] Sort/3.WithAllValid (1 ms)
+[ RUN      ] Sort/3.WithStructColumn
+[       OK ] Sort/3.WithStructColumn (3 ms)
+[ RUN      ] Sort/3.WithNestedStructColumn
+[       OK ] Sort/3.WithNestedStructColumn (5 ms)
+[ RUN      ] Sort/3.WithNullableStructColumn
+[       OK ] Sort/3.WithNullableStructColumn (3 ms)
+[ RUN      ] Sort/3.WithSingleStructColumn
+[       OK ] Sort/3.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/3.WithSlicedStructColumn
+[       OK ] Sort/3.WithSlicedStructColumn (9 ms)
+[ RUN      ] Sort/3.SlicedColumns
+[       OK ] Sort/3.SlicedColumns (3 ms)
+[ RUN      ] Sort/3.WithStructColumnCombinations
+[       OK ] Sort/3.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/3.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/3.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/3.MismatchInColumnOrderSize
+[       OK ] Sort/3.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/3.MismatchInNullPrecedenceSize
+[       OK ] Sort/3.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/3.ZeroSizedColumns
+[       OK ] Sort/3.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/3.WithListColumn
+[       OK ] Sort/3.WithListColumn (1 ms)
+[ RUN      ] Sort/3.WithNullableListColumn
+[       OK ] Sort/3.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/3.MoreLists
+[       OK ] Sort/3.MoreLists (5 ms)
+[ RUN      ] Sort/3.WithSlicedListColumn
+[       OK ] Sort/3.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/3.WithEmptyListColumn
+[       OK ] Sort/3.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/3 (59 ms total)
+
+[----------] 20 tests from Sort/4, where TypeParam = unsigned char
+[ RUN      ] Sort/4.WithNullMax
+[       OK ] Sort/4.WithNullMax (1 ms)
+[ RUN      ] Sort/4.WithNullMin
+[       OK ] Sort/4.WithNullMin (1 ms)
+[ RUN      ] Sort/4.WithMixedNullOrder
+[       OK ] Sort/4.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/4.WithAllValid
+[       OK ] Sort/4.WithAllValid (1 ms)
+[ RUN      ] Sort/4.WithStructColumn
+[       OK ] Sort/4.WithStructColumn (3 ms)
+[ RUN      ] Sort/4.WithNestedStructColumn
+[       OK ] Sort/4.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/4.WithNullableStructColumn
+[       OK ] Sort/4.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/4.WithSingleStructColumn
+[       OK ] Sort/4.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/4.WithSlicedStructColumn
+[       OK ] Sort/4.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/4.SlicedColumns
+[       OK ] Sort/4.SlicedColumns (3 ms)
+[ RUN      ] Sort/4.WithStructColumnCombinations
+[       OK ] Sort/4.WithStructColumnCombinations (7 ms)
+[ RUN      ] Sort/4.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/4.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/4.MismatchInColumnOrderSize
+[       OK ] Sort/4.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/4.MismatchInNullPrecedenceSize
+[       OK ] Sort/4.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/4.ZeroSizedColumns
+[       OK ] Sort/4.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/4.WithListColumn
+[       OK ] Sort/4.WithListColumn (0 ms)
+[ RUN      ] Sort/4.WithNullableListColumn
+[       OK ] Sort/4.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/4.MoreLists
+[       OK ] Sort/4.MoreLists (4 ms)
+[ RUN      ] Sort/4.WithSlicedListColumn
+[       OK ] Sort/4.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/4.WithEmptyListColumn
+[       OK ] Sort/4.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/4 (56 ms total)
+
+[----------] 20 tests from Sort/5, where TypeParam = unsigned short
+[ RUN      ] Sort/5.WithNullMax
+[       OK ] Sort/5.WithNullMax (1 ms)
+[ RUN      ] Sort/5.WithNullMin
+[       OK ] Sort/5.WithNullMin (1 ms)
+[ RUN      ] Sort/5.WithMixedNullOrder
+[       OK ] Sort/5.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/5.WithAllValid
+[       OK ] Sort/5.WithAllValid (1 ms)
+[ RUN      ] Sort/5.WithStructColumn
+[       OK ] Sort/5.WithStructColumn (3 ms)
+[ RUN      ] Sort/5.WithNestedStructColumn
+[       OK ] Sort/5.WithNestedStructColumn (5 ms)
+[ RUN      ] Sort/5.WithNullableStructColumn
+[       OK ] Sort/5.WithNullableStructColumn (3 ms)
+[ RUN      ] Sort/5.WithSingleStructColumn
+[       OK ] Sort/5.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/5.WithSlicedStructColumn
+[       OK ] Sort/5.WithSlicedStructColumn (9 ms)
+[ RUN      ] Sort/5.SlicedColumns
+[       OK ] Sort/5.SlicedColumns (3 ms)
+[ RUN      ] Sort/5.WithStructColumnCombinations
+[       OK ] Sort/5.WithStructColumnCombinations (7 ms)
+[ RUN      ] Sort/5.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/5.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/5.MismatchInColumnOrderSize
+[       OK ] Sort/5.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/5.MismatchInNullPrecedenceSize
+[       OK ] Sort/5.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/5.ZeroSizedColumns
+[       OK ] Sort/5.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/5.WithListColumn
+[       OK ] Sort/5.WithListColumn (0 ms)
+[ RUN      ] Sort/5.WithNullableListColumn
+[       OK ] Sort/5.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/5.MoreLists
+[       OK ] Sort/5.MoreLists (4 ms)
+[ RUN      ] Sort/5.WithSlicedListColumn
+[       OK ] Sort/5.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/5.WithEmptyListColumn
+[       OK ] Sort/5.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/5 (58 ms total)
+
+[----------] 20 tests from Sort/6, where TypeParam = unsigned int
+[ RUN      ] Sort/6.WithNullMax
+[       OK ] Sort/6.WithNullMax (1 ms)
+[ RUN      ] Sort/6.WithNullMin
+[       OK ] Sort/6.WithNullMin (1 ms)
+[ RUN      ] Sort/6.WithMixedNullOrder
+[       OK ] Sort/6.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/6.WithAllValid
+[       OK ] Sort/6.WithAllValid (1 ms)
+[ RUN      ] Sort/6.WithStructColumn
+[       OK ] Sort/6.WithStructColumn (3 ms)
+[ RUN      ] Sort/6.WithNestedStructColumn
+[       OK ] Sort/6.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/6.WithNullableStructColumn
+[       OK ] Sort/6.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/6.WithSingleStructColumn
+[       OK ] Sort/6.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/6.WithSlicedStructColumn
+[       OK ] Sort/6.WithSlicedStructColumn (9 ms)
+[ RUN      ] Sort/6.SlicedColumns
+[       OK ] Sort/6.SlicedColumns (3 ms)
+[ RUN      ] Sort/6.WithStructColumnCombinations
+[       OK ] Sort/6.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/6.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/6.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/6.MismatchInColumnOrderSize
+[       OK ] Sort/6.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/6.MismatchInNullPrecedenceSize
+[       OK ] Sort/6.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/6.ZeroSizedColumns
+[       OK ] Sort/6.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/6.WithListColumn
+[       OK ] Sort/6.WithListColumn (0 ms)
+[ RUN      ] Sort/6.WithNullableListColumn
+[       OK ] Sort/6.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/6.MoreLists
+[       OK ] Sort/6.MoreLists (4 ms)
+[ RUN      ] Sort/6.WithSlicedListColumn
+[       OK ] Sort/6.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/6.WithEmptyListColumn
+[       OK ] Sort/6.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/6 (57 ms total)
+
+[----------] 20 tests from Sort/7, where TypeParam = unsigned long
+[ RUN      ] Sort/7.WithNullMax
+[       OK ] Sort/7.WithNullMax (1 ms)
+[ RUN      ] Sort/7.WithNullMin
+[       OK ] Sort/7.WithNullMin (1 ms)
+[ RUN      ] Sort/7.WithMixedNullOrder
+[       OK ] Sort/7.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/7.WithAllValid
+[       OK ] Sort/7.WithAllValid (1 ms)
+[ RUN      ] Sort/7.WithStructColumn
+[       OK ] Sort/7.WithStructColumn (3 ms)
+[ RUN      ] Sort/7.WithNestedStructColumn
+[       OK ] Sort/7.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/7.WithNullableStructColumn
+[       OK ] Sort/7.WithNullableStructColumn (3 ms)
+[ RUN      ] Sort/7.WithSingleStructColumn
+[       OK ] Sort/7.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/7.WithSlicedStructColumn
+[       OK ] Sort/7.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/7.SlicedColumns
+[       OK ] Sort/7.SlicedColumns (3 ms)
+[ RUN      ] Sort/7.WithStructColumnCombinations
+[       OK ] Sort/7.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/7.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/7.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/7.MismatchInColumnOrderSize
+[       OK ] Sort/7.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/7.MismatchInNullPrecedenceSize
+[       OK ] Sort/7.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/7.ZeroSizedColumns
+[       OK ] Sort/7.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/7.WithListColumn
+[       OK ] Sort/7.WithListColumn (1 ms)
+[ RUN      ] Sort/7.WithNullableListColumn
+[       OK ] Sort/7.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/7.MoreLists
+[       OK ] Sort/7.MoreLists (5 ms)
+[ RUN      ] Sort/7.WithSlicedListColumn
+[       OK ] Sort/7.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/7.WithEmptyListColumn
+[       OK ] Sort/7.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/7 (57 ms total)
+
+[----------] 20 tests from Sort/8, where TypeParam = bool
+[ RUN      ] Sort/8.WithNullMax
+[       OK ] Sort/8.WithNullMax (1 ms)
+[ RUN      ] Sort/8.WithNullMin
+[       OK ] Sort/8.WithNullMin (1 ms)
+[ RUN      ] Sort/8.WithMixedNullOrder
+[       OK ] Sort/8.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/8.WithAllValid
+[       OK ] Sort/8.WithAllValid (1 ms)
+[ RUN      ] Sort/8.WithStructColumn
+[       OK ] Sort/8.WithStructColumn (3 ms)
+[ RUN      ] Sort/8.WithNestedStructColumn
+[       OK ] Sort/8.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/8.WithNullableStructColumn
+[       OK ] Sort/8.WithNullableStructColumn (3 ms)
+[ RUN      ] Sort/8.WithSingleStructColumn
+[       OK ] Sort/8.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/8.WithSlicedStructColumn
+[       OK ] Sort/8.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/8.SlicedColumns
+[       OK ] Sort/8.SlicedColumns (3 ms)
+[ RUN      ] Sort/8.WithStructColumnCombinations
+[       OK ] Sort/8.WithStructColumnCombinations (7 ms)
+[ RUN      ] Sort/8.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/8.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/8.MismatchInColumnOrderSize
+[       OK ] Sort/8.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/8.MismatchInNullPrecedenceSize
+[       OK ] Sort/8.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/8.ZeroSizedColumns
+[       OK ] Sort/8.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/8.WithListColumn
+/home/coder/cudf/cpp/tests/sort/sort_test.cpp:746: Skipped
+
+
+[  SKIPPED ] Sort/8.WithListColumn (0 ms)
+[ RUN      ] Sort/8.WithNullableListColumn
+/home/coder/cudf/cpp/tests/sort/sort_test.cpp:781: Skipped
+
+
+[  SKIPPED ] Sort/8.WithNullableListColumn (0 ms)
+[ RUN      ] Sort/8.MoreLists
+/home/coder/cudf/cpp/tests/sort/sort_test.cpp:827: Skipped
+
+
+[  SKIPPED ] Sort/8.MoreLists (0 ms)
+[ RUN      ] Sort/8.WithSlicedListColumn
+/home/coder/cudf/cpp/tests/sort/sort_test.cpp:940: Skipped
+
+
+[  SKIPPED ] Sort/8.WithSlicedListColumn (0 ms)
+[ RUN      ] Sort/8.WithEmptyListColumn
+/home/coder/cudf/cpp/tests/sort/sort_test.cpp:969: Skipped
+
+
+[  SKIPPED ] Sort/8.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/8 (48 ms total)
+
+[----------] 20 tests from Sort/9, where TypeParam = float
+[ RUN      ] Sort/9.WithNullMax
+[       OK ] Sort/9.WithNullMax (1 ms)
+[ RUN      ] Sort/9.WithNullMin
+[       OK ] Sort/9.WithNullMin (1 ms)
+[ RUN      ] Sort/9.WithMixedNullOrder
+[       OK ] Sort/9.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/9.WithAllValid
+[       OK ] Sort/9.WithAllValid (1 ms)
+[ RUN      ] Sort/9.WithStructColumn
+[       OK ] Sort/9.WithStructColumn (3 ms)
+[ RUN      ] Sort/9.WithNestedStructColumn
+[       OK ] Sort/9.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/9.WithNullableStructColumn
+[       OK ] Sort/9.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/9.WithSingleStructColumn
+[       OK ] Sort/9.WithSingleStructColumn (2 ms)
+[ RUN      ] Sort/9.WithSlicedStructColumn
+[       OK ] Sort/9.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/9.SlicedColumns
+[       OK ] Sort/9.SlicedColumns (3 ms)
+[ RUN      ] Sort/9.WithStructColumnCombinations
+[       OK ] Sort/9.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/9.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/9.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/9.MismatchInColumnOrderSize
+[       OK ] Sort/9.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/9.MismatchInNullPrecedenceSize
+[       OK ] Sort/9.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/9.ZeroSizedColumns
+[       OK ] Sort/9.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/9.WithListColumn
+[       OK ] Sort/9.WithListColumn (0 ms)
+[ RUN      ] Sort/9.WithNullableListColumn
+[       OK ] Sort/9.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/9.MoreLists
+[       OK ] Sort/9.MoreLists (4 ms)
+[ RUN      ] Sort/9.WithSlicedListColumn
+[       OK ] Sort/9.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/9.WithEmptyListColumn
+[       OK ] Sort/9.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/9 (56 ms total)
+
+[----------] 20 tests from Sort/10, where TypeParam = double
+[ RUN      ] Sort/10.WithNullMax
+[       OK ] Sort/10.WithNullMax (1 ms)
+[ RUN      ] Sort/10.WithNullMin
+[       OK ] Sort/10.WithNullMin (1 ms)
+[ RUN      ] Sort/10.WithMixedNullOrder
+[       OK ] Sort/10.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/10.WithAllValid
+[       OK ] Sort/10.WithAllValid (1 ms)
+[ RUN      ] Sort/10.WithStructColumn
+[       OK ] Sort/10.WithStructColumn (3 ms)
+[ RUN      ] Sort/10.WithNestedStructColumn
+[       OK ] Sort/10.WithNestedStructColumn (5 ms)
+[ RUN      ] Sort/10.WithNullableStructColumn
+[       OK ] Sort/10.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/10.WithSingleStructColumn
+[       OK ] Sort/10.WithSingleStructColumn (2 ms)
+[ RUN      ] Sort/10.WithSlicedStructColumn
+[       OK ] Sort/10.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/10.SlicedColumns
+[       OK ] Sort/10.SlicedColumns (3 ms)
+[ RUN      ] Sort/10.WithStructColumnCombinations
+[       OK ] Sort/10.WithStructColumnCombinations (7 ms)
+[ RUN      ] Sort/10.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/10.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/10.MismatchInColumnOrderSize
+[       OK ] Sort/10.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/10.MismatchInNullPrecedenceSize
+[       OK ] Sort/10.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/10.ZeroSizedColumns
+[       OK ] Sort/10.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/10.WithListColumn
+[       OK ] Sort/10.WithListColumn (1 ms)
+[ RUN      ] Sort/10.WithNullableListColumn
+[       OK ] Sort/10.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/10.MoreLists
+[       OK ] Sort/10.MoreLists (4 ms)
+[ RUN      ] Sort/10.WithSlicedListColumn
+[       OK ] Sort/10.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/10.WithEmptyListColumn
+[       OK ] Sort/10.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/10 (57 ms total)
+
+[----------] 20 tests from Sort/11, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<int,cuda::std::__4::ratio<86400l,1l> > >
+[ RUN      ] Sort/11.WithNullMax
+[       OK ] Sort/11.WithNullMax (1 ms)
+[ RUN      ] Sort/11.WithNullMin
+[       OK ] Sort/11.WithNullMin (1 ms)
+[ RUN      ] Sort/11.WithMixedNullOrder
+[       OK ] Sort/11.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/11.WithAllValid
+[       OK ] Sort/11.WithAllValid (1 ms)
+[ RUN      ] Sort/11.WithStructColumn
+[       OK ] Sort/11.WithStructColumn (3 ms)
+[ RUN      ] Sort/11.WithNestedStructColumn
+[       OK ] Sort/11.WithNestedStructColumn (5 ms)
+[ RUN      ] Sort/11.WithNullableStructColumn
+[       OK ] Sort/11.WithNullableStructColumn (3 ms)
+[ RUN      ] Sort/11.WithSingleStructColumn
+[       OK ] Sort/11.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/11.WithSlicedStructColumn
+[       OK ] Sort/11.WithSlicedStructColumn (9 ms)
+[ RUN      ] Sort/11.SlicedColumns
+[       OK ] Sort/11.SlicedColumns (3 ms)
+[ RUN      ] Sort/11.WithStructColumnCombinations
+[       OK ] Sort/11.WithStructColumnCombinations (7 ms)
+[ RUN      ] Sort/11.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/11.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/11.MismatchInColumnOrderSize
+[       OK ] Sort/11.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/11.MismatchInNullPrecedenceSize
+[       OK ] Sort/11.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/11.ZeroSizedColumns
+[       OK ] Sort/11.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/11.WithListColumn
+[       OK ] Sort/11.WithListColumn (0 ms)
+[ RUN      ] Sort/11.WithNullableListColumn
+[       OK ] Sort/11.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/11.MoreLists
+[       OK ] Sort/11.MoreLists (5 ms)
+[ RUN      ] Sort/11.WithSlicedListColumn
+[       OK ] Sort/11.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/11.WithEmptyListColumn
+[       OK ] Sort/11.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/11 (58 ms total)
+
+[----------] 20 tests from Sort/12, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1l> > >
+[ RUN      ] Sort/12.WithNullMax
+[       OK ] Sort/12.WithNullMax (1 ms)
+[ RUN      ] Sort/12.WithNullMin
+[       OK ] Sort/12.WithNullMin (1 ms)
+[ RUN      ] Sort/12.WithMixedNullOrder
+[       OK ] Sort/12.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/12.WithAllValid
+[       OK ] Sort/12.WithAllValid (1 ms)
+[ RUN      ] Sort/12.WithStructColumn
+[       OK ] Sort/12.WithStructColumn (3 ms)
+[ RUN      ] Sort/12.WithNestedStructColumn
+[       OK ] Sort/12.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/12.WithNullableStructColumn
+[       OK ] Sort/12.WithNullableStructColumn (3 ms)
+[ RUN      ] Sort/12.WithSingleStructColumn
+[       OK ] Sort/12.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/12.WithSlicedStructColumn
+[       OK ] Sort/12.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/12.SlicedColumns
+[       OK ] Sort/12.SlicedColumns (3 ms)
+[ RUN      ] Sort/12.WithStructColumnCombinations
+[       OK ] Sort/12.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/12.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/12.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/12.MismatchInColumnOrderSize
+[       OK ] Sort/12.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/12.MismatchInNullPrecedenceSize
+[       OK ] Sort/12.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/12.ZeroSizedColumns
+[       OK ] Sort/12.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/12.WithListColumn
+[       OK ] Sort/12.WithListColumn (1 ms)
+[ RUN      ] Sort/12.WithNullableListColumn
+[       OK ] Sort/12.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/12.MoreLists
+[       OK ] Sort/12.MoreLists (5 ms)
+[ RUN      ] Sort/12.WithSlicedListColumn
+[       OK ] Sort/12.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/12.WithEmptyListColumn
+[       OK ] Sort/12.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/12 (58 ms total)
+
+[----------] 20 tests from Sort/13, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000l> > >
+[ RUN      ] Sort/13.WithNullMax
+[       OK ] Sort/13.WithNullMax (1 ms)
+[ RUN      ] Sort/13.WithNullMin
+[       OK ] Sort/13.WithNullMin (1 ms)
+[ RUN      ] Sort/13.WithMixedNullOrder
+[       OK ] Sort/13.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/13.WithAllValid
+[       OK ] Sort/13.WithAllValid (1 ms)
+[ RUN      ] Sort/13.WithStructColumn
+[       OK ] Sort/13.WithStructColumn (3 ms)
+[ RUN      ] Sort/13.WithNestedStructColumn
+[       OK ] Sort/13.WithNestedStructColumn (5 ms)
+[ RUN      ] Sort/13.WithNullableStructColumn
+[       OK ] Sort/13.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/13.WithSingleStructColumn
+[       OK ] Sort/13.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/13.WithSlicedStructColumn
+[       OK ] Sort/13.WithSlicedStructColumn (9 ms)
+[ RUN      ] Sort/13.SlicedColumns
+[       OK ] Sort/13.SlicedColumns (3 ms)
+[ RUN      ] Sort/13.WithStructColumnCombinations
+[       OK ] Sort/13.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/13.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/13.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/13.MismatchInColumnOrderSize
+[       OK ] Sort/13.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/13.MismatchInNullPrecedenceSize
+[       OK ] Sort/13.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/13.ZeroSizedColumns
+[       OK ] Sort/13.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/13.WithListColumn
+[       OK ] Sort/13.WithListColumn (0 ms)
+[ RUN      ] Sort/13.WithNullableListColumn
+[       OK ] Sort/13.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/13.MoreLists
+[       OK ] Sort/13.MoreLists (4 ms)
+[ RUN      ] Sort/13.WithSlicedListColumn
+[       OK ] Sort/13.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/13.WithEmptyListColumn
+[       OK ] Sort/13.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/13 (57 ms total)
+
+[----------] 20 tests from Sort/14, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000l> > >
+[ RUN      ] Sort/14.WithNullMax
+[       OK ] Sort/14.WithNullMax (1 ms)
+[ RUN      ] Sort/14.WithNullMin
+[       OK ] Sort/14.WithNullMin (1 ms)
+[ RUN      ] Sort/14.WithMixedNullOrder
+[       OK ] Sort/14.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/14.WithAllValid
+[       OK ] Sort/14.WithAllValid (1 ms)
+[ RUN      ] Sort/14.WithStructColumn
+[       OK ] Sort/14.WithStructColumn (3 ms)
+[ RUN      ] Sort/14.WithNestedStructColumn
+[       OK ] Sort/14.WithNestedStructColumn (5 ms)
+[ RUN      ] Sort/14.WithNullableStructColumn
+[       OK ] Sort/14.WithNullableStructColumn (3 ms)
+[ RUN      ] Sort/14.WithSingleStructColumn
+[       OK ] Sort/14.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/14.WithSlicedStructColumn
+[       OK ] Sort/14.WithSlicedStructColumn (9 ms)
+[ RUN      ] Sort/14.SlicedColumns
+[       OK ] Sort/14.SlicedColumns (3 ms)
+[ RUN      ] Sort/14.WithStructColumnCombinations
+[       OK ] Sort/14.WithStructColumnCombinations (7 ms)
+[ RUN      ] Sort/14.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/14.WithStructColumnCombinationsWithoutNulls (6 ms)
+[ RUN      ] Sort/14.MismatchInColumnOrderSize
+[       OK ] Sort/14.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/14.MismatchInNullPrecedenceSize
+[       OK ] Sort/14.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/14.ZeroSizedColumns
+[       OK ] Sort/14.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/14.WithListColumn
+[       OK ] Sort/14.WithListColumn (0 ms)
+[ RUN      ] Sort/14.WithNullableListColumn
+[       OK ] Sort/14.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/14.MoreLists
+[       OK ] Sort/14.MoreLists (4 ms)
+[ RUN      ] Sort/14.WithSlicedListColumn
+[       OK ] Sort/14.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/14.WithEmptyListColumn
+[       OK ] Sort/14.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/14 (59 ms total)
+
+[----------] 20 tests from Sort/15, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000000l> > >
+[ RUN      ] Sort/15.WithNullMax
+[       OK ] Sort/15.WithNullMax (1 ms)
+[ RUN      ] Sort/15.WithNullMin
+[       OK ] Sort/15.WithNullMin (1 ms)
+[ RUN      ] Sort/15.WithMixedNullOrder
+[       OK ] Sort/15.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/15.WithAllValid
+[       OK ] Sort/15.WithAllValid (1 ms)
+[ RUN      ] Sort/15.WithStructColumn
+[       OK ] Sort/15.WithStructColumn (3 ms)
+[ RUN      ] Sort/15.WithNestedStructColumn
+[       OK ] Sort/15.WithNestedStructColumn (5 ms)
+[ RUN      ] Sort/15.WithNullableStructColumn
+[       OK ] Sort/15.WithNullableStructColumn (3 ms)
+[ RUN      ] Sort/15.WithSingleStructColumn
+[       OK ] Sort/15.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/15.WithSlicedStructColumn
+[       OK ] Sort/15.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/15.SlicedColumns
+[       OK ] Sort/15.SlicedColumns (3 ms)
+[ RUN      ] Sort/15.WithStructColumnCombinations
+[       OK ] Sort/15.WithStructColumnCombinations (7 ms)
+[ RUN      ] Sort/15.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/15.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/15.MismatchInColumnOrderSize
+[       OK ] Sort/15.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/15.MismatchInNullPrecedenceSize
+[       OK ] Sort/15.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/15.ZeroSizedColumns
+[       OK ] Sort/15.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/15.WithListColumn
+[       OK ] Sort/15.WithListColumn (0 ms)
+[ RUN      ] Sort/15.WithNullableListColumn
+[       OK ] Sort/15.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/15.MoreLists
+[       OK ] Sort/15.MoreLists (4 ms)
+[ RUN      ] Sort/15.WithSlicedListColumn
+[       OK ] Sort/15.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/15.WithEmptyListColumn
+[       OK ] Sort/15.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/15 (57 ms total)
+
+[----------] 20 tests from Sort/16, where TypeParam = cuda::std::__4::chrono::duration<int,cuda::std::__4::ratio<86400l,1l> >
+[ RUN      ] Sort/16.WithNullMax
+[       OK ] Sort/16.WithNullMax (1 ms)
+[ RUN      ] Sort/16.WithNullMin
+[       OK ] Sort/16.WithNullMin (1 ms)
+[ RUN      ] Sort/16.WithMixedNullOrder
+[       OK ] Sort/16.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/16.WithAllValid
+[       OK ] Sort/16.WithAllValid (1 ms)
+[ RUN      ] Sort/16.WithStructColumn
+[       OK ] Sort/16.WithStructColumn (3 ms)
+[ RUN      ] Sort/16.WithNestedStructColumn
+[       OK ] Sort/16.WithNestedStructColumn (5 ms)
+[ RUN      ] Sort/16.WithNullableStructColumn
+[       OK ] Sort/16.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/16.WithSingleStructColumn
+[       OK ] Sort/16.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/16.WithSlicedStructColumn
+[       OK ] Sort/16.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/16.SlicedColumns
+[       OK ] Sort/16.SlicedColumns (3 ms)
+[ RUN      ] Sort/16.WithStructColumnCombinations
+[       OK ] Sort/16.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/16.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/16.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/16.MismatchInColumnOrderSize
+[       OK ] Sort/16.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/16.MismatchInNullPrecedenceSize
+[       OK ] Sort/16.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/16.ZeroSizedColumns
+[       OK ] Sort/16.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/16.WithListColumn
+[       OK ] Sort/16.WithListColumn (1 ms)
+[ RUN      ] Sort/16.WithNullableListColumn
+[       OK ] Sort/16.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/16.MoreLists
+[       OK ] Sort/16.MoreLists (5 ms)
+[ RUN      ] Sort/16.WithSlicedListColumn
+[       OK ] Sort/16.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/16.WithEmptyListColumn
+[       OK ] Sort/16.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/16 (57 ms total)
+
+[----------] 20 tests from Sort/17, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1l> >
+[ RUN      ] Sort/17.WithNullMax
+[       OK ] Sort/17.WithNullMax (1 ms)
+[ RUN      ] Sort/17.WithNullMin
+[       OK ] Sort/17.WithNullMin (1 ms)
+[ RUN      ] Sort/17.WithMixedNullOrder
+[       OK ] Sort/17.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/17.WithAllValid
+[       OK ] Sort/17.WithAllValid (1 ms)
+[ RUN      ] Sort/17.WithStructColumn
+[       OK ] Sort/17.WithStructColumn (3 ms)
+[ RUN      ] Sort/17.WithNestedStructColumn
+[       OK ] Sort/17.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/17.WithNullableStructColumn
+[       OK ] Sort/17.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/17.WithSingleStructColumn
+[       OK ] Sort/17.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/17.WithSlicedStructColumn
+[       OK ] Sort/17.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/17.SlicedColumns
+[       OK ] Sort/17.SlicedColumns (3 ms)
+[ RUN      ] Sort/17.WithStructColumnCombinations
+[       OK ] Sort/17.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/17.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/17.WithStructColumnCombinationsWithoutNulls (6 ms)
+[ RUN      ] Sort/17.MismatchInColumnOrderSize
+[       OK ] Sort/17.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/17.MismatchInNullPrecedenceSize
+[       OK ] Sort/17.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/17.ZeroSizedColumns
+[       OK ] Sort/17.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/17.WithListColumn
+[       OK ] Sort/17.WithListColumn (1 ms)
+[ RUN      ] Sort/17.WithNullableListColumn
+[       OK ] Sort/17.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/17.MoreLists
+[       OK ] Sort/17.MoreLists (4 ms)
+[ RUN      ] Sort/17.WithSlicedListColumn
+[       OK ] Sort/17.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/17.WithEmptyListColumn
+[       OK ] Sort/17.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/17 (55 ms total)
+
+[----------] 20 tests from Sort/18, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000l> >
+[ RUN      ] Sort/18.WithNullMax
+[       OK ] Sort/18.WithNullMax (1 ms)
+[ RUN      ] Sort/18.WithNullMin
+[       OK ] Sort/18.WithNullMin (1 ms)
+[ RUN      ] Sort/18.WithMixedNullOrder
+[       OK ] Sort/18.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/18.WithAllValid
+[       OK ] Sort/18.WithAllValid (1 ms)
+[ RUN      ] Sort/18.WithStructColumn
+[       OK ] Sort/18.WithStructColumn (3 ms)
+[ RUN      ] Sort/18.WithNestedStructColumn
+[       OK ] Sort/18.WithNestedStructColumn (5 ms)
+[ RUN      ] Sort/18.WithNullableStructColumn
+[       OK ] Sort/18.WithNullableStructColumn (3 ms)
+[ RUN      ] Sort/18.WithSingleStructColumn
+[       OK ] Sort/18.WithSingleStructColumn (2 ms)
+[ RUN      ] Sort/18.WithSlicedStructColumn
+[       OK ] Sort/18.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/18.SlicedColumns
+[       OK ] Sort/18.SlicedColumns (3 ms)
+[ RUN      ] Sort/18.WithStructColumnCombinations
+[       OK ] Sort/18.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/18.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/18.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/18.MismatchInColumnOrderSize
+[       OK ] Sort/18.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/18.MismatchInNullPrecedenceSize
+[       OK ] Sort/18.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/18.ZeroSizedColumns
+[       OK ] Sort/18.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/18.WithListColumn
+[       OK ] Sort/18.WithListColumn (0 ms)
+[ RUN      ] Sort/18.WithNullableListColumn
+[       OK ] Sort/18.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/18.MoreLists
+[       OK ] Sort/18.MoreLists (4 ms)
+[ RUN      ] Sort/18.WithSlicedListColumn
+[       OK ] Sort/18.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/18.WithEmptyListColumn
+[       OK ] Sort/18.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/18 (56 ms total)
+
+[----------] 20 tests from Sort/19, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000l> >
+[ RUN      ] Sort/19.WithNullMax
+[       OK ] Sort/19.WithNullMax (1 ms)
+[ RUN      ] Sort/19.WithNullMin
+[       OK ] Sort/19.WithNullMin (1 ms)
+[ RUN      ] Sort/19.WithMixedNullOrder
+[       OK ] Sort/19.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/19.WithAllValid
+[       OK ] Sort/19.WithAllValid (1 ms)
+[ RUN      ] Sort/19.WithStructColumn
+[       OK ] Sort/19.WithStructColumn (3 ms)
+[ RUN      ] Sort/19.WithNestedStructColumn
+[       OK ] Sort/19.WithNestedStructColumn (5 ms)
+[ RUN      ] Sort/19.WithNullableStructColumn
+[       OK ] Sort/19.WithNullableStructColumn (2 ms)
+[ RUN      ] Sort/19.WithSingleStructColumn
+[       OK ] Sort/19.WithSingleStructColumn (2 ms)
+[ RUN      ] Sort/19.WithSlicedStructColumn
+[       OK ] Sort/19.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/19.SlicedColumns
+[       OK ] Sort/19.SlicedColumns (3 ms)
+[ RUN      ] Sort/19.WithStructColumnCombinations
+[       OK ] Sort/19.WithStructColumnCombinations (7 ms)
+[ RUN      ] Sort/19.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/19.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/19.MismatchInColumnOrderSize
+[       OK ] Sort/19.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/19.MismatchInNullPrecedenceSize
+[       OK ] Sort/19.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/19.ZeroSizedColumns
+[       OK ] Sort/19.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/19.WithListColumn
+[       OK ] Sort/19.WithListColumn (0 ms)
+[ RUN      ] Sort/19.WithNullableListColumn
+[       OK ] Sort/19.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/19.MoreLists
+[       OK ] Sort/19.MoreLists (5 ms)
+[ RUN      ] Sort/19.WithSlicedListColumn
+[       OK ] Sort/19.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/19.WithEmptyListColumn
+[       OK ] Sort/19.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/19 (57 ms total)
+
+[----------] 20 tests from Sort/20, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000000l> >
+[ RUN      ] Sort/20.WithNullMax
+[       OK ] Sort/20.WithNullMax (1 ms)
+[ RUN      ] Sort/20.WithNullMin
+[       OK ] Sort/20.WithNullMin (1 ms)
+[ RUN      ] Sort/20.WithMixedNullOrder
+[       OK ] Sort/20.WithMixedNullOrder (1 ms)
+[ RUN      ] Sort/20.WithAllValid
+[       OK ] Sort/20.WithAllValid (1 ms)
+[ RUN      ] Sort/20.WithStructColumn
+[       OK ] Sort/20.WithStructColumn (3 ms)
+[ RUN      ] Sort/20.WithNestedStructColumn
+[       OK ] Sort/20.WithNestedStructColumn (4 ms)
+[ RUN      ] Sort/20.WithNullableStructColumn
+[       OK ] Sort/20.WithNullableStructColumn (3 ms)
+[ RUN      ] Sort/20.WithSingleStructColumn
+[       OK ] Sort/20.WithSingleStructColumn (3 ms)
+[ RUN      ] Sort/20.WithSlicedStructColumn
+[       OK ] Sort/20.WithSlicedStructColumn (8 ms)
+[ RUN      ] Sort/20.SlicedColumns
+[       OK ] Sort/20.SlicedColumns (3 ms)
+[ RUN      ] Sort/20.WithStructColumnCombinations
+[       OK ] Sort/20.WithStructColumnCombinations (6 ms)
+[ RUN      ] Sort/20.WithStructColumnCombinationsWithoutNulls
+[       OK ] Sort/20.WithStructColumnCombinationsWithoutNulls (7 ms)
+[ RUN      ] Sort/20.MismatchInColumnOrderSize
+[       OK ] Sort/20.MismatchInColumnOrderSize (0 ms)
+[ RUN      ] Sort/20.MismatchInNullPrecedenceSize
+[       OK ] Sort/20.MismatchInNullPrecedenceSize (0 ms)
+[ RUN      ] Sort/20.ZeroSizedColumns
+[       OK ] Sort/20.ZeroSizedColumns (0 ms)
+[ RUN      ] Sort/20.WithListColumn
+[       OK ] Sort/20.WithListColumn (1 ms)
+[ RUN      ] Sort/20.WithNullableListColumn
+[       OK ] Sort/20.WithNullableListColumn (1 ms)
+[ RUN      ] Sort/20.MoreLists
+[       OK ] Sort/20.MoreLists (5 ms)
+[ RUN      ] Sort/20.WithSlicedListColumn
+[       OK ] Sort/20.WithSlicedListColumn (1 ms)
+[ RUN      ] Sort/20.WithEmptyListColumn
+[       OK ] Sort/20.WithEmptyListColumn (0 ms)
+[----------] 20 tests from Sort/20 (57 ms total)
+
+[----------] 1 test from SortByKey
+[ RUN      ] SortByKey.ValueKeysSizeMismatch
+[       OK ] SortByKey.ValueKeysSizeMismatch (0 ms)
+[----------] 1 test from SortByKey (0 ms total)
+
+[----------] 1 test from SortFixedPointTest/0, where TypeParam = numeric::fixed_point<int,(numeric::Radix)10>
+[ RUN      ] SortFixedPointTest/0.SortedOrderGather
+[       OK ] SortFixedPointTest/0.SortedOrderGather (0 ms)
+[----------] 1 test from SortFixedPointTest/0 (0 ms total)
+
+[----------] 1 test from SortFixedPointTest/1, where TypeParam = numeric::fixed_point<long,(numeric::Radix)10>
+[ RUN      ] SortFixedPointTest/1.SortedOrderGather
+[       OK ] SortFixedPointTest/1.SortedOrderGather (0 ms)
+[----------] 1 test from SortFixedPointTest/1 (0 ms total)
+
+[----------] 1 test from SortFixedPointTest/2, where TypeParam = numeric::fixed_point<__int128,(numeric::Radix)10>
+[ RUN      ] SortFixedPointTest/2.SortedOrderGather
+[       OK ] SortFixedPointTest/2.SortedOrderGather (0 ms)
+[----------] 1 test from SortFixedPointTest/2 (0 ms total)
+
+[----------] 1 test from SortCornerTest
+[ RUN      ] SortCornerTest.WithEmptyStructColumn
+[       OK ] SortCornerTest.WithEmptyStructColumn (0 ms)
+[----------] 1 test from SortCornerTest (0 ms total)
+
+[----------] 1 test from SortDouble
+[ RUN      ] SortDouble.InfinityAndNan
+[       OK ] SortDouble.InfinityAndNan (0 ms)
+[----------] 1 test from SortDouble (0 ms total)
+
+[----------] 9 tests from StableSort/0, where TypeParam = signed char
+[ RUN      ] StableSort/0.MixedNullOrder
+[       OK ] StableSort/0.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/0.WithNullMax
+[       OK ] StableSort/0.WithNullMax (1 ms)
+[ RUN      ] StableSort/0.SingleColumnNoNull
+[       OK ] StableSort/0.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/0.SingleColumnWithNull
+[       OK ] StableSort/0.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/0.WithNullMin
+[       OK ] StableSort/0.WithNullMin (1 ms)
+[ RUN      ] StableSort/0.WithAllValid
+[       OK ] StableSort/0.WithAllValid (1 ms)
+[ RUN      ] StableSort/0.MisMatchInColumnOrderSize
+[       OK ] StableSort/0.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/0.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/0.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/0.ZeroSizedColumns
+[       OK ] StableSort/0.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/0 (6 ms total)
+
+[----------] 9 tests from StableSort/1, where TypeParam = short
+[ RUN      ] StableSort/1.MixedNullOrder
+[       OK ] StableSort/1.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/1.WithNullMax
+[       OK ] StableSort/1.WithNullMax (1 ms)
+[ RUN      ] StableSort/1.SingleColumnNoNull
+[       OK ] StableSort/1.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/1.SingleColumnWithNull
+[       OK ] StableSort/1.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/1.WithNullMin
+[       OK ] StableSort/1.WithNullMin (1 ms)
+[ RUN      ] StableSort/1.WithAllValid
+[       OK ] StableSort/1.WithAllValid (1 ms)
+[ RUN      ] StableSort/1.MisMatchInColumnOrderSize
+[       OK ] StableSort/1.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/1.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/1.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/1.ZeroSizedColumns
+[       OK ] StableSort/1.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/1 (6 ms total)
+
+[----------] 9 tests from StableSort/2, where TypeParam = int
+[ RUN      ] StableSort/2.MixedNullOrder
+[       OK ] StableSort/2.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/2.WithNullMax
+[       OK ] StableSort/2.WithNullMax (1 ms)
+[ RUN      ] StableSort/2.SingleColumnNoNull
+[       OK ] StableSort/2.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/2.SingleColumnWithNull
+[       OK ] StableSort/2.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/2.WithNullMin
+[       OK ] StableSort/2.WithNullMin (1 ms)
+[ RUN      ] StableSort/2.WithAllValid
+[       OK ] StableSort/2.WithAllValid (1 ms)
+[ RUN      ] StableSort/2.MisMatchInColumnOrderSize
+[       OK ] StableSort/2.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/2.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/2.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/2.ZeroSizedColumns
+[       OK ] StableSort/2.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/2 (6 ms total)
+
+[----------] 9 tests from StableSort/3, where TypeParam = long
+[ RUN      ] StableSort/3.MixedNullOrder
+[       OK ] StableSort/3.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/3.WithNullMax
+[       OK ] StableSort/3.WithNullMax (1 ms)
+[ RUN      ] StableSort/3.SingleColumnNoNull
+[       OK ] StableSort/3.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/3.SingleColumnWithNull
+[       OK ] StableSort/3.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/3.WithNullMin
+[       OK ] StableSort/3.WithNullMin (1 ms)
+[ RUN      ] StableSort/3.WithAllValid
+[       OK ] StableSort/3.WithAllValid (1 ms)
+[ RUN      ] StableSort/3.MisMatchInColumnOrderSize
+[       OK ] StableSort/3.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/3.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/3.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/3.ZeroSizedColumns
+[       OK ] StableSort/3.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/3 (5 ms total)
+
+[----------] 9 tests from StableSort/4, where TypeParam = unsigned char
+[ RUN      ] StableSort/4.MixedNullOrder
+[       OK ] StableSort/4.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/4.WithNullMax
+[       OK ] StableSort/4.WithNullMax (1 ms)
+[ RUN      ] StableSort/4.SingleColumnNoNull
+[       OK ] StableSort/4.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/4.SingleColumnWithNull
+[       OK ] StableSort/4.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/4.WithNullMin
+[       OK ] StableSort/4.WithNullMin (1 ms)
+[ RUN      ] StableSort/4.WithAllValid
+[       OK ] StableSort/4.WithAllValid (1 ms)
+[ RUN      ] StableSort/4.MisMatchInColumnOrderSize
+[       OK ] StableSort/4.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/4.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/4.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/4.ZeroSizedColumns
+[       OK ] StableSort/4.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/4 (6 ms total)
+
+[----------] 9 tests from StableSort/5, where TypeParam = unsigned short
+[ RUN      ] StableSort/5.MixedNullOrder
+[       OK ] StableSort/5.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/5.WithNullMax
+[       OK ] StableSort/5.WithNullMax (1 ms)
+[ RUN      ] StableSort/5.SingleColumnNoNull
+[       OK ] StableSort/5.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/5.SingleColumnWithNull
+[       OK ] StableSort/5.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/5.WithNullMin
+[       OK ] StableSort/5.WithNullMin (1 ms)
+[ RUN      ] StableSort/5.WithAllValid
+[       OK ] StableSort/5.WithAllValid (1 ms)
+[ RUN      ] StableSort/5.MisMatchInColumnOrderSize
+[       OK ] StableSort/5.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/5.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/5.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/5.ZeroSizedColumns
+[       OK ] StableSort/5.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/5 (5 ms total)
+
+[----------] 9 tests from StableSort/6, where TypeParam = unsigned int
+[ RUN      ] StableSort/6.MixedNullOrder
+[       OK ] StableSort/6.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/6.WithNullMax
+[       OK ] StableSort/6.WithNullMax (1 ms)
+[ RUN      ] StableSort/6.SingleColumnNoNull
+[       OK ] StableSort/6.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/6.SingleColumnWithNull
+[       OK ] StableSort/6.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/6.WithNullMin
+[       OK ] StableSort/6.WithNullMin (1 ms)
+[ RUN      ] StableSort/6.WithAllValid
+[       OK ] StableSort/6.WithAllValid (1 ms)
+[ RUN      ] StableSort/6.MisMatchInColumnOrderSize
+[       OK ] StableSort/6.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/6.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/6.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/6.ZeroSizedColumns
+[       OK ] StableSort/6.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/6 (5 ms total)
+
+[----------] 9 tests from StableSort/7, where TypeParam = unsigned long
+[ RUN      ] StableSort/7.MixedNullOrder
+[       OK ] StableSort/7.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/7.WithNullMax
+[       OK ] StableSort/7.WithNullMax (1 ms)
+[ RUN      ] StableSort/7.SingleColumnNoNull
+[       OK ] StableSort/7.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/7.SingleColumnWithNull
+[       OK ] StableSort/7.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/7.WithNullMin
+[       OK ] StableSort/7.WithNullMin (1 ms)
+[ RUN      ] StableSort/7.WithAllValid
+[       OK ] StableSort/7.WithAllValid (1 ms)
+[ RUN      ] StableSort/7.MisMatchInColumnOrderSize
+[       OK ] StableSort/7.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/7.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/7.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/7.ZeroSizedColumns
+[       OK ] StableSort/7.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/7 (6 ms total)
+
+[----------] 9 tests from StableSort/8, where TypeParam = bool
+[ RUN      ] StableSort/8.MixedNullOrder
+[       OK ] StableSort/8.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/8.WithNullMax
+[       OK ] StableSort/8.WithNullMax (1 ms)
+[ RUN      ] StableSort/8.SingleColumnNoNull
+[       OK ] StableSort/8.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/8.SingleColumnWithNull
+[       OK ] StableSort/8.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/8.WithNullMin
+[       OK ] StableSort/8.WithNullMin (1 ms)
+[ RUN      ] StableSort/8.WithAllValid
+[       OK ] StableSort/8.WithAllValid (1 ms)
+[ RUN      ] StableSort/8.MisMatchInColumnOrderSize
+[       OK ] StableSort/8.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/8.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/8.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/8.ZeroSizedColumns
+[       OK ] StableSort/8.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/8 (6 ms total)
+
+[----------] 9 tests from StableSort/9, where TypeParam = float
+[ RUN      ] StableSort/9.MixedNullOrder
+[       OK ] StableSort/9.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/9.WithNullMax
+[       OK ] StableSort/9.WithNullMax (1 ms)
+[ RUN      ] StableSort/9.SingleColumnNoNull
+[       OK ] StableSort/9.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/9.SingleColumnWithNull
+[       OK ] StableSort/9.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/9.WithNullMin
+[       OK ] StableSort/9.WithNullMin (1 ms)
+[ RUN      ] StableSort/9.WithAllValid
+[       OK ] StableSort/9.WithAllValid (1 ms)
+[ RUN      ] StableSort/9.MisMatchInColumnOrderSize
+[       OK ] StableSort/9.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/9.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/9.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/9.ZeroSizedColumns
+[       OK ] StableSort/9.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/9 (6 ms total)
+
+[----------] 9 tests from StableSort/10, where TypeParam = double
+[ RUN      ] StableSort/10.MixedNullOrder
+[       OK ] StableSort/10.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/10.WithNullMax
+[       OK ] StableSort/10.WithNullMax (1 ms)
+[ RUN      ] StableSort/10.SingleColumnNoNull
+[       OK ] StableSort/10.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/10.SingleColumnWithNull
+[       OK ] StableSort/10.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/10.WithNullMin
+[       OK ] StableSort/10.WithNullMin (1 ms)
+[ RUN      ] StableSort/10.WithAllValid
+[       OK ] StableSort/10.WithAllValid (1 ms)
+[ RUN      ] StableSort/10.MisMatchInColumnOrderSize
+[       OK ] StableSort/10.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/10.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/10.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/10.ZeroSizedColumns
+[       OK ] StableSort/10.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/10 (6 ms total)
+
+[----------] 9 tests from StableSort/11, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<int,cuda::std::__4::ratio<86400l,1l> > >
+[ RUN      ] StableSort/11.MixedNullOrder
+[       OK ] StableSort/11.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/11.WithNullMax
+[       OK ] StableSort/11.WithNullMax (1 ms)
+[ RUN      ] StableSort/11.SingleColumnNoNull
+[       OK ] StableSort/11.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/11.SingleColumnWithNull
+[       OK ] StableSort/11.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/11.WithNullMin
+[       OK ] StableSort/11.WithNullMin (1 ms)
+[ RUN      ] StableSort/11.WithAllValid
+[       OK ] StableSort/11.WithAllValid (1 ms)
+[ RUN      ] StableSort/11.MisMatchInColumnOrderSize
+[       OK ] StableSort/11.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/11.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/11.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/11.ZeroSizedColumns
+[       OK ] StableSort/11.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/11 (6 ms total)
+
+[----------] 9 tests from StableSort/12, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1l> > >
+[ RUN      ] StableSort/12.MixedNullOrder
+[       OK ] StableSort/12.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/12.WithNullMax
+[       OK ] StableSort/12.WithNullMax (1 ms)
+[ RUN      ] StableSort/12.SingleColumnNoNull
+[       OK ] StableSort/12.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/12.SingleColumnWithNull
+[       OK ] StableSort/12.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/12.WithNullMin
+[       OK ] StableSort/12.WithNullMin (1 ms)
+[ RUN      ] StableSort/12.WithAllValid
+[       OK ] StableSort/12.WithAllValid (1 ms)
+[ RUN      ] StableSort/12.MisMatchInColumnOrderSize
+[       OK ] StableSort/12.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/12.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/12.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/12.ZeroSizedColumns
+[       OK ] StableSort/12.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/12 (6 ms total)
+
+[----------] 9 tests from StableSort/13, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000l> > >
+[ RUN      ] StableSort/13.MixedNullOrder
+[       OK ] StableSort/13.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/13.WithNullMax
+[       OK ] StableSort/13.WithNullMax (1 ms)
+[ RUN      ] StableSort/13.SingleColumnNoNull
+[       OK ] StableSort/13.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/13.SingleColumnWithNull
+[       OK ] StableSort/13.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/13.WithNullMin
+[       OK ] StableSort/13.WithNullMin (1 ms)
+[ RUN      ] StableSort/13.WithAllValid
+[       OK ] StableSort/13.WithAllValid (1 ms)
+[ RUN      ] StableSort/13.MisMatchInColumnOrderSize
+[       OK ] StableSort/13.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/13.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/13.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/13.ZeroSizedColumns
+[       OK ] StableSort/13.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/13 (6 ms total)
+
+[----------] 9 tests from StableSort/14, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000l> > >
+[ RUN      ] StableSort/14.MixedNullOrder
+[       OK ] StableSort/14.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/14.WithNullMax
+[       OK ] StableSort/14.WithNullMax (1 ms)
+[ RUN      ] StableSort/14.SingleColumnNoNull
+[       OK ] StableSort/14.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/14.SingleColumnWithNull
+[       OK ] StableSort/14.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/14.WithNullMin
+[       OK ] StableSort/14.WithNullMin (1 ms)
+[ RUN      ] StableSort/14.WithAllValid
+[       OK ] StableSort/14.WithAllValid (1 ms)
+[ RUN      ] StableSort/14.MisMatchInColumnOrderSize
+[       OK ] StableSort/14.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/14.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/14.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/14.ZeroSizedColumns
+[       OK ] StableSort/14.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/14 (5 ms total)
+
+[----------] 9 tests from StableSort/15, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000000l> > >
+[ RUN      ] StableSort/15.MixedNullOrder
+[       OK ] StableSort/15.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/15.WithNullMax
+[       OK ] StableSort/15.WithNullMax (1 ms)
+[ RUN      ] StableSort/15.SingleColumnNoNull
+[       OK ] StableSort/15.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/15.SingleColumnWithNull
+[       OK ] StableSort/15.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/15.WithNullMin
+[       OK ] StableSort/15.WithNullMin (1 ms)
+[ RUN      ] StableSort/15.WithAllValid
+[       OK ] StableSort/15.WithAllValid (1 ms)
+[ RUN      ] StableSort/15.MisMatchInColumnOrderSize
+[       OK ] StableSort/15.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/15.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/15.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/15.ZeroSizedColumns
+[       OK ] StableSort/15.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/15 (5 ms total)
+
+[----------] 9 tests from StableSort/16, where TypeParam = cuda::std::__4::chrono::duration<int,cuda::std::__4::ratio<86400l,1l> >
+[ RUN      ] StableSort/16.MixedNullOrder
+[       OK ] StableSort/16.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/16.WithNullMax
+[       OK ] StableSort/16.WithNullMax (1 ms)
+[ RUN      ] StableSort/16.SingleColumnNoNull
+[       OK ] StableSort/16.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/16.SingleColumnWithNull
+[       OK ] StableSort/16.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/16.WithNullMin
+[       OK ] StableSort/16.WithNullMin (1 ms)
+[ RUN      ] StableSort/16.WithAllValid
+[       OK ] StableSort/16.WithAllValid (1 ms)
+[ RUN      ] StableSort/16.MisMatchInColumnOrderSize
+[       OK ] StableSort/16.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/16.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/16.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/16.ZeroSizedColumns
+[       OK ] StableSort/16.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/16 (6 ms total)
+
+[----------] 9 tests from StableSort/17, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1l> >
+[ RUN      ] StableSort/17.MixedNullOrder
+[       OK ] StableSort/17.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/17.WithNullMax
+[       OK ] StableSort/17.WithNullMax (1 ms)
+[ RUN      ] StableSort/17.SingleColumnNoNull
+[       OK ] StableSort/17.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/17.SingleColumnWithNull
+[       OK ] StableSort/17.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/17.WithNullMin
+[       OK ] StableSort/17.WithNullMin (1 ms)
+[ RUN      ] StableSort/17.WithAllValid
+[       OK ] StableSort/17.WithAllValid (1 ms)
+[ RUN      ] StableSort/17.MisMatchInColumnOrderSize
+[       OK ] StableSort/17.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/17.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/17.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/17.ZeroSizedColumns
+[       OK ] StableSort/17.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/17 (6 ms total)
+
+[----------] 9 tests from StableSort/18, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000l> >
+[ RUN      ] StableSort/18.MixedNullOrder
+[       OK ] StableSort/18.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/18.WithNullMax
+[       OK ] StableSort/18.WithNullMax (1 ms)
+[ RUN      ] StableSort/18.SingleColumnNoNull
+[       OK ] StableSort/18.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/18.SingleColumnWithNull
+[       OK ] StableSort/18.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/18.WithNullMin
+[       OK ] StableSort/18.WithNullMin (1 ms)
+[ RUN      ] StableSort/18.WithAllValid
+[       OK ] StableSort/18.WithAllValid (1 ms)
+[ RUN      ] StableSort/18.MisMatchInColumnOrderSize
+[       OK ] StableSort/18.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/18.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/18.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/18.ZeroSizedColumns
+[       OK ] StableSort/18.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/18 (5 ms total)
+
+[----------] 9 tests from StableSort/19, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000l> >
+[ RUN      ] StableSort/19.MixedNullOrder
+[       OK ] StableSort/19.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/19.WithNullMax
+[       OK ] StableSort/19.WithNullMax (1 ms)
+[ RUN      ] StableSort/19.SingleColumnNoNull
+[       OK ] StableSort/19.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/19.SingleColumnWithNull
+[       OK ] StableSort/19.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/19.WithNullMin
+[       OK ] StableSort/19.WithNullMin (1 ms)
+[ RUN      ] StableSort/19.WithAllValid
+[       OK ] StableSort/19.WithAllValid (1 ms)
+[ RUN      ] StableSort/19.MisMatchInColumnOrderSize
+[       OK ] StableSort/19.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/19.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/19.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/19.ZeroSizedColumns
+[       OK ] StableSort/19.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/19 (6 ms total)
+
+[----------] 9 tests from StableSort/20, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000000l> >
+[ RUN      ] StableSort/20.MixedNullOrder
+[       OK ] StableSort/20.MixedNullOrder (0 ms)
+[ RUN      ] StableSort/20.WithNullMax
+[       OK ] StableSort/20.WithNullMax (1 ms)
+[ RUN      ] StableSort/20.SingleColumnNoNull
+[       OK ] StableSort/20.SingleColumnNoNull (0 ms)
+[ RUN      ] StableSort/20.SingleColumnWithNull
+[       OK ] StableSort/20.SingleColumnWithNull (0 ms)
+[ RUN      ] StableSort/20.WithNullMin
+[       OK ] StableSort/20.WithNullMin (1 ms)
+[ RUN      ] StableSort/20.WithAllValid
+[       OK ] StableSort/20.WithAllValid (1 ms)
+[ RUN      ] StableSort/20.MisMatchInColumnOrderSize
+[       OK ] StableSort/20.MisMatchInColumnOrderSize (0 ms)
+[ RUN      ] StableSort/20.MisMatchInNullPrecedenceSize
+[       OK ] StableSort/20.MisMatchInNullPrecedenceSize (0 ms)
+[ RUN      ] StableSort/20.ZeroSizedColumns
+[       OK ] StableSort/20.ZeroSizedColumns (0 ms)
+[----------] 9 tests from StableSort/20 (6 ms total)
+
+[----------] 1 test from StableSortByKey
+[ RUN      ] StableSortByKey.ValueKeysSizeMismatch
+[       OK ] StableSortByKey.ValueKeysSizeMismatch (0 ms)
+[----------] 1 test from StableSortByKey (0 ms total)
+
+[----------] 1 test from StableSortFixedPoint/0, where TypeParam = numeric::fixed_point<int,(numeric::Radix)10>
+[ RUN      ] StableSortFixedPoint/0.FixedPointSortedOrderGather
+[       OK ] StableSortFixedPoint/0.FixedPointSortedOrderGather (0 ms)
+[----------] 1 test from StableSortFixedPoint/0 (0 ms total)
+
+[----------] 1 test from StableSortFixedPoint/1, where TypeParam = numeric::fixed_point<long,(numeric::Radix)10>
+[ RUN      ] StableSortFixedPoint/1.FixedPointSortedOrderGather
+[       OK ] StableSortFixedPoint/1.FixedPointSortedOrderGather (0 ms)
+[----------] 1 test from StableSortFixedPoint/1 (0 ms total)
+
+[----------] 1 test from StableSortFixedPoint/2, where TypeParam = numeric::fixed_point<__int128,(numeric::Radix)10>
+[ RUN      ] StableSortFixedPoint/2.FixedPointSortedOrderGather
+[       OK ] StableSortFixedPoint/2.FixedPointSortedOrderGather (0 ms)
+[----------] 1 test from StableSortFixedPoint/2 (0 ms total)
+
+[----------] 2 tests from StableSortDouble
+[ RUN      ] StableSortDouble.InfinityAndNaN
+[       OK ] StableSortDouble.InfinityAndNaN (0 ms)
+[ RUN      ] StableSortDouble.SlicedNumericColumnsWithNullsAndTies
+[       OK ] StableSortDouble.SlicedNumericColumnsWithNullsAndTies (1 ms)
+[----------] 2 tests from StableSortDouble (1 ms total)
+
+[----------] 26 tests from StringSort
+[ RUN      ] StringSort.EmptySingletonAndAllNull
+[       OK ] StringSort.EmptySingletonAndAllNull (0 ms)
+[ RUN      ] StringSort.HalfNullBothOrders
+[       OK ] StringSort.HalfNullBothOrders (0 ms)
+[ RUN      ] StringSort.UnstableAscendingEdgeCases
+[       OK ] StringSort.UnstableAscendingEdgeCases (0 ms)
+[ RUN      ] StringSort.StableDuplicatesAndDescendingNulls
+[       OK ] StringSort.StableDuplicatesAndDescendingNulls (0 ms)
+[ RUN      ] StringSort.PrefixBoundaryAndZeroPaddedTies
+[       OK ] StringSort.PrefixBoundaryAndZeroPaddedTies (0 ms)
+[ RUN      ] StringSort.UnalignedPrefixesAndExactWidthTies
+[       OK ] StringSort.UnalignedPrefixesAndExactWidthTies (0 ms)
+[ RUN      ] StringSort.SlicedColumnUsesSliceRelativeIndices
+[       OK ] StringSort.SlicedColumnUsesSliceRelativeIndices (0 ms)
+[ RUN      ] StringSort.StableMultiBlockInput
+[       OK ] StringSort.StableMultiBlockInput (1 ms)
+[ RUN      ] StringSort.VariableLengthStrings
+[       OK ] StringSort.VariableLengthStrings (0 ms)
+[ RUN      ] StringSort.NonDefaultStreamAndCurrentMemoryResource
+[       OK ] StringSort.NonDefaultStreamAndCurrentMemoryResource (0 ms)
+[ RUN      ] StringSort.AlgorithmSelectorParsing
+[       OK ] StringSort.AlgorithmSelectorParsing (0 ms)
+[ RUN      ] StringSort.RadixLrbScheduleSelectorParsing
+[       OK ] StringSort.RadixLrbScheduleSelectorParsing (0 ms)
+[ RUN      ] StringSort.SegmentedTuningSelectorParsing
+[       OK ] StringSort.SegmentedTuningSelectorParsing (0 ms)
+[ RUN      ] StringSort.IterativeSegmentedRefinementAndArbitraryBytes
+[       OK ] StringSort.IterativeSegmentedRefinementAndArbitraryBytes (0 ms)
+[ RUN      ] StringSort.KnownPrefixRunsFinalizeAfterDifferentPasses
+[       OK ] StringSort.KnownPrefixRunsFinalizeAfterDifferentPasses (0 ms)
+[ RUN      ] StringSort.RadixBoundariesAndZeroPaddedCollisions
+[       OK ] StringSort.RadixBoundariesAndZeroPaddedCollisions (0 ms)
+[ RUN      ] StringSort.LaterPassZeroPaddedCollision
+[       OK ] StringSort.LaterPassZeroPaddedCollision (0 ms)
+[ RUN      ] StringSort.NullableSlicedLaterPassCollision
+[       OK ] StringSort.NullableSlicedLaterPassCollision (4 ms)
+[ RUN      ] StringSort.LongExactDuplicateRun
+[       OK ] StringSort.LongExactDuplicateRun (2 ms)
+[ RUN      ] StringSort.SegmentedFinishThreshold32And33
+[       OK ] StringSort.SegmentedFinishThreshold32And33 (0 ms)
+[ RUN      ] StringSort.SegmentedRadixRunCutoffBoundaries
+[       OK ] StringSort.SegmentedRadixRunCutoffBoundaries (0 ms)
+[ RUN      ] StringSort.MultipleLargeEqualPrefixSegments
+[       OK ] StringSort.MultipleLargeEqualPrefixSegments (0 ms)
+[ RUN      ] StringSort.StableParallelMergeAcrossBlockBoundaries
+[       OK ] StringSort.StableParallelMergeAcrossBlockBoundaries (0 ms)
+[ RUN      ] StringSort.ExactRadixTerminationAndChunkBoundaries
+[       OK ] StringSort.ExactRadixTerminationAndChunkBoundaries (3 ms)
+[ RUN      ] StringSort.ExplicitLargeOffsetsAndSlice
+[       OK ] StringSort.ExplicitLargeOffsetsAndSlice (0 ms)
+[ RUN      ] StringSort.SliceOffsetsBeyondInt32
+[       OK ] StringSort.SliceOffsetsBeyondInt32 (0 ms)
+[----------] 26 tests from StringSort (19 ms total)
+
+[----------] 17 tests from StringRadixLrbSort
+[ RUN      ] StringRadixLrbSort.EmptySingletonAndAllNull
+[       OK ] StringRadixLrbSort.EmptySingletonAndAllNull (0 ms)
+[ RUN      ] StringRadixLrbSort.HalfNullBothOrders
+[       OK ] StringRadixLrbSort.HalfNullBothOrders (0 ms)
+[ RUN      ] StringRadixLrbSort.UnstableAscendingEdgeCases
+[       OK ] StringRadixLrbSort.UnstableAscendingEdgeCases (0 ms)
+[ RUN      ] StringRadixLrbSort.StableDuplicatesAndDescendingNulls
+[       OK ] StringRadixLrbSort.StableDuplicatesAndDescendingNulls (0 ms)
+[ RUN      ] StringRadixLrbSort.PrefixBoundaryAndZeroPaddedTies
+[       OK ] StringRadixLrbSort.PrefixBoundaryAndZeroPaddedTies (0 ms)
+[ RUN      ] StringRadixLrbSort.UnalignedPrefixesAndExactWidthTies
+[       OK ] StringRadixLrbSort.UnalignedPrefixesAndExactWidthTies (0 ms)
+[ RUN      ] StringRadixLrbSort.FourBytePrefixBoundaryAndZeroPaddedTies
+[       OK ] StringRadixLrbSort.FourBytePrefixBoundaryAndZeroPaddedTies (0 ms)
+[ RUN      ] StringRadixLrbSort.SlicedColumnUsesSliceRelativeIndices
+[       OK ] StringRadixLrbSort.SlicedColumnUsesSliceRelativeIndices (0 ms)
+[ RUN      ] StringRadixLrbSort.StableMultiBlockInput
+[       OK ] StringRadixLrbSort.StableMultiBlockInput (1 ms)
+[ RUN      ] StringRadixLrbSort.VariableLengthStrings
+[       OK ] StringRadixLrbSort.VariableLengthStrings (0 ms)
+[ RUN      ] StringRadixLrbSort.RandomizedPrefixBoundaryDifferential
+[       OK ] StringRadixLrbSort.RandomizedPrefixBoundaryDifferential (25 ms)
+[ RUN      ] StringRadixLrbSort.NonDefaultStreamAndCurrentMemoryResource
+[       OK ] StringRadixLrbSort.NonDefaultStreamAndCurrentMemoryResource (0 ms)
+[ RUN      ] StringRadixLrbSort.MixedPrefixSegmentsAndLongSuffixes
+[       OK ] StringRadixLrbSort.MixedPrefixSegmentsAndLongSuffixes (107 ms)
+[ RUN      ] StringRadixLrbSort.LargeOffsetsRepresentationAndSlices
+[       OK ] StringRadixLrbSort.LargeOffsetsRepresentationAndSlices (16 ms)
+[ RUN      ] StringRadixLrbSort.FunnelLoadAlignmentBoundariesAndSuffixMismatches
+[       OK ] StringRadixLrbSort.FunnelLoadAlignmentBoundariesAndSuffixMismatches (3 ms)
+[ RUN      ] StringRadixLrbSort.LogarithmicBinsAndIndependentMergeParity
+[       OK ] StringRadixLrbSort.LogarithmicBinsAndIndependentMergeParity (1024 ms)
+[ RUN      ] StringRadixLrbSort.DeviceScheduledGraphReplayChangingSegments
+/home/coder/cudf/cpp/tests/sort/string_sort_lrb_test.cpp:722: Skipped
+Requires LIBCUDF_STRING_SORT_ALGORITHM=3 and guarded LRB scheduling (2)
+
+[  SKIPPED ] StringRadixLrbSort.DeviceScheduledGraphReplayChangingSegments (0 ms)
+[----------] 17 tests from StringRadixLrbSort (1181 ms total)
+
+[----------] 6 tests from TopKTypes/0, where TypeParam = signed char
+[ RUN      ] TopKTypes/0.TopK
+[       OK ] TopKTypes/0.TopK (5 ms)
+[ RUN      ] TopKTypes/0.TopK_Nulls
+[       OK ] TopKTypes/0.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/0.TopKSegmented
+[       OK ] TopKTypes/0.TopKSegmented (4 ms)
+[ RUN      ] TopKTypes/0.TopKSegmentedEmpty
+[       OK ] TopKTypes/0.TopKSegmentedEmpty (3 ms)
+[ RUN      ] TopKTypes/0.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/0.TopKSegmentedEmptyWithNulls (0 ms)
+[ RUN      ] TopKTypes/0.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/0.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/0 (14 ms total)
+
+[----------] 6 tests from TopKTypes/1, where TypeParam = short
+[ RUN      ] TopKTypes/1.TopK
+[       OK ] TopKTypes/1.TopK (0 ms)
+[ RUN      ] TopKTypes/1.TopK_Nulls
+[       OK ] TopKTypes/1.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/1.TopKSegmented
+[       OK ] TopKTypes/1.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/1.TopKSegmentedEmpty
+[       OK ] TopKTypes/1.TopKSegmentedEmpty (3 ms)
+[ RUN      ] TopKTypes/1.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/1.TopKSegmentedEmptyWithNulls (0 ms)
+[ RUN      ] TopKTypes/1.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/1.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/1 (9 ms total)
+
+[----------] 6 tests from TopKTypes/2, where TypeParam = int
+[ RUN      ] TopKTypes/2.TopK
+[       OK ] TopKTypes/2.TopK (0 ms)
+[ RUN      ] TopKTypes/2.TopK_Nulls
+[       OK ] TopKTypes/2.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/2.TopKSegmented
+[       OK ] TopKTypes/2.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/2.TopKSegmentedEmpty
+[       OK ] TopKTypes/2.TopKSegmentedEmpty (3 ms)
+[ RUN      ] TopKTypes/2.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/2.TopKSegmentedEmptyWithNulls (0 ms)
+[ RUN      ] TopKTypes/2.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/2.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/2 (8 ms total)
+
+[----------] 6 tests from TopKTypes/3, where TypeParam = long
+[ RUN      ] TopKTypes/3.TopK
+[       OK ] TopKTypes/3.TopK (0 ms)
+[ RUN      ] TopKTypes/3.TopK_Nulls
+[       OK ] TopKTypes/3.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/3.TopKSegmented
+[       OK ] TopKTypes/3.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/3.TopKSegmentedEmpty
+[       OK ] TopKTypes/3.TopKSegmentedEmpty (3 ms)
+[ RUN      ] TopKTypes/3.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/3.TopKSegmentedEmptyWithNulls (0 ms)
+[ RUN      ] TopKTypes/3.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/3.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/3 (8 ms total)
+
+[----------] 6 tests from TopKTypes/4, where TypeParam = unsigned char
+[ RUN      ] TopKTypes/4.TopK
+[       OK ] TopKTypes/4.TopK (0 ms)
+[ RUN      ] TopKTypes/4.TopK_Nulls
+[       OK ] TopKTypes/4.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/4.TopKSegmented
+[       OK ] TopKTypes/4.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/4.TopKSegmentedEmpty
+[       OK ] TopKTypes/4.TopKSegmentedEmpty (3 ms)
+[ RUN      ] TopKTypes/4.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/4.TopKSegmentedEmptyWithNulls (0 ms)
+[ RUN      ] TopKTypes/4.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/4.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/4 (9 ms total)
+
+[----------] 6 tests from TopKTypes/5, where TypeParam = unsigned short
+[ RUN      ] TopKTypes/5.TopK
+[       OK ] TopKTypes/5.TopK (0 ms)
+[ RUN      ] TopKTypes/5.TopK_Nulls
+[       OK ] TopKTypes/5.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/5.TopKSegmented
+[       OK ] TopKTypes/5.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/5.TopKSegmentedEmpty
+[       OK ] TopKTypes/5.TopKSegmentedEmpty (3 ms)
+[ RUN      ] TopKTypes/5.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/5.TopKSegmentedEmptyWithNulls (0 ms)
+[ RUN      ] TopKTypes/5.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/5.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/5 (9 ms total)
+
+[----------] 6 tests from TopKTypes/6, where TypeParam = unsigned int
+[ RUN      ] TopKTypes/6.TopK
+[       OK ] TopKTypes/6.TopK (0 ms)
+[ RUN      ] TopKTypes/6.TopK_Nulls
+[       OK ] TopKTypes/6.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/6.TopKSegmented
+[       OK ] TopKTypes/6.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/6.TopKSegmentedEmpty
+[       OK ] TopKTypes/6.TopKSegmentedEmpty (3 ms)
+[ RUN      ] TopKTypes/6.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/6.TopKSegmentedEmptyWithNulls (0 ms)
+[ RUN      ] TopKTypes/6.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/6.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/6 (9 ms total)
+
+[----------] 6 tests from TopKTypes/7, where TypeParam = unsigned long
+[ RUN      ] TopKTypes/7.TopK
+[       OK ] TopKTypes/7.TopK (0 ms)
+[ RUN      ] TopKTypes/7.TopK_Nulls
+[       OK ] TopKTypes/7.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/7.TopKSegmented
+[       OK ] TopKTypes/7.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/7.TopKSegmentedEmpty
+[       OK ] TopKTypes/7.TopKSegmentedEmpty (3 ms)
+[ RUN      ] TopKTypes/7.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/7.TopKSegmentedEmptyWithNulls (0 ms)
+[ RUN      ] TopKTypes/7.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/7.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/7 (8 ms total)
+
+[----------] 6 tests from TopKTypes/8, where TypeParam = float
+[ RUN      ] TopKTypes/8.TopK
+[       OK ] TopKTypes/8.TopK (0 ms)
+[ RUN      ] TopKTypes/8.TopK_Nulls
+[       OK ] TopKTypes/8.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/8.TopKSegmented
+[       OK ] TopKTypes/8.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/8.TopKSegmentedEmpty
+[       OK ] TopKTypes/8.TopKSegmentedEmpty (3 ms)
+[ RUN      ] TopKTypes/8.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/8.TopKSegmentedEmptyWithNulls (0 ms)
+[ RUN      ] TopKTypes/8.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/8.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/8 (9 ms total)
+
+[----------] 6 tests from TopKTypes/9, where TypeParam = double
+[ RUN      ] TopKTypes/9.TopK
+[       OK ] TopKTypes/9.TopK (0 ms)
+[ RUN      ] TopKTypes/9.TopK_Nulls
+[       OK ] TopKTypes/9.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/9.TopKSegmented
+[       OK ] TopKTypes/9.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/9.TopKSegmentedEmpty
+[       OK ] TopKTypes/9.TopKSegmentedEmpty (3 ms)
+[ RUN      ] TopKTypes/9.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/9.TopKSegmentedEmptyWithNulls (0 ms)
+[ RUN      ] TopKTypes/9.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/9.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/9 (9 ms total)
+
+[----------] 6 tests from TopKTypes/10, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<int,cuda::std::__4::ratio<86400l,1l> > >
+[ RUN      ] TopKTypes/10.TopK
+[       OK ] TopKTypes/10.TopK (0 ms)
+[ RUN      ] TopKTypes/10.TopK_Nulls
+[       OK ] TopKTypes/10.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/10.TopKSegmented
+[       OK ] TopKTypes/10.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/10.TopKSegmentedEmpty
+[       OK ] TopKTypes/10.TopKSegmentedEmpty (4 ms)
+[ RUN      ] TopKTypes/10.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/10.TopKSegmentedEmptyWithNulls (1 ms)
+[ RUN      ] TopKTypes/10.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/10.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/10 (10 ms total)
+
+[----------] 6 tests from TopKTypes/11, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1l> > >
+[ RUN      ] TopKTypes/11.TopK
+[       OK ] TopKTypes/11.TopK (0 ms)
+[ RUN      ] TopKTypes/11.TopK_Nulls
+[       OK ] TopKTypes/11.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/11.TopKSegmented
+[       OK ] TopKTypes/11.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/11.TopKSegmentedEmpty
+[       OK ] TopKTypes/11.TopKSegmentedEmpty (4 ms)
+[ RUN      ] TopKTypes/11.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/11.TopKSegmentedEmptyWithNulls (1 ms)
+[ RUN      ] TopKTypes/11.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/11.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/11 (10 ms total)
+
+[----------] 6 tests from TopKTypes/12, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000l> > >
+[ RUN      ] TopKTypes/12.TopK
+[       OK ] TopKTypes/12.TopK (0 ms)
+[ RUN      ] TopKTypes/12.TopK_Nulls
+[       OK ] TopKTypes/12.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/12.TopKSegmented
+[       OK ] TopKTypes/12.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/12.TopKSegmentedEmpty
+[       OK ] TopKTypes/12.TopKSegmentedEmpty (4 ms)
+[ RUN      ] TopKTypes/12.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/12.TopKSegmentedEmptyWithNulls (1 ms)
+[ RUN      ] TopKTypes/12.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/12.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/12 (10 ms total)
+
+[----------] 6 tests from TopKTypes/13, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000l> > >
+[ RUN      ] TopKTypes/13.TopK
+[       OK ] TopKTypes/13.TopK (0 ms)
+[ RUN      ] TopKTypes/13.TopK_Nulls
+[       OK ] TopKTypes/13.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/13.TopKSegmented
+[       OK ] TopKTypes/13.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/13.TopKSegmentedEmpty
+[       OK ] TopKTypes/13.TopKSegmentedEmpty (4 ms)
+[ RUN      ] TopKTypes/13.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/13.TopKSegmentedEmptyWithNulls (1 ms)
+[ RUN      ] TopKTypes/13.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/13.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/13 (10 ms total)
+
+[----------] 6 tests from TopKTypes/14, where TypeParam = cuda::std::__4::chrono::time_point<cuda::std::__4::chrono::system_clock,cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000000l> > >
+[ RUN      ] TopKTypes/14.TopK
+[       OK ] TopKTypes/14.TopK (0 ms)
+[ RUN      ] TopKTypes/14.TopK_Nulls
+[       OK ] TopKTypes/14.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/14.TopKSegmented
+[       OK ] TopKTypes/14.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/14.TopKSegmentedEmpty
+[       OK ] TopKTypes/14.TopKSegmentedEmpty (4 ms)
+[ RUN      ] TopKTypes/14.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/14.TopKSegmentedEmptyWithNulls (1 ms)
+[ RUN      ] TopKTypes/14.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/14.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/14 (10 ms total)
+
+[----------] 6 tests from TopKTypes/15, where TypeParam = cuda::std::__4::chrono::duration<int,cuda::std::__4::ratio<86400l,1l> >
+[ RUN      ] TopKTypes/15.TopK
+[       OK ] TopKTypes/15.TopK (0 ms)
+[ RUN      ] TopKTypes/15.TopK_Nulls
+[       OK ] TopKTypes/15.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/15.TopKSegmented
+[       OK ] TopKTypes/15.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/15.TopKSegmentedEmpty
+[       OK ] TopKTypes/15.TopKSegmentedEmpty (4 ms)
+[ RUN      ] TopKTypes/15.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/15.TopKSegmentedEmptyWithNulls (1 ms)
+[ RUN      ] TopKTypes/15.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/15.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/15 (10 ms total)
+
+[----------] 6 tests from TopKTypes/16, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1l> >
+[ RUN      ] TopKTypes/16.TopK
+[       OK ] TopKTypes/16.TopK (0 ms)
+[ RUN      ] TopKTypes/16.TopK_Nulls
+[       OK ] TopKTypes/16.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/16.TopKSegmented
+[       OK ] TopKTypes/16.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/16.TopKSegmentedEmpty
+[       OK ] TopKTypes/16.TopKSegmentedEmpty (4 ms)
+[ RUN      ] TopKTypes/16.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/16.TopKSegmentedEmptyWithNulls (1 ms)
+[ RUN      ] TopKTypes/16.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/16.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/16 (10 ms total)
+
+[----------] 6 tests from TopKTypes/17, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000l> >
+[ RUN      ] TopKTypes/17.TopK
+[       OK ] TopKTypes/17.TopK (0 ms)
+[ RUN      ] TopKTypes/17.TopK_Nulls
+[       OK ] TopKTypes/17.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/17.TopKSegmented
+[       OK ] TopKTypes/17.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/17.TopKSegmentedEmpty
+[       OK ] TopKTypes/17.TopKSegmentedEmpty (4 ms)
+[ RUN      ] TopKTypes/17.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/17.TopKSegmentedEmptyWithNulls (1 ms)
+[ RUN      ] TopKTypes/17.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/17.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/17 (10 ms total)
+
+[----------] 6 tests from TopKTypes/18, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000l> >
+[ RUN      ] TopKTypes/18.TopK
+[       OK ] TopKTypes/18.TopK (0 ms)
+[ RUN      ] TopKTypes/18.TopK_Nulls
+[       OK ] TopKTypes/18.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/18.TopKSegmented
+[       OK ] TopKTypes/18.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/18.TopKSegmentedEmpty
+[       OK ] TopKTypes/18.TopKSegmentedEmpty (4 ms)
+[ RUN      ] TopKTypes/18.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/18.TopKSegmentedEmptyWithNulls (1 ms)
+[ RUN      ] TopKTypes/18.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/18.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/18 (10 ms total)
+
+[----------] 6 tests from TopKTypes/19, where TypeParam = cuda::std::__4::chrono::duration<long,cuda::std::__4::ratio<1l,1000000000l> >
+[ RUN      ] TopKTypes/19.TopK
+[       OK ] TopKTypes/19.TopK (0 ms)
+[ RUN      ] TopKTypes/19.TopK_Nulls
+[       OK ] TopKTypes/19.TopK_Nulls (0 ms)
+[ RUN      ] TopKTypes/19.TopKSegmented
+[       OK ] TopKTypes/19.TopKSegmented (3 ms)
+[ RUN      ] TopKTypes/19.TopKSegmentedEmpty
+[       OK ] TopKTypes/19.TopKSegmentedEmpty (4 ms)
+[ RUN      ] TopKTypes/19.TopKSegmentedEmptyWithNulls
+[       OK ] TopKTypes/19.TopKSegmentedEmptyWithNulls (1 ms)
+[ RUN      ] TopKTypes/19.TopKSegmentedEmptySliced
+[       OK ] TopKTypes/19.TopKSegmentedEmptySliced (0 ms)
+[----------] 6 tests from TopKTypes/19 (10 ms total)
+
+[----------] 10 tests from TopK
+[ RUN      ] TopK.Empty
+[       OK ] TopK.Empty (0 ms)
+[ RUN      ] TopK.SegmentedUncoveredTail
+[       OK ] TopK.SegmentedUncoveredTail (0 ms)
+[ RUN      ] TopK.SegmentedUncoveredHead
+[       OK ] TopK.SegmentedUncoveredHead (0 ms)
+[ RUN      ] TopK.SegmentedUncoveredBoth
+[       OK ] TopK.SegmentedUncoveredBoth (0 ms)
+[ RUN      ] TopK.SegmentedUncoveredAll
+[       OK ] TopK.SegmentedUncoveredAll (0 ms)
+[ RUN      ] TopK.SegmentedUncoveredNull
+[       OK ] TopK.SegmentedUncoveredNull (0 ms)
+[ RUN      ] TopK.SegmentedUncoveredSmallSegment
+[       OK ] TopK.SegmentedUncoveredSmallSegment (0 ms)
+[ RUN      ] TopK.Errors
+[       OK ] TopK.Errors (0 ms)
+[ RUN      ] TopK.TopKSegmentedEmptyOrderInitcheck
+[       OK ] TopK.TopKSegmentedEmptyOrderInitcheck (0 ms)
+[ RUN      ] TopK.TopKSegmentedEmptyMultiBlock
+[       OK ] TopK.TopKSegmentedEmptyMultiBlock (0 ms)
+[----------] 10 tests from TopK (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1664 tests from 124 test suites ran. (3600 ms total)
+[  PASSED  ] 1658 tests.
+[  SKIPPED ] 6 tests, listed below:
+[  SKIPPED ] Sort/8.WithListColumn
+[  SKIPPED ] Sort/8.WithNullableListColumn
+[  SKIPPED ] Sort/8.MoreLists
+[  SKIPPED ] Sort/8.WithSlicedListColumn
+[  SKIPPED ] Sort/8.WithEmptyListColumn
+[  SKIPPED ] StringRadixLrbSort.DeviceScheduledGraphReplayChangingSegments

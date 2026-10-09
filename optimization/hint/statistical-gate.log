@@ -1,0 +1,20 @@
+experiment-15 states 272 speedup 1.1842059062590562 failed 0
+[]
+experiment-3 states 272 speedup 1.0263772646094376 failed 0
+[]
+experiment-31 states 272 speedup 1.305536559645755 failed 1
+[
+  {
+    "config": "experiment-31",
+    "group": "target",
+    "state": "Device=0 num_rows=262144 max_width=32 cardinality=64",
+    "stable": "False",
+    "descending": "False",
+    "rounds": 3,
+    "ratio": 1.0210311562199517,
+    "ratio_ci_low": 1.0058915196463212,
+    "ratio_ci_high": 1.0344336201491509,
+    "accepted": false,
+    "axes": "{\"cardinality\": \"64\", \"max_width\": \"32\", \"num_rows\": \"262144\"}"
+  }
+]

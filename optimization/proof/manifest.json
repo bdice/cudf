@@ -1,0 +1,2455 @@
+{
+  "phase": "proof",
+  "configs": [
+    {
+      "name": "baseline",
+      "baseline": true,
+      "experiment": 0
+    },
+    {
+      "name": "experiment-3",
+      "experiment": 3
+    },
+    {
+      "name": "experiment-7",
+      "experiment": 7
+    },
+    {
+      "name": "experiment-15",
+      "experiment": 15
+    }
+  ],
+  "groups": {
+    "main": [
+      "-b",
+      "sorted_order_strings",
+      "-b",
+      "sorted_order_strings_distribution",
+      "-b",
+      "sorted_order_strings_nulls"
+    ],
+    "target": [
+      "-b",
+      "sorted_order_strings_cardinality",
+      "-b",
+      "sorted_order_strings_prefixes",
+      "-a",
+      "prefix_width=[4,8,10,11,12,64]"
+    ],
+    "constant": [
+      "-b",
+      "sorted_order_strings_prefixes",
+      "-a",
+      "prefix_width=32",
+      "-a",
+      "suffix_width=0",
+      "-a",
+      "prefix_cardinality=1"
+    ],
+    "segments": [
+      "--benchmark",
+      "sorted_order_strings_segments",
+      "--axis",
+      "num_rows=[32768,2097152]",
+      "--axis",
+      "shared_suffix=[0,64]"
+    ],
+    "pr-workload": [
+      "-b",
+      "sorted_order_strings_workload"
+    ],
+    "pr-source": [
+      "-b",
+      "sorted_order_strings_source_parity"
+    ],
+    "pr-diagnostics": [
+      "-b",
+      "sorted_order_strings_segmented_diagnostics",
+      "-a",
+      "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+    ],
+    "pr-zero-collisions": [
+      "-b",
+      "sorted_order_strings_segmented_diagnostics",
+      "-a",
+      "num_rows=32768",
+      "-a",
+      "profile=[zero_collision_pass1,zero_collision_pass2]"
+    ],
+    "end-to-end": [
+      "-b",
+      "sort_strings_workload",
+      "-a",
+      "max_width=[32,256]",
+      "-a",
+      "num_rows=[262144,2097152]"
+    ]
+  },
+  "jobs": [
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-1",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-0",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-7",
+        "experiment": 7
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      false,
+      false
+    ]
+  ],
+  "rounds": 3,
+  "samples": 20,
+  "warmups": 5,
+  "baseline_commit": "74dd068d7b819abc307eed2bbe607856d68b2b8e"
+}

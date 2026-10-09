@@ -1,0 +1,98 @@
+Note: Google Test filter = StringRadixLrbSort.*:StringSort.*
+[==========] Running 43 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 26 tests from StringSort
+[ RUN      ] StringSort.EmptySingletonAndAllNull
+[       OK ] StringSort.EmptySingletonAndAllNull (30 ms)
+[ RUN      ] StringSort.HalfNullBothOrders
+[       OK ] StringSort.HalfNullBothOrders (27 ms)
+[ RUN      ] StringSort.UnstableAscendingEdgeCases
+[       OK ] StringSort.UnstableAscendingEdgeCases (9 ms)
+[ RUN      ] StringSort.StableDuplicatesAndDescendingNulls
+[       OK ] StringSort.StableDuplicatesAndDescendingNulls (0 ms)
+[ RUN      ] StringSort.PrefixBoundaryAndZeroPaddedTies
+[       OK ] StringSort.PrefixBoundaryAndZeroPaddedTies (0 ms)
+[ RUN      ] StringSort.UnalignedPrefixesAndExactWidthTies
+[       OK ] StringSort.UnalignedPrefixesAndExactWidthTies (0 ms)
+[ RUN      ] StringSort.SlicedColumnUsesSliceRelativeIndices
+[       OK ] StringSort.SlicedColumnUsesSliceRelativeIndices (1 ms)
+[ RUN      ] StringSort.StableMultiBlockInput
+[       OK ] StringSort.StableMultiBlockInput (1 ms)
+[ RUN      ] StringSort.VariableLengthStrings
+[       OK ] StringSort.VariableLengthStrings (0 ms)
+[ RUN      ] StringSort.NonDefaultStreamAndCurrentMemoryResource
+[       OK ] StringSort.NonDefaultStreamAndCurrentMemoryResource (0 ms)
+[ RUN      ] StringSort.AlgorithmSelectorParsing
+[       OK ] StringSort.AlgorithmSelectorParsing (0 ms)
+[ RUN      ] StringSort.RadixLrbScheduleSelectorParsing
+[       OK ] StringSort.RadixLrbScheduleSelectorParsing (0 ms)
+[ RUN      ] StringSort.SegmentedTuningSelectorParsing
+[       OK ] StringSort.SegmentedTuningSelectorParsing (0 ms)
+[ RUN      ] StringSort.IterativeSegmentedRefinementAndArbitraryBytes
+[       OK ] StringSort.IterativeSegmentedRefinementAndArbitraryBytes (0 ms)
+[ RUN      ] StringSort.KnownPrefixRunsFinalizeAfterDifferentPasses
+[       OK ] StringSort.KnownPrefixRunsFinalizeAfterDifferentPasses (0 ms)
+[ RUN      ] StringSort.RadixBoundariesAndZeroPaddedCollisions
+[       OK ] StringSort.RadixBoundariesAndZeroPaddedCollisions (0 ms)
+[ RUN      ] StringSort.LaterPassZeroPaddedCollision
+[       OK ] StringSort.LaterPassZeroPaddedCollision (0 ms)
+[ RUN      ] StringSort.NullableSlicedLaterPassCollision
+[       OK ] StringSort.NullableSlicedLaterPassCollision (4 ms)
+[ RUN      ] StringSort.LongExactDuplicateRun
+[       OK ] StringSort.LongExactDuplicateRun (2 ms)
+[ RUN      ] StringSort.SegmentedFinishThreshold32And33
+[       OK ] StringSort.SegmentedFinishThreshold32And33 (0 ms)
+[ RUN      ] StringSort.SegmentedRadixRunCutoffBoundaries
+[       OK ] StringSort.SegmentedRadixRunCutoffBoundaries (0 ms)
+[ RUN      ] StringSort.MultipleLargeEqualPrefixSegments
+[       OK ] StringSort.MultipleLargeEqualPrefixSegments (0 ms)
+[ RUN      ] StringSort.StableParallelMergeAcrossBlockBoundaries
+[       OK ] StringSort.StableParallelMergeAcrossBlockBoundaries (0 ms)
+[ RUN      ] StringSort.ExactRadixTerminationAndChunkBoundaries
+[       OK ] StringSort.ExactRadixTerminationAndChunkBoundaries (3 ms)
+[ RUN      ] StringSort.ExplicitLargeOffsetsAndSlice
+[       OK ] StringSort.ExplicitLargeOffsetsAndSlice (0 ms)
+[ RUN      ] StringSort.SliceOffsetsBeyondInt32
+[       OK ] StringSort.SliceOffsetsBeyondInt32 (0 ms)
+[----------] 26 tests from StringSort (85 ms total)
+
+[----------] 17 tests from StringRadixLrbSort
+[ RUN      ] StringRadixLrbSort.EmptySingletonAndAllNull
+[       OK ] StringRadixLrbSort.EmptySingletonAndAllNull (0 ms)
+[ RUN      ] StringRadixLrbSort.HalfNullBothOrders
+[       OK ] StringRadixLrbSort.HalfNullBothOrders (0 ms)
+[ RUN      ] StringRadixLrbSort.UnstableAscendingEdgeCases
+[       OK ] StringRadixLrbSort.UnstableAscendingEdgeCases (0 ms)
+[ RUN      ] StringRadixLrbSort.StableDuplicatesAndDescendingNulls
+[       OK ] StringRadixLrbSort.StableDuplicatesAndDescendingNulls (0 ms)
+[ RUN      ] StringRadixLrbSort.PrefixBoundaryAndZeroPaddedTies
+[       OK ] StringRadixLrbSort.PrefixBoundaryAndZeroPaddedTies (0 ms)
+[ RUN      ] StringRadixLrbSort.UnalignedPrefixesAndExactWidthTies
+[       OK ] StringRadixLrbSort.UnalignedPrefixesAndExactWidthTies (0 ms)
+[ RUN      ] StringRadixLrbSort.FourBytePrefixBoundaryAndZeroPaddedTies
+[       OK ] StringRadixLrbSort.FourBytePrefixBoundaryAndZeroPaddedTies (0 ms)
+[ RUN      ] StringRadixLrbSort.SlicedColumnUsesSliceRelativeIndices
+[       OK ] StringRadixLrbSort.SlicedColumnUsesSliceRelativeIndices (0 ms)
+[ RUN      ] StringRadixLrbSort.StableMultiBlockInput
+[       OK ] StringRadixLrbSort.StableMultiBlockInput (0 ms)
+[ RUN      ] StringRadixLrbSort.VariableLengthStrings
+[       OK ] StringRadixLrbSort.VariableLengthStrings (0 ms)
+[ RUN      ] StringRadixLrbSort.RandomizedPrefixBoundaryDifferential
+[       OK ] StringRadixLrbSort.RandomizedPrefixBoundaryDifferential (23 ms)
+[ RUN      ] StringRadixLrbSort.NonDefaultStreamAndCurrentMemoryResource
+[       OK ] StringRadixLrbSort.NonDefaultStreamAndCurrentMemoryResource (0 ms)
+[ RUN      ] StringRadixLrbSort.MixedPrefixSegmentsAndLongSuffixes
+[       OK ] StringRadixLrbSort.MixedPrefixSegmentsAndLongSuffixes (97 ms)
+[ RUN      ] StringRadixLrbSort.LargeOffsetsRepresentationAndSlices
+[       OK ] StringRadixLrbSort.LargeOffsetsRepresentationAndSlices (15 ms)
+[ RUN      ] StringRadixLrbSort.FunnelLoadAlignmentBoundariesAndSuffixMismatches
+[       OK ] StringRadixLrbSort.FunnelLoadAlignmentBoundariesAndSuffixMismatches (3 ms)
+[ RUN      ] StringRadixLrbSort.LogarithmicBinsAndIndependentMergeParity
+[       OK ] StringRadixLrbSort.LogarithmicBinsAndIndependentMergeParity (1033 ms)
+[ RUN      ] StringRadixLrbSort.DeviceScheduledGraphReplayChangingSegments
+[       OK ] StringRadixLrbSort.DeviceScheduledGraphReplayChangingSegments (25 ms)
+[----------] 17 tests from StringRadixLrbSort (1202 ms total)
+
+[----------] Global test environment tear-down
+[==========] 43 tests from 2 test suites ran. (1288 ms total)
+[  PASSED  ] 43 tests.

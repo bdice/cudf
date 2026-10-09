@@ -1,0 +1,279 @@
+{
+  "cases": [
+    {
+      "key": [
+        "pr-workload",
+        "sorted_order_strings_workload",
+        "Device=0 min_width=0 max_width=256 num_rows=32768 workload=variable",
+        "False",
+        "False"
+      ],
+      "axes": {
+        "max_width": "256",
+        "min_width": "0",
+        "num_rows": "32768",
+        "workload": "variable"
+      },
+      "ratio": 1.0322069661463642
+    },
+    {
+      "key": [
+        "main",
+        "sorted_order_strings_distribution",
+        "Device=0 num_rows=2097152 profile=cardinality_1_width_32",
+        "False",
+        "False"
+      ],
+      "axes": {
+        "num_rows": "2097152",
+        "profile": "cardinality_1_width_32"
+      },
+      "ratio": 1.0263257483680632
+    },
+    {
+      "key": [
+        "target",
+        "sorted_order_strings_cardinality",
+        "Device=0 num_rows=262144 max_width=32 cardinality=64",
+        "False",
+        "False"
+      ],
+      "axes": {
+        "cardinality": "64",
+        "max_width": "32",
+        "num_rows": "262144"
+      },
+      "ratio": 0.9873261766646361
+    }
+  ],
+  "jobs": [
+    [
+      4,
+      1,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      2,
+      1,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      0,
+      0,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      4,
+      1,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      1,
+      1,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      4,
+      0,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      2,
+      1,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      4,
+      0,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      0,
+      1,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      3,
+      2,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      2,
+      0,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      1,
+      0,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      1,
+      2,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      3,
+      0,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      2,
+      0,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      4,
+      2,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      0,
+      0,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      2,
+      2,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      1,
+      1,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      1,
+      0,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      1,
+      2,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      3,
+      2,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      0,
+      2,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      4,
+      2,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      2,
+      2,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      0,
+      2,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      3,
+      1,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      3,
+      1,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      0,
+      1,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      3,
+      0,
+      {
+        "name": "optimized"
+      }
+    ]
+  ],
+  "samples": 50,
+  "rounds": 5,
+  "warmups": 5
+}

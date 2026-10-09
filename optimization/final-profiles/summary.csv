@@ -1,0 +1,15 @@
+config,case,kernel_count,stream_waits,cpu_range_ms,kernel_ms
+baseline,duplicates12,33,1,0.348091,2.00847
+baseline,few-giants-long,34,1,0.439511,2.973522
+baseline,giant-long,39,1,0.402985,13.697925
+baseline,giant-short,39,1,0.367448,3.858959
+baseline,hot90-long,40,1,0.450261,13.159107
+baseline,logarithmic-long,34,1,0.418497,8.298488
+baseline,stable-tiny32-long,27,1,0.412618,2.466197
+optimized,duplicates12,33,1,0.346387,1.96719
+optimized,few-giants-long,34,1,0.433107,2.977938
+optimized,giant-long,48,2,0.582958,0.715997
+optimized,giant-short,48,2,0.474324,0.57475
+optimized,hot90-long,42,1,0.466974,4.543851
+optimized,logarithmic-long,34,1,0.415559,8.26649
+optimized,stable-tiny32-long,27,1,0.412816,1.574328

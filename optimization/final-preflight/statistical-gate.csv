@@ -1,0 +1,2 @@
+config,group,state,stable,descending,rounds,ratio,ratio_ci_low,ratio_ci_high,accepted,axes
+optimized,cardinality-preflight,Device=0 num_rows=262144 max_width=32 cardinality=64,False,False,5,0.9918616439359872,0.9768243462563231,1.0009458178138482,True,"{""cardinality"": ""64"", ""max_width"": ""32"", ""num_rows"": ""262144""}"

@@ -1,0 +1,13 @@
+========= COMPUTE-SANITIZER
+Note: Google Test filter = StringSort.RadixLrbLargeRunProofAndSuffixRadix
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from StringSort
+[ RUN      ] StringSort.RadixLrbLargeRunProofAndSuffixRadix
+[       OK ] StringSort.RadixLrbLargeRunProofAndSuffixRadix (635 ms)
+[----------] 1 test from StringSort (635 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (635 ms total)
+[  PASSED  ] 1 test.
+========= ERROR SUMMARY: 0 errors

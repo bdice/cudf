@@ -1,0 +1,45 @@
+========= COMPUTE-SANITIZER
+Note: Google Test filter = StringRadixLrbSort.*
+[==========] Running 17 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 17 tests from StringRadixLrbSort
+[ RUN      ] StringRadixLrbSort.EmptySingletonAndAllNull
+[       OK ] StringRadixLrbSort.EmptySingletonAndAllNull (44 ms)
+[ RUN      ] StringRadixLrbSort.HalfNullBothOrders
+[       OK ] StringRadixLrbSort.HalfNullBothOrders (76 ms)
+[ RUN      ] StringRadixLrbSort.UnstableAscendingEdgeCases
+[       OK ] StringRadixLrbSort.UnstableAscendingEdgeCases (29 ms)
+[ RUN      ] StringRadixLrbSort.StableDuplicatesAndDescendingNulls
+[       OK ] StringRadixLrbSort.StableDuplicatesAndDescendingNulls (3 ms)
+[ RUN      ] StringRadixLrbSort.PrefixBoundaryAndZeroPaddedTies
+[       OK ] StringRadixLrbSort.PrefixBoundaryAndZeroPaddedTies (17 ms)
+[ RUN      ] StringRadixLrbSort.UnalignedPrefixesAndExactWidthTies
+[       OK ] StringRadixLrbSort.UnalignedPrefixesAndExactWidthTies (8 ms)
+[ RUN      ] StringRadixLrbSort.FourBytePrefixBoundaryAndZeroPaddedTies
+[       OK ] StringRadixLrbSort.FourBytePrefixBoundaryAndZeroPaddedTies (1 ms)
+[ RUN      ] StringRadixLrbSort.SlicedColumnUsesSliceRelativeIndices
+[       OK ] StringRadixLrbSort.SlicedColumnUsesSliceRelativeIndices (3 ms)
+[ RUN      ] StringRadixLrbSort.StableMultiBlockInput
+[       OK ] StringRadixLrbSort.StableMultiBlockInput (21 ms)
+[ RUN      ] StringRadixLrbSort.VariableLengthStrings
+[       OK ] StringRadixLrbSort.VariableLengthStrings (3 ms)
+[ RUN      ] StringRadixLrbSort.RandomizedPrefixBoundaryDifferential
+[       OK ] StringRadixLrbSort.RandomizedPrefixBoundaryDifferential (66 ms)
+[ RUN      ] StringRadixLrbSort.NonDefaultStreamAndCurrentMemoryResource
+[       OK ] StringRadixLrbSort.NonDefaultStreamAndCurrentMemoryResource (2 ms)
+[ RUN      ] StringRadixLrbSort.MixedPrefixSegmentsAndLongSuffixes
+[       OK ] StringRadixLrbSort.MixedPrefixSegmentsAndLongSuffixes (158 ms)
+[ RUN      ] StringRadixLrbSort.LargeOffsetsRepresentationAndSlices
+[       OK ] StringRadixLrbSort.LargeOffsetsRepresentationAndSlices (124 ms)
+[ RUN      ] StringRadixLrbSort.FunnelLoadAlignmentBoundariesAndSuffixMismatches
+[       OK ] StringRadixLrbSort.FunnelLoadAlignmentBoundariesAndSuffixMismatches (21 ms)
+[ RUN      ] StringRadixLrbSort.LogarithmicBinsAndIndependentMergeParity
+[       OK ] StringRadixLrbSort.LogarithmicBinsAndIndependentMergeParity (1182 ms)
+[ RUN      ] StringRadixLrbSort.DeviceScheduledGraphReplayChangingSegments
+[       OK ] StringRadixLrbSort.DeviceScheduledGraphReplayChangingSegments (72 ms)
+[----------] 17 tests from StringRadixLrbSort (1838 ms total)
+
+[----------] Global test environment tear-down
+[==========] 17 tests from 1 test suite ran. (1838 ms total)
+[  PASSED  ] 17 tests.
+========= ERROR SUMMARY: 0 errors

@@ -1,0 +1,7 @@
+config,group,state,stable,descending,rounds,ratio,ratio_ci_low,ratio_ci_high,accepted,axes
+optimized,main,Device=0 num_rows=262144 profile=fixed_8 null_percent=100,False,False,5,0.971366967621567,0.8855419928015149,1.0540471821981008,True,"{""null_percent"": ""100"", ""num_rows"": ""262144"", ""profile"": ""fixed_8""}"
+optimized,main,Device=0 num_rows=2097152 profile=cardinality_1_width_32,False,False,5,1.0051111025787782,0.9935055074148353,1.0144219531637535,True,"{""num_rows"": ""2097152"", ""profile"": ""cardinality_1_width_32""}"
+optimized,target,Device=0 num_rows=262144 prefix_width=4 suffix_width=32 prefix_cardinality=64,False,False,5,1.0033680355311243,0.9810479688572511,1.0173307350545757,True,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""64"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}"
+optimized,target,Device=0 num_rows=262144 max_width=32 cardinality=64,False,False,5,1.0429646162104456,1.0242993989183682,1.044742699292069,False,"{""cardinality"": ""64"", ""max_width"": ""32"", ""num_rows"": ""262144""}"
+optimized,target,Device=0 num_rows=262144 prefix_width=4 suffix_width=32 prefix_cardinality=1,False,False,5,0.9751522475222539,0.9563790266164454,1.0001124880647971,True,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""1"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}"
+optimized,target,Device=0 num_rows=262144 max_width=32 cardinality=1,False,False,5,1.0371946426077079,0.9630296014680989,1.0717656338234796,True,"{""cardinality"": ""1"", ""max_width"": ""32"", ""num_rows"": ""262144""}"

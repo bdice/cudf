@@ -1,0 +1,24 @@
+{
+  "measured": {
+    "base_commit": "74dd068d7b819abc307eed2bbe607856d68b2b8e",
+    "hashes": {
+      "cpp/src/sort/string_sort_lrb.cuh": "5e6fead33505f089fc866b43e233ca5bb8d4f9bc76e04abbfc88e9d433ba1086",
+      "cpp/src/sort/sort_string_radix_refine.cuh": "815c60048d5327542b19e800fcbab24ec5324f0638aa7336bd525ce77322a17e",
+      "cpp/tests/sort/string_sort_prefix_test.cpp": "bc90798f59f1e731eb4d35cbd4a9d8eec112449a52f0b2ec6bb7a92eb480a1f9",
+      "cpp/src/sort/sort_column_impl.cuh": "975a13555a62bb1688b6b3078388c6fd66b7d5758bd225b0e1f2e9f9ea294ff4",
+      "cpp/src/sort/segmented_string_sort.cuh": "6292a0b851e350de2468fb3d36557e0c9dbf311391a0cdc288a5fe6f84145e00",
+      "cpp/src/sort/string_sort_config.hpp": "30123f40da38924d7abc69cc87cf0f470bb4fcdec230d8640bfea69dcd5ed923",
+      "cpp/build/conda/cuda-13.3/latest/libcudf.so": "c9f0c3533c3e121b541d46a1fddccf88b2cb3b475483cbe51cbd8f718e519031",
+      "cpp/build/conda/cuda-13.3/latest/benchmarks/SORT_NVBENCH": "14d1eb27afb84495a1878e7df690356593b37951804fe898c6f38b5d417423f7"
+    }
+  },
+  "published_commit": "69e33b51c75458080c6077f527c5345242e35fec",
+  "baseline": {
+    "commit": "74dd068d7b819abc307eed2bbe607856d68b2b8e",
+    "library_sha256": "929f7f672f7215c834d7947fb5f691f84ed5792b2db653c383d63ccbce1d675c"
+  },
+  "reference_pr": "https://github.com/NVIDIA/cudf/pull/24498",
+  "reference_sha": "a257d75a7b5a4bb5b4ee392861d8d466e950d297",
+  "algorithms_0_1_2_changed": false,
+  "profile_timings_used_in_ranking": false
+}

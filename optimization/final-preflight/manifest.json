@@ -1,0 +1,82 @@
+{
+  "axes": [
+    "-b",
+    "sorted_order_strings_cardinality",
+    "-a",
+    "num_rows=262144",
+    "-a",
+    "max_width=32",
+    "-a",
+    "cardinality=64"
+  ],
+  "jobs": [
+    [
+      4,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      1,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      0,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      3,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      3,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      2,
+      {
+        "name": "optimized"
+      }
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ],
+    [
+      4,
+      {
+        "name": "baseline",
+        "baseline": true
+      }
+    ]
+  ],
+  "rounds": 5,
+  "samples": 50,
+  "warmups": 5
+}

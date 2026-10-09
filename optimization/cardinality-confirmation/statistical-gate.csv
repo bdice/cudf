@@ -1,0 +1,4 @@
+config,group,state,stable,descending,rounds,ratio,ratio_ci_low,ratio_ci_high,accepted,axes
+experiment-3,cardinality-confirmation,Device=0 num_rows=262144 max_width=32 cardinality=64,False,False,5,0.989410490035403,0.9869147945502851,0.997761326175213,True,"{""cardinality"": ""64"", ""max_width"": ""32"", ""num_rows"": ""262144""}"
+experiment-15,cardinality-confirmation,Device=0 num_rows=262144 max_width=32 cardinality=64,False,False,5,0.9952725683922289,0.985543407909861,1.0030713892565357,True,"{""cardinality"": ""64"", ""max_width"": ""32"", ""num_rows"": ""262144""}"
+experiment-31,cardinality-confirmation,Device=0 num_rows=262144 max_width=32 cardinality=64,False,False,5,1.0278852876415543,1.0178472351697139,1.0489798867622806,False,"{""cardinality"": ""64"", ""max_width"": ""32"", ""num_rows"": ""262144""}"

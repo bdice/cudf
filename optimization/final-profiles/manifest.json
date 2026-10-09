@@ -1,0 +1,104 @@
+{
+  "configs": [
+    {
+      "name": "baseline",
+      "baseline": true
+    },
+    {
+      "name": "optimized",
+      "experiment": 0
+    }
+  ],
+  "cases": {
+    "giant-long": [
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "shared_suffix=64",
+        "-a",
+        "segment_profile=one_segment"
+      ],
+      false
+    ],
+    "giant-short": [
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "shared_suffix=0",
+        "-a",
+        "segment_profile=one_segment"
+      ],
+      false
+    ],
+    "hot90-long": [
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "shared_suffix=64",
+        "-a",
+        "segment_profile=hot90"
+      ],
+      false
+    ],
+    "few-giants-long": [
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "shared_suffix=64",
+        "-a",
+        "segment_profile=few_giants"
+      ],
+      false
+    ],
+    "stable-tiny32-long": [
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "shared_suffix=64",
+        "-a",
+        "segment_profile=tiny32"
+      ],
+      true
+    ],
+    "logarithmic-long": [
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "shared_suffix=64",
+        "-a",
+        "segment_profile=logarithmic"
+      ],
+      false
+    ],
+    "duplicates12": [
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=duplicates_12"
+      ],
+      false
+    ]
+  },
+  "profile_timings_excluded_from_rankings": true
+}

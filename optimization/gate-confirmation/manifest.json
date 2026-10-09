@@ -1,0 +1,4367 @@
+{
+  "configs": [
+    {
+      "name": "baseline",
+      "baseline": true,
+      "experiment": 0
+    },
+    {
+      "name": "experiment-0",
+      "experiment": 0
+    },
+    {
+      "name": "experiment-1",
+      "experiment": 1
+    },
+    {
+      "name": "experiment-2",
+      "experiment": 2
+    },
+    {
+      "name": "experiment-3",
+      "experiment": 3
+    },
+    {
+      "name": "experiment-15",
+      "experiment": 15
+    },
+    {
+      "name": "experiment-31",
+      "experiment": 31
+    }
+  ],
+  "jobs": [
+    [
+      3,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      4,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      3,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      4,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      3,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      3,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      3,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      3,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      3,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      3,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      3,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      1,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      3,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      3,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      4,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      4,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-2",
+        "experiment": 2
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      3,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      4,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      0,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-15",
+        "experiment": 15
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "unstable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[singletons,pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-0",
+        "experiment": 0
+      },
+      "zero",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      false,
+      false
+    ],
+    [
+      0,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "stable-warps",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "identity-constant",
+      [
+        "-b",
+        "sorted_order_strings_distribution",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=cardinality_1_width_32"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ],
+    [
+      4,
+      {
+        "name": "experiment-31",
+        "experiment": 31
+      },
+      "prefix-targets",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "prefix_width=[8,10,11,12]",
+        "-a",
+        "suffix_width=32",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      false,
+      false
+    ],
+    [
+      4,
+      {
+        "name": "baseline",
+        "baseline": true,
+        "experiment": 0
+      },
+      "active-fractions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=[262144,2097152]",
+        "-a",
+        "profile=[active_10,active_50]"
+      ],
+      false,
+      false
+    ],
+    [
+      2,
+      {
+        "name": "experiment-3",
+        "experiment": 3
+      },
+      "identity-null",
+      [
+        "-b",
+        "sorted_order_strings_nulls",
+        "-a",
+        "num_rows=2097152",
+        "-a",
+        "profile=fixed_8",
+        "-a",
+        "null_percent=100"
+      ],
+      false,
+      false
+    ],
+    [
+      1,
+      {
+        "name": "experiment-1",
+        "experiment": 1
+      },
+      "stable-warps-desc",
+      [
+        "-b",
+        "sorted_order_strings_segments",
+        "-a",
+        "num_rows=[32768,2097152]",
+        "-a",
+        "shared_suffix=[0,64]",
+        "-a",
+        "segment_profile=[pairs,tiny4,tiny8,tiny16,tiny32]"
+      ],
+      true,
+      true
+    ]
+  ],
+  "samples": 50,
+  "warmups": 5
+}
