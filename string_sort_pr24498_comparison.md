@@ -1,5 +1,9 @@
 # cuDF PR #24498 versus tuned radix-prefix LRB refinement
 
+> Historical baseline measurements for R8 before selective large-run proofs and suffix radix.
+> The [current PR benchmark comment](https://github.com/NVIDIA/cudf/pull/24518#issuecomment-6074998344)
+> contains the updated recipe, matched measurements, plots and regression checks.
+
 R8 is 2.250× faster than the best fixed PR segmented/RLE setting in the complete repeated matrix across the 206 active permutation states, and 1.863× faster on the separate 16-state end-to-end sort pool. R8 wins by more than 2% in 162 of those 206 permutation states; PR mode 2 wins in 41, with three within 2%. These are equal-weight synthetic-suite results, not a universal dispatch decision.
 
 Rebased `string-sort-prefix-variants` onto PR head `a257d75a7b5a4bb5b4ee392861d8d466e950d297`. The original `f6ba458cd0d0c399f5bf514cfa4914addc092f89` is preserved as `backup/string-sort-prefix-variants-before-pr24498-20261008`. Integration source was measured at `6e05c89801`; the complete SHA and file/binary hashes are in `provenance.json`. The branch was committed locally. No force-push was performed.

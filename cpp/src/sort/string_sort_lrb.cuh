@@ -151,38 +151,31 @@ __device__ bool cached_prefix_tie_break(
   return string_suffix_less<CachedBytes>(left_suffix, right_suffix, ascending, suffix_word_bytes);
 }
 
-struct radix_string_storage {
+// Typed offset storage removes a per-comparison runtime offset-width dispatch.
+template <typename Offset>
+struct typed_radix_string_storage {
   char const* chars;
-  void const* offsets;
+  Offset const* offsets;
   bitmask_type const* null_mask;
   size_type row_offset;
-  bool large_offsets;
   size_type rows;
 
   __device__ string_character_bounds character_bounds() const
   {
-    auto const i     = row_offset + rows;
-    auto const size  = large_offsets
-                         ? static_cast<int64_t const*>(offsets)[i]
-                         : static_cast<int64_t>(static_cast<size_type const*>(offsets)[i]);
     auto const begin = reinterpret_cast<std::uintptr_t>(chars);
-    return {begin, begin + size};
+    return {begin, begin + static_cast<int64_t>(offsets[row_offset + rows])};
   }
-
   __device__ bool is_null(size_type row) const
   {
     return null_mask != nullptr && !cudf::bit_is_set(null_mask, row + row_offset);
   }
-
   template <typename T>
   __device__ T element(size_type row) const
   {
     static_assert(std::is_same_v<T, string_view>);
     auto const i     = row + row_offset;
-    auto const begin = large_offsets ? static_cast<int64_t const*>(offsets)[i]
-                                     : static_cast<size_type const*>(offsets)[i];
-    auto const end   = large_offsets ? static_cast<int64_t const*>(offsets)[i + 1]
-                                     : static_cast<size_type const*>(offsets)[i + 1];
+    auto const begin = offsets[i];
+    auto const end   = offsets[i + 1];
     return string_view{chars == nullptr ? nullptr : chars + begin,
                        static_cast<size_type>(end - begin)};
   }
@@ -220,6 +213,49 @@ struct radix_string_prefix_extractor {
   bool prefix_funnel;
 };
 
+template <typename Comparator>
+struct radix_proven_suffix_comparator : Comparator {
+  radix_lrb_proof const* proofs;
+  radix_lrb_metadata const* metadata;
+  size_type base{};
+  size_type skip{8};
+  bool complete{};
+
+  __device__ Comparator base_comparator() const { return static_cast<Comparator const&>(*this); }
+
+  __device__ auto bind_bin(size_type segment_base) const
+  {
+    auto result = *this;
+    result.base = segment_base;
+    return result;
+  }
+  __device__ auto bind_segment(size_type segment) const
+  {
+    auto result        = *this;
+    auto const ordinal = base + segment - metadata->segment_base[this->proof_first_bin()];
+    if (ordinal >= 0) {
+      auto const proof = proofs[ordinal];
+      result.skip      = max(size_type{8}, static_cast<size_type>(proof.prefix));
+      result.complete  = (proof.flags & 1u) == 0;
+    }
+    return result;
+  }
+  __device__ bool operator()(size_type lhs, size_type rhs) const
+  {
+    if (lhs == -1 || rhs == -1) return rhs == -1 && lhs != -1;
+    auto const left  = this->keys.template element<string_view>(lhs);
+    auto const right = this->keys.template element<string_view>(rhs);
+    auto const l = left.size_bytes(), r = right.size_bytes();
+    int result;
+    if (l <= skip || r <= skip)
+      result = (l > r) - (l < r);
+    else
+      result = compare_string_suffix_words<8, true, 8>(string_view{left.data() + skip, l - skip},
+                                                       string_view{right.data() + skip, r - skip});
+    return this->ascending ? result < 0 : result > 0;
+  }
+};
+
 template <int Bytes, typename Keys = column_device_view>
 struct radix_string_suffix_comparator {
   __device__ bool operator()(size_type lhs, size_type rhs) const
@@ -227,10 +263,123 @@ struct radix_string_suffix_comparator {
     if (lhs == -1 || rhs == -1) return rhs == -1 && lhs != -1;
     return cached_prefix_tie_break<Bytes>(keys, lhs, rhs, ascending, suffix_word_bytes);
   }
+  __host__ __device__ int proof_first_bin() const { return 16; }
+
+  // Common bytes after the already equal R8 prefix, proved against one reference row.
+  __device__ unsigned int common_prefix(size_type lhs, size_type rhs) const
+  {
+    auto const left  = keys.template element<string_view>(lhs);
+    auto const right = keys.template element<string_view>(rhs);
+    auto const n     = min(left.size_bytes(), right.size_bytes());
+    if (left.data() == right.data()) return n;
+    size_type i = min(size_type{8}, n);
+    if (n - i >= 8) {
+      string_funnel_suffix_reader<8, 8> a{string_view{left.data() + i, n - i}};
+      string_funnel_suffix_reader<8, 8> b{string_view{right.data() + i, n - i}};
+      for (; n - i >= 8; i += 8) {
+        auto const difference = a.next_full() ^ b.next_full();
+        if (difference != 0) return i + (__ffsll(static_cast<long long>(difference)) - 1) / 8;
+      }
+    }
+    for (; i < n; ++i)
+      if (left.data()[i] != right.data()[i]) break;
+    return i;
+  }
+  __device__ bool probe_run(size_type const* output,
+                            radix_segment seg,
+                            size_type size,
+                            bool extra_radix) const
+  {
+    auto const reference = output[seg.begin];
+    auto const length    = keys.template element<string_view>(reference).size_bytes();
+    bool duplicate       = true;
+    unsigned int common  = length;
+    size_type max_length = length;
+    size_type min_length = length;
+    for (int q = 1; q <= 3; ++q) {
+      auto const row    = output[seg.begin + static_cast<int64_t>(seg.end - seg.begin - 1) * q / 3];
+      auto const n      = keys.template element<string_view>(row).size_bytes();
+      auto const prefix = common_prefix(reference, row);
+      common            = min(common, prefix);
+      max_length        = max(max_length, n);
+      min_length        = min(min_length, n);
+      duplicate         = duplicate && n == length && prefix == static_cast<unsigned int>(length);
+    }
+    bool const full = seg.begin == 0 && seg.end == size;
+    return common >= 24 || (duplicate && length <= 128) ||
+           (extra_radix && full && min_length == max_length &&
+            max_length <= static_cast<size_type>(max(8u, common)) + 8);
+  }
+  auto make_proof_comparator(radix_lrb_proof const* proofs,
+                             radix_lrb_metadata const* metadata) const
+  {
+    return radix_proven_suffix_comparator<radix_string_suffix_comparator>{*this, proofs, metadata};
+  }
+  bool try_suffix_radix(radix_lrb_proof proof,
+                        size_type size,
+                        size_type* output,
+                        size_type* scratch,
+                        uint64_t* sorted_keys,
+                        uint64_t* temporary_keys,
+                        cuda::stream_ref stream) const
+  {
+    auto const skip      = max(size_type{8}, static_cast<size_type>(proof.prefix));
+    auto const remaining = proof.max_length - skip;
+    if ((proof.flags & 2u) == 0 || proof.min_length != proof.max_length || remaining <= 0 ||
+        remaining > 8)
+      return false;
+    auto const mr      = cudf::get_current_device_resource_ref();
+    auto const storage = keys;
+    auto const forward = ascending;
+    thrust::transform(rmm::exec_policy_nosync(stream, mr),
+                      output,
+                      output + size,
+                      sorted_keys,
+                      [storage, forward, skip] __device__(size_type row) {
+                        auto const str = storage.template element<string_view>(row);
+                        auto const key = load_column_prefix<uint64_t>(storage, str, skip, true);
+                        return forward ? key : ~key;
+                      });
+    cub::DoubleBuffer<uint64_t> key_buffers{sorted_keys, temporary_keys};
+    cub::DoubleBuffer<size_type> row_buffers{output, scratch};
+    std::size_t bytes = 0;
+    auto sort         = [&](void* temp) {
+      return cub::DeviceRadixSort::SortPairs(
+        temp, bytes, key_buffers, row_buffers, size, 64 - 8 * remaining, 64, stream.get());
+    };
+    CUDF_CUDA_TRY(sort(nullptr));
+    rmm::device_buffer temporary(bytes, stream, mr);
+    CUDF_CUDA_TRY(sort(temporary.data()));
+    if (row_buffers.Current() != output)
+      CUDF_CUDA_TRY(cudf::detail::memcpy_async(
+        output, row_buffers.Current(), sizeof(size_type) * size, stream));
+    return true;
+  }
   Keys keys;
   bool ascending;
   int suffix_word_bytes{};
   bool contiguous_merge{};
+  static constexpr bool enable_proof        = true;
+  static constexpr bool enable_suffix_radix = true;
+};
+
+template <typename Keys>
+struct three_way_radix_string_comparator : radix_string_suffix_comparator<8, Keys> {
+  __device__ int compare_three_way(size_type lhs, size_type rhs) const
+  {
+    auto const left       = this->keys.template element<string_view>(lhs);
+    auto const right      = this->keys.template element<string_view>(rhs);
+    auto const left_size  = left.size_bytes();
+    auto const right_size = right.size_bytes();
+    int result;
+    if (left_size <= 8 || right_size <= 8) {
+      result = (left_size > right_size) - (left_size < right_size);
+    } else {
+      result = compare_string_suffix_words<8, true, 8>(
+        string_view{left.data() + 8, left_size - 8}, string_view{right.data() + 8, right_size - 8});
+    }
+    return this->ascending ? result : -result;
+  }
 };
 
 /**
@@ -238,11 +387,12 @@ struct radix_string_suffix_comparator {
  *
  * Null ranks participate in the radix key; row IDs remain payloads. Equal prefixes are refined
  * using hybrid warp sorts up to 32 rows, tiered block sorts, and hierarchical stable merges.
- * The native schedule reads one fixed-size metadata record. Schedule 2 keeps metadata on device
+ * Native scheduling reads bin metadata once, with a second small read only for a promising
+ * full-span suffix-radix candidate. Schedule 2 keeps metadata on device
  * for capture and graph replay. Legacy CUDF_STRING_SORT_* tuning settings do not affect this path.
  */
-template <bool Stable, bool HasNulls>
-void refined_order(radix_string_storage const& keys,
+template <bool Stable, bool HasNulls, typename Keys>
+void refined_order(Keys const& keys,
                    mutable_column_view& indices,
                    bool ascending,
                    null_order null_precedence,
@@ -250,10 +400,10 @@ void refined_order(radix_string_storage const& keys,
 {
   auto const null_rank =
     HasNulls ? (ascending == (null_precedence == null_order::BEFORE) ? 0u : 1u) : 2u;
-  auto const extractor = radix_string_prefix_extractor<8, HasNulls, radix_string_storage>{
-    keys, ascending, null_rank, true};
-  auto const comparator =
-    radix_string_suffix_comparator<8, radix_string_storage>{keys, ascending, -8, true};
+  auto const extractor =
+    radix_string_prefix_extractor<8, HasNulls, Keys>{keys, ascending, null_rank, true};
+  auto const base_comparator = radix_string_suffix_comparator<8, Keys>{keys, ascending, -8, true};
+  auto const comparator      = three_way_radix_string_comparator<Keys>{base_comparator};
   radix_prefix_refine<8, 256, 4, Stable>(indices.size(),
                                          indices.begin<size_type>(),
                                          extractor,
@@ -285,16 +435,28 @@ void sorted_order(column_view const& input,
                      size_type{0});
     return;
   }
-  auto const offsets = strings.offsets();
-  bool const large   = offsets.type().id() == type_id::INT64;
-  auto const data    = large ? static_cast<void const*>(offsets.data<int64_t>())
-                             : static_cast<void const*>(offsets.data<size_type>());
-  auto const storage = radix_string_storage{
-    strings.chars_begin(stream), data, input.null_mask(), input.offset(), large, input.size()};
-  if (input.has_nulls()) {
-    refined_order<Stable, true>(storage, indices, ascending, null_precedence, stream);
+  auto const offsets  = strings.offsets();
+  bool const large    = offsets.type().id() == type_id::INT64;
+  auto const data     = large ? static_cast<void const*>(offsets.data<int64_t>())
+                              : static_cast<void const*>(offsets.data<size_type>());
+  auto const dispatch = [&]<typename Storage>(Storage const& storage) {
+    if (input.has_nulls())
+      refined_order<Stable, true>(storage, indices, ascending, null_precedence, stream);
+    else
+      refined_order<Stable, false>(storage, indices, ascending, null_precedence, stream);
+  };
+  if (large) {
+    dispatch(typed_radix_string_storage<int64_t>{strings.chars_begin(stream),
+                                                 static_cast<int64_t const*>(data),
+                                                 input.null_mask(),
+                                                 input.offset(),
+                                                 input.size()});
   } else {
-    refined_order<Stable, false>(storage, indices, ascending, null_precedence, stream);
+    dispatch(typed_radix_string_storage<size_type>{strings.chars_begin(stream),
+                                                   static_cast<size_type const*>(data),
+                                                   input.null_mask(),
+                                                   input.offset(),
+                                                   input.size()});
   }
 }
 

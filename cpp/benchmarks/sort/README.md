@@ -28,7 +28,7 @@ environment controls are no longer supported and have no effect.
 
 ## Radix LRB comparison path
 
-Selector `3` preserves the measured R8 configuration from `string-sort-prefix-variants`:
+Selector `3` builds on the measured R8 configuration from `string-sort-prefix-variants`:
 8-byte prefix keys with separate 32-bit row IDs, bounded funnel extraction and 8-byte suffix
 comparisons, exact run-length encoding, logarithmic binning, hybrid warp refinement (groups
 2/4/8 use shared bitonic comparisons, 16/32 use CUB WarpMergeSort), tiered block refinement,
@@ -37,8 +37,26 @@ kernel implementation is retained in `sort_string_radix_refine.cuh`; its wrapper
 helpers are isolated in `string_sort_lrb.cuh`. The PR's selectors `0`, `1`, and `2` retain their
 original algorithms and tuning defaults. Prefix merge remains the default.
 
+Native R8 refinement also uses typed 32-/64-bit offsets and a three-way suffix comparison
+for stable warp sorting. Runs longer than 32,768 rows may receive an exact tiled
+common-prefix/duplicate scan. Binning compares a reference with three sampled rows (near
+one-third, two-thirds and the end); samples only decide whether the exact scan is worthwhile.
+Promotion requires at least 24 common bytes, sampled duplicates no longer than 128 bytes,
+or an equal-length short-tail candidate spanning the input. The full scan checks every row.
+Proven identical runs skip sorting and final copying; other promoted runs compare after the
+minimum proven common prefix. If a single non-null run covers the whole input, has equal
+string lengths and a remaining suffix of 1–8 bytes, a stable global suffix radix sort finishes
+it using the original key buffers. Otherwise the original tile/merge workers finish the run.
+
+Native scheduling reads bin counts once. It reads one additional 16-byte proof record only
+when a full-input shortcut is possible. Sample promotion is folded into binning, so an
+unpromising input adds no proof allocation or proof kernels. These are fixed R8 tunings;
+there is no prototype experiment selector or cardinality sketch.
+
 `LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE=0` uses native metadata scheduling (default).
-Set it to `2` for guarded device scheduling and CUDA graph capture/replay. Other values use `0`.
+Set it to `2` for guarded device scheduling and CUDA graph capture/replay. The guarded
+path keeps metadata on device and uses the original comparison finish without the new
+proof/suffix-radix shortcuts. Other values use `0`.
 PR segmented precision/cutoff/trace settings affect only selectors `1` and `2`. The historical
 `CUDF_STRING_SORT_VARIANT` and radix tuning variables no longer select algorithms; the old
 branch is preserved as `backup/string-sort-prefix-variants-before-pr24498-20261008`.

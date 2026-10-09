@@ -877,3 +877,60 @@ TEST_F(StringSort, SliceOffsetsBeyondInt32)
     CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, unstable->view());
   }
 }
+
+// The large-run proof must cover every row, including differences missed by its samples.
+TEST_F(StringSort, RadixLrbLargeRunProofAndSuffixRadix)
+{
+  if (cudf::detail::configured_string_sort_algorithm() !=
+      cudf::detail::string_sort_algorithm::RADIX_LRB) {
+    GTEST_SKIP() << "Tests the opt-in R8 proof and suffix radix path";
+  }
+  constexpr cudf::size_type count = 32769;
+  for (int scenario = 0; scenario < 8; ++scenario) {
+    SCOPED_TRACE(scenario);
+    std::vector<std::string> strings;
+    for (cudf::size_type i = 0; i < count; ++i) {
+      std::string str(72, 'a');
+      if (scenario == 0 || scenario == 1 || scenario == 7) {
+        // Equal length, an unaligned common prefix, high bytes and embedded NULs.
+        str.resize(scenario == 1 ? 11 : 77);
+        auto const rank     = static_cast<uint32_t>((count - i) % 257);
+        str[str.size() - 2] = static_cast<char>(rank >> 8);
+        str.back()          = static_cast<char>(rank);
+      } else if (scenario == 2) {
+        // Sampled duplicates with one unsampled difference.
+        if (i == 173) str[51] = 'b';
+      } else if (scenario == 3) {
+        str.append(i % 3, '\0');  // Equal numeric suffix keys do not prove equal lengths.
+      } else if (scenario == 4) {
+        str.resize(i % 2 ? 6 : 8);
+        std::fill(str.begin(), str.end(), '\0');  // A zero-padded R8 collision below eight bytes.
+      } else if (scenario == 5) {
+        str.assign(79, 'q');  // A truly identical run preserves the original row order.
+      } else if (scenario == 6) {
+        str.back() = static_cast<char>(i % 19);
+      }
+      strings.push_back(std::move(str));
+    }
+    if (scenario == 6) {
+      auto second = strings;
+      for (auto& str : second)
+        str[0] = 'z';
+      strings.insert(strings.end(), second.begin(), second.end());
+    }
+    if (scenario == 7) strings.push_back("outside");  // One large run is not necessarily full span.
+    for (auto const direction : {cudf::order::ASCENDING, cudf::order::DESCENDING}) {
+      std::vector<cudf::size_type> expected_indices(strings.size());
+      std::iota(expected_indices.begin(), expected_indices.end(), 0);
+      std::stable_sort(expected_indices.begin(), expected_indices.end(), [&](auto a, auto b) {
+        return direction == cudf::order::ASCENDING ? bytewise_less(strings[a], strings[b])
+                                                   : bytewise_less(strings[b], strings[a]);
+      });
+      auto const expected = cudf::test::fixed_width_column_wrapper<cudf::size_type>(
+        expected_indices.begin(), expected_indices.end());
+      auto const input  = cudf::test::strings_column_wrapper(strings.begin(), strings.end());
+      auto const result = cudf::stable_sorted_order(cudf::table_view{{input}}, {direction});
+      CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view());
+    }
+  }
+}
