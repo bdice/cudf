@@ -1,0 +1,58 @@
+{
+  "configs": [
+    {
+      "mode": 1,
+      "precision": 32,
+      "cutoff": 512
+    },
+    {
+      "mode": 2,
+      "precision": 32,
+      "cutoff": 4096
+    },
+    {
+      "mode": 3
+    }
+  ],
+  "cases": {
+    "tiny32": [
+      "-b",
+      "sorted_order_strings_segments",
+      "-a",
+      "num_rows=2097152",
+      "-a",
+      "shared_suffix=64",
+      "-a",
+      "segment_profile=tiny32"
+    ],
+    "logarithmic": [
+      "-b",
+      "sorted_order_strings_segments",
+      "-a",
+      "num_rows=2097152",
+      "-a",
+      "shared_suffix=64",
+      "-a",
+      "segment_profile=logarithmic"
+    ],
+    "one_segment": [
+      "-b",
+      "sorted_order_strings_segments",
+      "-a",
+      "num_rows=2097152",
+      "-a",
+      "shared_suffix=64",
+      "-a",
+      "segment_profile=one_segment"
+    ],
+    "duplicates64": [
+      "-b",
+      "sorted_order_strings_distribution",
+      "-a",
+      "num_rows=2097152",
+      "-a",
+      "profile=cardinality_64_width_128"
+    ]
+  },
+  "profile_timings_excluded_from_rankings": true
+}

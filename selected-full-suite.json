@@ -1,0 +1,12 @@
+{
+  "pr1": {
+    "mode": 1,
+    "precision": 32,
+    "cutoff": 512
+  },
+  "pr2": {
+    "mode": 2,
+    "precision": 32,
+    "cutoff": 4096
+  }
+}

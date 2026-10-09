@@ -1,0 +1,14 @@
+{
+  "configs": [
+    {
+      "mode": 1
+    },
+    {
+      "mode": 2
+    }
+  ],
+  "state_count": 232,
+  "samples": 20,
+  "warmups": 5,
+  "external_timeout_s": 30
+}

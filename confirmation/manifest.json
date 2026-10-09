@@ -1,0 +1,4152 @@
+{
+  "configs": [
+    {
+      "mode": 0
+    },
+    {
+      "mode": 3
+    },
+    {
+      "mode": 1,
+      "precision": 32,
+      "cutoff": 128
+    },
+    {
+      "mode": 1,
+      "precision": 32,
+      "cutoff": 512
+    },
+    {
+      "mode": 1,
+      "precision": 32,
+      "cutoff": 4096
+    },
+    {
+      "mode": 2,
+      "precision": 32,
+      "cutoff": 128
+    },
+    {
+      "mode": 2,
+      "precision": 32,
+      "cutoff": 512
+    },
+    {
+      "mode": 2,
+      "precision": 32,
+      "cutoff": 4096
+    }
+  ],
+  "groups": {
+    "main": [
+      "-b",
+      "sorted_order_strings",
+      "-b",
+      "sorted_order_strings_distribution",
+      "-b",
+      "sorted_order_strings_nulls"
+    ],
+    "target": [
+      "-b",
+      "sorted_order_strings_cardinality",
+      "-b",
+      "sorted_order_strings_prefixes",
+      "-a",
+      "prefix_width=[4,8,10,11,12,64]"
+    ],
+    "constant": [
+      "-b",
+      "sorted_order_strings_prefixes",
+      "-a",
+      "prefix_width=32",
+      "-a",
+      "suffix_width=0",
+      "-a",
+      "prefix_cardinality=1"
+    ],
+    "segments": [
+      "--benchmark",
+      "sorted_order_strings_segments",
+      "--axis",
+      "num_rows=[32768,2097152]",
+      "--axis",
+      "shared_suffix=[0,64]"
+    ],
+    "pr-workload": [
+      "-b",
+      "sorted_order_strings_workload"
+    ],
+    "pr-source": [
+      "-b",
+      "sorted_order_strings_source_parity"
+    ],
+    "pr-diagnostics": [
+      "-b",
+      "sorted_order_strings_segmented_diagnostics",
+      "-a",
+      "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+    ],
+    "pr-zero-collisions": [
+      "-b",
+      "sorted_order_strings_segmented_diagnostics",
+      "-a",
+      "num_rows=32768",
+      "-a",
+      "profile=[zero_collision_pass1,zero_collision_pass2]"
+    ],
+    "end-to-end": [
+      "-b",
+      "sort_strings_workload",
+      "-a",
+      "max_width=[32,256]",
+      "-a",
+      "num_rows=[262144,2097152]"
+    ]
+  },
+  "controlconfigs": [
+    {
+      "mode": 3
+    },
+    {
+      "mode": 3,
+      "control": true
+    }
+  ],
+  "controlgroups": {
+    "main": [
+      "-b",
+      "sorted_order_strings",
+      "-b",
+      "sorted_order_strings_distribution",
+      "-b",
+      "sorted_order_strings_nulls"
+    ],
+    "target": [
+      "-b",
+      "sorted_order_strings_cardinality",
+      "-b",
+      "sorted_order_strings_prefixes",
+      "-a",
+      "prefix_width=[4,8,10,11,12,64]"
+    ],
+    "constant": [
+      "-b",
+      "sorted_order_strings_prefixes",
+      "-a",
+      "prefix_width=32",
+      "-a",
+      "suffix_width=0",
+      "-a",
+      "prefix_cardinality=1"
+    ],
+    "segments": [
+      "--benchmark",
+      "sorted_order_strings_segments",
+      "--axis",
+      "num_rows=[32768,2097152]",
+      "--axis",
+      "shared_suffix=[0,64]"
+    ]
+  },
+  "rounds": 3,
+  "samples": 20,
+  "warmups": 5,
+  "jobs": [
+    [
+      2,
+      {
+        "mode": 0
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "control"
+    ],
+    [
+      2,
+      {
+        "mode": 0
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 0
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 0
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "control"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 0
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "control"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "control"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "control"
+    ],
+    [
+      0,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "control"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 0
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "control"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 0
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 0
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "control"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "control"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 0
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "control"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "control"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 0
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 0
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 0
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "control"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "control"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 0
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 0
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 0
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 0
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 0
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "control"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 0
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 0
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "control"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 0
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "control"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "control"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 0
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "control"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 0
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "control"
+    ],
+    [
+      1,
+      {
+        "mode": 0
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "control"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 0
+      },
+      "pr-workload",
+      [
+        "-b",
+        "sorted_order_strings_workload"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 0
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 0
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "control"
+    ],
+    [
+      1,
+      {
+        "mode": 3
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "control"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "segments",
+      [
+        "--benchmark",
+        "sorted_order_strings_segments",
+        "--axis",
+        "num_rows=[32768,2097152]",
+        "--axis",
+        "shared_suffix=[0,64]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3,
+        "control": true
+      },
+      "target",
+      [
+        "-b",
+        "sorted_order_strings_cardinality",
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=[4,8,10,11,12,64]"
+      ],
+      "control"
+    ],
+    [
+      1,
+      {
+        "mode": 0
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 3
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 4096
+      },
+      "pr-source",
+      [
+        "-b",
+        "sorted_order_strings_source_parity"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ],
+    [
+      1,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "end-to-end",
+      [
+        "-b",
+        "sort_strings_workload",
+        "-a",
+        "max_width=[32,256]",
+        "-a",
+        "num_rows=[262144,2097152]"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 3
+      },
+      "main",
+      [
+        "-b",
+        "sorted_order_strings",
+        "-b",
+        "sorted_order_strings_distribution",
+        "-b",
+        "sorted_order_strings_nulls"
+      ],
+      "control"
+    ],
+    [
+      1,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 128
+      },
+      "pr-zero-collisions",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "num_rows=32768",
+        "-a",
+        "profile=[zero_collision_pass1,zero_collision_pass2]"
+      ],
+      "main"
+    ],
+    [
+      2,
+      {
+        "mode": 1,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "constant",
+      [
+        "-b",
+        "sorted_order_strings_prefixes",
+        "-a",
+        "prefix_width=32",
+        "-a",
+        "suffix_width=0",
+        "-a",
+        "prefix_cardinality=1"
+      ],
+      "main"
+    ],
+    [
+      0,
+      {
+        "mode": 2,
+        "precision": 32,
+        "cutoff": 512
+      },
+      "pr-diagnostics",
+      [
+        "-b",
+        "sorted_order_strings_segmented_diagnostics",
+        "-a",
+        "profile=[finish_257,finish_1024,finish_4096,active_50,active_10,active_1,active_0_1,duplicates_6,duplicates_8,duplicates_12,duplicates_16,duplicates_24,duplicates_32,rle_misaligned]"
+      ],
+      "main"
+    ]
+  ]
+}

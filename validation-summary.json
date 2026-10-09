@@ -1,0 +1,238 @@
+[
+  {
+    "stem": "validation/prefix",
+    "status": "complete",
+    "returncode": 0,
+    "elapsed_s": 4.621938705444336,
+    "args": [
+      "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/gtests/SORT_TEST"
+    ],
+    "settings": {
+      "CUDA_VISIBLE_DEVICES": "GPU-bb252097-6a31-65cc-6d08-8d5e5c148bf2",
+      "LIBCUDF_KERNEL_CACHE_PATH": "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/libcudf_kernel_cache",
+      "LIBCUDF_STRING_SORT_ALGORITHM": "0",
+      "LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION": "1",
+      "LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN": "512",
+      "LIBCUDF_SEGMENTED_STRING_SORT_TRACE": "0",
+      "LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE": "0",
+      "CUDF_STRING_SORT_BENCH_STABLE": "0",
+      "CUDF_STRING_SORT_BENCH_DESCENDING": "0"
+    },
+    "passed": 1658,
+    "skipped": 6
+  },
+  {
+    "stem": "validation/pr1-p1-c512",
+    "status": "complete",
+    "returncode": 0,
+    "elapsed_s": 4.3213605880737305,
+    "args": [
+      "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/gtests/SORT_TEST"
+    ],
+    "settings": {
+      "CUDA_VISIBLE_DEVICES": "GPU-bb252097-6a31-65cc-6d08-8d5e5c148bf2",
+      "LIBCUDF_KERNEL_CACHE_PATH": "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/libcudf_kernel_cache",
+      "LIBCUDF_STRING_SORT_ALGORITHM": "1",
+      "LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION": "1",
+      "LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN": "512",
+      "LIBCUDF_SEGMENTED_STRING_SORT_TRACE": "0",
+      "LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE": "0",
+      "CUDF_STRING_SORT_BENCH_STABLE": "0",
+      "CUDF_STRING_SORT_BENCH_DESCENDING": "0"
+    },
+    "passed": 1658,
+    "skipped": 6
+  },
+  {
+    "stem": "validation/pr2-p1-c512",
+    "status": "complete",
+    "returncode": 0,
+    "elapsed_s": 4.271352529525757,
+    "args": [
+      "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/gtests/SORT_TEST"
+    ],
+    "settings": {
+      "CUDA_VISIBLE_DEVICES": "GPU-bb252097-6a31-65cc-6d08-8d5e5c148bf2",
+      "LIBCUDF_KERNEL_CACHE_PATH": "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/libcudf_kernel_cache",
+      "LIBCUDF_STRING_SORT_ALGORITHM": "2",
+      "LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION": "1",
+      "LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN": "512",
+      "LIBCUDF_SEGMENTED_STRING_SORT_TRACE": "0",
+      "LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE": "0",
+      "CUDF_STRING_SORT_BENCH_STABLE": "0",
+      "CUDF_STRING_SORT_BENCH_DESCENDING": "0"
+    },
+    "passed": 1658,
+    "skipped": 6
+  },
+  {
+    "stem": "validation/pr1-p32-c512",
+    "status": "complete",
+    "returncode": 0,
+    "elapsed_s": 4.4215686321258545,
+    "args": [
+      "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/gtests/SORT_TEST"
+    ],
+    "settings": {
+      "CUDA_VISIBLE_DEVICES": "GPU-bb252097-6a31-65cc-6d08-8d5e5c148bf2",
+      "LIBCUDF_KERNEL_CACHE_PATH": "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/libcudf_kernel_cache",
+      "LIBCUDF_STRING_SORT_ALGORITHM": "1",
+      "LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION": "32",
+      "LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN": "512",
+      "LIBCUDF_SEGMENTED_STRING_SORT_TRACE": "0",
+      "LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE": "0",
+      "CUDF_STRING_SORT_BENCH_STABLE": "0",
+      "CUDF_STRING_SORT_BENCH_DESCENDING": "0"
+    },
+    "passed": 1658,
+    "skipped": 6
+  },
+  {
+    "stem": "validation/pr2-p32-c512",
+    "status": "complete",
+    "returncode": 0,
+    "elapsed_s": 4.421449899673462,
+    "args": [
+      "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/gtests/SORT_TEST"
+    ],
+    "settings": {
+      "CUDA_VISIBLE_DEVICES": "GPU-bb252097-6a31-65cc-6d08-8d5e5c148bf2",
+      "LIBCUDF_KERNEL_CACHE_PATH": "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/libcudf_kernel_cache",
+      "LIBCUDF_STRING_SORT_ALGORITHM": "2",
+      "LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION": "32",
+      "LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN": "512",
+      "LIBCUDF_SEGMENTED_STRING_SORT_TRACE": "0",
+      "LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE": "0",
+      "CUDF_STRING_SORT_BENCH_STABLE": "0",
+      "CUDF_STRING_SORT_BENCH_DESCENDING": "0"
+    },
+    "passed": 1658,
+    "skipped": 6
+  },
+  {
+    "stem": "validation/radix-lrb",
+    "status": "complete",
+    "returncode": 0,
+    "elapsed_s": 4.3212363719940186,
+    "args": [
+      "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/gtests/SORT_TEST"
+    ],
+    "settings": {
+      "CUDA_VISIBLE_DEVICES": "GPU-bb252097-6a31-65cc-6d08-8d5e5c148bf2",
+      "LIBCUDF_KERNEL_CACHE_PATH": "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/libcudf_kernel_cache",
+      "LIBCUDF_STRING_SORT_ALGORITHM": "3",
+      "LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION": "1",
+      "LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN": "512",
+      "LIBCUDF_SEGMENTED_STRING_SORT_TRACE": "0",
+      "LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE": "0",
+      "CUDF_STRING_SORT_BENCH_STABLE": "0",
+      "CUDF_STRING_SORT_BENCH_DESCENDING": "0"
+    },
+    "passed": 1658,
+    "skipped": 6
+  },
+  {
+    "stem": "validation/radix-lrb-guarded",
+    "status": "complete",
+    "returncode": 0,
+    "elapsed_s": 1.9176039695739746,
+    "args": [
+      "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/gtests/SORT_TEST",
+      "--gtest_filter=StringRadixLrbSort.*:StringSort.*"
+    ],
+    "settings": {
+      "CUDA_VISIBLE_DEVICES": "GPU-bb252097-6a31-65cc-6d08-8d5e5c148bf2",
+      "LIBCUDF_KERNEL_CACHE_PATH": "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/libcudf_kernel_cache",
+      "LIBCUDF_STRING_SORT_ALGORITHM": "3",
+      "LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION": "1",
+      "LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN": "512",
+      "LIBCUDF_SEGMENTED_STRING_SORT_TRACE": "0",
+      "LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE": "2",
+      "CUDF_STRING_SORT_BENCH_STABLE": "0",
+      "CUDF_STRING_SORT_BENCH_DESCENDING": "0"
+    },
+    "passed": 43,
+    "skipped": 0
+  },
+  {
+    "stem": "validation/radix-lrb-guarded-memcheck",
+    "status": "complete",
+    "returncode": 0,
+    "elapsed_s": 6.425011157989502,
+    "args": [
+      "compute-sanitizer",
+      "--tool",
+      "memcheck",
+      "--error-exitcode",
+      "1",
+      "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/gtests/SORT_TEST",
+      "--gtest_filter=StringRadixLrbSort.*"
+    ],
+    "settings": {
+      "CUDA_VISIBLE_DEVICES": "GPU-bb252097-6a31-65cc-6d08-8d5e5c148bf2",
+      "LIBCUDF_KERNEL_CACHE_PATH": "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/libcudf_kernel_cache",
+      "LIBCUDF_STRING_SORT_ALGORITHM": "3",
+      "LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION": "1",
+      "LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN": "512",
+      "LIBCUDF_SEGMENTED_STRING_SORT_TRACE": "0",
+      "LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE": "2",
+      "CUDF_STRING_SORT_BENCH_STABLE": "0",
+      "CUDF_STRING_SORT_BENCH_DESCENDING": "0"
+    },
+    "sanitizer_errors": 0
+  },
+  {
+    "stem": "validation/radix-lrb-guarded-synccheck",
+    "status": "complete",
+    "returncode": 0,
+    "elapsed_s": 2.5687224864959717,
+    "args": [
+      "compute-sanitizer",
+      "--tool",
+      "synccheck",
+      "--error-exitcode",
+      "1",
+      "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/gtests/SORT_TEST",
+      "--gtest_filter=StringRadixLrbSort.*"
+    ],
+    "settings": {
+      "CUDA_VISIBLE_DEVICES": "GPU-bb252097-6a31-65cc-6d08-8d5e5c148bf2",
+      "LIBCUDF_KERNEL_CACHE_PATH": "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/libcudf_kernel_cache",
+      "LIBCUDF_STRING_SORT_ALGORITHM": "3",
+      "LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION": "1",
+      "LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN": "512",
+      "LIBCUDF_SEGMENTED_STRING_SORT_TRACE": "0",
+      "LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE": "2",
+      "CUDF_STRING_SORT_BENCH_STABLE": "0",
+      "CUDF_STRING_SORT_BENCH_DESCENDING": "0"
+    },
+    "sanitizer_errors": 0
+  },
+  {
+    "stem": "validation/radix-lrb-guarded-racecheck",
+    "status": "complete",
+    "returncode": 0,
+    "elapsed_s": 105.1865656375885,
+    "args": [
+      "compute-sanitizer",
+      "--tool",
+      "racecheck",
+      "--error-exitcode",
+      "1",
+      "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/gtests/SORT_TEST",
+      "--gtest_filter=StringRadixLrbSort.*"
+    ],
+    "settings": {
+      "CUDA_VISIBLE_DEVICES": "GPU-bb252097-6a31-65cc-6d08-8d5e5c148bf2",
+      "LIBCUDF_KERNEL_CACHE_PATH": "/home/coder/cudf/cpp/build/conda/cuda-13.3/latest/libcudf_kernel_cache",
+      "LIBCUDF_STRING_SORT_ALGORITHM": "3",
+      "LIBCUDF_SEGMENTED_STRING_SORT_LEXIC_PRECISION": "1",
+      "LIBCUDF_SEGMENTED_STRING_SORT_RADIX_RUN_MIN": "512",
+      "LIBCUDF_SEGMENTED_STRING_SORT_TRACE": "0",
+      "LIBCUDF_RADIX_LRB_STRING_SORT_SCHEDULE": "2",
+      "CUDF_STRING_SORT_BENCH_STABLE": "0",
+      "CUDF_STRING_SORT_BENCH_DESCENDING": "0"
+    },
+    "sanitizer_errors": 0
+  }
+]

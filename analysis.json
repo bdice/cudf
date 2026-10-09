@@ -1,0 +1,29 @@
+{
+  "pools": {
+    "original-active": 68,
+    "segments": 48,
+    "previous-combined": 116,
+    "pr-new": 90,
+    "combined": 206,
+    "all-sorted-order": 216,
+    "end-to-end": 16,
+    "all-states": 232
+  },
+  "selected": {
+    "pr1": {
+      "mode": 1,
+      "precision": 32,
+      "cutoff": 512
+    },
+    "pr2": {
+      "mode": 2,
+      "precision": 32,
+      "cutoff": 4096
+    }
+  },
+  "control_time_ratio": 1.0002686245167909,
+  "control_states": 126,
+  "control_states_above_2pct": 5,
+  "control_states_below_2pct": 5,
+  "note": "Control includes upstream base changes and refactoring; primary comparisons use the same new binary."
+}

@@ -1,0 +1,139 @@
+case,kind,benchmark,group,axes,config,round,gpu_ms,noise_pct
+18,main,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""262144""}",radix-lrb,1,0.39476288139820104,1.0630610926862036
+7,control,sorted_order_strings_nulls,main,"{""null_percent"": ""100"", ""num_rows"": ""262144"", ""profile"": ""fixed_8""}",radix-lrb,2,0.007230080021545291,6.30278547344404
+12,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""128"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""duplicates""}",pr2-p32-c4096,1,2.407043852806092,0.4779727608296522
+21,default-win,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""2097152"", ""profile"": ""raw_duplicates_40""}",radix-lrb,2,3.169749116897583,0.2627437447667506
+6,control,sorted_order_strings_distribution,main,"{""num_rows"": ""2097152"", ""profile"": ""cardinality_1_width_32""}",radix-lrb,1,0.00865791995078325,2.7315389657247136
+4,control,sorted_order_strings,main,"{""max_width"": ""8"", ""min_width"": ""1"", ""num_rows"": ""32768""}",old-r8-control,2,0.16304704010486606,2.493511486598379
+3,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""64"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",old-r8-control,0,0.20407040119171146,1.8382147260420039
+16,main,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny8"", ""shared_suffix"": ""64""}",radix-lrb,0,0.1801184001564979,0.9121063905008534
+0,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""1"", ""max_width"": ""32"", ""num_rows"": ""262144""}",old-r8-control,2,0.008168959962204098,22.44934937500217
+19,default-win,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""2097152"", ""profile"": ""duplicates_12""}",pr2-p1-c512,1,0.581072643995285,0.7074353667885035
+14,main,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""262144"", ""profile"": ""duplicates_12""}",pr2-p32-c4096,0,0.33490368008613597,1.0804412664197174
+2,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""1"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",radix-lrb,2,0.23965504020452502,1.6425832767655555
+6,control,sorted_order_strings_distribution,main,"{""num_rows"": ""2097152"", ""profile"": ""cardinality_1_width_32""}",radix-lrb,2,0.008863359950482845,14.211694857439394
+13,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""64"", ""min_width"": ""0"", ""num_rows"": ""2097152"", ""workload"": ""duplicates""}",pr2-p32-c4096,2,3.2916159915924075,0.5166644459861736
+17,main,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""32"", ""num_rows"": ""2097152""}",pr2-p32-c4096,2,0.8628339195251464,0.6238606948376768
+19,default-win,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""2097152"", ""profile"": ""duplicates_12""}",radix-lrb,1,2.055858573913574,0.8478951224026886
+5,control,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""32768""}",old-r8-control,2,0.19821439981460573,1.7620379924502223
+20,default-win,sorted_order_strings,main,"{""max_width"": ""64"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",radix-lrb,0,15.943692207336424,0.8330912493139853
+17,main,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""32"", ""num_rows"": ""2097152""}",radix-lrb,1,0.5214265632629393,0.5122320888956363
+8,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""pairs"", ""shared_suffix"": ""0""}",old-r8-control,2,0.15771456092596056,1.617015016468824
+14,main,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""262144"", ""profile"": ""duplicates_12""}",pr2-p32-c4096,2,0.33523903727531434,1.2689805704666985
+15,main,sort_strings_workload,end-to-end,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",radix-lrb,0,0.5163059175014496,1.3895157938859852
+8,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""pairs"", ""shared_suffix"": ""0""}",old-r8-control,1,0.1589491200447082,1.6890927940344864
+7,control,sorted_order_strings_nulls,main,"{""null_percent"": ""100"", ""num_rows"": ""262144"", ""profile"": ""fixed_8""}",radix-lrb,0,0.007264640014618636,6.839393103549717
+4,control,sorted_order_strings,main,"{""max_width"": ""8"", ""min_width"": ""1"", ""num_rows"": ""32768""}",old-r8-control,1,0.16732159912586209,2.1224839199419345
+2,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""1"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",old-r8-control,2,0.23369088023900983,1.011756575096928
+10,main,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""262144"", ""profile"": ""duplicates_32""}",radix-lrb,2,0.621914882659912,0.4281431150954959
+14,main,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""262144"", ""profile"": ""duplicates_12""}",pr2-p32-c4096,1,0.33389696121215817,2.2108199184362176
+8,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""pairs"", ""shared_suffix"": ""0""}",radix-lrb,1,0.15793792068958284,0.9937369055427957
+1,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""128"", ""num_rows"": ""262144""}",radix-lrb,0,0.2675020784139633,1.0045066917881094
+8,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""pairs"", ""shared_suffix"": ""0""}",radix-lrb,2,0.15891072034835815,1.7307244314343564
+9,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny4"", ""shared_suffix"": ""0""}",radix-lrb,1,0.15295871883630754,2.500241746719362
+9,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny4"", ""shared_suffix"": ""0""}",old-r8-control,0,0.1583872008323669,0.9060669812718728
+4,control,sorted_order_strings,main,"{""max_width"": ""8"", ""min_width"": ""1"", ""num_rows"": ""32768""}",radix-lrb,0,0.16796735882759092,9.291989661380388
+4,control,sorted_order_strings,main,"{""max_width"": ""8"", ""min_width"": ""1"", ""num_rows"": ""32768""}",old-r8-control,0,0.1690598398447037,1.869780531079401
+15,main,sort_strings_workload,end-to-end,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",pr2-p32-c4096,1,0.5194156801700592,1.4487827200075276
+2,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""1"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",old-r8-control,1,0.2365971195697785,0.5477564149361474
+21,default-win,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""2097152"", ""profile"": ""raw_duplicates_40""}",pr2-p1-c512,0,1.0518963289260865,0.48437807096266844
+10,main,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""262144"", ""profile"": ""duplicates_32""}",radix-lrb,1,0.6169024014472961,0.41433611910525814
+20,default-win,sorted_order_strings,main,"{""max_width"": ""64"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",radix-lrb,2,15.95427520751953,0.8915488596439067
+10,main,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""262144"", ""profile"": ""duplicates_32""}",pr2-p32-c4096,1,5.010168962478637,0.11139729414470188
+8,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""pairs"", ""shared_suffix"": ""0""}",radix-lrb,0,0.15912768006324768,0.7707458007907136
+18,main,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""262144""}",pr2-p32-c4096,0,0.40591103792190547,0.9098978561282165
+12,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""128"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""duplicates""}",pr2-p32-c4096,2,2.420215678215027,0.489562106453324
+1,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""128"", ""num_rows"": ""262144""}",old-r8-control,0,0.2678028792142868,3.987185782903804
+2,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""1"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",radix-lrb,0,0.2396230399608612,1.0893559743987034
+18,main,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""262144""}",pr2-p32-c4096,2,0.40857408046722404,0.7993667454885105
+6,control,sorted_order_strings_distribution,main,"{""num_rows"": ""2097152"", ""profile"": ""cardinality_1_width_32""}",old-r8-control,0,0.008563839960843327,2.8093519167325023
+17,main,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""32"", ""num_rows"": ""2097152""}",radix-lrb,2,0.523178240060806,0.4492272824943577
+19,default-win,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""2097152"", ""profile"": ""duplicates_12""}",pr2-p1-c512,2,0.5920281612873077,4.168831832334121
+15,main,sort_strings_workload,end-to-end,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",radix-lrb,1,0.5156665551662446,1.2800409562395068
+5,control,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""32768""}",old-r8-control,0,0.20374015957117073,1.6511828254519862
+17,main,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""32"", ""num_rows"": ""2097152""}",pr2-p32-c4096,1,0.8502092790603638,0.6197746709492957
+22,default-win,sorted_order_strings,main,"{""max_width"": ""128"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",radix-lrb,1,29.346614227294925,0.7476368505156556
+12,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""128"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""duplicates""}",radix-lrb,1,0.9233734416961669,2.5232967078217587
+20,default-win,sorted_order_strings,main,"{""max_width"": ""64"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",pr2-p1-c512,2,5.198629140853881,1.2285879942859244
+0,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""1"", ""max_width"": ""32"", ""num_rows"": ""262144""}",old-r8-control,1,0.008130560005083678,7.136772983840814
+1,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""128"", ""num_rows"": ""262144""}",old-r8-control,2,0.26309951961040495,0.6418415258768341
+22,default-win,sorted_order_strings,main,"{""max_width"": ""128"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",radix-lrb,0,29.417829627990727,0.8737959951189986
+12,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""128"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""duplicates""}",pr2-p32-c4096,0,2.4045254278182986,0.5055593913187956
+10,main,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""262144"", ""profile"": ""duplicates_32""}",radix-lrb,0,0.6227961564064027,0.4644396256611896
+13,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""64"", ""min_width"": ""0"", ""num_rows"": ""2097152"", ""workload"": ""duplicates""}",radix-lrb,2,3.330238709449768,1.4041300936080905
+22,default-win,sorted_order_strings,main,"{""max_width"": ""128"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",pr2-p1-c512,2,10.175804176330564,1.8968576886597082
+9,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny4"", ""shared_suffix"": ""0""}",old-r8-control,2,0.16139263927936556,1.06809400874546
+7,control,sorted_order_strings_nulls,main,"{""null_percent"": ""100"", ""num_rows"": ""262144"", ""profile"": ""fixed_8""}",old-r8-control,1,0.007082879990339279,6.767129355089733
+19,default-win,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""2097152"", ""profile"": ""duplicates_12""}",radix-lrb,0,2.060025587081909,0.7646860430862845
+0,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""1"", ""max_width"": ""32"", ""num_rows"": ""262144""}",radix-lrb,1,0.007627520002424718,7.765365437372729
+16,main,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny8"", ""shared_suffix"": ""64""}",pr2-p32-c4096,0,0.6228582382202149,0.2709225571752549
+6,control,sorted_order_strings_distribution,main,"{""num_rows"": ""2097152"", ""profile"": ""cardinality_1_width_32""}",old-r8-control,1,0.008712320011109111,12.079198906344947
+13,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""64"", ""min_width"": ""0"", ""num_rows"": ""2097152"", ""workload"": ""duplicates""}",pr2-p32-c4096,1,3.2987097454071037,0.4262280572521396
+9,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny4"", ""shared_suffix"": ""0""}",old-r8-control,1,0.15809471994638438,1.815151295519998
+21,default-win,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""2097152"", ""profile"": ""raw_duplicates_40""}",radix-lrb,0,3.177946252822876,0.18764869532315395
+20,default-win,sorted_order_strings,main,"{""max_width"": ""64"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",radix-lrb,1,15.925424709320069,0.6493526977601105
+15,main,sort_strings_workload,end-to-end,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",radix-lrb,2,0.5149568021297455,1.1619785289752926
+5,control,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""32768""}",old-r8-control,1,0.20456448018550877,1.718163309130556
+21,default-win,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""2097152"", ""profile"": ""raw_duplicates_40""}",radix-lrb,1,3.1736089658737177,0.23686765378916272
+15,main,sort_strings_workload,end-to-end,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",pr2-p32-c4096,0,0.5091468805074691,1.0465158784569721
+17,main,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""32"", ""num_rows"": ""2097152""}",radix-lrb,0,0.5235763192176818,0.5835614335468502
+1,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""128"", ""num_rows"": ""262144""}",radix-lrb,1,0.26626559972763064,0.8728004368410749
+11,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",pr2-p32-c4096,0,0.4168243193626403,0.7607885550692811
+3,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""64"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",old-r8-control,1,0.20222016036510462,1.4397677093891728
+19,default-win,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""2097152"", ""profile"": ""duplicates_12""}",pr2-p1-c512,0,0.5864166402816773,0.6456917688375658
+14,main,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""262144"", ""profile"": ""duplicates_12""}",radix-lrb,0,0.3509107196331025,0.8193597732846983
+16,main,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny8"", ""shared_suffix"": ""64""}",radix-lrb,1,0.17906240016222003,2.110474146806905
+14,main,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""262144"", ""profile"": ""duplicates_12""}",radix-lrb,1,0.3472019183635712,0.5229876728086096
+6,control,sorted_order_strings_distribution,main,"{""num_rows"": ""2097152"", ""profile"": ""cardinality_1_width_32""}",old-r8-control,2,0.008593920040875669,1.9905564853816455
+18,main,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""262144""}",radix-lrb,0,0.3984313595294954,1.1844751794884048
+4,control,sorted_order_strings,main,"{""max_width"": ""8"", ""min_width"": ""1"", ""num_rows"": ""32768""}",radix-lrb,1,0.16365120172500613,0.7907365768138086
+21,default-win,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""2097152"", ""profile"": ""raw_duplicates_40""}",pr2-p1-c512,2,1.0586054491996761,0.5294064904942087
+15,main,sort_strings_workload,end-to-end,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",pr2-p32-c4096,2,0.5179820787906646,1.3329245993459307
+12,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""128"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""duplicates""}",radix-lrb,0,0.9251136016845704,2.416930837447366
+11,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",radix-lrb,0,0.4090719991922378,1.2080407671734357
+7,control,sorted_order_strings_nulls,main,"{""null_percent"": ""100"", ""num_rows"": ""262144"", ""profile"": ""fixed_8""}",radix-lrb,1,0.007433600034564732,8.241608732997161
+17,main,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""32"", ""num_rows"": ""2097152""}",pr2-p32-c4096,0,0.8647360014915465,0.528765127643408
+3,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""64"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",radix-lrb,1,0.19860799878835678,0.7664962191615489
+22,default-win,sorted_order_strings,main,"{""max_width"": ""128"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",radix-lrb,2,29.373831672668448,0.8686209729887807
+1,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""128"", ""num_rows"": ""262144""}",radix-lrb,2,0.2687596803903579,1.195798833433875
+13,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""64"", ""min_width"": ""0"", ""num_rows"": ""2097152"", ""workload"": ""duplicates""}",radix-lrb,1,3.347549452781677,1.4776094911001063
+11,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",pr2-p32-c4096,1,0.4189376020431519,2.8783439495942202
+21,default-win,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""2097152"", ""profile"": ""raw_duplicates_40""}",pr2-p1-c512,1,1.0542771077156066,0.48251730910051915
+13,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""64"", ""min_width"": ""0"", ""num_rows"": ""2097152"", ""workload"": ""duplicates""}",radix-lrb,0,3.3338969612121594,1.4098329941955137
+7,control,sorted_order_strings_nulls,main,"{""null_percent"": ""100"", ""num_rows"": ""262144"", ""profile"": ""fixed_8""}",old-r8-control,0,0.007240320025011896,7.471612387253093
+22,default-win,sorted_order_strings,main,"{""max_width"": ""128"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",pr2-p1-c512,0,10.225770912170411,2.1784967812324236
+2,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""1"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",old-r8-control,0,0.24151999890804293,1.36890120708288
+5,control,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""32768""}",radix-lrb,1,0.20342080026865003,1.7826363972169912
+1,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""0"", ""max_width"": ""128"", ""num_rows"": ""262144""}",old-r8-control,1,0.25980224132537844,0.5928859138645101
+5,control,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""32768""}",radix-lrb,0,0.20393600016832358,1.9221007959094305
+13,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""64"", ""min_width"": ""0"", ""num_rows"": ""2097152"", ""workload"": ""duplicates""}",pr2-p32-c4096,0,3.2910854482650764,0.5002977783575548
+14,main,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""262144"", ""profile"": ""duplicates_12""}",radix-lrb,2,0.34947519719600684,1.0942626749895161
+4,control,sorted_order_strings,main,"{""max_width"": ""8"", ""min_width"": ""1"", ""num_rows"": ""32768""}",radix-lrb,2,0.16960448086261748,10.279092971009229
+16,main,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny8"", ""shared_suffix"": ""64""}",radix-lrb,2,0.1779321593046188,1.4465013668636921
+22,default-win,sorted_order_strings,main,"{""max_width"": ""128"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",pr2-p1-c512,1,10.24163007736206,2.368827950770223
+0,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""1"", ""max_width"": ""32"", ""num_rows"": ""262144""}",old-r8-control,0,0.007984639983624217,7.423564850254374
+0,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""1"", ""max_width"": ""32"", ""num_rows"": ""262144""}",radix-lrb,0,0.007009279970079657,5.915218647170819
+18,main,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""262144""}",radix-lrb,2,0.3942681622505188,1.2485606145937678
+9,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny4"", ""shared_suffix"": ""0""}",radix-lrb,2,0.16302592009305955,2.1345508199407437
+16,main,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny8"", ""shared_suffix"": ""64""}",pr2-p32-c4096,2,0.6246265578269956,4.150674099235748
+18,main,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""262144""}",pr2-p32-c4096,1,0.4039500802755354,6.16049288258388
+5,control,sorted_order_strings,main,"{""max_width"": ""32"", ""min_width"": ""1"", ""num_rows"": ""32768""}",radix-lrb,2,0.2041798397898675,9.387497498306292
+10,main,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""262144"", ""profile"": ""duplicates_32""}",pr2-p32-c4096,0,5.012116498947144,0.12307716089650404
+12,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""128"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""duplicates""}",radix-lrb,2,0.9258892750740051,2.377708538643576
+6,control,sorted_order_strings_distribution,main,"{""num_rows"": ""2097152"", ""profile"": ""cardinality_1_width_32""}",radix-lrb,0,0.008758399989455934,4.449281479043676
+11,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",radix-lrb,1,0.41196479976177214,1.2037163039210672
+19,default-win,sorted_order_strings_segmented_diagnostics,pr-diagnostics,"{""num_rows"": ""2097152"", ""profile"": ""duplicates_12""}",radix-lrb,2,2.0646969652175904,0.8828870685441624
+2,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""1"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",radix-lrb,1,0.24599999904632563,16.83367380592216
+3,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""64"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",radix-lrb,2,0.197464320063591,0.7455989261352842
+8,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""pairs"", ""shared_suffix"": ""0""}",old-r8-control,0,0.16097279906272893,18.972489431700478
+3,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""64"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",radix-lrb,0,0.19924864023923877,0.9699699613737716
+3,control,sorted_order_strings_prefixes,target,"{""num_rows"": ""262144"", ""prefix_cardinality"": ""64"", ""prefix_width"": ""4"", ""suffix_width"": ""32""}",old-r8-control,2,0.20398144006729127,1.753967323535811
+20,default-win,sorted_order_strings,main,"{""max_width"": ""64"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",pr2-p1-c512,0,5.21862784385681,1.233997189190969
+0,control,sorted_order_strings_cardinality,target,"{""cardinality"": ""1"", ""max_width"": ""32"", ""num_rows"": ""262144""}",radix-lrb,2,0.007711359970271587,7.449943759172665
+11,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",pr2-p32-c4096,2,0.4122214382886886,0.8834836825808382
+10,main,sorted_order_strings_source_parity,pr-source,"{""num_rows"": ""262144"", ""profile"": ""duplicates_32""}",pr2-p32-c4096,2,5.015707511901857,0.2674610141796406
+16,main,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny8"", ""shared_suffix"": ""64""}",pr2-p32-c4096,1,0.6229625582695009,0.6842979198911706
+20,default-win,sorted_order_strings,main,"{""max_width"": ""64"", ""min_width"": ""1"", ""num_rows"": ""16777216""}",pr2-p1-c512,1,5.215623674392701,1.2327784990969826
+11,main,sorted_order_strings_workload,pr-workload,"{""max_width"": ""32"", ""min_width"": ""0"", ""num_rows"": ""262144"", ""workload"": ""normal""}",radix-lrb,2,0.4128742396831514,1.0208653264572671
+9,control,sorted_order_strings_segments,segments,"{""num_rows"": ""32768"", ""segment_profile"": ""tiny4"", ""shared_suffix"": ""0""}",radix-lrb,0,0.15846656054258348,1.138456929255669
+7,control,sorted_order_strings_nulls,main,"{""null_percent"": ""100"", ""num_rows"": ""262144"", ""profile"": ""fixed_8""}",old-r8-control,2,0.007116159973666074,7.370493491727858
