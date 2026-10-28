@@ -63,18 +63,34 @@ struct alignas(8) device_data_reference {
 /**
  * @brief Operator arity marking a plan entry that conditionally skips the entries that follow it.
  *
- * Its sources are {condition, skip_operators, skip_sources}. For `LOGICAL_AND`,
- * `NULL_LOGICAL_AND`, `LOGICAL_OR` and `NULL_LOGICAL_OR` the entry skips when the left operand
- * decides the result. For `IF_ELSE` it skips unless the condition is true.
+ * For `LOGICAL_AND`, `NULL_LOGICAL_AND`, `LOGICAL_OR` and `NULL_LOGICAL_OR` the entry skips when
+ * the left operand, which is the condition, decides the result. For `IF_ELSE` it skips unless the
+ * condition is true.
  */
 inline constexpr cudf::size_type branch_entry_arity = 3;
 
 /**
  * @brief Operator arity marking a plan entry that unconditionally skips the entries that follow it.
- *
- * Its sources are {skip_operators, skip_sources}.
  */
 inline constexpr cudf::size_type jump_entry_arity = 4;
+
+/**
+ * @brief A step of the plan that the evaluator executes.
+ *
+ * A step is either an operator or a skip entry. An operator has the arity of the operator and reads
+ * its operands from the data references `input0` (and `input1` for a binary operator), and writes
+ * to `output`. A skip entry has `branch_entry_arity` or `jump_entry_arity`. A branch entry reads
+ * its condition from `input0`. If the condition requests it, the evaluator skips the `skip` steps
+ * that follow the entry. A jump entry always skips them.
+ */
+struct alignas(16) plan_entry {
+  ast_operator op;
+  cudf::size_type arity;
+  cudf::size_type input0;
+  cudf::size_type input1;
+  cudf::size_type output;
+  cudf::size_type skip;
+};
 
 // Type used for intermediate storage in expression evaluation.
 template <bool has_nulls>
@@ -91,9 +107,7 @@ using IntermediateDataType = possibly_null_value_t<std::int64_t, has_nulls>;
 struct expression_device_view {
   device_span<detail::device_data_reference const> data_references;
   device_span<generic_scalar_device_view const> literals;
-  device_span<ast_operator const> operators;
-  device_span<cudf::size_type const> operator_arities;
-  device_span<cudf::size_type const> operator_source_indices;
+  device_span<plan_entry const> entries;
   cudf::size_type num_intermediates;
 };
 
@@ -120,16 +134,13 @@ class expression_parser {
    * @param has_nulls Whether any of the input columns contain nulls
    * @param stream CUDA stream used for device memory operations and kernel launches
    * @param mr Device memory resource used to allocate the returned device memory
-   * @param allow_control Whether the evaluator can skip the operands that an expression does not
-   * need, which `IF_ELSE` requires and the logical operators use to evaluate lazily
    */
   expression_parser(expression const& expr,
                     cudf::table_view const& left,
                     std::optional<std::reference_wrapper<cudf::table_view const>> right,
                     bool has_nulls,
                     cuda::stream_ref stream,
-                    rmm::device_async_resource_ref mr,
-                    bool allow_control = false);
+                    rmm::device_async_resource_ref mr);
 
   /**
    * @brief Construct a new expression_parser object
@@ -139,15 +150,12 @@ class expression_parser {
    * @param has_nulls Whether any of the input columns contain nulls
    * @param stream CUDA stream used for device memory operations and kernel launches
    * @param mr Device memory resource used to allocate the returned device memory
-   * @param allow_control Whether the evaluator can skip the operands that an expression does not
-   * need, which `IF_ELSE` requires and the logical operators use to evaluate lazily
    */
   expression_parser(expression const& expr,
                     cudf::table_view const& table,
                     bool has_nulls,
                     cuda::stream_ref stream,
-                    rmm::device_async_resource_ref mr,
-                    bool allow_control = false);
+                    rmm::device_async_resource_ref mr);
 
   /**
    * @brief Get the root data type of the abstract syntax tree.
@@ -245,13 +253,6 @@ class expression_parser {
    */
   [[nodiscard]] bool has_nulls() const { return _has_nulls; }
 
-  /**
-   * @brief Check if the plan contains skip entries that the evaluator must handle.
-   *
-   * @return true if the plan contains skip entries
-   */
-  [[nodiscard]] bool has_control() const { return _has_control; }
-
   expression_device_view device_expression_data;  ///< The collection of data required to evaluate
                                                   ///< the expression on the device.
   int shmem_per_thread;
@@ -333,12 +334,8 @@ class expression_parser {
   intermediate_counter _intermediate_counter;
   bool _has_nulls;
   bool _has_complex_type;
-  bool _allow_control;
-  bool _has_control{false};
   std::vector<detail::device_data_reference> _data_references;
-  std::vector<ast_operator> _operators;
-  std::vector<cudf::size_type> _operator_arities;
-  std::vector<cudf::size_type> _operator_source_indices;
+  std::vector<plan_entry> _plan;
   std::vector<generic_scalar_device_view> _literals;
 };
 

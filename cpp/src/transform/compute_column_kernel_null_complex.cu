@@ -13,6 +13,5 @@ template void launch_compute_column_kernel<true, true>(
   mutable_column_device_view& mutable_output_device,
   cudf::detail::grid_1d const& config,
   size_t shmem_per_block,
-  cuda::stream_ref stream,
-  bool has_control);
+  cuda::stream_ref stream);
 }  // namespace cudf::detail

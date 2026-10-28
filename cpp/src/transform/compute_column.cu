@@ -40,7 +40,7 @@ std::unique_ptr<column> compute_column(table_view const& table,
   // path.
   auto const has_nulls = expr.may_evaluate_null(table, stream);
 
-  auto const parser = ast::detail::expression_parser{expr, table, has_nulls, stream, mr, true};
+  auto const parser = ast::detail::expression_parser{expr, table, has_nulls, stream, mr};
 
   auto const has_complex_type = parser.has_complex_type();
 
@@ -77,16 +77,14 @@ std::unique_ptr<column> compute_column(table_view const& table,
                                                *mutable_output_device,
                                                config,
                                                shmem_per_block,
-                                               stream,
-                                               parser.has_control());
+                                               stream);
     } else {
       launch_compute_column_kernel<true, false>(*table_device,
                                                 device_expression_data,
                                                 *mutable_output_device,
                                                 config,
                                                 shmem_per_block,
-                                                stream,
-                                                parser.has_control());
+                                                stream);
     }
   } else {
     if (has_complex_type) {
@@ -95,16 +93,14 @@ std::unique_ptr<column> compute_column(table_view const& table,
                                                 *mutable_output_device,
                                                 config,
                                                 shmem_per_block,
-                                                stream,
-                                                parser.has_control());
+                                                stream);
     } else {
       launch_compute_column_kernel<false, false>(*table_device,
                                                  device_expression_data,
                                                  *mutable_output_device,
                                                  config,
                                                  shmem_per_block,
-                                                 stream,
-                                                 parser.has_control());
+                                                 stream);
     }
   }
 

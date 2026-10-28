@@ -56,16 +56,14 @@ expression_parser::expression_parser(
   std::optional<std::reference_wrapper<cudf::table_view const>> right,
   bool has_nulls,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr,
-  bool allow_control)
+  rmm::device_async_resource_ref mr)
   : _device_data_buffer{stream, mr},
     _left{left},
     _right{right},
     _expression_count{0},
     _intermediate_counter{},
     _has_nulls(has_nulls),
-    _has_complex_type{false},
-    _allow_control{allow_control}
+    _has_complex_type{false}
 {
   expr.accept(*this);
   _has_complex_type = std::ranges::any_of(_data_references, [&](auto const& ref) {
@@ -79,9 +77,8 @@ expression_parser::expression_parser(expression const& expr,
                                      cudf::table_view const& table,
                                      bool has_nulls,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr,
-                                     bool allow_control)
-  : expression_parser(expr, table, {}, has_nulls, stream, mr, allow_control)
+                                     rmm::device_async_resource_ref mr)
+  : expression_parser(expr, table, {}, has_nulls, stream, mr)
 {
 }
 
@@ -94,9 +91,7 @@ void expression_parser::move_to_device(cuda::stream_ref stream, rmm::device_asyn
 
   extract_size_and_pointer(_data_references, sizes, data_pointers, buffer_alignment);
   extract_size_and_pointer(_literals, sizes, data_pointers, buffer_alignment);
-  extract_size_and_pointer(_operators, sizes, data_pointers, buffer_alignment);
-  extract_size_and_pointer(_operator_arities, sizes, data_pointers, buffer_alignment);
-  extract_size_and_pointer(_operator_source_indices, sizes, data_pointers, buffer_alignment);
+  extract_size_and_pointer(_plan, sizes, data_pointers, buffer_alignment);
 
   // Create device buffer
   auto buffer_offsets = std::vector<cudf::size_type>(sizes.size());
@@ -128,15 +123,8 @@ void expression_parser::move_to_device(cuda::stream_ref stream, rmm::device_asyn
   device_expression_data.literals = device_span<generic_scalar_device_view const>(
     reinterpret_cast<generic_scalar_device_view const*>(device_data_buffer_ptr + buffer_offsets[1]),
     _literals.size());
-  device_expression_data.operators = device_span<ast_operator const>(
-    reinterpret_cast<ast_operator const*>(device_data_buffer_ptr + buffer_offsets[2]),
-    _operators.size());
-  device_expression_data.operator_arities = device_span<cudf::size_type const>(
-    reinterpret_cast<cudf::size_type const*>(device_data_buffer_ptr + buffer_offsets[3]),
-    _operators.size());
-  device_expression_data.operator_source_indices = device_span<cudf::size_type const>(
-    reinterpret_cast<cudf::size_type const*>(device_data_buffer_ptr + buffer_offsets[4]),
-    _operator_source_indices.size());
+  device_expression_data.entries = device_span<plan_entry const>(
+    reinterpret_cast<plan_entry const*>(device_data_buffer_ptr + buffer_offsets[2]), _plan.size());
   device_expression_data.num_intermediates = _intermediate_counter.get_max_used();
   shmem_per_thread                         = static_cast<int>(
     (_has_nulls ? sizeof(IntermediateDataType<true>) : sizeof(IntermediateDataType<false>)) *
@@ -228,18 +216,15 @@ cudf::size_type expression_parser::visit(operation const& expr)
   // Visit children (operands) of this expression. A boolean left operand that can decide the
   // result lets the plan skip the right operand, so the right operand is only evaluated if needed.
   std::vector<cudf::size_type> operand_data_ref_indices;
-  std::optional<std::pair<std::size_t, std::size_t>> branch_entry;
+  std::optional<std::size_t> branch_position;
   if (op == ast_operator::LOGICAL_AND || op == ast_operator::NULL_LOGICAL_AND ||
       op == ast_operator::LOGICAL_OR || op == ast_operator::NULL_LOGICAL_OR) {
     auto const& operands = expr.get_operands();
     auto const lhs_index = operands[0].get().accept(*this);
     operand_data_ref_indices.push_back(lhs_index);
-    if (_allow_control && _data_references[lhs_index].data_type.id() == cudf::type_id::BOOL8) {
-      _has_control = true;
-      branch_entry.emplace(_operators.size(), _operator_source_indices.size());
-      _operators.push_back(op);
-      _operator_arities.push_back(branch_entry_arity);
-      _operator_source_indices.insert(_operator_source_indices.end(), {lhs_index, 0, 0});
+    if (_data_references[lhs_index].data_type.id() == cudf::type_id::BOOL8) {
+      branch_position = _plan.size();
+      _plan.push_back({op, branch_entry_arity, lhs_index, 0, 0, 0});
     }
     operand_data_ref_indices.push_back(operands[1].get().accept(*this));
   } else {
@@ -278,29 +263,21 @@ cudf::size_type expression_parser::visit(operation const& expr)
   });
   // Resolve expression type
   auto const data_type = cudf::ast::detail::ast_operator_return_type(op, operand_types);
-  _operators.push_back(op);
-  _operator_arities.push_back(cudf::ast::detail::ast_operator_arity(op));
   // Push data reference
   auto const index = add_data_reference(make_output_reference(expression_index, data_type));
-  // Insert source indices from all operands (sources) and this operator (destination)
-  _operator_source_indices.insert(_operator_source_indices.end(),
-                                  operand_data_ref_indices.cbegin(),
-                                  operand_data_ref_indices.cend());
-  _operator_source_indices.push_back(index);
-  if (branch_entry.has_value()) {
-    // When the left operand decides the result, the result is the left operand. The entry skips to
-    // the identity that returns it, which is jumped over if the right operand is evaluated.
-    auto const [operator_position, source_position] = *branch_entry;
-    _operators.push_back(ast_operator::IF_ELSE);
-    _operator_arities.push_back(jump_entry_arity);
-    _operator_source_indices.insert(_operator_source_indices.end(), {1, 2});
-    _operator_source_indices[source_position + 1] = _operators.size() - (operator_position + 1);
-    _operator_source_indices[source_position + 2] =
-      _operator_source_indices.size() - (source_position + 3);
-    _operators.push_back(ast_operator::IDENTITY);
-    _operator_arities.push_back(1);
-    _operator_source_indices.insert(_operator_source_indices.end(),
-                                    {operand_data_ref_indices.front(), index});
+  _plan.push_back({op,
+                   cudf::ast::detail::ast_operator_arity(op),
+                   operand_data_ref_indices[0],
+                   operand_data_ref_indices.size() > 1 ? operand_data_ref_indices[1] : 0,
+                   index,
+                   0});
+  if (branch_position.has_value()) {
+    // When the left operand decides the result, the result is the left operand. The branch entry
+    // skips to the identity that returns it, which is jumped over if the right operand is
+    // evaluated.
+    _plan.push_back({ast_operator::IF_ELSE, jump_entry_arity, 0, 0, 0, 1});
+    _plan[*branch_position].skip = _plan.size() - (*branch_position + 1);
+    _plan.push_back({ast_operator::IDENTITY, 1, operand_data_ref_indices.front(), 0, index, 0});
   }
   return index;
 }
@@ -308,9 +285,6 @@ cudf::size_type expression_parser::visit(operation const& expr)
 cudf::size_type expression_parser::visit_if_else(operation const& expr,
                                                  cudf::size_type expression_index)
 {
-  CUDF_EXPECTS(
-    _allow_control, "IF_ELSE is only supported by compute_column.", std::invalid_argument);
-  _has_control         = true;
   auto const& operands = expr.get_operands();
   auto const give_back = [this](cudf::size_type data_reference_index) {
     auto const source = _data_references[data_reference_index];
@@ -319,20 +293,15 @@ cudf::size_type expression_parser::visit_if_else(operation const& expr,
     }
   };
   auto const push_identity = [this](cudf::size_type input, cudf::size_type output) {
-    _operators.push_back(ast_operator::IDENTITY);
-    _operator_arities.push_back(1);
-    _operator_source_indices.insert(_operator_source_indices.end(), {input, output});
+    _plan.push_back({ast_operator::IDENTITY, 1, input, 0, output, 0});
   };
 
   auto const condition = operands[0].get().accept(*this);
   CUDF_EXPECTS(_data_references[condition].data_type.id() == cudf::type_id::BOOL8,
                "The condition of an IF_ELSE expression must be a boolean.",
                cudf::data_type_error);
-  auto const branch_operator_position = _operators.size();
-  auto const branch_source_position   = _operator_source_indices.size();
-  _operators.push_back(ast_operator::IF_ELSE);
-  _operator_arities.push_back(branch_entry_arity);
-  _operator_source_indices.insert(_operator_source_indices.end(), {condition, 0, 0});
+  auto const branch_position = _plan.size();
+  _plan.push_back({ast_operator::IF_ELSE, branch_entry_arity, condition, 0, 0, 0});
   give_back(condition);
 
   // Both branches write the same output, so it is reserved before either branch is visited.
@@ -346,15 +315,9 @@ cudf::size_type expression_parser::visit_if_else(operation const& expr,
   push_identity(then_index, output);
   give_back(then_index);
 
-  auto const jump_operator_position = _operators.size();
-  auto const jump_source_position   = _operator_source_indices.size();
-  _operators.push_back(ast_operator::IF_ELSE);
-  _operator_arities.push_back(jump_entry_arity);
-  _operator_source_indices.insert(_operator_source_indices.end(), {0, 0});
-  _operator_source_indices[branch_source_position + 1] =
-    _operators.size() - (branch_operator_position + 1);
-  _operator_source_indices[branch_source_position + 2] =
-    _operator_source_indices.size() - (branch_source_position + 3);
+  auto const jump_position = _plan.size();
+  _plan.push_back({ast_operator::IF_ELSE, jump_entry_arity, 0, 0, 0, 0});
+  _plan[branch_position].skip = _plan.size() - (branch_position + 1);
 
   auto const else_index = operands[2].get().accept(*this);
   CUDF_EXPECTS(_data_references[else_index].data_type == data_type,
@@ -362,9 +325,7 @@ cudf::size_type expression_parser::visit_if_else(operation const& expr,
                cudf::data_type_error);
   push_identity(else_index, output);
   give_back(else_index);
-  _operator_source_indices[jump_source_position] = _operators.size() - (jump_operator_position + 1);
-  _operator_source_indices[jump_source_position + 1] =
-    _operator_source_indices.size() - (jump_source_position + 2);
+  _plan[jump_position].skip = _plan.size() - (jump_position + 1);
   return output;
 }
 

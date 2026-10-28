@@ -33,7 +33,9 @@
 #include <limits>
 #include <optional>
 #include <random>
+#include <set>
 #include <span>
+#include <utility>
 #include <vector>
 
 // NOTE: each test in this file is exercised through the AST interpreter, the JIT executor, and
@@ -2059,23 +2061,67 @@ TYPED_TEST(TransformTest, ShortCircuitLogicalOperatorsChained)
   CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view(), verbosity);
 }
 
-struct IfElseUnsupportedTest : public cudf::test::BaseFixture {};
+struct ConditionalJoinLazyTest : public cudf::test::BaseFixture {
+  static std::set<std::pair<int32_t, int32_t>> join_pairs(cudf::table_view const& left,
+                                                          cudf::table_view const& right,
+                                                          cudf::ast::expression const& predicate)
+  {
+    auto const [left_indices, right_indices] = cudf::conditional_inner_join(left, right, predicate);
+    auto const left_host                     = cudf::test::to_host<int32_t>(
+      cudf::column_view{cudf::data_type{cudf::type_id::INT32},
+                        static_cast<cudf::size_type>(left_indices->size()),
+                        left_indices->data(),
+                        nullptr,
+                        0});
+    auto const right_host = cudf::test::to_host<int32_t>(
+      cudf::column_view{cudf::data_type{cudf::type_id::INT32},
+                        static_cast<cudf::size_type>(right_indices->size()),
+                        right_indices->data(),
+                        nullptr,
+                        0});
+    std::set<std::pair<int32_t, int32_t>> pairs;
+    for (std::size_t i = 0; i < left_host.first.size(); ++i) {
+      pairs.emplace(left_host.first[i], right_host.first[i]);
+    }
+    return pairs;
+  }
+};
 
-TEST_F(IfElseUnsupportedTest, ConditionalJoinRejectsIfElse)
+TEST_F(ConditionalJoinLazyTest, IfElsePredicate)
 {
-  auto left_cond = column_wrapper<bool>{true, false};
-  auto left_key  = column_wrapper<int32_t>{1, 2};
-  auto right_key = column_wrapper<int32_t>{1, 2};
+  auto left_cond = column_wrapper<bool>{true, false, true};
+  auto left_key  = column_wrapper<int32_t>{1, 2, 3};
+  auto right_key = column_wrapper<int32_t>{1, 3, 2, 5};
   auto left      = cudf::table_view{{left_cond, left_key}};
   auto right     = cudf::table_view{{right_key}};
 
-  auto cond       = cudf::ast::column_reference(0, cudf::ast::table_reference::LEFT);
-  auto lkey       = cudf::ast::column_reference(1, cudf::ast::table_reference::LEFT);
-  auto rkey       = cudf::ast::column_reference(0, cudf::ast::table_reference::RIGHT);
-  auto equal      = cudf::ast::operation(cudf::ast::ast_operator::EQUAL, lkey, rkey);
-  auto expression = cudf::ast::operation(cudf::ast::ast_operator::IF_ELSE, cond, equal, equal);
+  auto cond      = cudf::ast::column_reference(0, cudf::ast::table_reference::LEFT);
+  auto lkey      = cudf::ast::column_reference(1, cudf::ast::table_reference::LEFT);
+  auto rkey      = cudf::ast::column_reference(0, cudf::ast::table_reference::RIGHT);
+  auto equal     = cudf::ast::operation(cudf::ast::ast_operator::EQUAL, lkey, rkey);
+  auto less      = cudf::ast::operation(cudf::ast::ast_operator::LESS, lkey, rkey);
+  auto predicate = cudf::ast::operation(cudf::ast::ast_operator::IF_ELSE, cond, equal, less);
 
-  EXPECT_THROW(cudf::conditional_inner_join(left, right, expression), std::invalid_argument);
+  auto const expected = std::set<std::pair<int32_t, int32_t>>{{0, 0}, {1, 1}, {1, 3}, {2, 1}};
+  EXPECT_EQ(join_pairs(left, right, predicate), expected);
+}
+
+TEST_F(ConditionalJoinLazyTest, ShortCircuitedLogicalPredicate)
+{
+  auto left_cond = column_wrapper<bool>{true, false, true};
+  auto left_key  = column_wrapper<int32_t>{1, 2, 3};
+  auto right_key = column_wrapper<int32_t>{1, 3, 2, 5};
+  auto left      = cudf::table_view{{left_cond, left_key}};
+  auto right     = cudf::table_view{{right_key}};
+
+  auto cond = cudf::ast::column_reference(0, cudf::ast::table_reference::LEFT);
+  auto lkey = cudf::ast::column_reference(1, cudf::ast::table_reference::LEFT);
+  auto rkey = cudf::ast::column_reference(0, cudf::ast::table_reference::RIGHT);
+  auto less = cudf::ast::operation(cudf::ast::ast_operator::LESS, lkey, rkey);
+  auto both = cudf::ast::operation(cudf::ast::ast_operator::NULL_LOGICAL_AND, cond, less);
+
+  auto const expected = std::set<std::pair<int32_t, int32_t>>{{0, 1}, {0, 2}, {0, 3}, {2, 3}};
+  EXPECT_EQ(join_pairs(left, right, both), expected);
 }
 
 CUDF_TEST_PROGRAM_MAIN()
