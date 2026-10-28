@@ -27,13 +27,14 @@ namespace cudf::detail {
  * bounds and minimize register usage.
  * @tparam has_null Indicates whether the output column may contain nulls.
  * @tparam has_complex_type Indicates whether the output column may contain complex types.
+ * @tparam has_control Indicates whether the expression has skip entries.
  *
  * @param table The table device view used for evaluation.
  * @param device_expression_data Container of device data required to evaluate the desired
  * expression.
  * @param output_column The destination for the results of evaluating the expression.
  */
-template <cudf::size_type max_block_size, bool has_null, bool has_complex_type>
+template <cudf::size_type max_block_size, bool has_null, bool has_complex_type, bool has_control>
 __launch_bounds__(max_block_size) CUDF_KERNEL
   void compute_column_kernel(table_device_view const table,
                              ast::detail::expression_device_view device_expression_data,
@@ -51,7 +52,7 @@ __launch_bounds__(max_block_size) CUDF_KERNEL
     &intermediate_storage[threadIdx.x * device_expression_data.num_intermediates];
   auto start_idx    = cudf::detail::grid_1d::global_thread_id();
   auto const stride = cudf::detail::grid_1d::grid_stride();
-  auto evaluator    = cudf::ast::detail::expression_evaluator<has_null, has_complex_type>(
+  auto evaluator = cudf::ast::detail::expression_evaluator<has_null, has_complex_type, has_control>(
     table, device_expression_data);
 
   for (thread_index_type row_index = start_idx; row_index < table.num_rows(); row_index += stride) {
@@ -67,11 +68,18 @@ void launch_compute_column_kernel(table_device_view const& table_device,
                                   mutable_column_device_view& mutable_output_device,
                                   cudf::detail::grid_1d const& config,
                                   size_t shmem_per_block,
-                                  cuda::stream_ref stream)
+                                  cuda::stream_ref stream,
+                                  bool has_control)
 {
-  compute_column_kernel<MAX_BLOCK_SIZE, HasNull, HasComplexType>
-    <<<config.num_blocks, config.num_threads_per_block, shmem_per_block, stream.get()>>>(
-      table_device, device_expression_data, mutable_output_device);
+  if (has_control) {
+    compute_column_kernel<MAX_BLOCK_SIZE, HasNull, HasComplexType, true>
+      <<<config.num_blocks, config.num_threads_per_block, shmem_per_block, stream.get()>>>(
+        table_device, device_expression_data, mutable_output_device);
+  } else {
+    compute_column_kernel<MAX_BLOCK_SIZE, HasNull, HasComplexType, false>
+      <<<config.num_blocks, config.num_threads_per_block, shmem_per_block, stream.get()>>>(
+        table_device, device_expression_data, mutable_output_device);
+  }
   CUDF_CUDA_TRY(cudaGetLastError());
 }
 }  // namespace cudf::detail

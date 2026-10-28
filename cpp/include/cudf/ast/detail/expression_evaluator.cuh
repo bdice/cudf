@@ -221,8 +221,13 @@ struct single_dispatch_binary_operator {
  *
  * This class is designed for n-ary transform evaluation. It operates on two
  * tables.
+ *
+ * @tparam has_nulls Whether any of the input columns contain nulls.
+ * @tparam has_complex_type Whether any of the data references have a complex type.
+ * @tparam has_control Whether the plan contains skip entries, which are emitted for expressions
+ * that evaluate their operands conditionally.
  */
-template <bool has_nulls, bool has_complex_type = true>
+template <bool has_nulls, bool has_complex_type = true, bool has_control = false>
 struct expression_evaluator {
  public:
   /**
@@ -474,6 +479,67 @@ struct expression_evaluator {
   }
 
   /**
+   * @brief Evaluates a skip entry of the plan.
+   *
+   * A jump entry always skips. A branch entry skips depending on its condition. For `IF_ELSE` it
+   * skips unless the condition is true, with a null condition treated as false. For the logical
+   * operators it skips if the condition, which is the left operand, decides the result.
+   *
+   * @param op The operator of the plan entry.
+   * @param arity The arity that marks the kind of the plan entry.
+   * @param operator_source_index Index of the sources of the entry, advanced past the entry and the
+   * sources that it skips.
+   * @param left_row_index The row to pull the data from the left table.
+   * @param right_row_index The row to pull the data from the right table.
+   * @param thread_intermediate_storage Thread-local storage for intermediate expression results
+   * @return The number of operators that follow the entry and must not be evaluated.
+   */
+  __device__ __forceinline__ cudf::size_type evaluate_skip(
+    ast_operator const op,
+    cudf::size_type const arity,
+    cudf::size_type& operator_source_index,
+    cudf::size_type const left_row_index,
+    cudf::size_type const right_row_index,
+    IntermediateDataType<has_nulls>* thread_intermediate_storage) const
+  {
+    auto const& sources = plan.operator_source_indices;
+    if (arity == detail::jump_entry_arity) {
+      auto const skip_operators = sources[operator_source_index];
+      operator_source_index += 2 + sources[operator_source_index + 1];
+      return skip_operators;
+    }
+    auto const& condition     = plan.data_references[sources[operator_source_index]];
+    auto const skip_operators = sources[operator_source_index + 1];
+    auto const skip_sources   = sources[operator_source_index + 2];
+    operator_source_index += 3;
+
+    auto const value =
+      resolve_input<bool>(condition, thread_intermediate_storage, left_row_index, right_row_index);
+    bool skip;
+    if (op == ast_operator::IF_ELSE) {
+      if constexpr (has_nulls) {
+        skip = !value.value_or(false);
+      } else {
+        skip = !value;
+      }
+    } else {
+      auto const is_and = op == ast_operator::LOGICAL_AND || op == ast_operator::NULL_LOGICAL_AND;
+      if constexpr (has_nulls) {
+        // The operators that propagate nulls need the right operand to find out whether a valid
+        // left operand is outweighed by a null right operand.
+        auto const propagates_null =
+          op == ast_operator::LOGICAL_AND || op == ast_operator::LOGICAL_OR;
+        skip = value.has_value() ? (!propagates_null && *value == !is_and) : propagates_null;
+      } else {
+        skip = (value == !is_and);
+      }
+    }
+    if (!skip) { return 0; }
+    operator_source_index += skip_sources;
+    return skip_operators;
+  }
+
+  /**
    * @brief Evaluate an expression applied to a row.
    *
    * This function performs an n-ary transform for one row on one thread.
@@ -584,6 +650,13 @@ struct expression_evaluator {
                                                     op,
                                                     thread_intermediate_storage);
         }
+      } else if constexpr (has_control) {
+        operator_index += evaluate_skip(op,
+                                        arity,
+                                        operator_source_index,
+                                        left_row_index,
+                                        right_row_index,
+                                        thread_intermediate_storage);
       }
     }
   }

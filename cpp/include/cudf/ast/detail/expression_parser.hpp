@@ -60,6 +60,22 @@ struct alignas(8) device_data_reference {
   bool operator==(device_data_reference const& rhs) const;
 };
 
+/**
+ * @brief Operator arity marking a plan entry that conditionally skips the entries that follow it.
+ *
+ * Its sources are {condition, skip_operators, skip_sources}. For `LOGICAL_AND`,
+ * `NULL_LOGICAL_AND`, `LOGICAL_OR` and `NULL_LOGICAL_OR` the entry skips when the left operand
+ * decides the result. For `IF_ELSE` it skips unless the condition is true.
+ */
+inline constexpr cudf::size_type branch_entry_arity = 3;
+
+/**
+ * @brief Operator arity marking a plan entry that unconditionally skips the entries that follow it.
+ *
+ * Its sources are {skip_operators, skip_sources}.
+ */
+inline constexpr cudf::size_type jump_entry_arity = 4;
+
 // Type used for intermediate storage in expression evaluation.
 template <bool has_nulls>
 using IntermediateDataType = possibly_null_value_t<std::int64_t, has_nulls>;
@@ -104,13 +120,16 @@ class expression_parser {
    * @param has_nulls Whether any of the input columns contain nulls
    * @param stream CUDA stream used for device memory operations and kernel launches
    * @param mr Device memory resource used to allocate the returned device memory
+   * @param allow_control Whether the evaluator can skip the operands that an expression does not
+   * need, which `IF_ELSE` requires and the logical operators use to evaluate lazily
    */
   expression_parser(expression const& expr,
                     cudf::table_view const& left,
                     std::optional<std::reference_wrapper<cudf::table_view const>> right,
                     bool has_nulls,
                     cuda::stream_ref stream,
-                    rmm::device_async_resource_ref mr);
+                    rmm::device_async_resource_ref mr,
+                    bool allow_control = false);
 
   /**
    * @brief Construct a new expression_parser object
@@ -120,12 +139,15 @@ class expression_parser {
    * @param has_nulls Whether any of the input columns contain nulls
    * @param stream CUDA stream used for device memory operations and kernel launches
    * @param mr Device memory resource used to allocate the returned device memory
+   * @param allow_control Whether the evaluator can skip the operands that an expression does not
+   * need, which `IF_ELSE` requires and the logical operators use to evaluate lazily
    */
   expression_parser(expression const& expr,
                     cudf::table_view const& table,
                     bool has_nulls,
                     cuda::stream_ref stream,
-                    rmm::device_async_resource_ref mr);
+                    rmm::device_async_resource_ref mr,
+                    bool allow_control = false);
 
   /**
    * @brief Get the root data type of the abstract syntax tree.
@@ -157,6 +179,15 @@ class expression_parser {
    * @return cudf::size_type Index of device data reference for the expression.
    */
   cudf::size_type visit(operation const& expr);
+
+  /**
+   * @brief Visit an `IF_ELSE` expression so that only the selected branch is evaluated.
+   *
+   * @param expr `IF_ELSE` expression.
+   * @param expression_index Index of the expression, which is 0 for the root.
+   * @return cudf::size_type Index of device data reference for the expression.
+   */
+  cudf::size_type visit_if_else(operation const& expr, cudf::size_type expression_index);
 
   /**
    * @brief Visit a column name reference expression.
@@ -214,6 +245,13 @@ class expression_parser {
    */
   [[nodiscard]] bool has_nulls() const { return _has_nulls; }
 
+  /**
+   * @brief Check if the plan contains skip entries that the evaluator must handle.
+   *
+   * @return true if the plan contains skip entries
+   */
+  [[nodiscard]] bool has_control() const { return _has_control; }
+
   expression_device_view device_expression_data;  ///< The collection of data required to evaluate
                                                   ///< the expression on the device.
   int shmem_per_thread;
@@ -270,6 +308,21 @@ class expression_parser {
    */
   cudf::size_type add_data_reference(detail::device_data_reference data_ref);
 
+  /**
+   * @brief Create the data reference that receives the result of an expression.
+   *
+   * @param expression_index Index of the expression, which is 0 for the root.
+   * @param data_type Type of the result.
+   * @param intermediate_index Intermediate storage location to use if the expression is not the
+   * root. A new location is taken if not provided.
+   *
+   * @return The data reference for the result.
+   */
+  detail::device_data_reference make_output_reference(
+    cudf::size_type expression_index,
+    cudf::data_type data_type,
+    std::optional<cudf::size_type> intermediate_index = std::nullopt);
+
   cuda::device_buffer<std::byte>
     _device_data_buffer;  ///< The device-side data buffer containing the plan information, which is
                           ///< owned by this class and persists until it is destroyed.
@@ -280,6 +333,8 @@ class expression_parser {
   intermediate_counter _intermediate_counter;
   bool _has_nulls;
   bool _has_complex_type;
+  bool _allow_control;
+  bool _has_control{false};
   std::vector<detail::device_data_reference> _data_references;
   std::vector<ast_operator> _operators;
   std::vector<cudf::size_type> _operator_arities;

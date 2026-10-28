@@ -17,6 +17,7 @@
 #include <cudf/column/column_view.hpp>
 #include <cudf/detail/iterator.cuh>
 #include <cudf/filling.hpp>
+#include <cudf/join/conditional_join.hpp>
 #include <cudf/scalar/scalar.hpp>
 #include <cudf/table/table_view.hpp>
 #include <cudf/transform.hpp>
@@ -30,6 +31,7 @@
 #include <array>
 #include <functional>
 #include <limits>
+#include <optional>
 #include <random>
 #include <span>
 #include <vector>
@@ -1852,6 +1854,228 @@ TEST_F(ComputeTableJitTest, EmptyExpressions)
   auto expressions = std::span<std::reference_wrapper<cudf::ast::expression const> const>{};
 
   EXPECT_THROW(cudf::compute_table_jit(table, expressions), cudf::logic_error);
+}
+
+TYPED_TEST(TransformTest, IfElse)
+{
+  using Executor = TypeParam;
+
+  auto cond  = column_wrapper<bool>{{true, false, true, false, false, true, true, false},
+                                    {1, 1, 1, 1, 0, 0, 1, 1}};
+  auto a     = column_wrapper<int32_t>{{1, 2, 3, 4, 5, 6, 7, 8}, {1, 1, 0, 1, 1, 0, 1, 1}};
+  auto b     = column_wrapper<int32_t>{{10, 20, 30, 40, 50, 60, 70, 80}, {1, 1, 1, 0, 1, 1, 1, 1}};
+  auto table = cudf::table_view{{cond, a, b}};
+
+  auto cond_ref   = cudf::ast::column_reference(0);
+  auto a_ref      = cudf::ast::column_reference(1);
+  auto b_ref      = cudf::ast::column_reference(2);
+  auto expression = cudf::ast::operation(cudf::ast::ast_operator::IF_ELSE, cond_ref, a_ref, b_ref);
+
+  auto expected = column_wrapper<int32_t>{{1, 20, 3, 40, 50, 60, 7, 80}, {1, 1, 0, 0, 1, 1, 1, 1}};
+  auto result   = Executor::compute_column(table, expression);
+
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view(), verbosity);
+}
+
+TYPED_TEST(TransformTest, IfElseNonNullableBranchExpressions)
+{
+  using Executor = TypeParam;
+
+  auto a     = column_wrapper<int32_t>{1, 5, 3, 7, 2, 6, 4, 8};
+  auto b     = column_wrapper<int32_t>{8, 4, 3, 2, 9, 1, 4, 5};
+  auto table = cudf::table_view{{a, b}};
+
+  auto a_ref      = cudf::ast::column_reference(0);
+  auto b_ref      = cudf::ast::column_reference(1);
+  auto less       = cudf::ast::operation(cudf::ast::ast_operator::LESS, a_ref, b_ref);
+  auto difference = cudf::ast::operation(cudf::ast::ast_operator::SUB, b_ref, a_ref);
+  auto product    = cudf::ast::operation(cudf::ast::ast_operator::MUL, a_ref, b_ref);
+  auto expression =
+    cudf::ast::operation(cudf::ast::ast_operator::IF_ELSE, less, difference, product);
+
+  auto expected = column_wrapper<int32_t>{7, 20, 9, 14, 7, 6, 16, 40};
+  auto result   = Executor::compute_column(table, expression);
+
+  CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(expected, result->view(), verbosity);
+}
+
+TYPED_TEST(TransformTest, IfElseNested)
+{
+  using Executor = TypeParam;
+
+  auto c0    = column_wrapper<bool>{true, true, false, false};
+  auto c1    = column_wrapper<bool>{true, false, true, false};
+  auto a     = column_wrapper<int32_t>{1, 2, 3, 4};
+  auto b     = column_wrapper<int32_t>{10, 20, 30, 40};
+  auto table = cudf::table_view{{c0, c1, a, b}};
+
+  auto c0_ref     = cudf::ast::column_reference(0);
+  auto c1_ref     = cudf::ast::column_reference(1);
+  auto a_ref      = cudf::ast::column_reference(2);
+  auto b_ref      = cudf::ast::column_reference(3);
+  auto inner      = cudf::ast::operation(cudf::ast::ast_operator::IF_ELSE, c1_ref, a_ref, b_ref);
+  auto sum        = cudf::ast::operation(cudf::ast::ast_operator::ADD, a_ref, b_ref);
+  auto expression = cudf::ast::operation(cudf::ast::ast_operator::IF_ELSE, c0_ref, inner, sum);
+
+  auto expected = column_wrapper<int32_t>{1, 20, 33, 44};
+  auto result   = Executor::compute_column(table, expression);
+
+  CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(expected, result->view(), verbosity);
+}
+
+TYPED_TEST(TransformTest, IfElseAsOperand)
+{
+  using Executor = TypeParam;
+
+  auto cond  = column_wrapper<bool>{true, false, true, false};
+  auto a     = column_wrapper<int32_t>{1, 2, 3, 4};
+  auto b     = column_wrapper<int32_t>{10, 20, 30, 40};
+  auto table = cudf::table_view{{cond, a, b}};
+
+  auto cond_ref   = cudf::ast::column_reference(0);
+  auto a_ref      = cudf::ast::column_reference(1);
+  auto b_ref      = cudf::ast::column_reference(2);
+  auto selected   = cudf::ast::operation(cudf::ast::ast_operator::IF_ELSE, cond_ref, a_ref, b_ref);
+  auto expression = cudf::ast::operation(cudf::ast::ast_operator::ADD, selected, a_ref);
+
+  auto expected = column_wrapper<int32_t>{2, 22, 6, 44};
+  auto result   = Executor::compute_column(table, expression);
+
+  CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(expected, result->view(), verbosity);
+}
+
+TYPED_TEST(TransformTest, IfElseSharedSubexpressions)
+{
+  using Executor = TypeParam;
+
+  auto a         = column_wrapper<int32_t>{1, 2, 3, 4, 5, 6};
+  auto b         = column_wrapper<int32_t>{6, 5, 4, 3, 2, 1};
+  auto threshold = column_wrapper<int32_t>{5, 10, 5, 10, 5, 10};
+  auto table     = cudf::table_view{{a, b, threshold}};
+
+  auto a_ref         = cudf::ast::column_reference(0);
+  auto b_ref         = cudf::ast::column_reference(1);
+  auto threshold_ref = cudf::ast::column_reference(2);
+  auto sum           = cudf::ast::operation(cudf::ast::ast_operator::ADD, a_ref, b_ref);
+  auto greater       = cudf::ast::operation(cudf::ast::ast_operator::GREATER, sum, threshold_ref);
+  auto product       = cudf::ast::operation(cudf::ast::ast_operator::MUL, sum, a_ref);
+  auto difference    = cudf::ast::operation(cudf::ast::ast_operator::SUB, sum, b_ref);
+  auto selected =
+    cudf::ast::operation(cudf::ast::ast_operator::IF_ELSE, greater, product, difference);
+  auto expression = cudf::ast::operation(cudf::ast::ast_operator::ADD, selected, sum);
+
+  auto expected = column_wrapper<int32_t>{14, 9, 28, 11, 42, 13};
+  auto result   = Executor::compute_column(table, expression);
+
+  CUDF_TEST_EXPECT_COLUMNS_EQUIVALENT(expected, result->view(), verbosity);
+}
+
+TYPED_TEST(TransformTest, ShortCircuitLogicalOperators)
+{
+  using Executor = TypeParam;
+  using ast_op   = cudf::ast::ast_operator;
+
+  auto const lhs_values  = std::array{false, false, false, true, true, true, false, false, false};
+  auto const lhs_valid   = std::array{true, true, true, true, true, true, false, false, false};
+  auto const rhs_values  = std::array{false, true, false, false, true, false, false, true, false};
+  auto const rhs_valid   = std::array{true, true, false, true, true, false, true, true, false};
+  auto const to_optional = [](auto const& values, auto const& valid, size_t i) {
+    return valid[i] ? std::optional<bool>{values[i]} : std::nullopt;
+  };
+  auto const reference =
+    [](ast_op op, std::optional<bool> a, std::optional<bool> b) -> std::optional<bool> {
+    switch (op) {
+      case ast_op::LOGICAL_AND:
+        if (!a || !b) { return std::nullopt; }
+        return *a && *b;
+      case ast_op::LOGICAL_OR:
+        if (!a || !b) { return std::nullopt; }
+        return *a || *b;
+      case ast_op::NULL_LOGICAL_AND:
+        if ((a && !*a) || (b && !*b)) { return false; }
+        if (!a || !b) { return std::nullopt; }
+        return true;
+      default:
+        if ((a && *a) || (b && *b)) { return true; }
+        if (!a || !b) { return std::nullopt; }
+        return false;
+    }
+  };
+
+  auto lhs   = column_wrapper<bool>(lhs_values.begin(), lhs_values.end(), lhs_valid.begin());
+  auto rhs   = column_wrapper<bool>(rhs_values.begin(), rhs_values.end(), rhs_valid.begin());
+  auto table = cudf::table_view{{lhs, rhs}};
+
+  auto lhs_ref = cudf::ast::column_reference(0);
+  auto rhs_ref = cudf::ast::column_reference(1);
+  for (auto op : {ast_op::LOGICAL_AND,
+                  ast_op::NULL_LOGICAL_AND,
+                  ast_op::LOGICAL_OR,
+                  ast_op::NULL_LOGICAL_OR}) {
+    SCOPED_TRACE(static_cast<int>(op));
+    std::array<bool, 9> expected_values{};
+    std::array<bool, 9> expected_valid{};
+    for (size_t i = 0; i < expected_values.size(); ++i) {
+      auto const value =
+        reference(op, to_optional(lhs_values, lhs_valid, i), to_optional(rhs_values, rhs_valid, i));
+      expected_values[i] = value.value_or(false);
+      expected_valid[i]  = value.has_value();
+    }
+    auto expected =
+      column_wrapper<bool>(expected_values.begin(), expected_values.end(), expected_valid.begin());
+    auto expression = cudf::ast::operation(op, lhs_ref, rhs_ref);
+    auto result     = Executor::compute_column(table, expression);
+
+    CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view(), verbosity);
+  }
+}
+
+TYPED_TEST(TransformTest, ShortCircuitLogicalOperatorsChained)
+{
+  using Executor = TypeParam;
+  using ast_op   = cudf::ast::ast_operator;
+
+  auto a     = column_wrapper<bool>{{true, false, true, false, true, false, true, false},
+                                    {1, 1, 1, 1, 0, 0, 1, 0}};
+  auto b     = column_wrapper<bool>{{true, true, false, false, true, true, false, true},
+                                    {1, 1, 1, 1, 1, 1, 0, 0}};
+  auto c     = column_wrapper<bool>{{false, true, false, true, false, true, false, true},
+                                    {1, 0, 1, 1, 1, 0, 1, 1}};
+  auto table = cudf::table_view{{a, b, c}};
+
+  auto a_ref      = cudf::ast::column_reference(0);
+  auto b_ref      = cudf::ast::column_reference(1);
+  auto c_ref      = cudf::ast::column_reference(2);
+  auto and_ab     = cudf::ast::operation(ast_op::NULL_LOGICAL_AND, a_ref, b_ref);
+  auto or_bc      = cudf::ast::operation(ast_op::NULL_LOGICAL_OR, b_ref, c_ref);
+  auto lhs        = cudf::ast::operation(ast_op::NULL_LOGICAL_OR, and_ab, c_ref);
+  auto rhs        = cudf::ast::operation(ast_op::NULL_LOGICAL_AND, a_ref, or_bc);
+  auto expression = cudf::ast::operation(ast_op::NULL_LOGICAL_AND, lhs, rhs);
+
+  auto expected = column_wrapper<bool>{{true, false, false, false, false, false, false, false},
+                                       {1, 1, 1, 1, 0, 0, 0, 0}};
+  auto result   = Executor::compute_column(table, expression);
+
+  CUDF_TEST_EXPECT_COLUMNS_EQUAL(expected, result->view(), verbosity);
+}
+
+struct IfElseUnsupportedTest : public cudf::test::BaseFixture {};
+
+TEST_F(IfElseUnsupportedTest, ConditionalJoinRejectsIfElse)
+{
+  auto left_cond = column_wrapper<bool>{true, false};
+  auto left_key  = column_wrapper<int32_t>{1, 2};
+  auto right_key = column_wrapper<int32_t>{1, 2};
+  auto left      = cudf::table_view{{left_cond, left_key}};
+  auto right     = cudf::table_view{{right_key}};
+
+  auto cond       = cudf::ast::column_reference(0, cudf::ast::table_reference::LEFT);
+  auto lkey       = cudf::ast::column_reference(1, cudf::ast::table_reference::LEFT);
+  auto rkey       = cudf::ast::column_reference(0, cudf::ast::table_reference::RIGHT);
+  auto equal      = cudf::ast::operation(cudf::ast::ast_operator::EQUAL, lkey, rkey);
+  auto expression = cudf::ast::operation(cudf::ast::ast_operator::IF_ELSE, cond, equal, equal);
+
+  EXPECT_THROW(cudf::conditional_inner_join(left, right, expression), std::invalid_argument);
 }
 
 CUDF_TEST_PROGRAM_MAIN()

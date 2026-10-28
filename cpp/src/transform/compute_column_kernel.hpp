@@ -34,6 +34,7 @@ size_type constexpr MAX_BLOCK_SIZE = 128;
  * @param config Grid configuration for kernel launch
  * @param shmem_per_block Amount of shared memory to allocate per block
  * @param stream CUDA stream on which to launch the kernel
+ * @param has_control Whether the expression has skip entries
  */
 template <bool HasNull, bool HasComplexType>
 void launch_compute_column_kernel(table_device_view const& table_device,
@@ -41,5 +42,6 @@ void launch_compute_column_kernel(table_device_view const& table_device,
                                   mutable_column_device_view& mutable_output_device,
                                   cudf::detail::grid_1d const& config,
                                   size_t shmem_per_block,
-                                  cuda::stream_ref stream);
+                                  cuda::stream_ref stream,
+                                  bool has_control);
 }  // namespace cudf::detail

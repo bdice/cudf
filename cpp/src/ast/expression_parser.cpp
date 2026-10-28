@@ -56,14 +56,16 @@ expression_parser::expression_parser(
   std::optional<std::reference_wrapper<cudf::table_view const>> right,
   bool has_nulls,
   cuda::stream_ref stream,
-  rmm::device_async_resource_ref mr)
+  rmm::device_async_resource_ref mr,
+  bool allow_control)
   : _device_data_buffer{stream, mr},
     _left{left},
     _right{right},
     _expression_count{0},
     _intermediate_counter{},
     _has_nulls(has_nulls),
-    _has_complex_type{false}
+    _has_complex_type{false},
+    _allow_control{allow_control}
 {
   expr.accept(*this);
   _has_complex_type = std::ranges::any_of(_data_references, [&](auto const& ref) {
@@ -77,8 +79,9 @@ expression_parser::expression_parser(expression const& expr,
                                      cudf::table_view const& table,
                                      bool has_nulls,
                                      cuda::stream_ref stream,
-                                     rmm::device_async_resource_ref mr)
-  : expression_parser(expr, table, {}, has_nulls, stream, mr)
+                                     rmm::device_async_resource_ref mr,
+                                     bool allow_control)
+  : expression_parser(expr, table, {}, has_nulls, stream, mr, allow_control)
 {
 }
 
@@ -219,8 +222,29 @@ cudf::size_type expression_parser::visit(operation const& expr)
 {
   // Increment the expression index
   auto const expression_index = _expression_count++;
-  // Visit children (operands) of this expression
-  auto const operand_data_ref_indices = visit_operands(expr.get_operands());
+  auto const op               = expr.get_operator();
+  if (op == ast_operator::IF_ELSE) { return visit_if_else(expr, expression_index); }
+
+  // Visit children (operands) of this expression. A boolean left operand that can decide the
+  // result lets the plan skip the right operand, so the right operand is only evaluated if needed.
+  std::vector<cudf::size_type> operand_data_ref_indices;
+  std::optional<std::pair<std::size_t, std::size_t>> branch_entry;
+  if (op == ast_operator::LOGICAL_AND || op == ast_operator::NULL_LOGICAL_AND ||
+      op == ast_operator::LOGICAL_OR || op == ast_operator::NULL_LOGICAL_OR) {
+    auto const& operands = expr.get_operands();
+    auto const lhs_index = operands[0].get().accept(*this);
+    operand_data_ref_indices.push_back(lhs_index);
+    if (_allow_control && _data_references[lhs_index].data_type.id() == cudf::type_id::BOOL8) {
+      _has_control = true;
+      branch_entry.emplace(_operators.size(), _operator_source_indices.size());
+      _operators.push_back(op);
+      _operator_arities.push_back(branch_entry_arity);
+      _operator_source_indices.insert(_operator_source_indices.end(), {lhs_index, 0, 0});
+    }
+    operand_data_ref_indices.push_back(operands[1].get().accept(*this));
+  } else {
+    operand_data_ref_indices = visit_operands(expr.get_operands());
+  }
   // Resolve operand types
   auto data_ref = [this](auto const& index) { return _data_references[index].data_type; };
   auto begin    = cuda::transform_iterator(operand_data_ref_indices.cbegin(), data_ref);
@@ -238,7 +262,6 @@ cudf::size_type expression_parser::visit(operation const& expr)
   // For decimal128, only comparison operators are supported. All other binary operators
   // (e.g. ADD/SUB/MUL/DIV/MOD/PYMOD) return a decimal128 result whose 16-byte rep exceeds
   // the IntermediateDataType limit and has no GPU kernel support.
-  auto const op = expr.get_operator();
   if (operand_types.size() == 2 && operand_types[0].id() == cudf::type_id::DECIMAL128 &&
       !cudf::ast::detail::is_comparison_operator(op)) {
     CUDF_FAIL("decimal128 is not supported for non-comparison binary AST operations.",
@@ -258,35 +281,119 @@ cudf::size_type expression_parser::visit(operation const& expr)
   _operators.push_back(op);
   _operator_arities.push_back(cudf::ast::detail::ast_operator_arity(op));
   // Push data reference
-  auto const output = [&]() {
-    if (expression_index == 0) {
-      // This expression is the root. Output should be directed to the output column.
-      CUDF_EXPECTS(data_type.id() != cudf::type_id::DECIMAL128,
-                   "decimal128 is not supported as an AST expression output.",
-                   cudf::data_type_error);
-      return detail::device_data_reference(
-        detail::device_data_reference_type::COLUMN, data_type, 0, table_reference::OUTPUT);
-    } else {
-      // This expression is not the root. Output is an intermediate value.
-      // Ensure that the output type is fixed width and fits in the intermediate storage.
-      if (!cudf::is_fixed_width(data_type)) {
-        CUDF_FAIL(
-          "The output data type is not a fixed-width type but must be stored in an intermediate.");
-      } else if (cudf::size_of(data_type) > (_has_nulls ? sizeof(IntermediateDataType<true>)
-                                                        : sizeof(IntermediateDataType<false>))) {
-        CUDF_FAIL("The output data type is too large to be stored in an intermediate.");
-      }
-      return detail::device_data_reference(
-        detail::device_data_reference_type::INTERMEDIATE, data_type, _intermediate_counter.take());
-    }
-  }();
-  auto const index = add_data_reference(output);
+  auto const index = add_data_reference(make_output_reference(expression_index, data_type));
   // Insert source indices from all operands (sources) and this operator (destination)
   _operator_source_indices.insert(_operator_source_indices.end(),
                                   operand_data_ref_indices.cbegin(),
                                   operand_data_ref_indices.cend());
   _operator_source_indices.push_back(index);
+  if (branch_entry.has_value()) {
+    // When the left operand decides the result, the result is the left operand. The entry skips to
+    // the identity that returns it, which is jumped over if the right operand is evaluated.
+    auto const [operator_position, source_position] = *branch_entry;
+    _operators.push_back(ast_operator::IF_ELSE);
+    _operator_arities.push_back(jump_entry_arity);
+    _operator_source_indices.insert(_operator_source_indices.end(), {1, 2});
+    _operator_source_indices[source_position + 1] = _operators.size() - (operator_position + 1);
+    _operator_source_indices[source_position + 2] =
+      _operator_source_indices.size() - (source_position + 3);
+    _operators.push_back(ast_operator::IDENTITY);
+    _operator_arities.push_back(1);
+    _operator_source_indices.insert(_operator_source_indices.end(),
+                                    {operand_data_ref_indices.front(), index});
+  }
   return index;
+}
+
+cudf::size_type expression_parser::visit_if_else(operation const& expr,
+                                                 cudf::size_type expression_index)
+{
+  CUDF_EXPECTS(
+    _allow_control, "IF_ELSE is only supported by compute_column.", std::invalid_argument);
+  _has_control         = true;
+  auto const& operands = expr.get_operands();
+  auto const give_back = [this](cudf::size_type data_reference_index) {
+    auto const source = _data_references[data_reference_index];
+    if (source.reference_type == detail::device_data_reference_type::INTERMEDIATE) {
+      _intermediate_counter.give(source.data_index);
+    }
+  };
+  auto const push_identity = [this](cudf::size_type input, cudf::size_type output) {
+    _operators.push_back(ast_operator::IDENTITY);
+    _operator_arities.push_back(1);
+    _operator_source_indices.insert(_operator_source_indices.end(), {input, output});
+  };
+
+  auto const condition = operands[0].get().accept(*this);
+  CUDF_EXPECTS(_data_references[condition].data_type.id() == cudf::type_id::BOOL8,
+               "The condition of an IF_ELSE expression must be a boolean.",
+               cudf::data_type_error);
+  auto const branch_operator_position = _operators.size();
+  auto const branch_source_position   = _operator_source_indices.size();
+  _operators.push_back(ast_operator::IF_ELSE);
+  _operator_arities.push_back(branch_entry_arity);
+  _operator_source_indices.insert(_operator_source_indices.end(), {condition, 0, 0});
+  give_back(condition);
+
+  // Both branches write the same output, so it is reserved before either branch is visited.
+  std::optional<cudf::size_type> intermediate_index;
+  if (expression_index != 0) { intermediate_index = _intermediate_counter.take(); }
+
+  auto const then_index = operands[1].get().accept(*this);
+  auto const data_type  = _data_references[then_index].data_type;
+  auto const output =
+    add_data_reference(make_output_reference(expression_index, data_type, intermediate_index));
+  push_identity(then_index, output);
+  give_back(then_index);
+
+  auto const jump_operator_position = _operators.size();
+  auto const jump_source_position   = _operator_source_indices.size();
+  _operators.push_back(ast_operator::IF_ELSE);
+  _operator_arities.push_back(jump_entry_arity);
+  _operator_source_indices.insert(_operator_source_indices.end(), {0, 0});
+  _operator_source_indices[branch_source_position + 1] =
+    _operators.size() - (branch_operator_position + 1);
+  _operator_source_indices[branch_source_position + 2] =
+    _operator_source_indices.size() - (branch_source_position + 3);
+
+  auto const else_index = operands[2].get().accept(*this);
+  CUDF_EXPECTS(_data_references[else_index].data_type == data_type,
+               "An IF_ELSE expression was provided non-matching branch types.",
+               cudf::data_type_error);
+  push_identity(else_index, output);
+  give_back(else_index);
+  _operator_source_indices[jump_source_position] = _operators.size() - (jump_operator_position + 1);
+  _operator_source_indices[jump_source_position + 1] =
+    _operator_source_indices.size() - (jump_source_position + 2);
+  return output;
+}
+
+detail::device_data_reference expression_parser::make_output_reference(
+  cudf::size_type expression_index,
+  cudf::data_type data_type,
+  std::optional<cudf::size_type> intermediate_index)
+{
+  if (expression_index == 0) {
+    // This expression is the root. Output should be directed to the output column.
+    CUDF_EXPECTS(data_type.id() != cudf::type_id::DECIMAL128,
+                 "decimal128 is not supported as an AST expression output.",
+                 cudf::data_type_error);
+    return detail::device_data_reference(
+      detail::device_data_reference_type::COLUMN, data_type, 0, table_reference::OUTPUT);
+  }
+  // This expression is not the root. Output is an intermediate value.
+  // Ensure that the output type is fixed width and fits in the intermediate storage.
+  if (!cudf::is_fixed_width(data_type)) {
+    CUDF_FAIL(
+      "The output data type is not a fixed-width type but must be stored in an intermediate.");
+  } else if (cudf::size_of(data_type) > (_has_nulls ? sizeof(IntermediateDataType<true>)
+                                                    : sizeof(IntermediateDataType<false>))) {
+    CUDF_FAIL("The output data type is too large to be stored in an intermediate.");
+  }
+  return detail::device_data_reference(
+    detail::device_data_reference_type::INTERMEDIATE,
+    data_type,
+    intermediate_index.has_value() ? *intermediate_index : _intermediate_counter.take());
 }
 
 // TODO: Eliminate column name references from expression_parser because
@@ -301,8 +408,12 @@ cudf::size_type expression_parser::visit(column_name_reference const& expr)
 
 cudf::data_type expression_parser::output_type() const
 {
-  return _data_references.empty() ? cudf::data_type(cudf::type_id::EMPTY)
-                                  : _data_references.back().data_type;
+  auto const output = std::ranges::find_if(_data_references, [](auto const& ref) {
+    return ref.reference_type == detail::device_data_reference_type::COLUMN &&
+           ref.table_source == table_reference::OUTPUT;
+  });
+  return output == _data_references.end() ? cudf::data_type(cudf::type_id::EMPTY)
+                                          : output->data_type;
 }
 
 std::vector<cudf::size_type> expression_parser::visit_operands(
