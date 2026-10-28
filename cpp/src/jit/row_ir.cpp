@@ -950,7 +950,7 @@ std::unique_ptr<row_ir::node> ast_converter::add_ir_node(ast::operation const& e
     args.emplace_back(operand.get().accept(*this));
   }
   if (expr.get_operator() == ast::ast_operator::IF_ELSE) {
-    std::rotate(args.begin(), args.begin() + 1, args.end());
+    std::ranges::rotate(args, args.begin() + 1);
   }
   return std::make_unique<row_ir::node>(
     as_opcode(expr.get_operator()), std::nullopt, error_policy::PROPAGATE, std::move(args));
