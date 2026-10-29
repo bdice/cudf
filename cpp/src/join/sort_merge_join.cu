@@ -17,6 +17,7 @@
 #include <cudf/detail/stream_compaction.hpp>
 #include <cudf/detail/utilities/buffer_factories.hpp>
 #include <cudf/detail/utilities/cuda.cuh>
+#include <cudf/detail/utilities/integer_utils.hpp>
 #include <cudf/join/join.hpp>
 #include <cudf/join/sort_merge_join.hpp>
 #include <cudf/lists/lists_column_view.hpp>
@@ -384,12 +385,16 @@ __device__ void store_typed_match(T const* run_keys,
   match_counts[row] = is_match ? run_offsets[pos + 1] - start : 0;
 }
 
+constexpr size_type typed_search_sample_stride = 32;
+
 /**
  * @brief Finds the matching build run of each probe row with one binary search per row.
  */
 template <typename T>
 CUDF_KERNEL void typed_search_kernel(T const* run_keys,
                                      size_type num_runs,
+                                     T const* samples,
+                                     size_type num_samples,
                                      size_type const* run_offsets,
                                      T const* probe_keys,
                                      size_type num_probe_rows,
@@ -399,7 +404,10 @@ CUDF_KERNEL void typed_search_kernel(T const* run_keys,
   auto const row = cudf::detail::grid_1d::global_thread_id();
   if (row >= num_probe_rows) { return; }
   auto const key = probe_keys[row];
-  auto const pos = typed_lower_bound(run_keys, 0, num_runs, key);
+  auto const s   = typed_lower_bound(samples, 0, num_samples, key);
+  auto const lo  = s > 0 ? (s - 1) * typed_search_sample_stride + 1 : 0;
+  auto const hi  = s < num_samples ? s * typed_search_sample_stride : num_runs;
+  auto const pos = typed_lower_bound(run_keys, lo, hi, key);
   store_typed_match(run_keys, num_runs, run_offsets, pos, key, row, match_starts, match_counts);
 }
 
@@ -423,11 +431,23 @@ struct typed_probe_fn {
       run_rows.end(),
       run_keys.begin(),
       [keys = build.data<T>()] __device__(size_type row) -> T { return keys[row]; });
+    auto const num_samples = cudf::util::div_rounding_up_safe(num_runs, typed_search_sample_stride);
+    auto samples           = cuda::device_buffer<T>(
+      stream, cudf::get_current_device_resource_ref(), num_samples, cuda::no_init);
+    thrust::transform(rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
+                      cuda::counting_iterator<size_type>{0},
+                      cuda::counting_iterator<size_type>{num_samples},
+                      samples.begin(),
+                      [keys = run_keys.data()] __device__(size_type i) -> T {
+                        return keys[i * typed_search_sample_stride];
+                      });
     if (probe.size() == 0) { return true; }
     auto const grid = cudf::detail::grid_1d{probe.size(), 256};
     typed_search_kernel<<<grid.num_blocks, grid.num_threads_per_block, 0, stream.get()>>>(
       run_keys.data(),
       num_runs,
+      samples.data(),
+      num_samples,
       run_offsets.data(),
       probe.data<T>(),
       probe.size(),
@@ -444,6 +464,194 @@ struct typed_probe_fn {
     return false;
   }
 };
+
+struct is_matched_pair {
+  template <typename Tuple>
+  __device__ bool operator()(Tuple const& t) const noexcept
+  {
+    return cuda::std::get<1>(t) != JoinNoMatch;
+  }
+};
+
+constexpr int typed_search_ilp = 2;
+
+template <typename T>
+CUDF_KERNEL void typed_unique_probe_kernel(T const* run_keys,
+                                           size_type num_runs,
+                                           T const* samples,
+                                           size_type num_samples,
+                                           size_type const* run_rows,
+                                           T const* probe_keys,
+                                           size_type num_probe_rows,
+                                           size_type* smaller_out,
+                                           size_type* larger_out,
+                                           size_type* num_matched)
+{
+  int64_t const row0 =
+    static_cast<int64_t>(blockIdx.x) * blockDim.x * typed_search_ilp + threadIdx.x;
+  T key[typed_search_ilp];
+  size_type base[typed_search_ilp];
+  size_type len[typed_search_ilp];
+#pragma unroll
+  for (int k = 0; k < typed_search_ilp; ++k) {
+    auto const row = row0 + static_cast<int64_t>(k) * blockDim.x;
+    key[k]         = probe_keys[row < num_probe_rows ? row : 0];
+    base[k]        = 0;
+  }
+  size_type n = num_samples;
+  while (n > 1) {
+    auto const half = n / 2;
+#pragma unroll
+    for (int k = 0; k < typed_search_ilp; ++k) {
+      base[k] = samples[base[k] + half - 1] < key[k] ? base[k] + half : base[k];
+    }
+    n -= half;
+  }
+#pragma unroll
+  for (int k = 0; k < typed_search_ilp; ++k) {
+    auto const s = base[k] + ((n == 1 && samples[base[k]] < key[k]) ? 1 : 0);
+    base[k]      = s > 0 ? (s - 1) * typed_search_sample_stride + 1 : 0;
+    len[k]       = (s < num_samples ? s * typed_search_sample_stride : num_runs) - base[k];
+  }
+  constexpr int segment_steps = 5;
+  static_assert((1 << segment_steps) == typed_search_sample_stride);
+#pragma unroll
+  for (int it = 0; it < segment_steps; ++it) {
+#pragma unroll
+    for (int k = 0; k < typed_search_ilp; ++k) {
+      if (len[k] > 1) {
+        auto const half = len[k] / 2;
+        if (run_keys[base[k] + half - 1] < key[k]) { base[k] += half; }
+        len[k] -= half;
+      }
+    }
+  }
+#pragma unroll
+  for (int k = 0; k < typed_search_ilp; ++k) {
+    auto const row = row0 + static_cast<int64_t>(k) * blockDim.x;
+    bool matched   = false;
+    if (row < num_probe_rows) {
+      auto const pos   = base[k] + ((len[k] == 1 && run_keys[base[k]] < key[k]) ? 1 : 0);
+      matched          = pos < num_runs && run_keys[pos] == key[k];
+      smaller_out[row] = matched ? run_rows[pos] : JoinNoMatch;
+      if (larger_out != nullptr) { larger_out[row] = static_cast<size_type>(row); }
+    }
+    if (num_matched != nullptr) {
+      auto const votes = __ballot_sync(0xffffffffu, matched);
+      if ((threadIdx.x & 31) == 0 && votes != 0) { atomicAdd(num_matched, __popc(votes)); }
+    }
+  }
+}
+
+struct typed_unique_probe_fn {
+  template <typename T>
+  void operator()(column_view const& build,
+                  column_view const& probe,
+                  device_span<size_type const> run_rows,
+                  size_type* smaller_out,
+                  size_type* larger_out,
+                  size_type* num_matched,
+                  cuda::stream_ref stream) const
+    requires(cudf::is_integral<T>() || cudf::is_chrono<T>())
+  {
+    auto const num_runs = static_cast<size_type>(run_rows.size());
+    auto run_keys       = cuda::device_buffer<T>(
+      stream, cudf::get_current_device_resource_ref(), num_runs, cuda::no_init);
+    auto const policy = rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref());
+    thrust::transform(
+      policy,
+      run_rows.begin(),
+      run_rows.end(),
+      run_keys.begin(),
+      [keys = build.data<T>()] __device__(size_type row) -> T { return keys[row]; });
+    auto const num_samples = cudf::util::div_rounding_up_safe(num_runs, typed_search_sample_stride);
+    auto samples           = cuda::device_buffer<T>(
+      stream, cudf::get_current_device_resource_ref(), num_samples, cuda::no_init);
+    thrust::transform(policy,
+                      cuda::counting_iterator<size_type>{0},
+                      cuda::counting_iterator<size_type>{num_samples},
+                      samples.begin(),
+                      [keys = run_keys.data()] __device__(size_type i) -> T {
+                        return keys[i * typed_search_sample_stride];
+                      });
+    if (probe.size() == 0) { return; }
+    constexpr int block_size = 256;
+    auto const num_blocks =
+      cudf::util::div_rounding_up_safe(probe.size(), block_size * typed_search_ilp);
+    typed_unique_probe_kernel<<<num_blocks, block_size, 0, stream.get()>>>(run_keys.data(),
+                                                                           num_runs,
+                                                                           samples.data(),
+                                                                           num_samples,
+                                                                           run_rows.data(),
+                                                                           probe.data<T>(),
+                                                                           probe.size(),
+                                                                           smaller_out,
+                                                                           larger_out,
+                                                                           num_matched);
+    CUDF_CHECK_CUDA(stream.get());
+  }
+
+  template <typename T, typename... Args>
+  void operator()(Args&&...) const
+    requires(!(cudf::is_integral<T>() || cudf::is_chrono<T>()))
+  {
+    CUDF_FAIL("Unsupported key type");
+  }
+};
+
+[[nodiscard]] inline bool unique_typed_eligible(table_view const& smaller, table_view const& larger)
+{
+  if (smaller.num_columns() != 1 || has_nested_nulls(smaller) || has_nested_nulls(larger)) {
+    return false;
+  }
+  auto const type = smaller.column(0).type();
+  return type == larger.column(0).type() && (cudf::is_integral(type) || cudf::is_chrono(type));
+}
+
+std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
+          std::unique_ptr<rmm::device_uvector<size_type>>>
+fused_unique_join(bool is_left,
+                  table_view const& smaller,
+                  table_view const& larger,
+                  device_span<size_type const> run_rows,
+                  cuda::stream_ref stream,
+                  rmm::device_async_resource_ref mr)
+{
+  auto temp_mr        = cudf::get_current_device_resource_ref();
+  auto const n        = larger.num_rows();
+  auto const dispatch = [&](size_type* smaller_out, size_type* larger_out, size_type* matched) {
+    type_dispatcher(smaller.column(0).type(),
+                    typed_unique_probe_fn{},
+                    smaller.column(0),
+                    larger.column(0),
+                    run_rows,
+                    smaller_out,
+                    larger_out,
+                    matched,
+                    stream);
+  };
+  if (is_left) {
+    auto smaller_indices = std::make_unique<rmm::device_uvector<size_type>>(n, stream, mr);
+    auto larger_indices  = std::make_unique<rmm::device_uvector<size_type>>(n, stream, mr);
+    dispatch(smaller_indices->data(), larger_indices->data(), nullptr);
+    return {std::move(smaller_indices), std::move(larger_indices)};
+  }
+  cudf::detail::device_scalar<size_type> num_matched{0, stream, temp_mr};
+  rmm::device_uvector<size_type> smaller_tmp(n, stream, temp_mr);
+  dispatch(smaller_tmp.data(), nullptr, num_matched.data());
+  auto const total     = num_matched.value(stream);
+  auto smaller_indices = std::make_unique<rmm::device_uvector<size_type>>(total, stream, mr);
+  auto larger_indices  = std::make_unique<rmm::device_uvector<size_type>>(total, stream, mr);
+  cudf::detail::device_scalar<size_type> num_selected{0, stream, temp_mr};
+  CUDF_CUDA_TRY(cub::DeviceSelect::If(
+    cuda::make_zip_iterator(cuda::counting_iterator<size_type>{0}, smaller_tmp.begin()),
+    cuda::make_zip_iterator(larger_indices->begin(), smaller_indices->begin()),
+    num_selected.data(),
+    n,
+    is_matched_pair{},
+    make_cub_env(stream)));
+  return {std::move(smaller_indices), std::move(larger_indices)};
+}
 
 template <typename SmallerIterator>
 class merge {
@@ -578,6 +786,9 @@ std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
           std::unique_ptr<rmm::device_uvector<size_type>>>
 merge<SmallerIterator>::inner(cuda::stream_ref stream, rmm::device_async_resource_ref mr)
 {
+  if (has_unique_smaller_keys() && unique_typed_eligible(smaller, larger)) {
+    return fused_unique_join(false, smaller, larger, unique_smaller_rows, stream, mr);
+  }
   auto temp_mr              = cudf::get_current_device_resource_ref();
   auto const larger_numrows = larger.num_rows();
 
@@ -653,6 +864,9 @@ std::pair<std::unique_ptr<rmm::device_uvector<size_type>>,
           std::unique_ptr<rmm::device_uvector<size_type>>>
 merge<SmallerIterator>::left(cuda::stream_ref stream, rmm::device_async_resource_ref mr)
 {
+  if (has_unique_smaller_keys() && unique_typed_eligible(smaller, larger)) {
+    return fused_unique_join(true, smaller, larger, unique_smaller_rows, stream, mr);
+  }
   auto temp_mr              = cudf::get_current_device_resource_ref();
   auto const larger_numrows = larger.num_rows();
 
