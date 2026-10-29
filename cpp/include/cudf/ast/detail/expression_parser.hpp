@@ -15,6 +15,7 @@
 #include <cuda/buffer>
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <numeric>
 #include <optional>
@@ -61,36 +62,36 @@ struct alignas(8) device_data_reference {
 };
 
 /**
- * @brief Operator arity marking a plan entry that conditionally skips the entries that follow it.
- *
- * For `LOGICAL_AND`, `NULL_LOGICAL_AND`, `LOGICAL_OR` and `NULL_LOGICAL_OR` the entry skips when
- * the left operand, which is the condition, decides the result. For `IF_ELSE` it skips unless the
- * condition is true.
+ * @brief The kinds of step that the evaluator executes.
  */
-inline constexpr cudf::size_type branch_entry_arity = 3;
-
-/**
- * @brief Operator arity marking a plan entry that unconditionally skips the entries that follow it.
- */
-inline constexpr cudf::size_type jump_entry_arity = 4;
+enum class plan_entry_kind : std::uint8_t {
+  UNARY,   ///< Apply a unary operator.
+  BINARY,  ///< Apply a binary operator.
+  BRANCH,  ///< Conditionally skip the entries that follow.
+  JUMP     ///< Unconditionally skip the entries that follow.
+};
 
 /**
  * @brief A step of the plan that the evaluator executes.
  *
- * A step is either an operator or a skip entry. An operator has the arity of the operator and reads
- * its operands from the data references `input0` (and `input1` for a binary operator), and writes
- * to `output`. A skip entry has `branch_entry_arity` or `jump_entry_arity`. A branch entry reads
- * its condition from `input0`. If the condition requests it, the evaluator skips the `skip` steps
- * that follow the entry. A jump entry always skips them.
+ * An operator entry reads its operands from the data references `input0` (and `input1` for a binary
+ * operator), and writes to `output`. A branch entry reads its condition from `input0`. If the
+ * condition requests it, the evaluator skips the `skip` entries that follow. For `LOGICAL_AND`,
+ * `NULL_LOGICAL_AND`, `LOGICAL_OR` and `NULL_LOGICAL_OR` that is when the left operand, which is
+ * the condition, decides the result. For `IF_ELSE` that is unless the condition is true. A jump
+ * entry always skips them.
+ *
+ * Indices and `skip` are 16 bits so that an entry fits in 16 bytes, which the device loads at once.
  */
 struct alignas(16) plan_entry {
   ast_operator op;
-  cudf::size_type arity;
-  cudf::size_type input0;
-  cudf::size_type input1;
-  cudf::size_type output;
-  cudf::size_type skip;
+  plan_entry_kind kind;
+  std::uint16_t input0;
+  std::uint16_t input1;
+  std::uint16_t output;
+  std::uint16_t skip;
 };
+static_assert(sizeof(plan_entry) == 16);
 
 // Type used for intermediate storage in expression evaluation.
 template <bool has_nulls>
@@ -311,6 +312,9 @@ class expression_parser {
 
   /**
    * @brief Create the data reference that receives the result of an expression.
+   *
+   * This is separate from `visit` because both branches of an `IF_ELSE` expression must write to
+   * the same output location, so it is created before either branch is visited.
    *
    * @param expression_index Index of the expression, which is 0 for the root.
    * @param data_type Type of the result.

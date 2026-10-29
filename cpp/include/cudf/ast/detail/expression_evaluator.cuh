@@ -495,7 +495,7 @@ struct expression_evaluator {
     cudf::size_type const right_row_index,
     IntermediateDataType<has_nulls>* thread_intermediate_storage) const
   {
-    if (entry.arity == detail::jump_entry_arity) { return entry.skip; }
+    if (entry.kind == detail::plan_entry_kind::JUMP) { return entry.skip; }
     auto const value = resolve_input<bool>(plan.data_references[entry.input0],
                                            thread_intermediate_storage,
                                            left_row_index,
@@ -568,8 +568,8 @@ struct expression_evaluator {
       // Execute operator
       auto const& entry = plan.entries[entry_index];
       auto const op     = entry.op;
-      auto const arity  = entry.arity;
-      if (arity == 1) {
+      auto const kind   = entry.kind;
+      if (kind == detail::plan_entry_kind::UNARY) {
         // Unary operator
         auto const& input  = plan.data_references[entry.input0];
         auto const& output = plan.data_references[entry.output];
@@ -596,7 +596,7 @@ struct expression_evaluator {
                                                     op,
                                                     thread_intermediate_storage);
         }
-      } else if (arity == 2) {
+      } else if (kind == detail::plan_entry_kind::BINARY) {
         // Binary operator
         auto const& lhs    = plan.data_references[entry.input0];
         auto const& rhs    = plan.data_references[entry.input1];

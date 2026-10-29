@@ -14,8 +14,10 @@
 #include <cuda/iterator>
 
 #include <algorithm>
+#include <cstdint>
 #include <functional>
 #include <iterator>
+#include <limits>
 
 namespace cudf {
 
@@ -81,6 +83,15 @@ expression_parser::expression_parser(expression const& expr,
   : expression_parser(expr, table, {}, has_nulls, stream, mr)
 {
 }
+
+namespace {
+std::uint16_t plan_index(std::size_t value)
+{
+  CUDF_EXPECTS(value <= std::numeric_limits<std::uint16_t>::max(),
+               "The expression is too large to evaluate.");
+  return static_cast<std::uint16_t>(value);
+}
+}  // namespace
 
 void expression_parser::move_to_device(cuda::stream_ref stream, rmm::device_async_resource_ref mr)
 {
@@ -224,7 +235,7 @@ cudf::size_type expression_parser::visit(operation const& expr)
     operand_data_ref_indices.push_back(lhs_index);
     if (_data_references[lhs_index].data_type.id() == cudf::type_id::BOOL8) {
       branch_position = _plan.size();
-      _plan.push_back({op, branch_entry_arity, lhs_index, 0, 0, 0});
+      _plan.push_back({op, plan_entry_kind::BRANCH, plan_index(lhs_index), 0, 0, 0});
     }
     operand_data_ref_indices.push_back(operands[1].get().accept(*this));
   } else {
@@ -265,19 +276,26 @@ cudf::size_type expression_parser::visit(operation const& expr)
   auto const data_type = cudf::ast::detail::ast_operator_return_type(op, operand_types);
   // Push data reference
   auto const index = add_data_reference(make_output_reference(expression_index, data_type));
-  _plan.push_back({op,
-                   cudf::ast::detail::ast_operator_arity(op),
-                   operand_data_ref_indices[0],
-                   operand_data_ref_indices.size() > 1 ? operand_data_ref_indices[1] : 0,
-                   index,
-                   0});
+  _plan.push_back(
+    {op,
+     cudf::ast::detail::ast_operator_arity(op) == 1 ? plan_entry_kind::UNARY
+                                                    : plan_entry_kind::BINARY,
+     plan_index(operand_data_ref_indices[0]),
+     plan_index(operand_data_ref_indices.size() > 1 ? operand_data_ref_indices[1] : 0),
+     plan_index(index),
+     0});
   if (branch_position.has_value()) {
     // When the left operand decides the result, the result is the left operand. The branch entry
     // skips to the identity that returns it, which is jumped over if the right operand is
     // evaluated.
-    _plan.push_back({ast_operator::IF_ELSE, jump_entry_arity, 0, 0, 0, 1});
-    _plan[*branch_position].skip = _plan.size() - (*branch_position + 1);
-    _plan.push_back({ast_operator::IDENTITY, 1, operand_data_ref_indices.front(), 0, index, 0});
+    _plan.push_back({ast_operator::IF_ELSE, plan_entry_kind::JUMP, 0, 0, 0, 1});
+    _plan[*branch_position].skip = plan_index(_plan.size() - (*branch_position + 1));
+    _plan.push_back({ast_operator::IDENTITY,
+                     plan_entry_kind::UNARY,
+                     plan_index(operand_data_ref_indices.front()),
+                     0,
+                     plan_index(index),
+                     0});
   }
   return index;
 }
@@ -293,7 +311,12 @@ cudf::size_type expression_parser::visit_if_else(operation const& expr,
     }
   };
   auto const push_identity = [this](cudf::size_type input, cudf::size_type output) {
-    _plan.push_back({ast_operator::IDENTITY, 1, input, 0, output, 0});
+    _plan.push_back({ast_operator::IDENTITY,
+                     plan_entry_kind::UNARY,
+                     plan_index(input),
+                     0,
+                     plan_index(output),
+                     0});
   };
 
   auto const condition = operands[0].get().accept(*this);
@@ -301,7 +324,7 @@ cudf::size_type expression_parser::visit_if_else(operation const& expr,
                "The condition of an IF_ELSE expression must be a boolean.",
                cudf::data_type_error);
   auto const branch_position = _plan.size();
-  _plan.push_back({ast_operator::IF_ELSE, branch_entry_arity, condition, 0, 0, 0});
+  _plan.push_back({ast_operator::IF_ELSE, plan_entry_kind::BRANCH, plan_index(condition), 0, 0, 0});
   give_back(condition);
 
   // Both branches write the same output, so it is reserved before either branch is visited.
@@ -316,8 +339,8 @@ cudf::size_type expression_parser::visit_if_else(operation const& expr,
   give_back(then_index);
 
   auto const jump_position = _plan.size();
-  _plan.push_back({ast_operator::IF_ELSE, jump_entry_arity, 0, 0, 0, 0});
-  _plan[branch_position].skip = _plan.size() - (branch_position + 1);
+  _plan.push_back({ast_operator::IF_ELSE, plan_entry_kind::JUMP, 0, 0, 0, 0});
+  _plan[branch_position].skip = plan_index(_plan.size() - (branch_position + 1));
 
   auto const else_index = operands[2].get().accept(*this);
   CUDF_EXPECTS(_data_references[else_index].data_type == data_type,
@@ -325,7 +348,7 @@ cudf::size_type expression_parser::visit_if_else(operation const& expr,
                cudf::data_type_error);
   push_identity(else_index, output);
   give_back(else_index);
-  _plan[jump_position].skip = _plan.size() - (jump_position + 1);
+  _plan[jump_position].skip = plan_index(_plan.size() - (jump_position + 1));
   return output;
 }
 

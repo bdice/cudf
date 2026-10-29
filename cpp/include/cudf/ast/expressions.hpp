@@ -539,6 +539,8 @@ class operation : public expression {
   operation(ast_operator op, expression&& left, expression&& right)      = delete;
   operation(ast_operator op, expression&& left, expression const& right) = delete;
   operation(ast_operator op, expression const& left, expression&& right) = delete;
+  // Deletes every ternary overload with an r-value operand, which avoids spelling out each
+  // combination as the binary overloads above do.
   template <typename First, typename Second, typename Third>
     requires(!std::is_lvalue_reference_v<First> || !std::is_lvalue_reference_v<Second> ||
              !std::is_lvalue_reference_v<Third>)

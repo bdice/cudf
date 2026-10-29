@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <array>
+#include <deque>
 #include <functional>
 #include <limits>
 #include <optional>
@@ -2122,6 +2123,38 @@ TEST_F(ConditionalJoinLazyTest, ShortCircuitedLogicalPredicate)
 
   auto const expected = std::set<std::pair<int32_t, int32_t>>{{0, 1}, {0, 2}, {0, 3}, {2, 3}};
   EXPECT_EQ(join_pairs(left, right, both), expected);
+}
+
+namespace {
+cudf::ast::expression const& build_balanced_sum(std::deque<cudf::ast::operation>& operations,
+                                                cudf::ast::column_reference const& leaf,
+                                                cudf::size_type num_leaves)
+{
+  if (num_leaves == 1) { return leaf; }
+  auto const& left  = build_balanced_sum(operations, leaf, num_leaves / 2);
+  auto const& right = build_balanced_sum(operations, leaf, num_leaves - num_leaves / 2);
+  return operations.emplace_back(cudf::ast::ast_operator::ADD, left, right);
+}
+}  // namespace
+
+struct IfElsePlanLimitTest : public cudf::test::BaseFixture {};
+
+TEST_F(IfElsePlanLimitTest, BranchLongerThanSkipLimit)
+{
+  auto cond  = column_wrapper<bool>{true, false};
+  auto a     = column_wrapper<int32_t>{1, 2};
+  auto table = cudf::table_view{{cond, a}};
+
+  auto cond_ref = cudf::ast::column_reference(0);
+  auto a_ref    = cudf::ast::column_reference(1);
+
+  auto const max_skip = std::numeric_limits<uint16_t>::max();
+  std::deque<cudf::ast::operation> operations;
+  auto const& long_branch = build_balanced_sum(operations, a_ref, max_skip + 2);
+  auto expression =
+    cudf::ast::operation(cudf::ast::ast_operator::IF_ELSE, cond_ref, long_branch, a_ref);
+
+  EXPECT_THROW((void)cudf::compute_column(table, expression), cudf::logic_error);
 }
 
 CUDF_TEST_PROGRAM_MAIN()
