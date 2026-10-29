@@ -3999,4 +3999,118 @@ TEST_F(SortMergeJoinKeyShapeTest, UniqueMultiColumnBuildKeys)
   expect_matches_hash_join(cudf::table_view{{left0, left1}}, cudf::table_view{{right0, right1}});
 }
 
+namespace {
+
+template <typename T>
+std::vector<T> every_value(int lo, int hi)
+{
+  std::vector<T> values;
+  for (int v = lo; v <= hi; ++v) {
+    values.push_back(static_cast<T>(v));
+  }
+  return values;
+}
+
+template <typename T>
+std::vector<T> shuffled(std::vector<T> values)
+{
+  std::mt19937 engine{54321};
+  std::shuffle(values.begin(), values.end(), engine);
+  return values;
+}
+
+constexpr cudf::size_type boundary_build_sizes[] = {
+  1, 2, 31, 32, 33, 63, 64, 65, 95, 96, 97, 1023, 1024, 1025};
+
+}  // namespace
+
+TEST_F(SortMergeJoinKeyShapeTest, SampleBoundariesUniqueBuildKeys)
+{
+  for (auto const num_keys : boundary_build_sizes) {
+    SCOPED_TRACE(num_keys);
+    auto const build = sorted_keys<int64_t>(num_keys, 2, 1);
+    auto const probe = every_value<int64_t>(-1, 2 * num_keys);
+    column_wrapper<int64_t> right(build.begin(), build.end());
+    column_wrapper<int64_t> left_sorted(probe.begin(), probe.end());
+    expect_matches_hash_join(cudf::table_view{{left_sorted}}, cudf::table_view{{right}});
+    auto const probe_shuffled = shuffled(probe);
+    column_wrapper<int64_t> left_shuffled(probe_shuffled.begin(), probe_shuffled.end());
+    expect_matches_hash_join(cudf::table_view{{left_shuffled}}, cudf::table_view{{right}});
+  }
+}
+
+TEST_F(SortMergeJoinKeyShapeTest, SampleBoundariesDuplicateBuildKeys)
+{
+  for (auto const repeats : {2, 3}) {
+    for (auto const num_keys : boundary_build_sizes) {
+      SCOPED_TRACE(num_keys);
+      auto const build = sorted_keys<int32_t>(num_keys, 2, repeats);
+      auto const probe = every_value<int32_t>(-1, 2 * num_keys);
+      column_wrapper<int32_t> right(build.begin(), build.end());
+      column_wrapper<int32_t> left_sorted(probe.begin(), probe.end());
+      expect_matches_hash_join(cudf::table_view{{left_sorted}}, cudf::table_view{{right}});
+      auto const probe_shuffled = shuffled(probe);
+      column_wrapper<int32_t> left_shuffled(probe_shuffled.begin(), probe_shuffled.end());
+      expect_matches_hash_join(cudf::table_view{{left_shuffled}}, cudf::table_view{{right}});
+    }
+  }
+}
+
+TEST_F(SortMergeJoinKeyShapeTest, ProbeOutsideBuildRange)
+{
+  std::vector<int64_t> build(100);
+  for (int i = 0; i < 100; ++i) {
+    build[i] = 1000 + 2 * i;
+  }
+  column_wrapper<int64_t> right(build.begin(), build.end());
+  auto const below    = every_value<int64_t>(0, 999);
+  auto const above    = every_value<int64_t>(1200, 2000);
+  auto const constant = std::vector<int64_t>(500, 1100);
+  for (auto const* probe : {&below, &above, &constant}) {
+    column_wrapper<int64_t> left(probe->begin(), probe->end());
+    expect_matches_hash_join(cudf::table_view{{left}}, cudf::table_view{{right}});
+  }
+}
+
+TEST_F(SortMergeJoinKeyShapeTest, NegativeBuildKeys)
+{
+  std::vector<int64_t> build(3000);
+  for (int i = 0; i < 3000; ++i) {
+    build[i] = -5000 + 3 * i;
+  }
+  auto const probe = random_keys<int64_t>(20000, -6000, 5000);
+  column_wrapper<int64_t> right(build.begin(), build.end());
+  column_wrapper<int64_t> left(probe.begin(), probe.end());
+  expect_matches_hash_join(cudf::table_view{{left}}, cudf::table_view{{right}});
+}
+
+TEST_F(SortMergeJoinKeyShapeTest, NarrowIntegerKeys)
+{
+  {
+    auto const build = sorted_keys<int8_t>(120, 1, 1);
+    auto const probe = random_keys<int8_t>(5000, -128, 127);
+    column_wrapper<int8_t> right(build.begin(), build.end());
+    column_wrapper<int8_t> left(probe.begin(), probe.end());
+    expect_matches_hash_join(cudf::table_view{{left}}, cudf::table_view{{right}});
+  }
+  {
+    auto const build = sorted_keys<uint16_t>(3000, 20, 1);
+    auto const probe = random_keys<uint16_t>(20000, 0, 65000);
+    column_wrapper<uint16_t> right(build.begin(), build.end());
+    column_wrapper<uint16_t> left(probe.begin(), probe.end());
+    expect_matches_hash_join(cudf::table_view{{left}}, cudf::table_view{{right}});
+  }
+}
+
+TEST_F(SortMergeJoinKeyShapeTest, LargeRandomProbe)
+{
+  for (auto const repeats : {1, 2}) {
+    auto const build = sorted_keys<int64_t>(100000 / repeats, 5, repeats);
+    auto const probe = random_keys<int64_t>(400000, -100, 500100);
+    column_wrapper<int64_t> right(build.begin(), build.end());
+    column_wrapper<int64_t> left(probe.begin(), probe.end());
+    expect_matches_hash_join(cudf::table_view{{left}}, cudf::table_view{{right}});
+  }
+}
+
 CUDF_TEST_PROGRAM_MAIN()
