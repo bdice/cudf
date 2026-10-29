@@ -4,7 +4,7 @@
  */
 
 #include "strings/count_matches.hpp"
-#include "strings/regex/regex_program_impl.h"
+#include "strings/regex/regex_program_impl.hpp"
 #include "strings/regex/utilities.cuh"
 
 #include <cudf/column/column_device_view.cuh>
@@ -22,7 +22,6 @@
 
 #include <cuda/functional>
 #include <cuda/stream>
-#include <thrust/transform_scan.h>
 
 namespace cudf {
 namespace strings {

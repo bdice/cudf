@@ -13,7 +13,6 @@
 #include <cuda/iterator>
 
 #include <jit/cache.hpp>
-#include <jit/span.cuh>
 
 #include <algorithm>
 #include <span>
@@ -22,6 +21,13 @@
 
 namespace cudf {
 namespace jit {
+
+inline column_view as_column_view(scalar_column_view const& scalar)
+{
+  return scalar.as_column_view();
+}
+
+inline column_view as_column_view(column_view const& column) { return column; }
 
 [[deprecated("Use scalar_column_view instead")]] bool is_scalar(cudf::size_type base_column_size,
                                                                 cudf::size_type column_size);
