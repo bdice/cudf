@@ -57,10 +57,7 @@ files:
       - test_python_cudf_polars
       - test_python_s3
   pandas_tests:
-    output: conda
-    matrix:
-      cuda: ["12.9", "13.3"]
-      arch: [x86_64, aarch64]
+    output: none
     includes:
       - cuda_version
       - py_version
