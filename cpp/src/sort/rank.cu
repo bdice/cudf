@@ -57,10 +57,11 @@ struct unique_functor {
 // Assign rank from 1 to n unique values. Equal values get same rank value.
 cuda::device_buffer<size_type> sorted_dense_rank(column_view input_col,
                                                  column_view sorted_order_view,
-                                                 cuda::stream_ref stream)
+                                                 cuda::stream_ref stream,
+                                                 cudf::memory_resources mr)
 {
   auto const t_input    = table_view{{input_col}};
-  auto const temp_mr    = cudf::get_current_device_resource_ref();
+  auto const temp_mr    = mr.get_temporary_mr();
   auto const comparator = cudf::detail::row::equality::self_comparator{t_input, stream, temp_mr};
 
   auto const sorted_index_order = cuda::make_permutation_iterator(
@@ -68,7 +69,7 @@ cuda::device_buffer<size_type> sorted_dense_rank(column_view input_col,
 
   auto const input_size = input_col.size();
   cuda::device_buffer<size_type> dense_rank_sorted(
-    stream, cudf::get_current_device_resource_ref(), input_size, cuda::no_init);
+    stream, mr.get_output_mr(), input_size, cuda::no_init);
 
   auto const comparator_helper = [&](auto const device_comparator) {
     thrust::transform(rmm::exec_policy_nosync(stream, temp_mr),
@@ -154,10 +155,11 @@ void tie_break_ranks_transform(cudf::device_span<size_type const> dense_rank_sor
 template <typename outputType>
 void rank_first(column_view sorted_order_view,
                 mutable_column_view rank_mutable_view,
-                cuda::stream_ref stream)
+                cuda::stream_ref stream,
+                cudf::memory_resources mr)
 {
   // stable sort order ranking (no ties)
-  thrust::scatter(rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
+  thrust::scatter(rmm::exec_policy_nosync(stream, mr.get_temporary_mr()),
                   cuda::counting_iterator<size_type>{1},
                   cuda::counting_iterator<size_type>{rank_mutable_view.size() + 1},
                   sorted_order_view.begin<size_type>(),
@@ -168,10 +170,11 @@ template <typename outputType>
 void rank_dense(cudf::device_span<size_type const> dense_rank_sorted,
                 column_view sorted_order_view,
                 mutable_column_view rank_mutable_view,
-                cuda::stream_ref stream)
+                cuda::stream_ref stream,
+                cudf::memory_resources mr)
 {
   // All equal values have same rank and rank always increases by 1 between groups
-  thrust::scatter(rmm::exec_policy_nosync(stream, cudf::get_current_device_resource_ref()),
+  thrust::scatter(rmm::exec_policy_nosync(stream, mr.get_temporary_mr()),
                   dense_rank_sorted.begin(),
                   dense_rank_sorted.end(),
                   sorted_order_view.begin<size_type>(),
@@ -290,7 +293,8 @@ std::unique_ptr<column> rank(column_view const& input,
   cuda::device_buffer<size_type> const dense_rank_sorted =
     [&method, &input, &sorted_order_view, &stream] {
       if (method != rank_method::FIRST)
-        return sorted_dense_rank(input, sorted_order_view, stream);
+        return sorted_dense_rank(
+          input, sorted_order_view, stream, cudf::get_current_device_resource_ref());
       else
         return cuda::device_buffer<size_type>(
           stream, cudf::get_current_device_resource_ref(), 0, cuda::no_init);
@@ -299,10 +303,15 @@ std::unique_ptr<column> rank(column_view const& input,
   if (output_type.id() == type_id::FLOAT64) {
     switch (method) {
       case rank_method::FIRST:
-        rank_first<double>(sorted_order_view, rank_mutable_view, stream);
+        rank_first<double>(
+          sorted_order_view, rank_mutable_view, stream, cudf::get_current_device_resource_ref());
         break;
       case rank_method::DENSE:
-        rank_dense<double>(dense_rank_sorted, sorted_order_view, rank_mutable_view, stream);
+        rank_dense<double>(dense_rank_sorted,
+                           sorted_order_view,
+                           rank_mutable_view,
+                           stream,
+                           cudf::get_current_device_resource_ref());
         break;
       case rank_method::MIN:
         rank_min<double>(dense_rank_sorted, sorted_order_view, rank_mutable_view, stream);
@@ -318,10 +327,15 @@ std::unique_ptr<column> rank(column_view const& input,
   } else {
     switch (method) {
       case rank_method::FIRST:
-        rank_first<size_type>(sorted_order_view, rank_mutable_view, stream);
+        rank_first<size_type>(
+          sorted_order_view, rank_mutable_view, stream, cudf::get_current_device_resource_ref());
         break;
       case rank_method::DENSE:
-        rank_dense<size_type>(dense_rank_sorted, sorted_order_view, rank_mutable_view, stream);
+        rank_dense<size_type>(dense_rank_sorted,
+                              sorted_order_view,
+                              rank_mutable_view,
+                              stream,
+                              cudf::get_current_device_resource_ref());
         break;
       case rank_method::MIN:
         rank_min<size_type>(dense_rank_sorted, sorted_order_view, rank_mutable_view, stream);
