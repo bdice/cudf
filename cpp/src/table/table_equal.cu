@@ -14,7 +14,6 @@
 #include <cudf/utilities/type_checks.hpp>
 
 #include <rmm/device_uvector.hpp>
-#include <rmm/exec_policy.hpp>
 
 #include <cub/device/device_transform.cuh>
 #include <cuda/iterator>
