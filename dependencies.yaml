@@ -59,8 +59,6 @@ files:
   pandas_tests:
     output: none
     includes:
-      - cuda_version
-      - py_version
       - run_common
       - test_python_pandas_tests
   test_static_build:
@@ -1801,7 +1799,7 @@ dependencies:
           - jinja2
           - lxml
           - matplotlib-base
-          - numba
+          - *numba
           - numexpr
           - odfpy
           - openpyxl

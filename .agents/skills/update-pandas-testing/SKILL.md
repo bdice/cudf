@@ -14,7 +14,7 @@ This rule describes the procedure for updating the pandas unit testing of cudf.p
     For example, to create a fictional conda development environment named "cudf-dev" on an x86_64 machine with CUDA 13
     ```bash
     conda env create -n cudf-dev -f conda/environments/all_cuda-133_arch-x86_64.yaml
-    rapids-dependency-file-generator --file-key pandas_tests --output conda --matrix "cuda=13.3;arch=x86_64;py=3.13" > /tmp/pandas_tests.yaml
+    rapids-dependency-file-generator --file-key pandas_tests --output conda --matrix "" > /tmp/pandas_tests.yaml
     conda env update -n cudf-dev -f /tmp/pandas_tests.yaml
     conda run -n cudf-dev ./build.sh libcudf pylibcudf cudf --pydevelop
     ```
