@@ -386,7 +386,7 @@ void binary_operation(mutable_column_view& out,
                       column_view const& rhs,
                       binary_operator op,
                       cuda::stream_ref stream,
-                      cudf::memory_resources mr)
+                      cudf::memory_resources)
 {
   operator_dispatcher(out, lhs, rhs, false, false, op, stream);
 }
